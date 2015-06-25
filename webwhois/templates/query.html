@@ -1,0 +1,34 @@
+{% extends base_template|default:"webwhois_base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    <div id="whois">
+        <h1>{% trans "Whois" %}</h1>
+        <p>{% blocktrans %}
+            Searches the domain names, contacts and name server sets.
+            Enter domain names as domainname.cz including .cz at the end and without www (ie. nic.cz).
+            Contact and name server set handles fill in as plain text.
+            Rights restriction is described in the document:<br>
+            <a href="/page/306/intended-use-of-supplied-data-and-information/">Intended use of supplied data and information</a>
+        {% endblocktrans %}</p>
+        <form action="" method="post" class="enum-util">{% csrf_token %}
+            <table>
+                {{ form.as_table }}
+                <tr>
+                    <th></th><td><button id="submit_button" type="submit">{% trans "Search" %}</button></td>
+                </tr>
+            </table>
+
+        </form>
+        {% if form.available_entities %}
+            {% trans "There are multiple records with given handle. Continue with selection of requested type." %}
+            {% for entity_type, entity in form.available_entities.items %}
+                <div>
+                    <span>{{ entity_type }}:</span>
+                    <a href="{% url entity_type entity.handle %}">{{ entity.handle }}</a>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,67 @@
+"""
+Django settings for webwhois project.
+"""
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+SECRET_KEY = 'SecretKey'
+
+DEBUG = True
+TEMPLATE_DEBUG = DEBUG
+
+ALLOWED_HOSTS = []
+
+TIME_ZONE = 'Europe/Prague'
+USE_I18N = True
+USE_L10N = True
+
+INSTALLED_APPS = (
+    'django.contrib.contenttypes',
+    'django.contrib.staticfiles',
+    'captcha',
+    'webwhois',
+)
+
+MIDDLEWARE_CLASSES = (
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+)
+
+STATIC_URL = '/static/'
+ROOT_URLCONF = 'webwhois.urls'
+
+
+"""
+Webwhois settings
+"""
+
+CORBA_MOCK = True  # use corba mock or regular corba backend
+
+# CORBA CONFIGURATION
+CORBA_IDL_ROOT_PATH = '/home/idl/idl/'
+CORBA_IDL_WHOIS_FILENAME = 'Whois2.idl'
+CORBA_IDL_FILEMANAGER_FILENAME = 'FileManager.idl'
+CORBA_NS_HOST_PORT = 'localhost:42001'
+CORBA_NS_CONTEXT = 'fred'
+CORBA_EXPORT_MODULES = ['Registry', 'ccReg']
+
+# Google Recaptcha configuration
+RECAPTCHA_PUBLIC_KEY = '6Ld-fwkTAAAAAHLbjPfo5zaL4jXIOTxsRa1f_KPL'
+RECAPTCHA_PRIVATE_KEY = '6Ld-fwkTAAAAAMgSLIIHkvZkOeLmllY5CU4AfBhM'
+NOCAPTCHA = True  # Use google no-captcha
+
+CAPTCHA_MAX_REQUESTS = 100  # Number of requests, when captcha will appear
+
+# must correspond with _get_fs_path_and_mime()
+# at nicms/apps/cms/views/dobradomena.py
+DOBRADOMENA_DIR = '/tmp/dobra/'
+DOBRADOMENA_HOST = 'dobradomena.cz'
+DOBRADOMENA_FILE_NAME = 'manual.pdf'
+
+# Mojeid urls configuration
+MOJEID_HOST = "https://mojeid.cz"
+MOJEID_REGISTRY_ENDPOINT = "%s/registry/endpoint/" % MOJEID_HOST
+MOJEID_TRANSFER_ENDPOINT = "%s/transfer/endpoint/" % MOJEID_HOST

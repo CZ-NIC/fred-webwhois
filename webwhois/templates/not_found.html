@@ -1,0 +1,9 @@
+{% load i18n disclose static %}
+
+<h1>{% trans "Handle not found" %}</h1>
+<p>{% blocktrans %}Not found. No domain, contact or name server set matches <strong>{{ handle }}</strong> query.{% endblocktrans %}</p>
+<h1>{% trans "Register this domain name?" %}</h1>
+<p>{% trans 'Find step-by-step instructions how to register a domain name in the manual <a href="http://www.dobradomena.cz/setlang/?language=en&amp;next=/dobradomena/manual.pdf" title="Document PDF, 552kB">How to register a Good domain</a>.' %}</p>
+<p>{% trans "If you already know how to do it, choose a registrar from the registrar list:" %}</p>
+<a href="{% url 'registrars' %}" class="button">{% trans "Registrar list" %}</a>
+<div class="goback"><a href="{% url 'query' %}" title="{% trans "New search in registry" %}">{% trans "New search in registry" %}</a></div>
