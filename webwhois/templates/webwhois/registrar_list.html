@@ -1,0 +1,70 @@
+{% extends "webwhois/block_main.html" %}
+{% load i18n static %}
+
+{% block title %}{{ block.super }} - {% trans "List of registrars" %}{% endblock %}
+
+{% block webwhois_header %}
+    {% if is_retail %}
+        <h1>{% trans "Registrars offering also retail services" %}</h1>
+    {% else %}
+        <h1>{% trans "Registrars offering only wholesale services" %}</h1>
+    {% endif %}
+{% endblock webwhois_header %}
+
+{% block webwhois_content %}
+    <table class="result">
+        <tr>
+            {% block webwhois_registrar_list_header %}
+                <th>{% trans "Registrar" %}</th>
+                <th>{% trans "Website" %}</th>
+                <th>{% trans "Technologies" %}</th>
+                {% if is_retail %}
+                    <th>{% trans "Certification" %}</th>
+                    <th>{% trans "Evaluation protocol" %}</th>
+                {% endif %}
+            {% endblock webwhois_registrar_list_header %}
+        </tr>
+        {% for row in registrars|dictsortreversed:"score" %}
+            {% with registrar=row.registrar stars=row.stars cert=row.cert %}
+            <tr>
+                {% block webwhois_registrar_list_row %}
+                    <td>{{ registrar.name }}</th>
+                    <td><a href="http://{{ registrar.url }}">{{ registrar.url }}</a></td>
+                    <td>
+                        {% if registrar.handle in groups.dnssec.members %}
+                            <img src="{% static "webwhois/img/technology/dnssec.png" %}">
+                        {% endif %}
+                        {% if registrar.handle in groups.mojeid.members %}
+                            <img src="{% static "webwhois/img/technology/mojeid.png" %}">
+                        {% endif %}
+                        {% if registrar.handle in groups.ipv6.members %}
+                            <img src="{% static "webwhois/img/technology/ipv6.png" %}">
+                        {% endif %}
+                    </td>
+                    {% if is_retail %}
+                        <td>
+                            {% for position in stars %}
+                                <img src="{% static "webwhois/img/smooth-star.png" %}">
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% if cert.evaluation_file_id %}
+                                <a href="{% url webwhois.download.evaluation_file handle=registrar.handle %}">
+                                    <img src="{% static "webwhois/img/mimetypes/ico_pdf.gif" %}" alt="PDF">
+                                </a>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                {% endblock webwhois_registrar_list_row %}
+            </tr>
+            {% endwith %}
+        {% endfor %}
+    </table>
+{% endblock webwhois_content %}
+
+{% block webwhois_footer %}
+    <p>{% blocktrans with link=HOW_TO_BECOME_A_REGISTRAR_URL %}
+           Follow the instructions <a href="{{ link }}">here</a> to become .cz domains registrar.
+       {% endblocktrans %}
+    </p>
+{% endblock webwhois_footer %}

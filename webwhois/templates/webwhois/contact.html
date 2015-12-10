@@ -1,0 +1,181 @@
+{% extends "webwhois/block_main.html" %}
+{% load i18n static webwhois_filters %}
+
+{% block title %}{{ block.super }} - {% trans "Contact" %} {{ handle }}{% endblock %}
+
+{% block webwhois_header %}
+    {{ block.super }}
+    <h2>{% trans "Browsing contact" %}</h2>
+{% endblock webwhois_header %}
+
+{% block webwhois_content %}
+    {% with contact=registry_objects.contact.detail %}
+        <table class="result contact">
+            <tr>
+                <th>{% trans "Handle" %}</th>
+                <td><span class="handle">{{ contact.handle }}</span>{% block webwhois_contact_handle %}{% endblock webwhois_contact_handle %}</td>
+            </tr>
+            {% if registry_objects.contact.is_linked %}
+                <tr>
+                    <th>{% trans "Organization" %}</th>
+                    <td class="organization">{% if contact.organization.disclose %}
+                            {{ contact.organization.value|default_if_none:'' }}
+                        {% else %}
+                            <span class="not-disclosed">{% trans "Not disclosed" %}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Name" %}</th>
+                    <td class="full-name">{% if contact.name.disclose %}
+                            {{ contact.name.value|default_if_none:'' }}
+                        {% else %}
+                            <span class="not-disclosed">{% trans "Not disclosed" %}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "VAT number" %}</th>
+                    <td class="vat-number">{% if contact.vat_number.disclose %}
+                            {{ contact.vat_number.value|default_if_none:'' }}
+                        {% else %}
+                            <span class="not-disclosed">{% trans "Not disclosed" %}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Identification type" %}</th>
+                    <td class="ident-type">{% if contact.identification.disclose %}
+                            {{ contact.identification.value.identification_type|contact_ssn_type_label|default_if_none:'' }}
+                        {% else %}
+                            <span class="not-disclosed">{% trans "Not disclosed" %}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Identification data" %}</th>
+                    <td class="ident-value">{% if contact.identification.disclose %}
+                            {{ contact.identification.value.identification_data|default_if_none:'' }}
+                        {% else %}
+                            <span class="not-disclosed">{% trans "Not disclosed" %}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "E-mail" %}</th>
+                    <td class="email">{% if contact.email.disclose %}
+                            {% if contact.email.value %}
+                                <a href="mailto:{{ contact.email.value }}">{{ contact.email.value }}</a>
+                            {% endif %}
+                        {% else %}
+                            <span class="not-disclosed">{% trans "Not disclosed" %}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Notify e-mail" %}</th>
+                    <td class="notify-email">{% if contact.notify_email.disclose %}
+                            {% if contact.notify_email.value %}
+                                <a href="mailto:{{ contact.notify_email.value }}">{{ contact.notify_email.value }}</a>
+                            {% endif %}
+                        {% else %}
+                            <span class="not-disclosed">{% trans "Not disclosed" %}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Phone" %}</th>
+                    <td class="phone">{% if contact.phone.disclose %}
+                            {{ contact.phone.value|default_if_none:'' }}
+                        {% else %}
+                            <span class="not-disclosed">{% trans "Not disclosed" %}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Fax" %}</th>
+                    <td class="fax">
+                        {% if contact.fax.disclose %}
+                            {{ contact.fax.value|default_if_none:'' }}
+                        {% else %}
+                            <span class="not-disclosed">{% trans "Not disclosed" %}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Registered since" %}</th>
+                    <td class="registered-since">
+                        {{ contact.created|date:"SHORT_DATE_FORMAT" }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Creating registrar" %}</th>
+                    <td class="creating-registrar">
+                        {% if contact.creating_registrar_handle %}
+                            <a href="{% url webwhois.detail.registrar handle=contact.creating_registrar_handle %}">{{ contact.creating_registrar_handle }}</a> {{ registry_objects.contact.creating_registrar.name }}
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Last update" %}</th>
+                    <td class="last-update">{{ contact.changed|date:"SHORT_DATE_FORMAT"|default_if_none:'' }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "Last transfer" %}</th>
+                    <td class="last-transfer">{{ contact.last_transfer|date:"SHORT_DATE_FORMAT"|default_if_none:'' }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "Address" %}</th>
+                    <td class="address">{% if contact.address.disclose %}
+                            {% spaceless %}
+                                {% if contact.address.value %}
+                                    {% with addr=contact.address.value %}
+                                        {{ addr.street1 }}{% if addr.street2 %}, {{ addr.street2 }}{% endif %}{% if addr.street3 %}, {{ addr.street3 }}{% endif %}, {{ addr.postalcode }} {{ addr.city }}{% if addr.stateorprovince %} – {{ addr.stateorprovince }}{% endif %}, {{ addr.country_code }}
+                                    {% endwith %}
+                                {% endif %}
+                            {% endspaceless %}
+                        {% else %}
+                            <span class="not-disclosed">{% trans "Not disclosed" %}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Sponsoring registrar" %}</th>
+                    <td class="sponsoring-registrar">
+                        {% if contact.sponsoring_registrar_handle %}
+                            <a href="{% url webwhois.detail.registrar handle=contact.sponsoring_registrar_handle %}">{{ contact.sponsoring_registrar_handle }}</a> {{ registry_objects.contact.sponsoring_registrar.name }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if registry_objects.contact.verification_status %}
+                    <tr>
+                        <th>{% trans "Contact verification status" %}</th>
+                        <td class="verification-status">{% for status in registry_objects.contact.verification_status %}
+                             <div>
+                                <img src="{% static status.icon %}" alt="{{ status.code }}" /> <span>{{ status.label }}</span>
+                             </div>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <th>{% trans "Status" %}</th>
+                    <td class="status" data-codes="{{ contact.statuses|join:"," }}">
+                        {% for description in registry_objects.contact.status_descriptions %}
+                            <div>{{ description }}</div>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <th>{% trans "Sponsoring registrar" %}</th>
+                    <td class="sponsoring-registrar">
+                        {% if contact.sponsoring_registrar_handle %}
+                            <a href="{% url webwhois.detail.registrar handle=contact.sponsoring_registrar_handle %}">{{ contact.sponsoring_registrar_handle }}</a> {{ registry_objects.contact.sponsoring_registrar.name }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endif %}
+        </table>
+    {% endwith %}
+{% endblock webwhois_content %}

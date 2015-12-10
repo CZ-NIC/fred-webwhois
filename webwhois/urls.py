@@ -1,18 +1,21 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, patterns, url
 
-from .views import DomainDetailView, ContactDetailView, NssetDetailView, KeysetDetailView,\
-    RegistrarDetailView, WhoisQueryView, RegistrarsListView, DownloadEvalFileView
+from webwhois.views.pages import DobradomaneRegistrarListView, WebwhoisContactDetailView, WebwhoisDomainDetailView, \
+    WebwhoisDownloadEvalFileView, WebwhoisFormView, WebwhoisKeysetDetailView, WebwhoisMojeidContactDetailView, \
+    WebwhoisNssetDetailView, WebwhoisRegistrarDetailView, WebwhoisRegistrarListView, WebwhoisResolveHandleTypeView
 
 urlpatterns = patterns('',
-    url(r'^$', WhoisQueryView.as_view(), name='query'),
-    url(r'^captcha/(?P<handle>.{1,255})$', WhoisQueryView.as_view(), name='captcha'),
-    url(r'^domain/(?P<handle>[a-zA-Z0-9_\.\-]{1,255})$', DomainDetailView.as_view(), name='domain'),
-    url(r'^contact/(?P<handle>[A-Z0-9_\:\.\-]{1,255})$', ContactDetailView.as_view(), name='contact'),
-    url(r'^nsset/(?P<handle>[A-Z0-9_\:\.\-]{1,255})$', NssetDetailView.as_view(), name='nsset'),
-    url(r'^keyset/(?P<handle>[A-Z0-9_\:\.\-]{1,255})$', KeysetDetailView.as_view(), name='keyset'),
-    url(r'^registrar/(?P<handle>[A-Z0-9_\:\.\-]{1,255})$', RegistrarDetailView.as_view(), name='registrar'),
-    url(r'^registrars/$', RegistrarsListView.as_view(), {"retail": True}, name='registrars'),
-    url(r'^registrars/wholesale$', RegistrarsListView.as_view(), {"retail": False}, name='registrars_wholesale'),
-    url(r'^registrar/(?P<handle>[A-Z0-9_\:\.\-]{1,255})/download_eval$', DownloadEvalFileView.as_view(),
-        name='download_eval_file'),
+    url(r'^form/$', WebwhoisFormView.as_view(), name='form_whois'),
+    url(r'^object/(?P<handle>[\w_.:-]{1,255})/$', WebwhoisResolveHandleTypeView.as_view(), name='registry_object_type'),
+    url(r'^contact/(?P<handle>[\w_.:-]{1,255})/$', WebwhoisContactDetailView.as_view(), name='detail_contact'),
+    url(r'^mojeid-contact/(?P<handle>[\w_.:-]{1,255})/$', WebwhoisMojeidContactDetailView.as_view(), name='detail_mojeid_contact'),
+    url(r'^nsset/(?P<handle>[\w_.:-]{1,255})/$', WebwhoisNssetDetailView.as_view(), name='detail_nsset'),
+    url(r'^keyset/(?P<handle>[\w_.:-]{1,255})/$', WebwhoisKeysetDetailView.as_view(), name='detail_keyset'),
+    url(r'^domain/(?P<handle>[\w_.:-]{1,255})/$', WebwhoisDomainDetailView.as_view(), name='detail_domain'),
+    url(r'^registrar/(?P<handle>[\w_.:-]{1,255})/$', WebwhoisRegistrarDetailView.as_view(), name='detail_registrar'),
+    url(r'^registrars/$', WebwhoisRegistrarListView.as_view(is_retail=True), name='registrar_list_retail'),
+    url(r'^registrars/wholesale/$', WebwhoisRegistrarListView.as_view(), name='registrar_list_wholesale'),
+    url(r'^registrar-download-evaluation-file/(?P<handle>[\w_.:-]{1,255})/$', WebwhoisDownloadEvalFileView.as_view(),
+        name='download_evaluation_file'),
+    url(r'^dobradomena/$', DobradomaneRegistrarListView.as_view(is_retail=True), name='dobradomena_list_retail'),
 )

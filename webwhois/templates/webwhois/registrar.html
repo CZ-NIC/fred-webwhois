@@ -1,0 +1,47 @@
+{% extends "webwhois/block_main.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans "Registrar" %} {{ handle }}{% endblock %}
+
+{% block webwhois_header %}
+    {{ block.super }}
+    <h2>{% trans "Browsing registrar" %}</h2>
+{% endblock webwhois_header %}
+
+{% block webwhois_content %}
+    {% with registrar=registry_objects.registrar.detail %}
+        <table class="result registrar">
+            <tr>
+                <th>{% trans "Handle" %}</th>
+                <td class="handle">{{ registrar.handle }}</td>
+            </tr>
+            <tr>
+                <th>{% trans "Name" %}</th>
+                <td class="name">{{ registrar.name|default_if_none:'' }}</td>
+            </tr>
+            <tr>
+                <th>{% trans "Phone" %}</th>
+                <td class="phone">{{ registrar.phone|default_if_none:'' }}</td>
+            </tr>
+            <tr>
+                <th>{% trans "Fax" %}</th>
+                <td class="fax">{{ registrar.fax|default_if_none:'' }}</td>
+            </tr>
+            <tr>
+                <th>{% trans "URL" %}</th>
+                <td class="url">{% if registrar.url %}<a href="http://{{ registrar.url }}">{{ registrar.url }}</a>{% endif %}</td>
+            </tr>
+            <tr>
+                <th>{% trans "Address" %}</th>
+                <td class="address">{% spaceless %}
+                        {% if registrar.address.city %}
+                            {% with addr=registrar.address %}
+                                {{ addr.street1 }}{% if addr.street2 %}, {{ addr.street2 }}{% endif %}{% if addr.street3 %}, {{ addr.street3 }}{% endif %}, {{ addr.postalcode }} {{ addr.city }}{% if addr.stateorprovince %} – {{ addr.stateorprovince }}{% endif %}, {{ addr.country_code }}
+                            {% endwith %}
+                        {% endif %}
+                    {% endspaceless %}
+                </td>
+            </tr>
+        </table>
+    {% endwith %}
+{% endblock webwhois_content %}

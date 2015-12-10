@@ -1,0 +1,114 @@
+{% extends "webwhois/block_main.html" %}
+{% load i18n static webwhois_filters %}
+
+{% block title %}{{ block.super }} - {% trans "Domain name" context "fullname" %} {{ handle }}{% endblock %}
+
+{% block webwhois_header %}
+    {{ block.super }}
+    <h2>{% trans "Browsing domain name" %}</h2>
+{% endblock webwhois_header %}
+
+{% block webwhois_content %}
+    {% with domain=registry_objects.domain.detail nsset=registry_objects.domain.nsset keyset=registry_objects.domain.keyset registrant=registry_objects.domain.registrant registrar=registry_objects.domain.registrar domain_admins=registry_objects.domain.admins domain_status_descriptions=registry_objects.domain.status_descriptions %}
+        <div id="domain_record">
+            <table class="result domain">
+                <tr>
+                    <th>{% trans "Domain name" context "fullname" %}</th>
+                    <td class="handle">{{ domain.handle }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "Registered since" %}</th>
+                    <td class="registered-since">{{ domain.registered|date:"SHORT_DATE_FORMAT" }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "Last update date" %}</th>
+                    <td class="last-update-date">{{ domain.changed|date:"SHORT_DATE_FORMAT"|default_if_none:'' }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans "Expiration date" %}</th>
+                    <td class="expiration-date">{{ domain.expire|date:"SHORT_DATE_FORMAT" }}</td>
+                </tr>
+                {% if domain.validated_to %}
+                    <tr>
+                        <th>{% trans "Validation expiration date" %}</th>
+                        <td class="validated-to">{{ domain.validated_to|date:"SHORT_DATE_FORMAT"|default_if_none:'' }}</td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <th>{% trans "Holder" %}</th>
+                    <td class="holder">
+                        <a href="{% url webwhois.detail.contact handle=registrant.handle %}">{{ registrant.handle }}</a>
+                        {% if registrant.organization.value %}
+                            {% if registrant.organization.disclose %}
+                                <span>{{ registrant.organization.value|default_if_none:'' }}</span>
+                            {% endif %}
+                        {% else %}
+                            {% if registrant.name.disclose %}
+                                <span>{{ registrant.name.value|default_if_none:'' }}</span>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Administrative contact" %}</th>
+                    <td class="admins">
+                        {% for admin in domain_admins %}
+                            <div>
+                                <a href="{% url webwhois.detail.contact handle=admin.handle %}">{{ admin.handle }}</a>
+                                {% if admin.organization.value %}
+                                    {% if admin.organization.disclose %}
+                                        <span>{{ admin.organization.value|default_if_none:'' }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    {% if admin.name.disclose %}
+                                        <span>{{ admin.name.value|default_if_none:'' }}</span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Sponsoring registrar" %}</th>
+                    <td class="sponsoring-registrar">
+                        <a href="{% url webwhois.detail.registrar handle=registrar.handle %}">{{ registrar.handle }}</a>
+                        <span>{{ registrar.name }}</span>
+                        <span>{% spaceless %}
+                            {% blocktrans with date=domain.last_transfer|default:domain.registered %}
+                                since {{ date }}
+                            {% endblocktrans %}
+                        {% endspaceless %}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Secured by" %} {% if DNSSEC_URL %}<a href="{{ DNSSEC_URL }}">DNSSEC</a>{% else %}DNSSEC{% endif %}</th>
+                    <td class="dnssec">
+                        {% if domain.keyset_handle %}
+                            <img src='{% static "webwhois/img/icon-yes.gif" %}' alt='{% trans "Yes" %}'>
+                        {% else %}
+                            <img src='{% static "webwhois/img/icon-no.gif" %}' alt='{% trans "No" %}'>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Status" %}</th>
+                    <td class="status" data-codes="{{ domain.statuses|join:"," }}">{% for description in domain_status_descriptions %}
+                         <div>{{ description }}</div>
+                        {% endfor %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        {% if nsset %}
+            <div id="nsset_record">
+                {% include "webwhois/nsset_detail.html" with nsset=nsset.detail nsset_admins=nsset.admins nsset_registrar=nsset.registrar nsset_status_descriptions=nsset.status_descriptions %}
+            </div>
+        {% endif %}
+        {% if keyset %}
+            <div id="keyset_record">
+                {% include "webwhois/keyset_detail.html" with keyset=keyset.detail keyset_admins=keyset.admins keyset_registrar=keyset.registrar keyset_status_descriptions=keyset.status_descriptions %}
+            </div>
+        {% endif %}
+
+    {% endwith %}
+{% endblock webwhois_content %}

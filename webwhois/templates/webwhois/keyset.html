@@ -1,0 +1,13 @@
+{% extends "webwhois/block_main.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans "Keyset" %} {{ handle }}{% endblock %}
+
+{% block webwhois_header %}
+    {{ block.super }}
+    <h2>{% trans "Browsing Key set" %}</h2>
+{% endblock webwhois_header %}
+
+{% block webwhois_content %}
+    {% include "webwhois/keyset_detail.html" with keyset=registry_objects.keyset.detail keyset_admins=registry_objects.keyset.admins keyset_registrar=registry_objects.keyset.registrar keyset_status_descriptions=registry_objects.keyset.status_descriptions %}
+{% endblock webwhois_content %}

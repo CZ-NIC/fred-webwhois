@@ -1,0 +1,14 @@
+{% extends "webwhois/block_main.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans "Multiple entries found" %} {{ handle }}{% endblock %}
+
+{% block webwhois_content %}
+    <h1>{% trans "Multiple entries found" %}</h1>
+    <p>{% trans "There are multiple records with given handle. Continue with selection of requested type." %}</p>
+    <ul>
+        {% for item in registry_objects.values %}
+            <li>{{ item.label }}: <a href="{% url item.url_name handle=handle %}">{{ handle }}</a></li>
+        {% endfor %}
+    </ul>
+{% endblock webwhois_content %}

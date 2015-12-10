@@ -1,0 +1,13 @@
+{% extends "webwhois/block_main.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans "Nsset" %} {{ handle }}{% endblock %}
+
+{% block webwhois_header %}
+    {{ block.super }}
+    <h2>{% trans "Browsing Name server set (DNS)" %}</h2>
+{% endblock webwhois_header %}
+
+{% block webwhois_content %}
+    {% include "webwhois/nsset_detail.html" with nsset=registry_objects.nsset.detail nsset_admins=registry_objects.nsset.admins nsset_registrar=registry_objects.nsset.registrar nsset_status_descriptions=registry_objects.nsset.status_descriptions %}
+{% endblock webwhois_content %}

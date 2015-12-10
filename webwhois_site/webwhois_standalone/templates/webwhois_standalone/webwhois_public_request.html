@@ -1,0 +1,13 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<h1>{% trans "Public request form" %}</h1>
+
+{% block webwhois_main %}{% endblock webwhois_main %}
+
+<p>
+    <a href="{% url "standalone_ww:form_public_request" %}">{% trans "New Public request" %}</a>.
+</p>
+
+{% endblock content %}

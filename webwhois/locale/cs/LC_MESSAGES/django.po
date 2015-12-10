@@ -1,0 +1,466 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-05-13 14:53+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+#, python-format
+msgid ""
+"\n"
+"                                since %(date)s\n"
+"                            "
+msgstr ""
+"\n"
+"                            od %(date)s\n"
+"                        "
+
+#, python-format
+msgid ""
+"\n"
+"                            since %(date)s\n"
+"                        "
+msgstr ""
+"\n"
+"                            od %(date)s\n"
+"                        "
+
+#, python-format
+msgid ""
+"\n"
+"                    Find step-by-step instructions how to register a domain "
+"name in the manual <a href=\"%(link_href)s\">%(link_label)s</a>.\n"
+"                "
+msgstr ""
+"Postup jak tuto doménu registrovat krok za krokem najdete v návodu <a href="
+"\"%(link_href)s\">%(link_label)s</a>."
+
+#, python-format
+msgid ""
+"\n"
+"                    Handle <strong>%(handle)s</strong> search results:\n"
+"                    "
+msgstr ""
+"\n"
+"Výsledek vyhledávání <strong>%(handle)s</strong>:"
+
+#, python-format
+msgid ""
+"\n"
+"                    Registrar <a href=\"%(link)s\">Certified</a> for Retail\n"
+"                "
+msgstr ""
+"\n"
+"                Registrátor <a href=\"%(link)s\">certifikovaný</a> pro "
+"maloobchod\n"
+"            "
+
+#, python-format
+msgid ""
+"\n"
+"                Registrar supports <a href=\"%(link)s\">mojeID</a>\n"
+"            "
+msgstr ""
+"\n"
+"Registrátor podporuje <a href=\"%(link)s\">mojeID</a>"
+
+#, python-format
+msgid ""
+"\n"
+"                Registrar supports secured domains <a href=\"%(link)s"
+"\">DNSSEC</a>\n"
+"            "
+msgstr ""
+"\n"
+"Registrátor podporuje bezpečné domény <a href=\"%(link)s\">DNSSEC</a>"
+
+#, python-format
+msgid ""
+"\n"
+"                Too many parts in the domain name <strong>%(handle)s</"
+"strong>.\n"
+"                Enter only the name and zone: <a href=\"%(whois_form_link)s?"
+"handle=%(example_domain_name)s\">%(example_domain_name)s</a>\n"
+"           "
+msgstr ""
+"\n"
+"V doménovém jméně <strong>%(handle)s</strong> je příliš mnoho částí. Zadejte "
+"pouze jméno a zónu: <a href=\"%(whois_form_link)s?handle="
+"%(example_domain_name)s\">%(example_domain_name)s</a>"
+
+#, python-format
+msgid ""
+"\n"
+"            How to register a <a href=\"%(link)s\" title=\"How to register a "
+"Dobrá doména\">Dobrá doména</a>.\n"
+"        "
+msgstr ""
+"\n"
+"Jak registrovat <a href=\"%(link)s\" title=\"Jak registrovat Dobrá doména"
+"\">Dobrá doména</a>."
+
+#, python-format
+msgid ""
+"\n"
+"            Rights restriction is described in the document: <a href="
+"\"%(link)s\">Intended use of supplied data and information</a>.\n"
+"        "
+msgstr ""
+"\n"
+"            Právo k užití poskytovaných služeb vymezuje dokument: <a href="
+"\"%(link)s\">Účel použití poskytovaných dat a informací</a>.\n"
+"        "
+
+msgid ""
+"\n"
+"            Searches the domain names, contacts and name server sets.\n"
+"            Enter domain names as <span>domainname.cz</span> including "
+"<span>.cz</span> at the endspanand without <span>www</span> (ie. <span>nic."
+"cz</span>).\n"
+"            Contact and name server set handles fill in as plain text.\n"
+"        "
+msgstr ""
+"\n"
+"Hledá v doménových jménech, kontaktech a sadách nameserverů.\n"
+"Doménová jména vkládejte ve tvaru <span>domenovejmeno.cz</span> s <span>.cz</"
+"span> na konci a bez úvodního <span>www</span> (např. <span>nic.cz</span>).\n"
+"Identifikátory kontaktu nebo sady jmenných serverů vkládejte jako běžný text."
+
+#, python-format
+msgid ""
+"\n"
+"           Follow the instructions <a href=\"%(link)s\">here</a> to become ."
+"cz domains registrar.\n"
+"       "
+msgstr ""
+"\n"
+"Chcete-li se stát registrátorem .cz domén, postupujte dle návodu <a href="
+"\"%(link)s\">zde</a>."
+
+#, python-format
+msgid "%s is not a valid handle."
+msgstr "%s je neplatný identifikátor."
+
+msgid "Address"
+msgstr "Adresa"
+
+msgid "Administrative contact"
+msgstr "Administrativní kontakt"
+
+msgid "Birth date"
+msgstr "Datum narození"
+
+msgid "Birth day"
+msgstr "Datum narození"
+
+msgid "Browsing Key set"
+msgstr "Prohlížení sady klíčů"
+
+msgid "Browsing Name server set (DNS)"
+msgstr "Prohlížení seznamu jmenných serverů (DNS)"
+
+msgid "Browsing contact"
+msgstr "Prohlížení kontaktu"
+
+msgid "Browsing domain name"
+msgstr "Prohlížení doménového jména"
+
+msgid "Browsing registrar"
+msgstr "Prohlížení registrátora"
+
+msgid "Certification"
+msgstr "Certifikace"
+
+msgid "Contact"
+msgstr "Kontakt"
+
+msgid "Contact not found"
+msgstr "Kontakt nenalezen"
+
+msgid "Contact verification status"
+msgstr "Ověření kontaktu"
+
+msgctxt "button"
+msgid "Create mojeID"
+msgstr "Založit mojeID"
+
+msgid "Create mojeID and change the personal data"
+msgstr "Založit mojeID se změnou údajů"
+
+msgid "Create mojeID from the domain registry"
+msgstr "Založit mojeID z registru domén"
+
+msgid "Creating registrar"
+msgstr "Vytvořeno registrátorem"
+
+msgid "DNS Key"
+msgstr "DNS klíč"
+
+msgctxt "singular"
+msgid "Domain"
+msgstr "Doména"
+
+#, python-format
+msgid ""
+"Domain %s in this zone is not supported in the registry. You can search only "
+"domain zones:"
+msgstr "Doména %s v této zóně není registrem podporována. Udržujeme jen zóny:"
+
+msgid "Domain (without www.) / Handle"
+msgstr "Doména (bez www.) / identifikátor"
+
+msgctxt "fullname"
+msgid "Domain name"
+msgstr "Doménové jméno"
+
+#, python-format
+msgid "Domain name %s contains unsupported character."
+msgstr "Doménové jméno %s obsahuje nepodporovaný znak."
+
+msgid "Domain not found"
+msgstr "Doména nenalezena"
+
+msgid "E-mail"
+msgstr ""
+
+msgid "Evaluation protocol"
+msgstr "Certifikační protokol"
+
+msgid "Expiration date"
+msgstr "Datum expirace"
+
+msgid "Fax"
+msgstr ""
+
+msgid ""
+"Form with pre filled contacts values. It is possible to change them before "
+"submit."
+msgstr ""
+"Formulář s předvyplněnými údaji kontaktu. Před odesláním lze tyto údaje "
+"změnit."
+
+msgid "Handle"
+msgstr "Identifikátor"
+
+msgid "Handle not found"
+msgstr "Záznam nenalezen"
+
+msgid "Holder"
+msgstr "Držitel"
+
+msgid "Identification data"
+msgstr "Identifikační údaj"
+
+msgid "Identification type"
+msgstr "Typ identifikace"
+
+msgid ""
+"If you already know how to do it, choose a registrar from the registrar list:"
+msgstr ""
+"Pokud už víte jak na to, začněte rovnou výběrem registrátora ze seznamu "
+"registrátorů:"
+
+msgid "Incorrect input"
+msgstr "Nesprávné zadání"
+
+msgid "Invalid domain name"
+msgstr "Neplatné doménové jméno"
+
+msgid "Invalid handle"
+msgstr "Neplatný identifikátor"
+
+msgid "Key server set not found"
+msgstr "Sada klíčů nenalezena"
+
+msgid "Key set"
+msgstr "Sada klíčů"
+
+msgid "Keyset"
+msgstr "Sada klíčů"
+
+msgid "Last transfer"
+msgstr "Poslední transfer"
+
+msgid "Last update"
+msgstr "Poslední aktualizace"
+
+msgid "Last update date"
+msgstr "Poslední aktualizace"
+
+msgid "List of registrars"
+msgstr "Seznam registrátorů"
+
+msgid "MPSV ID"
+msgstr "Identifikátor MPSV"
+
+msgid "Multiple entries found"
+msgstr "Nalezeno více záznamů"
+
+msgid "Name"
+msgstr "Jméno"
+
+msgid "Name server"
+msgstr "Jmenný server"
+
+msgid "Name server set"
+msgstr "Sada jmenných serverů"
+
+msgid "Name server set not found"
+msgstr "Sada jmenných serverů nenalezena"
+
+msgid "New search in registry"
+msgstr "Nové vyhledávání v registru"
+
+msgid "No"
+msgstr "Ne"
+
+#, python-format
+msgid "No Key server set matches %s handle."
+msgstr "Sada klíčů s identifikátorem %s nebyla nalezena."
+
+#, python-format
+msgid "No Name server set matches %s handle."
+msgstr "Sada jmenných serverů s identifikátorem %s nebyla nalezena."
+
+#, python-format
+msgid "No contact matches %s handle."
+msgstr "Kontakt s identifikátorem %s nebyl nalezen."
+
+#, python-format
+msgid "No domain matches %s handle."
+msgstr "Doména %s nebyla nalezena."
+
+#, python-format
+msgid "No domain, contact or name server set matches %s query."
+msgstr "Jménu %s neodpovídá žádná doména, kontakt ani sada jmenných serverů."
+
+#, python-format
+msgid "No registrar matches %s handle."
+msgstr "Registrátor s identifikátorem %s nebyl nalezen."
+
+msgid "Not disclosed"
+msgstr "Neveřejný údaj"
+
+msgid "Notify e-mail"
+msgstr "E-mail pro oznámení"
+
+msgid "Nsset"
+msgstr "Sada jmenných serverů"
+
+msgid "Organization"
+msgstr "Organizace"
+
+msgid "Passport number"
+msgstr "Číslo pasu"
+
+msgid "Personal ID"
+msgstr "Číslo OP"
+
+msgid "Phone"
+msgstr "Telefon"
+
+msgid "Register this domain name?"
+msgstr "Registrovat tuto doménu?"
+
+msgid "Registered since"
+msgstr "Registrace od"
+
+msgid "Registrar"
+msgstr "Registrátor"
+
+msgid "Registrar list"
+msgstr "Seznam registrátorů"
+
+msgid "Registrar not found"
+msgstr "Registrátor nenalezen"
+
+msgid "Registrar supports IPv6"
+msgstr "Registrátor podporuje IPv6"
+
+msgid "Registrars offering also retail services"
+msgstr "Registrátoři poskytující také služby koncovým držitelům"
+
+msgid "Registrars offering only wholesale services"
+msgstr "Registrátoři poskytující služby pouze pro velkoobchdy"
+
+msgid "Search"
+msgstr "Hledat"
+
+msgid "Search in Registry (Whois)"
+msgstr "Vyhledávání v registru (Whois)"
+
+msgid "Secured by"
+msgstr "Zabezpečeno pomocí"
+
+msgid "Sponsoring registrar"
+msgstr "Určený registrátor"
+
+msgid "Status"
+msgstr "Stav"
+
+msgid "Technical contact"
+msgstr "Technický kontakt"
+
+msgid "Technologies"
+msgstr "Technologie"
+
+msgid ""
+"There are multiple records with given handle. Continue with selection of "
+"requested type."
+msgstr ""
+"Zadaný identifikátor je shodný pro několik záznamů. Pokračujte výběrem "
+"požadovaného typu."
+
+msgid "This form can search only domain zones:"
+msgstr "V tomto formuláři můžete hledat jen domény v zónách:"
+
+msgid "To find a domain in another zone, use the search engine:"
+msgstr "Pro vyhledání domény v jiné zóně použijte vyhledávač:"
+
+msgid "Transfer contact under mojeID registrar."
+msgstr "Převod kontaktu pod registrátora mojeID."
+
+msgid "URL"
+msgstr ""
+
+msgid "Unmanaged zone"
+msgstr "Nepodporovaná zóna"
+
+msgid "Unspecified type"
+msgstr "Typ neuveden"
+
+msgid "VAT ID number"
+msgstr "IČO"
+
+msgid "VAT number"
+msgstr "DIČ"
+
+msgid "Validation expiration date"
+msgstr "Validováno do"
+
+msgid "Website"
+msgstr "Webové stránky"
+
+msgid "What are the benefits of mojeID?"
+msgstr "Jaké jsou výhody mojeID?"
+
+msgid "Why mojeID"
+msgstr "Proč mojeID"
+
+msgid "Yes"
+msgstr "Ano"
+
+msgid "form"
+msgstr "formulář"

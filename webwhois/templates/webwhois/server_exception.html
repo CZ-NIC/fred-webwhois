@@ -1,0 +1,47 @@
+{% extends "webwhois/block_main.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {{ server_exception.title }}{% endblock %}
+
+{% block webwhois_content %}
+
+    <h1>{{ server_exception.title }}</h1>
+    <p>{{ server_exception.message }}</p>
+
+    {% if server_exception.handle_is_in_zone %}
+        <h1>{% trans "Register this domain name?" %}</h1>
+        {% if HOW_TO_REGISTER_LINK %}
+            <p>
+                {% blocktrans with link_href=HOW_TO_REGISTER_LINK.href link_label=HOW_TO_REGISTER_LINK.label %}
+                    Find step-by-step instructions how to register a domain name in the manual <a href="{{ link_href }}">{{ link_label }}</a>.
+                {% endblocktrans %}
+            </p>
+        {% endif %}
+        <p>{% trans "If you already know how to do it, choose a registrar from the registrar list:" %}
+            <a href="{% url webwhois.registrar.list_retail %}" class="button">{% trans "Registrar list" %}</a>
+        </p>
+    {% endif %}
+
+    {% if server_exception.too_many_parts_in_domain_name %}
+        <p>{% url webwhois.form_whois as whois_form_link %}
+            {% blocktrans %}
+                Too many parts in the domain name <strong>{{ handle }}</strong>.
+                Enter only the name and zone: <a href="{{ whois_form_link }}?handle={{ example_domain_name }}">{{ example_domain_name }}</a>
+           {% endblocktrans %}
+        </p>
+    {% endif %}
+
+    {% if server_exception.unmanaged_zone %}
+        <ul class="managed-zones">
+            {% for zone in managed_zone_list %}<li>{{ zone }}</li>
+            {% endfor %}
+        </ul>
+        <p>
+            {% trans "To find a domain in another zone, use the search engine:" %}
+            <span class="whois-search-engines">
+                {% for link in WHOIS_SEARCH_ENGINES %}{% if not forloop.first %}, {% endif %}<a href="{{ link.href }}">{{ link.label }}</a>{% endfor %}.
+            </span>
+        </p>
+    {% endif %}
+
+{% endblock webwhois_content %}
