@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
+from django.utils.formats import reset_format_cache
 from mock import patch
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
@@ -12,6 +13,11 @@ from webwhois.tests.utils import CorbaInitMixin, WebwhoisAssertMixin, apply_patc
 class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     urls = 'webwhois.tests.urls'
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestObjectDetailView, cls).setUpClass()
+        reset_format_cache()  # Reset cache with formats for date and time.
 
     def setUp(self):
         apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
@@ -557,6 +563,11 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, CorbaInitMixin, GetRegist
 class TestDetailCss(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     urls = 'webwhois.tests.urls'
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestDetailCss, cls).setUpClass()
+        reset_format_cache()  # Reset cache with formats for date and time.
 
     def setUp(self):
         apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
