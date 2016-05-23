@@ -1,9 +1,13 @@
+"""
+Utilities for Corba.
+"""
 import datetime
 import sys
 
 import omniORB
 from django.conf import settings
 from django.utils import timezone
+from django.utils.functional import SimpleLazyObject
 from pyfco.corba import CorbaNameServiceClient, init_omniorb_exception_handles
 from pyfco.corbarecoder import CorbaRecoder
 
@@ -14,6 +18,39 @@ init_omniorb_exception_handles(None)
 
 # http://omniorb.sourceforge.net/omnipy3/omniORBpy/omniORBpy004.html
 CORBA_ORB = omniORB.CORBA.ORB_init(["-ORBnativeCharCodeSet", "UTF-8"], omniORB.CORBA.ORB_ID)
+
+
+def _import_idl():
+    for idl in settings.WEBWHOIS_CORBA_IDL:
+        omniORB.importIDL(idl)
+
+
+def _get_whois_module():
+    """
+    Returns `Registry.Whois` module.
+    """
+    try:
+        from Registry import Whois
+    except ImportError:
+        _import_idl()
+        from Registry import Whois
+    return Whois
+
+
+def _get_ccreg_module():
+    """
+    Returns `ccReg` module.
+    """
+    try:
+        import ccReg
+    except ImportError:
+        _import_idl()
+        import ccReg
+    return ccReg
+
+
+WHOIS_MODULE = SimpleLazyObject(_get_whois_module)
+CCREG_MODULE = SimpleLazyObject(_get_ccreg_module)
 
 
 class WebwhoisCorbaRecoder(CorbaRecoder):
