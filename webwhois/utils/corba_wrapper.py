@@ -11,7 +11,6 @@ from django.utils.functional import SimpleLazyObject
 from pyfco.corba import CorbaNameServiceClient, init_omniorb_exception_handles
 from pyfco.corbarecoder import CorbaRecoder
 
-IMPORTED_IDL = []
 CORBA_WEBWHOIS = []
 
 init_omniorb_exception_handles(None)
@@ -105,11 +104,6 @@ def get_corba_for_module():
     """
     Import IDL and create Corba object for a module.
     """
-    for idl in settings.WEBWHOIS_CORBA_IDL:
-        if idl not in IMPORTED_IDL:
-            omniORB.importIDL(idl)
-            IMPORTED_IDL.append(idl)
-
     if CORBA_WEBWHOIS:
         return CORBA_WEBWHOIS[0]
 
