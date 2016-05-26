@@ -11,7 +11,7 @@ from mock import patch
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.tests.utils import CorbaInitMixin, WebwhoisAssertMixin, apply_patch
-from webwhois.utils import WHOIS_MODULE
+from webwhois.utils import CCREG_MODULE, WHOIS_MODULE
 
 
 class TestRegisrarsView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMixin, SimpleTestCase):
@@ -154,7 +154,7 @@ class TestDownloadView(CorbaInitMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     def test_download_eval_file(self):
         self.WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()
-        self.FILE.info.return_value = self.CORBA.ccReg.FileInfo(
+        self.FILE.info.return_value = CCREG_MODULE.FileInfo(
             id=2,
             name='test.html',
             path='2015/12/9/1',
