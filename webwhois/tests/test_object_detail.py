@@ -25,7 +25,6 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
     def setUp(self):
         apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
-        self.RegWhois = WHOIS_MODULE
 
     def test_handle_not_found(self):
         self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
@@ -208,9 +207,11 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
 
     def test_contact_with_ssn_type_birthday(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        self.WHOIS.get_contact_by_handle.return_value = self._get_contact(
-            identification=self.RegWhois.DisclosableContactIdentification(value=self.RegWhois.ContactIdentification(
-                identification_type='BIRTHDAY', identification_data='2000-06-28'), disclose=True))
+        ident = WHOIS_MODULE.DisclosableContactIdentification(
+            value=WHOIS_MODULE.ContactIdentification(identification_type='BIRTHDAY', identification_data='2000-06-28'),
+            disclose=True,
+        )
+        self.WHOIS.get_contact_by_handle.return_value = self._get_contact(identification=ident)
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertContains(response, "Contact details")
@@ -238,7 +239,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
     def test_contact_with_invalid_birthday_value(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(
-            identification=self.RegWhois.DisclosableContactIdentification(value=self.RegWhois.ContactIdentification(
+            identification=WHOIS_MODULE.DisclosableContactIdentification(value=WHOIS_MODULE.ContactIdentification(
                 identification_type='BIRTHDAY', identification_data='FOO'), disclose=True))
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
@@ -354,7 +355,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
     def test_nsset_with_contact_no_organization(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(
-            organization=self.RegWhois.DisclosableString(value='', disclose=True))
+            organization=WHOIS_MODULE.DisclosableString(value='', disclose=True))
         self.WHOIS.get_nsset_status_descriptions.return_value = self._get_nsset_status()
         self.WHOIS.get_nsset_by_handle.return_value = self._get_nsset()
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
@@ -406,7 +407,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
     def test_keyset_with_contact_no_organization(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(
-            organization=self.RegWhois.DisclosableString(value='', disclose=True))
+            organization=WHOIS_MODULE.DisclosableString(value='', disclose=True))
         self.WHOIS.get_keyset_status_descriptions.return_value = self._get_keyset_status()
         self.WHOIS.get_keyset_by_handle.return_value = self._get_keyset()
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
@@ -483,7 +484,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
     def test_domain_with_contact_no_organization(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(
-            organization=self.RegWhois.DisclosableString(value='', disclose=True))
+            organization=WHOIS_MODULE.DisclosableString(value='', disclose=True))
         self.WHOIS.get_nsset_status_descriptions.return_value = self._get_nsset_status()
         self.WHOIS.get_nsset_by_handle.return_value = self._get_nsset()
         self.WHOIS.get_keyset_status_descriptions.return_value = self._get_keyset_status()
@@ -597,7 +598,6 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, CorbaInitMixin, GetRegist
     def setUp(self):
         apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
-        self.RegWhois = WHOIS_MODULE
 
     def test_button_mojeid(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -673,7 +673,6 @@ class TestDetailCss(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMixin,
     def setUp(self):
         apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
-        self.RegWhois = WHOIS_MODULE
 
     def _assert_css(self, selector, result):
         self.assertCssSelectEqual(self._response, selector, [result], transform=self.transform_to_text)

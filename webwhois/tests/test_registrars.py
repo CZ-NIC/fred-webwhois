@@ -21,7 +21,6 @@ class TestRegisrarsView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMi
     def setUp(self):
         apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
-        self.RegWhois = WHOIS_MODULE
 
     def test_registrar_not_found(self):
         self.WHOIS.get_registrar_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
@@ -145,7 +144,6 @@ class TestDownloadView(CorbaInitMixin, GetRegistryObjectMixin, SimpleTestCase):
         apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
         self.FILE = apply_patch(self, patch("webwhois.views.pages.FILEMANAGER"))
-        self.RegWhois = WHOIS_MODULE
 
     def test_download_not_found(self):
         self.WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()
