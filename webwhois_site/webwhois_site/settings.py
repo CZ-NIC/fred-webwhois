@@ -100,7 +100,6 @@ WEBWHOIS_CORBA_IDL = os.environ.get('FRED_WEBWHOIS_IDL_FILE', ['/usr/share/idl/f
                                                                '/usr/share/idl/fred/FileManager.idl'])
 WEBWHOIS_CORBA_IOR = os.environ.get('FRED_WEBWHOIS_IOR', 'localhost')
 WEBWHOIS_CORBA_CONTEXT = 'fred'
-WEBWHOIS_CORBA_EXPORT_MODULES = ['Registry', 'ccReg']
 
 if type(WEBWHOIS_CORBA_IDL) is str:
     # Paths in environment are saved in a string separated by a space:

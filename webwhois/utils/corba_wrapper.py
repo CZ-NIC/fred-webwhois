@@ -2,7 +2,6 @@
 Utilities for Corba.
 """
 import datetime
-import sys
 
 import omniORB
 from django.conf import settings
@@ -108,9 +107,6 @@ def get_corba_for_module():
         return CORBA_WEBWHOIS[0]
 
     obj = CorbaNameServiceClient(CORBA_ORB, settings.WEBWHOIS_CORBA_IOR, settings.WEBWHOIS_CORBA_CONTEXT)
-    if settings.WEBWHOIS_CORBA_EXPORT_MODULES:
-        for name in settings.WEBWHOIS_CORBA_EXPORT_MODULES:
-            setattr(obj, name, sys.modules[name])
 
     CORBA_WEBWHOIS.append(obj)
     return CORBA_WEBWHOIS[0]
