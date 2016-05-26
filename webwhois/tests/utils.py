@@ -1,23 +1,8 @@
 import re
-import sys
 
-from django.conf import settings
 from django.http.response import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.utils.encoding import smart_text
 from lxml import etree, html
-from mock import Mock
-from omniORB import importIDL
-
-
-class CorbaInitMixin(object):
-
-    @classmethod
-    def setUpClass(cls):
-        for idl in settings.WEBWHOIS_CORBA_IDL:
-            importIDL(idl)
-        cls.CORBA = Mock()
-        for mod in settings.WEBWHOIS_CORBA_EXPORT_MODULES:
-            setattr(cls.CORBA, mod, sys.modules[mod])
 
 
 def apply_patch(case, patcher):

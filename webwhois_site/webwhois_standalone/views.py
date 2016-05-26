@@ -14,7 +14,7 @@ from webwhois.forms import WhoisForm
 from webwhois.utils.dobradomena import get_dobradomena_list
 from webwhois.views import ContactDetailWithMojeidMixin, DomainDetailMixin, DownloadEvalFileView, KeysetDetailMixin, \
     NssetDetailMixin, RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, WhoisFormView
-from webwhois.views.pages import CORBA, FILEMANAGER, WHOIS
+from webwhois.views.pages import FILEMANAGER, WHOIS
 
 from .constants import URLS_NAMESPACE
 
@@ -51,7 +51,6 @@ get_captcha_cache_key = lambda request: 'webwhois_captcha_limit:%s' % request.ME
 
 class CountCaptchaMixin(SiteMenuMixin):
 
-    _CORBA = CORBA
     _WHOIS = WHOIS
     redirect_to_form = '%s:form_whois' % URLS_NAMESPACE
 
@@ -118,13 +117,11 @@ class WebwhoisDomainDetailView(CountCaptchaMixin, DomainDetailMixin, TemplateVie
 
 
 class WebwhoisRegistrarDetailView(SiteMenuMixin, RegistrarDetailMixin, TemplateView):
-    _CORBA = CORBA
     _WHOIS = WHOIS
 
 
 class WebwhoisRegistrarListView(SiteMenuMixin, RegistrarListMixin, TemplateView):
     template_name = "webwhois_in_cms/registrar_list_with_dobradomena.html"
-    _CORBA = CORBA
     _WHOIS = WHOIS
 
     def _registrar_row(self, data):
@@ -140,7 +137,6 @@ class WebwhoisRegistrarListView(SiteMenuMixin, RegistrarListMixin, TemplateView)
 
 
 class WebwhoisDownloadEvalFileView(DownloadEvalFileView):
-    _CORBA = CORBA
     _WHOIS = WHOIS
     _FILE = FILEMANAGER
 

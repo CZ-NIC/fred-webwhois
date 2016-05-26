@@ -55,7 +55,6 @@ class RegistryObjectMixin(BaseContextMixin):
     Catch omniORB.CORBA.TRANSIENT and omniORB.CORBA.OBJECT_NOT_EXIST
     and redirect to your own customized page if you need.
     """
-    _CORBA = None
     _WHOIS = None
     _registry_objects_key = "registry_objects"
 
@@ -101,7 +100,7 @@ class RegistryObjectMixin(BaseContextMixin):
         kwargs.setdefault("handle", handle)
         kwargs.setdefault(self._registry_objects_key, {})
         kwargs.setdefault(*self._url_names_with_namespace())
-        self.load_registry_object(kwargs, handle, (self._CORBA, self._WHOIS))
+        self.load_registry_object(kwargs, handle, self._WHOIS)
         kwargs["number_of_found_objects"] = len(kwargs[self._registry_objects_key])
         if kwargs["number_of_found_objects"] == 1:
             self.load_related_objects(kwargs)

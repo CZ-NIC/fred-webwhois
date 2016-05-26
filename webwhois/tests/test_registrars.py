@@ -10,16 +10,15 @@ from django.utils._os import upath
 from mock import patch
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
-from webwhois.tests.utils import CorbaInitMixin, WebwhoisAssertMixin, apply_patch
+from webwhois.tests.utils import WebwhoisAssertMixin, apply_patch
 from webwhois.utils import CCREG_MODULE, WHOIS_MODULE
 
 
-class TestRegisrarsView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMixin, SimpleTestCase):
+class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     urls = 'webwhois.tests.urls'
 
     def setUp(self):
-        apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
 
     def test_registrar_not_found(self):
@@ -136,12 +135,11 @@ class TestRegisrarsView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMi
 
 
 @override_settings(TEMPLATE_DIRS=(os.path.join(os.path.dirname(upath(__file__)), 'templates'), ))
-class TestDownloadView(CorbaInitMixin, GetRegistryObjectMixin, SimpleTestCase):
+class TestDownloadView(GetRegistryObjectMixin, SimpleTestCase):
 
     urls = 'webwhois.tests.urls'
 
     def setUp(self):
-        apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
         self.FILE = apply_patch(self, patch("webwhois.views.pages.FILEMANAGER"))
 

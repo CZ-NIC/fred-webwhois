@@ -23,10 +23,9 @@ class KeysetDetailMixin(RegistryObjectMixin):
     @classmethod
     def load_registry_object(cls, context, handle, backend):
         "Load keyset of the handle and append it into the context."
-        CORBA, WHOIS = backend
         try:
             context[cls._registry_objects_key]["keyset"] = {
-                "detail": WHOIS.get_keyset_by_handle(handle),
+                "detail": backend.get_keyset_by_handle(handle),
                 "label": _("Keyset"),
                 "url_name": context["webwhois"]["detail"]["keyset"]
             }

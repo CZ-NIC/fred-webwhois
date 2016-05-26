@@ -20,7 +20,6 @@ def load_filemanager_from_idl():
     return corba_name_service_client.get_object('FileManager', FileManager)
 
 
-CORBA = SimpleLazyObject(lambda: get_corba_for_module())
 WHOIS = SimpleLazyObject(load_whois_from_idl)
 FILEMANAGER = SimpleLazyObject(load_filemanager_from_idl)
 
@@ -31,7 +30,6 @@ class CorbaWhoisBaseMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(CorbaWhoisBaseMixin, self).__init__(*args, **kwargs)
-        self._CORBA = CORBA
         self._WHOIS = WHOIS
 
     def get_context_data(self, **kwargs):

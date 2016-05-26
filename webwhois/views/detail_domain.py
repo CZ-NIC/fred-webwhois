@@ -35,8 +35,6 @@ class DomainDetailMixin(RegistryObjectMixin):
 
         Param 'handle_is_domain' has an impact on error message.
         """
-        CORBA, WHOIS = backend
-
         if handle.startswith("."):
             context["server_exception"] = cls.message_invalid_handle(handle)
             return
@@ -56,7 +54,7 @@ class DomainDetailMixin(RegistryObjectMixin):
 
         try:
             context[cls._registry_objects_key]["domain"] = {
-                "detail": WHOIS.get_domain_by_handle(idna_handle),
+                "detail": backend.get_domain_by_handle(idna_handle),
                 "label": pgettext_lazy("singular", "Domain"),
                 "url_name": context["webwhois"]["detail"]["domain"],
             }
@@ -68,7 +66,7 @@ class DomainDetailMixin(RegistryObjectMixin):
         except WHOIS_MODULE.UNMANAGED_ZONE:
             # Handle in domain invalid format raises UNMANAGED_ZONE instead of OBJECT_NOT_FOUND.
             if "." in handle:
-                context["managed_zone_list"] = WHOIS.get_managed_zone_list()
+                context["managed_zone_list"] = backend.get_managed_zone_list()
                 context["WHOIS_SEARCH_ENGINES"] = check_links(settings.WEBWHOIS_SEARCH_ENGINES)
                 context["server_exception"] = {
                     "title": _("Unmanaged zone"),

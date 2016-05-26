@@ -30,9 +30,8 @@ class ContactDetailMixin(RegistryObjectMixin):
     @classmethod
     def load_registry_object(cls, context, handle, backend):
         "Load contact of the handle and append it into the context."
-        CORBA, WHOIS = backend
         try:
-            contact = WHOIS.get_contact_by_handle(handle)
+            contact = backend.get_contact_by_handle(handle)
             birthday = None
             if contact.identification.value.identification_type == "BIRTHDAY":
                 try:

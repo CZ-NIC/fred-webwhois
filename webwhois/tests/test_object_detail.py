@@ -8,12 +8,12 @@ from django.utils.formats import reset_format_cache
 from mock import patch
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
-from webwhois.tests.utils import CorbaInitMixin, WebwhoisAssertMixin, apply_patch
+from webwhois.tests.utils import WebwhoisAssertMixin, apply_patch
 from webwhois.utils import WHOIS_MODULE
 
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None)
-class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMixin, SimpleTestCase):
+class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     urls = 'webwhois.tests.urls'
 
@@ -23,7 +23,6 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         reset_format_cache()  # Reset cache with formats for date and time.
 
     def setUp(self):
-        apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
 
     def test_handle_not_found(self):
@@ -591,12 +590,11 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
 
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None)
-class TestContactDetailWithMojeid(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMixin, SimpleTestCase):
+class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     urls = 'webwhois.tests.urls'
 
     def setUp(self):
-        apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
 
     def test_button_mojeid(self):
@@ -661,7 +659,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, CorbaInitMixin, GetRegist
 
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None)
-class TestDetailCss(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMixin, SimpleTestCase):
+class TestDetailCss(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     urls = 'webwhois.tests.urls'
 
@@ -671,7 +669,6 @@ class TestDetailCss(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMixin,
         reset_format_cache()  # Reset cache with formats for date and time.
 
     def setUp(self):
-        apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
 
     def _assert_css(self, selector, result):

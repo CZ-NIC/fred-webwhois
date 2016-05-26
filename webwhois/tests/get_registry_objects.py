@@ -15,14 +15,8 @@ recoder = WebwhoisCorbaRecoder("utf-8")
 
 class GetRegistryObjectMixin(object):
     """
-    Works together with CorbaInitMixin in webwhois.tests.utils.py and setUp:
-
-    def setUp(self):
-        self.CORBA = apply_patch...
+    Utilities for Corba struct creations.
     """
-
-    CORBA = None
-
     def _get_contact_status(self):
         return [
             WHOIS_MODULE.ObjectStatusDesc(handle='serverDeleteProhibited', name='Deletion forbidden'),

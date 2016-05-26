@@ -14,10 +14,9 @@ class RegistrarDetailMixin(RegistryObjectMixin):
     @classmethod
     def load_registry_object(cls, context, handle, backend):
         "Load registrar of the handle and append it into the context."
-        CORBA, WHOIS = backend
         try:
             context[cls._registry_objects_key]["registrar"] = {
-                "detail": WHOIS.get_registrar_by_handle(handle),
+                "detail": backend.get_registrar_by_handle(handle),
                 "label": _("Registrar"),
                 "url_name": context["webwhois"]["detail"]["registrar"]
             }
@@ -32,7 +31,6 @@ class RegistrarDetailMixin(RegistryObjectMixin):
 
 class RegistrarListMixin(BaseContextMixin):
     "List of Registrars."
-    _CORBA = None
     _WHOIS = None
     template_name = "webwhois/registrar_list.html"
     is_retail = False
@@ -70,7 +68,6 @@ class RegistrarListMixin(BaseContextMixin):
 
 
 class DownloadEvalFileView(View):
-    _CORBA = None
     _WHOIS = None
     _FILE = None
 

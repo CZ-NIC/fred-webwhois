@@ -2,17 +2,16 @@ from django.core.urlresolvers import reverse
 from django.test import SimpleTestCase
 from mock import patch
 
-from webwhois.tests.utils import CorbaInitMixin, WebwhoisAssertMixin, apply_patch
+from webwhois.tests.utils import WebwhoisAssertMixin, apply_patch
 from webwhois.utils import WHOIS_MODULE
 
 
-class TestWhoisFormView(WebwhoisAssertMixin, CorbaInitMixin, SimpleTestCase):
+class TestWhoisFormView(WebwhoisAssertMixin, SimpleTestCase):
 
     urls = 'webwhois.tests.urls'
     managed_zone_list = ("cz", "0.2.4.e164.arpa")
 
     def setUp(self):
-        apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
 
     def test_handle_required(self):
