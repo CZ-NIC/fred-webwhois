@@ -1,5 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 
+from webwhois.utils import WHOIS_MODULE
 from webwhois.views.base import RegistryObjectMixin
 
 
@@ -29,12 +30,12 @@ class NssetDetailMixin(RegistryObjectMixin):
                 "label": _("Nsset"),
                 "url_name": context["webwhois"]["detail"]["nsset"]
             }
-        except CORBA.Registry.Whois.OBJECT_NOT_FOUND:
+        except WHOIS_MODULE.OBJECT_NOT_FOUND:
             context["server_exception"] = {
                 "title": _("Name server set not found"),
                 "message": cls.message_with_handle_in_html(_("No name server set matches %s handle."), handle),
             }
-        except CORBA.Registry.Whois.INVALID_HANDLE:
+        except WHOIS_MODULE.INVALID_HANDLE:
             context["server_exception"] = cls.message_invalid_handle(handle)
 
     def load_related_objects(self, context):

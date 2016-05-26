@@ -3,6 +3,7 @@ from django.test import SimpleTestCase
 from mock import patch
 
 from webwhois.tests.utils import CorbaInitMixin, WebwhoisAssertMixin, apply_patch
+from webwhois.utils import WHOIS_MODULE
 
 
 class TestWhoisFormView(WebwhoisAssertMixin, CorbaInitMixin, SimpleTestCase):
@@ -31,11 +32,11 @@ class TestWhoisFormView(WebwhoisAssertMixin, CorbaInitMixin, SimpleTestCase):
         self.assertRedirects(response, reverse("webwhois:registry_object_type", kwargs={"handle": "a%3Fx"}))
 
     def test_valid_handle(self):
-        self.WHOIS.get_contact_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
-        self.WHOIS.get_nsset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
-        self.WHOIS.get_keyset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
-        self.WHOIS.get_registrar_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
-        self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_nsset_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_keyset_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_registrar_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
         response = self.client.post(reverse("webwhois:form_whois"), {"handle": " mycontact "})
         self.assertRedirects(response, reverse("webwhois:registry_object_type", kwargs={"handle": "mycontact"}))
 

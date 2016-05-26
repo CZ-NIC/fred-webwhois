@@ -11,6 +11,7 @@ from mock import patch
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.tests.utils import CorbaInitMixin, WebwhoisAssertMixin, apply_patch
+from webwhois.utils import WHOIS_MODULE
 
 
 class TestRegisrarsView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMixin, SimpleTestCase):
@@ -20,16 +21,16 @@ class TestRegisrarsView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMi
     def setUp(self):
         apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
-        self.RegWhois = self.CORBA.Registry.Whois
+        self.RegWhois = WHOIS_MODULE
 
     def test_registrar_not_found(self):
-        self.WHOIS.get_registrar_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_registrar_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:detail_registrar", kwargs={"handle": "REG_FRED_A"}))
         self.assertContains(response, 'Registrar not found')
         self.assertContains(response, 'No registrar matches <strong>REG_FRED_A</strong> handle.')
 
     def test_registrar_invalid_handle(self):
-        self.WHOIS.get_registrar_by_handle.side_effect = self.CORBA.Registry.Whois.INVALID_HANDLE
+        self.WHOIS.get_registrar_by_handle.side_effect = WHOIS_MODULE.INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_registrar", kwargs={"handle": "REG_FRED_A"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>REG_FRED_A</strong> is not a valid handle.")
@@ -144,7 +145,7 @@ class TestDownloadView(CorbaInitMixin, GetRegistryObjectMixin, SimpleTestCase):
         apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
         self.FILE = apply_patch(self, patch("webwhois.views.pages.FILEMANAGER"))
-        self.RegWhois = self.CORBA.Registry.Whois
+        self.RegWhois = WHOIS_MODULE
 
     def test_download_not_found(self):
         self.WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()

@@ -2,6 +2,7 @@ from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
 
+from webwhois.utils import WHOIS_MODULE
 from webwhois.views.base import BaseContextMixin, RegistryObjectMixin
 
 
@@ -20,12 +21,12 @@ class RegistrarDetailMixin(RegistryObjectMixin):
                 "label": _("Registrar"),
                 "url_name": context["webwhois"]["detail"]["registrar"]
             }
-        except CORBA.Registry.Whois.OBJECT_NOT_FOUND:
+        except WHOIS_MODULE.OBJECT_NOT_FOUND:
             context["server_exception"] = {
                 "title": _("Registrar not found"),
                 "message": cls.message_with_handle_in_html(_("No registrar matches %s handle."), handle),
             }
-        except CORBA.Registry.Whois.INVALID_HANDLE:
+        except WHOIS_MODULE.INVALID_HANDLE:
             context["server_exception"] = cls.message_invalid_handle(handle)
 
 

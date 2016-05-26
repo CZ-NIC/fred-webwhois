@@ -9,6 +9,7 @@ from mock import patch
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.tests.utils import CorbaInitMixin, WebwhoisAssertMixin, apply_patch
+from webwhois.utils import WHOIS_MODULE
 
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None)
@@ -24,15 +25,15 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
     def setUp(self):
         apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
-        self.RegWhois = self.CORBA.Registry.Whois
+        self.RegWhois = WHOIS_MODULE
 
     def test_handle_not_found(self):
-        self.WHOIS.get_contact_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
-        self.WHOIS.get_nsset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
-        self.WHOIS.get_keyset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
-        self.WHOIS.get_registrar_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_nsset_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_keyset_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_registrar_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
         # Handle 'testhandle' for domain raises UNMANAGED_ZONE instead of OBJECT_NOT_FOUND.
-        self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.UNMANAGED_ZONE
+        self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.UNMANAGED_ZONE
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "testhandle"}))
         self.assertContains(response, "Handle not found")
         self.assertContains(response,
@@ -40,44 +41,44 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.assertNotContains(response, 'Register this domain name?')
 
     def test_handle_with_dash_not_found(self):
-        self.WHOIS.get_contact_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
-        self.WHOIS.get_nsset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
-        self.WHOIS.get_keyset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
-        self.WHOIS.get_registrar_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_nsset_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_keyset_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_registrar_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
         # Handle 'testhandle' for domain raises UNMANAGED_ZONE instead of OBJECT_NOT_FOUND.
-        self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.UNMANAGED_ZONE
+        self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.UNMANAGED_ZONE
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "-abc"}))
         self.assertContains(response, "Handle not found")
         self.assertContains(response, "No domain, contact or name server set matches <strong>-abc</strong> query.")
         self.assertNotContains(response, 'Register this domain name?')
 
     def test_handle_in_zone_not_found(self):
-        self.WHOIS.get_contact_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
-        self.WHOIS.get_nsset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
-        self.WHOIS.get_keyset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
-        self.WHOIS.get_registrar_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_nsset_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_keyset_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_registrar_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
         # Only valid domain name in zone raises OBJECT_NOT_FOUND.
-        self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "fred.cz"}))
         self.assertContains(response, "Handle not found")
         self.assertContains(response, "No domain, contact or name server set matches <strong>fred.cz</strong> query.")
         self.assertContains(response, 'Register this domain name?')
 
     def test_contact_not_found(self):
-        self.WHOIS.get_contact_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "testhandle"}))
         self.assertContains(response, 'Contact not found')
         self.assertContains(response, 'No contact matches <strong>testhandle</strong> handle.')
         self.assertNotContains(response, 'Register this domain name?')
 
     def test_contact_invalid_handle(self):
-        self.WHOIS.get_contact_by_handle.side_effect = self.CORBA.Registry.Whois.INVALID_HANDLE
+        self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "testhandle"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>testhandle</strong> is not a valid handle.")
 
     def test_contact_invalid_handle_escaped(self):
-        self.WHOIS.get_contact_by_handle.side_effect = self.CORBA.Registry.Whois.INVALID_HANDLE
+        self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "test<handle"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>test&lt;handle</strong> is not a valid handle.")
@@ -281,14 +282,14 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
             '/static/webwhois/img/icon-yes.gif'])
 
     def test_nsset_not_found(self):
-        self.WHOIS.get_nsset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_nsset_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
         self.assertContains(response, 'Name server set not found')
         self.assertContains(response, 'No name server set matches <strong>mynssid</strong> handle.')
         self.assertNotContains(response, 'Register this domain name?')
 
     def test_nsset_invalid_handle(self):
-        self.WHOIS.get_nsset_by_handle.side_effect = self.CORBA.Registry.Whois.INVALID_HANDLE
+        self.WHOIS.get_nsset_by_handle.side_effect = WHOIS_MODULE.INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>mynssid</strong> is not a valid handle.")
@@ -370,14 +371,14 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         ], transform=self.transform_to_text)
 
     def test_keyset_not_found(self):
-        self.WHOIS.get_keyset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_keyset_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:detail_keyset", kwargs={"handle": "mykeysid"}))
         self.assertContains(response, 'Key server set not found')
         self.assertContains(response, 'No key set matches <strong>mykeysid</strong> handle.')
         self.assertNotContains(response, 'Register this domain name?')
 
     def test_keyset_invalid_handle(self):
-        self.WHOIS.get_keyset_by_handle.side_effect = self.CORBA.Registry.Whois.INVALID_HANDLE
+        self.WHOIS.get_keyset_by_handle.side_effect = WHOIS_MODULE.INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_keyset", kwargs={"handle": "mykeysid"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>mykeysid</strong> is not a valid handle.")
@@ -423,7 +424,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         ], transform=self.transform_to_text)
 
     def test_domain_not_found(self):
-        self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
         self.WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
         self.assertContains(response, 'Domain not found')
@@ -431,7 +432,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.assertContains(response, 'Register this domain name?')
 
     def test_domain_not_found_idna_formated(self):
-        self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
         self.WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "...fred.cz"}))
         self.assertContains(response, 'Invalid handle')
@@ -540,7 +541,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         ], transform=self.transform_to_text)
 
     def test_domain_unmanaged_zone(self):
-        self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.UNMANAGED_ZONE
+        self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.UNMANAGED_ZONE
         self.WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.com"}))
         self.assertContains(response, 'Unmanaged zone')
@@ -551,21 +552,21 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.assertCssSelectEqual(response, "ul li", ['cz', '0.2.4.e164.arpa'], transform=self.transform_to_text)
 
     def test_domain_invalid_label(self):
-        self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.INVALID_LABEL
+        self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.INVALID_LABEL
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fr:ed.com"}))
         self.assertContains(response, 'Invalid handle')
         self.assertContains(response, '<strong>fr:ed.com</strong> is not a valid handle.')
         self.assertNotContains(response, 'Register this domain name?')
 
     def test_domain_invalid_label_with_dash(self):
-        self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.INVALID_LABEL
+        self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.INVALID_LABEL
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "-abc"}))
         self.assertContains(response, 'Invalid handle')
         self.assertContains(response, '<strong>-abc</strong> is not a valid handle.')
         self.assertNotContains(response, 'Register this domain name?')
 
     def test_domain_too_many_labels(self):
-        self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.TOO_MANY_LABELS
+        self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.TOO_MANY_LABELS
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "www.fred.cz"}))
         self.assertContains(response, "Incorrect input")
         self.assertContains(response, "Too many parts in the domain name <strong>www.fred.cz</strong>.")
@@ -596,7 +597,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, CorbaInitMixin, GetRegist
     def setUp(self):
         apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
-        self.RegWhois = self.CORBA.Registry.Whois
+        self.RegWhois = WHOIS_MODULE
 
     def test_button_mojeid(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -672,7 +673,7 @@ class TestDetailCss(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMixin,
     def setUp(self):
         apply_patch(self, patch("webwhois.views.pages.CORBA", self.CORBA))
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
-        self.RegWhois = self.CORBA.Registry.Whois
+        self.RegWhois = WHOIS_MODULE
 
     def _assert_css(self, selector, result):
         self.assertCssSelectEqual(self._response, selector, [result], transform=self.transform_to_text)

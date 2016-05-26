@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
+from webwhois.utils import WHOIS_MODULE
 from webwhois.views import KeysetDetailMixin, NssetDetailMixin
 from webwhois.views.base import RegistryObjectMixin
 
@@ -59,12 +60,12 @@ class DomainDetailMixin(RegistryObjectMixin):
                 "label": pgettext_lazy("singular", "Domain"),
                 "url_name": context["webwhois"]["detail"]["domain"],
             }
-        except CORBA.Registry.Whois.OBJECT_NOT_FOUND:
+        except WHOIS_MODULE.OBJECT_NOT_FOUND:
             # Only handle with format of valid domain name and in managed zone raises OBJECT_NOT_FOUND.
             context["server_exception"] = cls.make_message_not_found(handle, handle_is_domain)
             context["server_exception"]["handle_is_in_zone"] = True
             context["HOW_TO_REGISTER_LINK"] = check_context(settings.WEBWHOIS_HOW_TO_REGISTER_LINK)
-        except CORBA.Registry.Whois.UNMANAGED_ZONE:
+        except WHOIS_MODULE.UNMANAGED_ZONE:
             # Handle in domain invalid format raises UNMANAGED_ZONE instead of OBJECT_NOT_FOUND.
             if "." in handle:
                 context["managed_zone_list"] = WHOIS.get_managed_zone_list()
@@ -78,10 +79,10 @@ class DomainDetailMixin(RegistryObjectMixin):
                 }
             else:
                 context["server_exception"] = cls.make_message_not_found(handle, handle_is_domain)
-        except CORBA.Registry.Whois.INVALID_LABEL:
+        except WHOIS_MODULE.INVALID_LABEL:
             # Pattern for the handle is more vague than the pattern of domain name format.
             context["server_exception"] = cls.message_invalid_handle(handle)
-        except CORBA.Registry.Whois.TOO_MANY_LABELS:
+        except WHOIS_MODULE.TOO_MANY_LABELS:
             # Caution! Domain name can have more than one fullstop character and it is still valid.
             # for example: '0.2.4.e164.arpa'
             # remove subdomain names: 'www.sub.domain.cz' -> 'domain.cz'
