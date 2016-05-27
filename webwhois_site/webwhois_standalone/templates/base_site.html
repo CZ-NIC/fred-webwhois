@@ -3,16 +3,16 @@
 
 {% block main_menu %}
 <ul class="top-menu">
-    <li{% if page_url_name == standalone.home_page %} class="selected"{% endif %}><a href="{% url "home_page" %}">{% trans "Home page" %}</a></li>
-    <li{% if page_url_name == standalone.form_whois or page_url_name == standalone.registry_object_type or page_url_name == standalone.detail_contact or page_url_name == standalone.detail_nsset or page_url_name == standalone.detail_keyset or page_url_name == standalone.detail_domain or page_url_name == standalone.detail_registrar %} class="selected"{% endif %}><a href="{% url "standalone_ww:form_whois" %}">{% trans "Web whois" %}</a></li>
-    <li{% if page_url_name == standalone.registrar_list_retail %} class="selected"{% endif %}><a href="{% url "standalone_ww:registrar_list_retail" %}">{% trans "List of registrars (retail)" %}</a></li>
-    <li{% if page_url_name == standalone.registrar_list_wholesale %} class="selected"{% endif %}><a href="{% url "standalone_ww:registrar_list_wholesale" %}">{% trans "List of registrars (wholesale)" %}</a></li>
-    <li{% if page_url_name == standalone.form_public_request %} class="selected"{% endif %}><a href="{% url "standalone_ww:form_public_request" %}">{% trans "Public requests" %}</a></li>
+    <li{% if page_url_name == "standalone_webwhois:home_page" %} class="selected"{% endif %}><a href="{% url "home_page" %}">{% trans "Home page" %}</a></li>
+    <li{% if page_url_name in menu_item_whois_form %} class="selected"{% endif %}><a href="{% url "standalone_webwhois:form_whois" %}">{% trans "Web whois" %}</a></li>
+    <li{% if page_url_name == "standalone_webwhois:registrar_list_retail" %} class="selected"{% endif %}><a href="{% url "standalone_webwhois:registrar_list_retail" %}">{% trans "List of registrars (retail)" %}</a></li>
+    <li{% if page_url_name == "standalone_webwhois:registrar_list_wholesale" %} class="selected"{% endif %}><a href="{% url "standalone_webwhois:registrar_list_wholesale" %}">{% trans "List of registrars (wholesale)" %}</a></li>
+    <li{% if page_url_name == "standalone_webwhois:form_public_request" %} class="selected"{% endif %}><a href="{% url "standalone_webwhois:form_public_request" %}">{% trans "Public requests" %}</a></li>
 </ul>
 <ul class="top-menu simple-version">
     <li><a>{% trans "Basic version" %}:</a></li>
-    <li><a href="{% url "webwhois:form_whois" %}">{% trans "Web whois" %}</a></li>
-    <li><a href="{% url "webwhois:registrar_list_retail" %}">{% trans "List of registrars (retail)" %}</a></li>
-    <li><a href="{% url "webwhois:registrar_list_wholesale" %}">{% trans "List of registrars (wholesale)" %}</a></li>
+    <li><a href="{% url "basic_webwhois:form_whois" %}">{% trans "Web whois" %}</a></li>
+    <li><a href="{% url "basic_webwhois:registrar_list_retail" %}">{% trans "List of registrars (retail)" %}</a></li>
+    <li><a href="{% url "basic_webwhois:registrar_list_wholesale" %}">{% trans "List of registrars (wholesale)" %}</a></li>
 </ul>
 {% endblock main_menu %}

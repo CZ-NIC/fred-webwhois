@@ -21,7 +21,7 @@
             <td class="technical-contact">
                 {% for admin in nsset_admins %}
                     <div>
-                        <a href="{% url webwhois.detail.contact handle=admin.handle %}">{{ admin.handle }}</a>
+                        <a href="{% url "webwhois:detail_contact" handle=admin.handle %}">{{ admin.handle }}</a>
                         {% if admin.organization.value %}
                             {% if admin.organization.disclose %}
                                 <span>{{ admin.organization.value|default_if_none:'' }}</span>
@@ -38,7 +38,7 @@
         <tr>
             <th>{% trans "Sponsoring registrar" %}</th>
             <td class="sponsoring-registrar">{% with registrar=nsset_registrar %}
-                    <a href="{% url webwhois.detail.registrar handle=registrar.handle %}">{{ registrar.handle }}</a>
+                    <a href="{% url "webwhois:detail_registrar" handle=registrar.handle %}">{{ registrar.handle }}</a>
                     <span class="name">{{ registrar.name }}</span>
                     <span>{% spaceless %}
                         {% blocktrans with date=nsset.last_transfer|default:nsset.created %}

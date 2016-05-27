@@ -18,7 +18,6 @@ class RegistrarDetailMixin(RegistryObjectMixin):
             context[cls._registry_objects_key]["registrar"] = {
                 "detail": backend.get_registrar_by_handle(handle),
                 "label": _("Registrar"),
-                "url_name": context["webwhois"]["detail"]["registrar"]
             }
         except WHOIS_MODULE.OBJECT_NOT_FOUND:
             context["server_exception"] = {

@@ -43,7 +43,6 @@ class ContactDetailMixin(RegistryObjectMixin):
                 "detail": contact,
                 "birthday": birthday,
                 "label": _("Contact"),
-                "url_name": context["webwhois"]["detail"]["contact"]
             }
         except WHOIS_MODULE.OBJECT_NOT_FOUND:
             context["server_exception"] = {

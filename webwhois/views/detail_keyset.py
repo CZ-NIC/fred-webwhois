@@ -27,7 +27,6 @@ class KeysetDetailMixin(RegistryObjectMixin):
             context[cls._registry_objects_key]["keyset"] = {
                 "detail": backend.get_keyset_by_handle(handle),
                 "label": _("Keyset"),
-                "url_name": context["webwhois"]["detail"]["keyset"]
             }
         except WHOIS_MODULE.OBJECT_NOT_FOUND:
             context["server_exception"] = {

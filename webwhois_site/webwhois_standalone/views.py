@@ -16,8 +16,6 @@ from webwhois.views import ContactDetailWithMojeidMixin, DomainDetailMixin, Down
     NssetDetailMixin, RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, WhoisFormView
 from webwhois.views.pages import FILEMANAGER, WHOIS
 
-from .constants import URLS_NAMESPACE
-
 
 class WhoisWithCaptchaForm(WhoisForm):
     captcha = ReCaptchaField()
@@ -30,19 +28,16 @@ class SiteMenuMixin(object):
     def get_context_data(self, **kwargs):
         kwargs.setdefault("base_template", self.base_template)
         kwargs.setdefault("page_url_name", (":".join((self.request.resolver_match.namespace, self.request.resolver_match.url_name))).lstrip(":"))
-        kwargs.setdefault("standalone", {
-            "home_page": "home_page",
-            "form_whois": "%s:form_whois" % URLS_NAMESPACE,
-            "registrar_list_retail": "%s:registrar_list_retail" % URLS_NAMESPACE,
-            "registrar_list_wholesale": "%s:registrar_list_wholesale" % URLS_NAMESPACE,
-            "form_public_request": "%s:form_public_request" % URLS_NAMESPACE,
-            "registry_object_type": "%s:registry_object_type" % URLS_NAMESPACE,
-            "detail_contact": "%s:detail_contact" % URLS_NAMESPACE,
-            "detail_nsset": "%s:detail_nsset" % URLS_NAMESPACE,
-            "detail_keyset": "%s:detail_keyset" % URLS_NAMESPACE,
-            "detail_domain": "%s:detail_domain" % URLS_NAMESPACE,
-            "detail_registrar": "%s:detail_registrar" % URLS_NAMESPACE,
-        })
+        # The pages with selected menu item "Web whois".
+        kwargs.setdefault("menu_item_whois_form", (
+            "standalone_webwhois:form_whois",
+            "standalone_webwhois:registry_object_type",
+            "standalone_webwhois:detail_contact",
+            "standalone_webwhois:detail_nsset",
+            "standalone_webwhois:detail_keyset",
+            "standalone_webwhois:detail_domain",
+            "standalone_webwhois:detail_registrar",
+        ))
         return super(SiteMenuMixin, self).get_context_data(**kwargs)
 
 
@@ -52,14 +47,15 @@ get_captcha_cache_key = lambda request: 'webwhois_captcha_limit:%s' % request.ME
 class CountCaptchaMixin(SiteMenuMixin):
 
     _WHOIS = WHOIS
-    redirect_to_form = '%s:form_whois' % URLS_NAMESPACE
+    redirect_to_form = 'webwhois:form_whois'
 
     def dispatch(self, request, *args, **kwargs):
         cache_key = get_captcha_cache_key(request)
         used_n_times = cache.get(cache_key, 0) + 1
         cache.set(cache_key, used_n_times)
         if used_n_times > settings.WEBWHOIS_CAPTCHA_MAX_REQUESTS:
-            return redirect(reverse(self.redirect_to_form) + "?" + urlencode({"handle": kwargs.get("handle")}))
+            return redirect(reverse(self.redirect_to_form, current_app=self.request.resolver_match.namespace)
+                            + "?" + urlencode({"handle": kwargs.get("handle")}))
         return super(CountCaptchaMixin, self).dispatch(request, *args, **kwargs)
 
 

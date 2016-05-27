@@ -27,7 +27,6 @@ class NssetDetailMixin(RegistryObjectMixin):
             context[cls._registry_objects_key]["nsset"] = {
                 "detail": backend.get_nsset_by_handle(handle),
                 "label": _("Nsset"),
-                "url_name": context["webwhois"]["detail"]["nsset"]
             }
         except WHOIS_MODULE.OBJECT_NOT_FOUND:
             context["server_exception"] = {

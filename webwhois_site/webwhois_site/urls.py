@@ -2,14 +2,13 @@ import re
 
 from django.conf import settings
 from django.conf.urls import include, patterns, url
-from webwhois_standalone.constants import URLS_NAMESPACE
 from webwhois_standalone.views import DobradomenaServeFile, HomePageView
 
 urlpatterns = patterns('',
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^$', HomePageView.as_view(), name='home_page'),
-    url(r'^whois/', include('webwhois_standalone.urls', namespace=URLS_NAMESPACE)),
-    url(r'^basic-whois/', include('webwhois.urls', namespace='webwhois')),
+    url(r'^whois/', include('webwhois_standalone.urls', namespace='standalone_webwhois', app_name='webwhois')),
+    url(r'^basic-whois/', include('webwhois.urls', namespace='basic_webwhois', app_name='webwhois')),
 )
 
 # Serve files if they are a part of the site.

@@ -16,5 +16,6 @@ class WhoisFormView(BaseContextMixin, FormView):
         return data
 
     def form_valid(self, form):
-        self.success_url = reverse(self.add_ns("registry_object_type"), kwargs={"handle": form.cleaned_data['handle']})
+        self.success_url = reverse("webwhois:registry_object_type", kwargs={"handle": form.cleaned_data['handle']},
+                                   current_app=self.request.resolver_match.namespace)
         return super(WhoisFormView, self).form_valid(form)

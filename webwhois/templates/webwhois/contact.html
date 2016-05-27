@@ -117,7 +117,7 @@
                     <th>{% trans "Created by registrar" %}</th>
                     <td class="creating-registrar">
                         {% if contact.creating_registrar_handle %}
-                            <a href="{% url webwhois.detail.registrar handle=contact.creating_registrar_handle %}">{{ contact.creating_registrar_handle }}</a> {{ registry_objects.contact.creating_registrar.name }}
+                            <a href="{% url "webwhois:detail_registrar" handle=contact.creating_registrar_handle %}">{{ contact.creating_registrar_handle }}</a> {{ registry_objects.contact.creating_registrar.name }}
                         {% endif %}
                     </td>
                 </tr>
@@ -148,7 +148,7 @@
                     <th>{% trans "Sponsoring registrar" %}</th>
                     <td class="sponsoring-registrar">
                         {% if contact.sponsoring_registrar_handle %}
-                            <a href="{% url webwhois.detail.registrar handle=contact.sponsoring_registrar_handle %}">{{ contact.sponsoring_registrar_handle }}</a> {{ registry_objects.contact.sponsoring_registrar.name }}
+                            <a href="{% url "webwhois:detail_registrar" handle=contact.sponsoring_registrar_handle %}">{{ contact.sponsoring_registrar_handle }}</a> {{ registry_objects.contact.sponsoring_registrar.name }}
                         {% endif %}
                     </td>
                 </tr>
@@ -176,7 +176,7 @@
                     <th>{% trans "Sponsoring registrar" %}</th>
                     <td class="sponsoring-registrar">
                         {% if contact.sponsoring_registrar_handle %}
-                            <a href="{% url webwhois.detail.registrar handle=contact.sponsoring_registrar_handle %}">{{ contact.sponsoring_registrar_handle }}</a> {{ registry_objects.contact.sponsoring_registrar.name }}
+                            <a href="{% url "webwhois:detail_registrar" handle=contact.sponsoring_registrar_handle %}">{{ contact.sponsoring_registrar_handle }}</a> {{ registry_objects.contact.sponsoring_registrar.name }}
                         {% endif %}
                     </td>
                 </tr>

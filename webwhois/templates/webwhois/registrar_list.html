@@ -49,7 +49,7 @@
                         </td>
                         <td>
                             {% if cert.evaluation_file_id %}
-                                <a href="{% url webwhois.download.evaluation_file handle=registrar.handle %}">
+                                <a href="{% url "webwhois:download_evaluation_file" handle=registrar.handle %}">
                                     <img src="{% static "webwhois/img/mimetypes/ico_pdf.gif" %}" alt="PDF">
                                 </a>
                             {% endif %}

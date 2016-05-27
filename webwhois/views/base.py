@@ -13,38 +13,17 @@ mark_safe_lazy = lazy(mark_safe, six.text_type)
 class BaseContextMixin(ContextMixin):
     """
     Set 'webwhois_base_template' into the context.
-
-    Creates url names with namespace from 'urls_namespace' and set them into the context.
     """
 
     webwhois_base_template = "webwhois_in_cms/main_in_content.html"
-    urls_namespace = "webwhois"
-
-    def add_ns(self, name):
-        return "%s:%s" % (self.urls_namespace, name)
-
-    def _url_names_with_namespace(self):
-        return "webwhois", {
-            "form_whois": self.add_ns("form_whois"),
-            "download": {
-                "evaluation_file": self.add_ns("download_evaluation_file")
-            },
-            "detail": {
-                "contact": self.add_ns("detail_contact"),
-                "nsset": self.add_ns("detail_nsset"),
-                "keyset": self.add_ns("detail_keyset"),
-                "domain": self.add_ns("detail_domain"),
-                "registrar": self.add_ns("detail_registrar"),
-            },
-            "registrar": {
-                "list_retail": self.add_ns("registrar_list_retail"),
-            }
-        }
 
     def get_context_data(self, **kwargs):
         kwargs.setdefault("webwhois_base_template", self.webwhois_base_template)
-        kwargs.setdefault(*self._url_names_with_namespace())
         return super(BaseContextMixin, self).get_context_data(**kwargs)
+
+    def render_to_response(self, context, **response_kwargs):
+        response_kwargs['current_app'] = self.request.resolver_match.namespace
+        return super(BaseContextMixin, self).render_to_response(context, **response_kwargs)
 
 
 class RegistryObjectMixin(BaseContextMixin):
@@ -99,7 +78,6 @@ class RegistryObjectMixin(BaseContextMixin):
     def get_context_data(self, handle, **kwargs):
         kwargs.setdefault("handle", handle)
         kwargs.setdefault(self._registry_objects_key, {})
-        kwargs.setdefault(*self._url_names_with_namespace())
         self.load_registry_object(kwargs, handle, self._WHOIS)
         kwargs["number_of_found_objects"] = len(kwargs[self._registry_objects_key])
         if kwargs["number_of_found_objects"] == 1:

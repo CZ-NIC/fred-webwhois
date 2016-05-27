@@ -18,7 +18,7 @@
 
             {% block webwhois_footer %}
                 <p>
-                    <a href="{% url webwhois.form_whois %}">{% trans "New search in the registry" %}</a>.
+                    <a href="{% url "webwhois:form_whois" %}">{% trans "New search in the registry" %}</a>.
                 </p>
             {% endblock webwhois_footer %}
 
