@@ -53,22 +53,26 @@ CCREG_MODULE = SimpleLazyObject(_get_ccreg_module)
 
 class WebwhoisCorbaRecoder(CorbaRecoder):
     """
-    Decode corba value ccReg/DateTimeType into datetime.datetime with zone.
-    Decode corba value ccReg/DateType into datetime.date.
-    """
+    Decodes whois specific structures.
 
-    def _decode_instance(self, value):
-        if getattr(value, "_NP_RepositoryId", None) == "IDL:ccReg/DateTimeType:1.0":
+    Decodes corba structure `ccReg.DateTimeType` into datetime.datetime with zone.
+    Decodes corba structure `ccReg/DateType` into datetime.date.
+    Decodes contact identifiers to datetime.date if it is a birthday.
+    """
+    def _decode_struct(self, value):
+        # Dynamic loading of IDL with includes causes problems with classes. The same class may appear in several
+        # entities, so type matching can not be used.
+        struct_ident = getattr(value, "_NP_RepositoryId")
+        if struct_ident == "IDL:ccReg/DateTimeType:1.0":
             corba_date = timezone.make_aware(datetime.datetime(value.date.year, value.date.month, value.date.day,
                                                                value.hour, value.minute, value.second), timezone.utc)
             if not settings.USE_TZ:
                 corba_date = timezone.make_naive(corba_date, timezone.get_default_timezone())
             return corba_date
-
-        if getattr(value, "_NP_RepositoryId", None) == "IDL:ccReg/DateType:1.0":
+        elif struct_ident == "IDL:ccReg/DateType:1.0":
             return datetime.date(value.year, value.month, value.day)
-
-        return super(WebwhoisCorbaRecoder, self)._decode_instance(value)
+        else:
+            return super(WebwhoisCorbaRecoder, self)._decode_struct(value)
 
 
 class CorbaWrapper(object):
