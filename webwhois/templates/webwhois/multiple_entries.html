@@ -8,17 +8,21 @@
     <p>{% trans "There are multiple records having the given handle. Continue with selection of a required type." %}</p>
     <ul>
         {% for object_type, item in registry_objects.items %}
-            <li>{{ item.label }}: <a href="{% spaceless %}
+            <li>
+                {{ item.label }}:
                 {% if object_type == "contact" %}
-                    {% url "webwhois:detail_contact" handle=handle %}
+                    {% url "webwhois:detail_contact" handle=handle as detail_url %}
                 {% elif object_type == "nsset" %}
-                    {% url "webwhois:detail_nsset" handle=handle %}
+                    {% url "webwhois:detail_nsset" handle=handle as detail_url %}
                 {% elif object_type == "keyset" %}
-                    {% url "webwhois:detail_keyset" handle=handle %}
+                    {% url "webwhois:detail_keyset" handle=handle as detail_url %}
                 {% elif object_type == "domain" %}
-                    {% url "webwhois:detail_domain" handle=handle %}
+                    {% url "webwhois:detail_domain" handle=handle as detail_url %}
+                {% elif object_type == "registrar" %}
+                    {% url "webwhois:detail_registrar" handle=handle as detail_url %}
                 {% endif %}
-            {% endspaceless %}">{{ handle }}</a></li>
+                <a href="{{ detail_url }}">{{ handle }}</a>
+            </li>
         {% endfor %}
     </ul>
 {% endblock webwhois_content %}

@@ -94,12 +94,12 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "testhandle.cz"}))
         self.assertContains(response, "Multiple entries found")
         self.assertCssSelectEqual(response, "#whois ul li", [
-            'Keyset: testhandle.cz',
-            'Domain: testhandle.cz',
-            'Contact: testhandle.cz',
-            'Registrar: testhandle.cz',
-            'Nsset: testhandle.cz',
-        ], transform=self.transform_to_text)
+            'Keyset: testhandle.cz /whois/keyset/testhandle.cz/',
+            'Domain: testhandle.cz /whois/domain/testhandle.cz/',
+            'Contact: testhandle.cz /whois/contact/testhandle.cz/',
+            'Registrar: testhandle.cz /whois/registrar/testhandle.cz/',
+            'Nsset: testhandle.cz /whois/nsset/testhandle.cz/',
+        ], transform=lambda node: "%s %s" % ("".join(node.xpath(".//text()")), ",".join(node.xpath("a/@href"))))
 
     def test_handle_contact_not_linked(self):
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=[])
