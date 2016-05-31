@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from .views import PublicRequestView, WebwhoisContactDetailView, WebwhoisDomainDetailView, \
+from .views import WebwhoisContactDetailView, WebwhoisDomainDetailView, \
     WebwhoisDownloadEvalFileView, WebwhoisFormView, WebwhoisKeysetDetailView, WebwhoisNssetDetailView, \
     WebwhoisRegistrarDetailView, WebwhoisRegistrarListView, WebwhoisResolveHandleTypeView
 
@@ -15,7 +15,6 @@ urlpatterns = patterns('',
     url(r'^registrar/(?P<handle>[\w_.:-]{1,255})/$', WebwhoisRegistrarDetailView.as_view(), name='detail_registrar'),
     url(r'^registrars/$', WebwhoisRegistrarListView.as_view(is_retail=True), name='registrar_list_retail'),
     url(r'^registrars/wholesale/$', WebwhoisRegistrarListView.as_view(), name='registrar_list_wholesale'),
-    url(r'^public-request/$', PublicRequestView.as_view(), name='form_public_request'),
     url(r'^registrar-download-evaluation-file/(?P<handle>[\w_.:-]{1,255})/$', WebwhoisDownloadEvalFileView.as_view(),
         name='download_evaluation_file'),
 )

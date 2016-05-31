@@ -41,9 +41,6 @@ msgstr "Strana nebyla nalazena"
 msgid "Public request form"
 msgstr "Formulář Hesla a blokace"
 
-msgid "Public requests"
-msgstr "Hesla a blokace"
-
 msgid "Server Error <em>(500)</em>"
 msgstr "Chyba serveru <em>(500)</em>"
 

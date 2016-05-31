@@ -142,7 +142,3 @@ class DobradomenaServeFile(View):
     def get(self, request, handle, lang):
         path = os.path.join(handle, lang, settings.WEBWHOIS_DOBRADOMENA_FILE_NAME)
         return serve(self.request, path, document_root=settings.WEBWHOIS_DOBRADOMENA_ROOT)
-
-
-class PublicRequestView(SiteMenuMixin, TemplateView):
-    template_name = "webwhois_standalone/webwhois_public_request.html"
