@@ -9,10 +9,10 @@ Dependency:
 
 
 Run tests:
-  $ PYTHONPATH=. webwhois_site/manage.py test
+  $ PYTHONPATH=.:webwhois_site webwhois_site/webwhois_site/manage.py test
 
 Run tests with redefined path to IDL:
-  $ PYTHONPATH=. FRED_WEBWHOIS_IDL_FILE='/usr/share/idl/fred/Whois2.idl /usr/share/idl/fred/FileManager.idl' webwhois_site/manage.py test
+  $ PYTHONPATH=.:webwhois_site FRED_WEBWHOIS_IDL_FILE='/usr/share/idl/fred/Whois2.idl /usr/share/idl/fred/FileManager.idl' webwhois_site/webwhois_site/manage.py test
 
 Run site server directly from the project folder:
-  $ PYTHONPATH=. FRED_WEBWHOIS_IOR=my.fred.com:44846 FRED_WEBWHOIS_IDL_FILE='/usr/share/idl/fred/Whois2.idl /usr/share/idl/fred/FileManager.idl' webwhois_site/manage.py runserver
+  $ PYTHONPATH=.:webwhois_site FRED_WEBWHOIS_IOR=my.fred.com:44846 FRED_WEBWHOIS_IDL_FILE='/usr/share/idl/fred/Whois2.idl /usr/share/idl/fred/FileManager.idl' webwhois_site/webwhois_site/manage.py runserver
