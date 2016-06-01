@@ -209,6 +209,12 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
             'Status Has relation to other records in the registry',
         ], transform=self.transform_to_text)
 
+    def test_contact_with_invalid_birthday_value(self):
+        self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
+        self.WHOIS.get_contact_by_handle.return_value = self._get_contact(
+            identification=self.RegWhois.DisclosableContactIdentification(value=self.RegWhois.ContactIdentification(
+                identification_type='BIRTHDAY', identification_data='FOO'), disclose=True))
+
     def test_contact_verification_failed(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=["linked", "contactFailedManualVerification"])

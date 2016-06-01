@@ -38,8 +38,11 @@ class WebwhoisCorbaRecoder(CorbaRecoder):
         if getattr(result, "_NP_RepositoryId", None) == "IDL:Registry/Whois/Contact:1.0":
             if result.identification.value.identification_type == "BIRTHDAY" \
                     and result.identification.value.identification_data:
-                result.identification.value.identification_data = datetime.datetime.strptime(
-                    result.identification.value.identification_data, '%Y-%m-%d').date()
+                try:
+                    result.identification.value.identification_data = datetime.datetime.strptime(
+                        result.identification.value.identification_data, '%Y-%m-%d').date()
+                except ValueError:
+                    pass
         return result
 
 
