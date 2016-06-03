@@ -485,7 +485,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.INVALID_LABEL
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fr:ed.com"}))
         self.assertContains(response, 'Invalid domain name')
-        self.assertContains(response, 'Domain name <strong>fr:ed.com</strong> contains unsupported character.')
+        self.assertContains(response, 'Invalid domain name <strong>fr:ed.com</strong>.')
         self.assertNotContains(response, 'Register this domain name?')
 
     def test_domain_too_many_labels(self):

@@ -1,5 +1,6 @@
 import re
 
+import idna
 from django.conf import settings
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
@@ -34,8 +35,10 @@ class DomainDetailMixin(RegistryObjectMixin):
         """
         CORBA, WHOIS = backend
         try:
+            idna_handle = idna.encode(handle)
+            idna.decode(idna_handle)
             context[cls._registry_objects_key]["domain"] = {
-                "detail": WHOIS.get_domain_by_handle(handle),
+                "detail": WHOIS.get_domain_by_handle(idna_handle),
                 "label": pgettext_lazy("singular", "Domain"),
                 "url_name": context["webwhois"]["detail"]["domain"]
             }
@@ -56,11 +59,11 @@ class DomainDetailMixin(RegistryObjectMixin):
                 }
             else:
                 context["server_exception"] = cls.make_message_not_found(handle, handle_is_domain)
-        except CORBA.Registry.Whois.INVALID_LABEL:
+        except (CORBA.Registry.Whois.INVALID_LABEL, idna.IDNAError):
             # Pattern for the handle is more vague than the pattern of domain name format.
             context["server_exception"] = {
                 "title": _("Invalid domain name"),
-                "message": cls.message_with_handle_in_html(_("Domain name %s contains unsupported character."), handle),
+                "message": cls.message_with_handle_in_html(_("Invalid domain name %s."), handle),
             }
         except CORBA.Registry.Whois.TOO_MANY_LABELS:
             # Caution! Domain name can have more than one fullstop character and it is still valid.

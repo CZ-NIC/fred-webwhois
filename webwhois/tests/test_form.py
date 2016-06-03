@@ -21,8 +21,9 @@ class TestWhoisFormView(WebwhoisAssertMixin, CorbaInitMixin, SimpleTestCase):
 
     def test_handle_invalid(self):
         self.WHOIS.get_managed_zone_list.return_value = self.managed_zone_list
-        response = self.client.post(reverse("webwhois:form_whois"), {"handle": "hand%le"})
-        self.assertEqual(response.context["form"].errors, {'handle': ['Enter a valid value.']})
+        response = self.client.post(reverse("webwhois:form_whois"), {"handle": "a" * 256})
+        self.assertEqual(response.context["form"].errors, {'handle': [
+            'Ensure this value has at most 255 characters (it has 256).']})
 
     def test_valid_handle(self):
         self.WHOIS.get_contact_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND

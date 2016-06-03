@@ -44,6 +44,7 @@ msgid ""
 "name in the manual <a href=\"%(link_href)s\">%(link_label)s</a>.\n"
 "                "
 msgstr ""
+"\n"
 "Postup jak tuto doménu registrovat krok za krokem najdete v návodu <a href="
 "\"%(link_href)s\">%(link_label)s</a>."
 
@@ -225,10 +226,6 @@ msgctxt "fullname"
 msgid "Domain name"
 msgstr "Doménové jméno"
 
-#, python-format
-msgid "Domain name %s contains unsupported character."
-msgstr "Doménové jméno %s obsahuje nepodporovaný znak."
-
 msgid "Domain not found"
 msgstr "Doména nenalezena"
 
@@ -277,6 +274,10 @@ msgstr "Nesprávné zadání"
 
 msgid "Invalid domain name"
 msgstr "Neplatné doménové jméno"
+
+#, python-format
+msgid "Invalid domain name %s."
+msgstr "Neplatné doménové jméno %s."
 
 msgid "Invalid handle"
 msgstr "Neplatný identifikátor"
