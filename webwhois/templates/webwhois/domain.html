@@ -14,7 +14,14 @@
             <table class="result domain">
                 <tr>
                     <th>{% trans "Domain name" context "fullname" %}</th>
-                    <td class="handle">{{ domain.handle }}</td>
+                    <td>
+                        {% if registry_objects.domain.idna_handle == domain.handle %}
+                            <span class="handle">{{ domain.handle }}</span>
+                        {% else %}
+                            <span class="idn-handle">{{ registry_objects.domain.idna_handle }}</span>
+                            (<span class="handle">{{ domain.handle }}</span>)
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <th>{% trans "Registered since" %}</th>

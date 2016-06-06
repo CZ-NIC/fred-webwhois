@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import SimpleTestCase
@@ -378,7 +380,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.assertContains(response, 'No domain matches <strong>fred.cz</strong> handle.')
         self.assertContains(response, 'Register this domain name?')
 
-    def test_domain(self):
+    def _mocks_for_domain_detail(self, handle=None):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact()
         self.WHOIS.get_nsset_status_descriptions.return_value = self._get_nsset_status()
@@ -386,8 +388,11 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_keyset_status_descriptions.return_value = self._get_keyset_status()
         self.WHOIS.get_keyset_by_handle.return_value = self._get_keyset()
         self.WHOIS.get_domain_status_descriptions.return_value = self._get_domain_status()
-        self.WHOIS.get_domain_by_handle.return_value = self._get_domain()
+        self.WHOIS.get_domain_by_handle.return_value = self._get_domain(handle=handle) if handle else self._get_domain()
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
+
+    def test_domain(self):
+        self._mocks_for_domain_detail()
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
         self.assertContains(response, "Browsing domain name")
         self.assertContains(response, "Handle <strong>fred.cz</strong> search results:")
@@ -495,6 +500,20 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.assertContains(response, "Too many parts in the domain name <strong>www.fred.cz</strong>.")
         self.assertContains(response, "Enter only the name and zone:")
         self.assertXpathEqual(response, "//a[text()='fred.cz']/@href", [reverse("webwhois:form_whois") + "?handle=fred.cz"])
+
+    def test_idn_domain(self):
+        self._mocks_for_domain_detail(handle="xn--frd-cma.cz")
+        response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": u"fréd.cz"}))
+        self.assertContains(response, u"Handle <strong>fréd.cz</strong> search results:")
+        self.assertCssSelectEqual(response, ".domain .handle", ["xn--frd-cma.cz"], transform=self.transform_to_text)
+        self.assertCssSelectEqual(response, ".domain .idn-handle", [u"fréd.cz"], transform=self.transform_to_text)
+
+    def test_idn_domain_punycode(self):
+        self._mocks_for_domain_detail(handle="xn--frd-cma.cz")
+        response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "xn--frd-cma.cz"}))
+        self.assertContains(response, "Handle <strong>xn--frd-cma.cz</strong> search results:")
+        self.assertCssSelectEqual(response, ".domain .handle", ["xn--frd-cma.cz"], transform=self.transform_to_text)
+        self.assertCssSelectEqual(response, ".domain .idn-handle", [u"fréd.cz"], transform=self.transform_to_text)
 
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None)
