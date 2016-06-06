@@ -15,10 +15,10 @@
                 <tr>
                     <th>{% trans "Domain name" context "fullname" %}</th>
                     <td>
-                        {% if registry_objects.domain.idna_handle == domain.handle %}
+                        {% if domain.handle|idn_decode == domain.handle %}
                             <span class="handle">{{ domain.handle }}</span>
                         {% else %}
-                            <span class="idn-handle">{{ registry_objects.domain.idna_handle }}</span>
+                            <span class="idn-handle">{{ domain.handle|idn_decode }}</span>
                             (<span class="handle">{{ domain.handle }}</span>)
                         {% endif %}
                     </td>

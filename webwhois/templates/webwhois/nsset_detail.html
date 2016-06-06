@@ -9,7 +9,7 @@
             <tr>
                 <th>{% trans "Name server" %}</th>
                 <td class="name-server">
-                    <span class="dns_name">{{ ns.fqdn }}</span>
+                    <span class="dns_name">{{ ns.fqdn|idn_decode }}</span>
                     {% for ip in ns.ip_addresses %}
                         <span>{{ ip.address }}</span>
                     {% endfor %}

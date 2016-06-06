@@ -40,7 +40,6 @@ class DomainDetailMixin(RegistryObjectMixin):
                 "detail": WHOIS.get_domain_by_handle(idna_handle),
                 "label": pgettext_lazy("singular", "Domain"),
                 "url_name": context["webwhois"]["detail"]["domain"],
-                "idna_handle": idna.decode(idna_handle),
             }
         except CORBA.Registry.Whois.OBJECT_NOT_FOUND:
             # Only handle with format of valid domain name and in managed zone raises OBJECT_NOT_FOUND.

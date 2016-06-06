@@ -1,6 +1,9 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+import idna
 from django.test import SimpleTestCase
 
-from webwhois.templatetags.webwhois_filters import contact_ssn_type_label, text_wrap
+from webwhois.templatetags.webwhois_filters import contact_ssn_type_label, idn_decode, text_wrap
 
 
 class TestTemplateTags(SimpleTestCase):
@@ -23,3 +26,8 @@ class TestTemplateTags(SimpleTestCase):
                             ('', ''),
                            ):
             self.assertEqual(contact_ssn_type_label(code), label)
+
+    def test_idn_decode(self):
+        self.assertEqual(idn_decode("fred.cz"), "fred.cz")
+        self.assertEqual(idn_decode("xn--hkyrky-ptac70bc.cz"), u"háčkyčárky.cz")
+        self.assertEqual(idn_decode("."), ".")

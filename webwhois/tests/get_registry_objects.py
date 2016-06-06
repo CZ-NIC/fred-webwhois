@@ -130,12 +130,14 @@ class GetRegistryObjectMixin(object):
 
     @corba_wrapper_m
     def _get_nsset(self, **kwargs):
+        fqdn1 = kwargs.pop('fqdn1', 'a.ns.nic.cz')
+        fqdn2 = kwargs.pop('fqdn2', 'b.ns.nic.cz')
         obj = self.RegWhois.NSSet(
             handle='NSSET-1',
             nservers=[
-                self.RegWhois.NameServer(fqdn='a.ns.nic.cz', ip_addresses=[
+                self.RegWhois.NameServer(fqdn=fqdn1, ip_addresses=[
                     self.RegWhois.IPAddress(address='194.0.12.1', version=self.RegWhois.IPVersion._item(self.RegWhois.IPv4._v))]),
-                self.RegWhois.NameServer(fqdn='b.ns.nic.cz', ip_addresses=[
+                self.RegWhois.NameServer(fqdn=fqdn2, ip_addresses=[
                     self.RegWhois.IPAddress(address='194.0.13.1', version=self.RegWhois.IPVersion._item(self.RegWhois.IPv4._v))]),
             ],
             tech_contact_handles=['KONTAKT'],

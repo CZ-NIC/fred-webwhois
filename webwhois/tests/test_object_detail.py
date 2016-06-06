@@ -285,6 +285,25 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
             'Status Has relation to other records in the registry'
         ], transform=self.transform_to_text)
 
+    def test_nsset_fqds_idna(self):
+        self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
+        self.WHOIS.get_contact_by_handle.return_value = self._get_contact()
+        self.WHOIS.get_nsset_status_descriptions.return_value = self._get_nsset_status()
+        self.WHOIS.get_nsset_by_handle.return_value = self._get_nsset(fqdn1='xn--hkyrky-ptac70bc.cz',
+                                                                      fqdn2='xn--frd-cma.cz')
+        self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
+        response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
+        self.assertContains(response, "Browsing Name server set (DNS)")
+        self.assertContains(response, "Handle <strong>mynssid</strong> search results:")
+        self.assertCssSelectEqual(response, "table.result tr", [
+            'Name server set NSSET-1',
+            u'Name server háčkyčárky.cz 194.0.12.1',
+            u'Name server fréd.cz 194.0.13.1',
+            'Technical contact KONTAKT Company L.t.d.',
+            'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
+            'Status Has relation to other records in the registry'
+        ], transform=self.transform_to_text)
+
     @override_settings(USE_TZ=False, TIME_ZONE='UTC')
     def test_nsset_witout_zone(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()

@@ -1,5 +1,6 @@
 import textwrap
 
+import idna
 from django import template
 from django.template.defaultfilters import stringfilter
 from django.utils.translation import ugettext_lazy as _
@@ -32,3 +33,16 @@ def contact_ssn_type_label(value):
     Replace SSN type code by translated description.
     """
     return SSN_TYPE.get(value, u"%s: %s" % (_('Unspecified type'), value)) if value else ''
+
+
+@register.filter
+@stringfilter
+def idn_decode(value):
+    """
+    Decode handle into IDN.
+    """
+    try:
+        return idna.decode(value)
+    except idna.IDNAError:
+        pass
+    return value
