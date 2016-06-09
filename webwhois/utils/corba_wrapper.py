@@ -33,17 +33,7 @@ class WebwhoisCorbaRecoder(CorbaRecoder):
         if getattr(value, "_NP_RepositoryId", None) == "IDL:ccReg/DateType:1.0":
             return datetime.date(value.year, value.month, value.day)
 
-        result = super(WebwhoisCorbaRecoder, self)._decode_instance(value)
-
-        if getattr(result, "_NP_RepositoryId", None) == "IDL:Registry/Whois/Contact:1.0":
-            if result.identification.value.identification_type == "BIRTHDAY" \
-                    and result.identification.value.identification_data:
-                try:
-                    result.identification.value.identification_data = datetime.datetime.strptime(
-                        result.identification.value.identification_data, '%Y-%m-%d').date()
-                except ValueError:
-                    pass
-        return result
+        return super(WebwhoisCorbaRecoder, self)._decode_instance(value)
 
 
 class CorbaWrapper(object):

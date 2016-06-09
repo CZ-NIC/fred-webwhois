@@ -214,6 +214,9 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(
             identification=self.RegWhois.DisclosableContactIdentification(value=self.RegWhois.ContactIdentification(
                 identification_type='BIRTHDAY', identification_data='FOO'), disclose=True))
+        self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
+        response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
+        self.assertCssSelectEqual(response, ".contact .ident-value", ['FOO'], transform=self.transform_to_text)
 
     def test_contact_verification_failed(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()

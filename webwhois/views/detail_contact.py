@@ -1,3 +1,4 @@
+import datetime
 import re
 
 from django.conf import settings
@@ -30,8 +31,17 @@ class ContactDetailMixin(RegistryObjectMixin):
         "Load contact of the handle and append it into the context."
         CORBA, WHOIS = backend
         try:
+            contact = WHOIS.get_contact_by_handle(handle)
+            birthday = None
+            if contact.identification.value.identification_type == "BIRTHDAY":
+                try:
+                    birthday = datetime.datetime.strptime(contact.identification.value.identification_data,
+                                                          '%Y-%m-%d').date()
+                except ValueError:
+                    birthday = contact.identification.value.identification_data
             context[cls._registry_objects_key]["contact"] = {
-                "detail": WHOIS.get_contact_by_handle(handle),
+                "detail": contact,
+                "birthday": birthday,
                 "label": _("Contact"),
                 "url_name": context["webwhois"]["detail"]["contact"]
             }

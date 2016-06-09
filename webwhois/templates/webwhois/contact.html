@@ -54,8 +54,13 @@
                 </tr>
                 <tr>
                     <th>{% trans "Identification data" %}</th>
-                    <td class="ident-value">{% if contact.identification.disclose %}
-                            {{ contact.identification.value.identification_data|default_if_none:'' }}
+                    <td class="ident-value">
+                        {% if contact.identification.disclose %}
+                            {% if contact.identification.value.identification_type == "BIRTHDAY" %}
+                                {{ registry_objects.contact.birthday|default_if_none:'' }}
+                            {% else %}
+                                {{ contact.identification.value.identification_data|default_if_none:'' }}
+                            {% endif %}
                         {% else %}
                             <span class="not-disclosed">{% trans "Not disclosed" %}</span>
                         {% endif %}
