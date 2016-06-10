@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 
 from webwhois.views import ContactDetailMixin, DomainDetailMixin, KeysetDetailMixin, NssetDetailMixin
 from webwhois.views.base import RegistryObjectMixin
+from webwhois.views.registrar import RegistrarDetailMixin
 
 
 class ResolveHandleTypeMixin(RegistryObjectMixin):
@@ -16,6 +17,7 @@ class ResolveHandleTypeMixin(RegistryObjectMixin):
         ContactDetailMixin.load_registry_object(context, handle, backend)
         NssetDetailMixin.load_registry_object(context, handle, backend)
         KeysetDetailMixin.load_registry_object(context, handle, backend)
+        RegistrarDetailMixin.load_registry_object(context, handle, backend)
         # handle_is_domain = False - It is not known whether that handle is a domain.
         # It has an impact on error message.
         DomainDetailMixin.load_registry_object(context, handle, backend, handle_is_domain=False)

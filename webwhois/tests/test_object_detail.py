@@ -30,6 +30,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_contact_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         self.WHOIS.get_nsset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         self.WHOIS.get_keyset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_registrar_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         # Handle 'testhandle' for domain raises UNMANAGED_ZONE instead of OBJECT_NOT_FOUND.
         self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.UNMANAGED_ZONE
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "testhandle"}))
@@ -41,6 +42,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_contact_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         self.WHOIS.get_nsset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         self.WHOIS.get_keyset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_registrar_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         # Handle 'testhandle' for domain raises UNMANAGED_ZONE instead of OBJECT_NOT_FOUND.
         self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.UNMANAGED_ZONE
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "-abc"}))
@@ -52,6 +54,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_contact_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         self.WHOIS.get_nsset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         self.WHOIS.get_keyset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_registrar_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         # Only valid domain name in zone raises OBJECT_NOT_FOUND.
         self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "fred.cz"}))
@@ -79,6 +82,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_nsset_by_handle.return_value = self._get_nsset()
         self.WHOIS.get_keyset_status_descriptions.return_value = self._get_keyset_status()
         self.WHOIS.get_keyset_by_handle.return_value = self._get_keyset()
+        self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         self.WHOIS.get_domain_status_descriptions.return_value = self._get_domain_status()
         self.WHOIS.get_domain_by_handle.return_value = self._get_domain()
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "testhandle.cz"}))
@@ -87,6 +91,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
             'Keyset: testhandle.cz',
             'Domain: testhandle.cz',
             'Contact: testhandle.cz',
+            'Registrar: testhandle.cz',
             'Nsset: testhandle.cz',
         ], transform=self.transform_to_text)
 

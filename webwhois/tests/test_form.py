@@ -34,6 +34,7 @@ class TestWhoisFormView(WebwhoisAssertMixin, CorbaInitMixin, SimpleTestCase):
         self.WHOIS.get_contact_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         self.WHOIS.get_nsset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         self.WHOIS.get_keyset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_registrar_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         response = self.client.post(reverse("webwhois:form_whois"), {"handle": " mycontact "})
         self.assertRedirects(response, reverse("webwhois:registry_object_type", kwargs={"handle": "mycontact"}))
