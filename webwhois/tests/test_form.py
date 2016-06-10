@@ -25,6 +25,11 @@ class TestWhoisFormView(WebwhoisAssertMixin, CorbaInitMixin, SimpleTestCase):
         self.assertEqual(response.context["form"].errors, {'handle': [
             'Ensure this value has at most 255 characters (it has 256).']})
 
+    def test_handle_pattern(self):
+        self.WHOIS.get_managed_zone_list.return_value = self.managed_zone_list
+        response = self.client.post(reverse("webwhois:form_whois"), {"handle": "a%3Fx"})
+        self.assertRedirects(response, reverse("webwhois:registry_object_type", kwargs={"handle": "a%3Fx"}))
+
     def test_valid_handle(self):
         self.WHOIS.get_contact_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         self.WHOIS.get_nsset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
