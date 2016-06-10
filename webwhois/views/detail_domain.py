@@ -41,6 +41,16 @@ class DomainDetailMixin(RegistryObjectMixin):
                 "label": pgettext_lazy("singular", "Domain"),
                 "url_name": context["webwhois"]["detail"]["domain"],
             }
+        except idna.IDNAError:
+            if handle_is_domain:
+                message = cls.message_with_handle_in_html(_("Invalid domain name %s."), handle)
+            else:
+                message = cls.message_with_handle_in_html(_("No domain, contact or name server set matches %s query."),
+                                                          handle)
+            context["server_exception"] = {
+                "title": _("Invalid domain name"),
+                "message": message,
+            }
         except CORBA.Registry.Whois.OBJECT_NOT_FOUND:
             # Only handle with format of valid domain name and in managed zone raises OBJECT_NOT_FOUND.
             context["server_exception"] = cls.make_message_not_found(handle, handle_is_domain)
@@ -60,7 +70,7 @@ class DomainDetailMixin(RegistryObjectMixin):
                 }
             else:
                 context["server_exception"] = cls.make_message_not_found(handle, handle_is_domain)
-        except (CORBA.Registry.Whois.INVALID_LABEL, idna.IDNAError):
+        except CORBA.Registry.Whois.INVALID_LABEL:
             # Pattern for the handle is more vague than the pattern of domain name format.
             context["server_exception"] = {
                 "title": _("Invalid domain name"),

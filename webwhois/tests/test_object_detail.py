@@ -37,6 +37,17 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.assertContains(response, "No domain, contact or name server set matches <strong>testhandle</strong> query.")
         self.assertNotContains(response, 'Register this domain name?')
 
+    def test_handle_with_dash_not_found(self):
+        self.WHOIS.get_contact_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_nsset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_keyset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        # Handle 'testhandle' for domain raises UNMANAGED_ZONE instead of OBJECT_NOT_FOUND.
+        self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.UNMANAGED_ZONE
+        response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "-abc"}))
+        self.assertContains(response, "Invalid domain name")
+        self.assertContains(response, "No domain, contact or name server set matches <strong>-abc</strong> query.")
+        self.assertNotContains(response, 'Register this domain name?')
+
     def test_handle_in_zone_not_found(self):
         self.WHOIS.get_contact_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         self.WHOIS.get_nsset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
@@ -510,6 +521,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fr:ed.com"}))
         self.assertContains(response, 'Invalid domain name')
         self.assertContains(response, 'Invalid domain name <strong>fr:ed.com</strong>.')
+        self.assertNotContains(response, 'Register this domain name?')
+
+    def test_domain_invalid_label_with_dash(self):
+        self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.INVALID_LABEL
+        response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "-abc"}))
+        self.assertContains(response, 'Invalid domain name')
+        self.assertContains(response, 'Invalid domain name <strong>-abc</strong>.')
         self.assertNotContains(response, 'Register this domain name?')
 
     def test_domain_too_many_labels(self):
