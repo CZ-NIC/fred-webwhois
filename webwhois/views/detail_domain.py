@@ -53,7 +53,9 @@ class DomainDetailMixin(RegistryObjectMixin):
                 context["WHOIS_SEARCH_ENGINES"] = check_links(settings.WEBWHOIS_SEARCH_ENGINES)
                 context["server_exception"] = {
                     "title": _("Unmanaged zone"),
-                    "message": cls.message_with_handle_in_html(_("Domain %s in this zone is not supported in the registry. You can search only domain zones:"), handle),
+                    "message": cls.message_with_handle_in_html(
+                        _("Domain %s cannot be found in the registry. "
+                          "You can search for domains in the these zones only:"), handle),
                     "unmanaged_zone": True,
                 }
             else:

@@ -37,8 +37,8 @@ class TestRegisrarsView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMi
     def test_registrar(self):
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_registrar", kwargs={"handle": "REG_FRED_A"}))
-        self.assertContains(response, "Browsing registrar")
-        self.assertContains(response, "Handle <strong>REG_FRED_A</strong> search results:")
+        self.assertContains(response, "Registrar details")
+        self.assertContains(response, "Search results for handle <strong>REG_FRED_A</strong>:")
         self.assertCssSelectEqual(response, "table.result tr", [
             'Handle REG-FRED_A',
             'Name Company A L.t.d.',

@@ -6,10 +6,10 @@
         {% block webwhois_main %}
 
             {% block webwhois_header %}
-                <h1>{% trans "Search in Registry (Whois)" %}</h1>
+                <h1>{% trans "Search in the Registry (Whois)" %}</h1>
                 <p>
                     {% blocktrans with handle=handle %}
-                    Handle <strong>{{ handle }}</strong> search results:
+                    Search results for handle <strong>{{ handle }}</strong>:
                     {% endblocktrans %}
                 </p>
             {% endblock webwhois_header %}
@@ -18,7 +18,7 @@
 
             {% block webwhois_footer %}
                 <p>
-                    <a href="{% url webwhois.form_whois %}">{% trans "New search in registry" %}</a>.
+                    <a href="{% url webwhois.form_whois %}">{% trans "New search in the registry" %}</a>.
                 </p>
             {% endblock webwhois_footer %}
 

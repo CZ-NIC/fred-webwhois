@@ -4,16 +4,16 @@
 {% block title %}{{ block.super }} - {% trans "form" %}{% endblock %}
 
 {% block webwhois_header %}
-    <h1>{% trans "Search in Registry (Whois)" %}</h1>
+    <h1>{% trans "Search in the Registry (Whois)" %}</h1>
     <p class="highlight-handles">
         {% blocktrans %}
-            Searches the domain names, contacts and name server sets.
-            Enter domain names as <span>domainname.cz</span> including <span>.cz</span> at the endspanand without <span>www</span> (ie. <span>nic.cz</span>).
-            Contact and name server set handles fill in as plain text.
+            Whois searches in domain names, contacts and name server sets.
+            Enter a domain name without <span>www.</span> prefix and append the zone, eg. <span>.cz</span> (ie., enter <span>nic.cz</span>).
+            As regards handles of a contact or a name server set, enter them as a plain text.
         {% endblocktrans %}
     </p>
     <p>
-        {% trans "This form can search only domain zones:" %}
+        {% trans "In this form you can search for domains in the following zones only:" %}
     </p>
     <ul class="managed-zones">
         {% for zone in managed_zone_list %}
@@ -21,14 +21,14 @@
         {% endfor %}
     </ul>
     <p>
-        {% trans "To find a domain in another zone, use the search engine:" %}
+        {% trans "To search for a domain in another zone use the search engine:" %}
         <span class="whois-search-engines">
             {% for link in WHOIS_SEARCH_ENGINES %}{% if not forloop.first %}, {% endif %}<a href="{{ link.href }}">{{ link.label }}</a>{% endfor %}.
         </span>
     </p>
     <p>
         {% blocktrans with link="https://www.nic.cz/page/306/intended-use-of-supplied-data-and-information/" %}
-            Rights restriction is described in the document: <a href="{{ link }}">Intended use of supplied data and information</a>.
+            Terms of Service are given in the document: <a href="{{ link }}">Intended use of supplied data and information</a>.
         {% endblocktrans %}
     </p>
 {% endblock webwhois_header %}

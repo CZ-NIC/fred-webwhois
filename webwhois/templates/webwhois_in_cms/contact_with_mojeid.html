@@ -14,12 +14,12 @@
                 <li>
                     <form method="post" action="{{ mojeid_transfer_endpoint }}">
                         <input type="hidden" name="username" value="{{ contact.handle|lower }}" />
-                        <input type="submit" value="{% trans "Create mojeID from the domain registry" %}" title="{% trans "Transfer contact under mojeID registrar." %}" />
+                        <input type="submit" value="{% trans "Create mojeID from the domain registry" %}" title="{% trans "Transfer of the contact under mojeID registrar." %}" />
                     </form>
                 </li>
                 {% if mojeid_registry_endpoint %}
                     <li>
-                        <a href="{{ mojeid_registry_endpoint }}?username={{ contact.handle|lower }}" title="{% trans "Form with pre filled contacts values. It is possible to change them before submit." %}">{% trans "Create mojeID and change the personal data" %}</a>
+                        <a href="{{ mojeid_registry_endpoint }}?username={{ contact.handle|lower }}" title="{% trans "The form with prefilled contacts values. It is possible to change them before submit." %}">{% trans "Create mojeID and change the personal data" %}</a>
                     </li>
                 {% endif %}
                 {% if mojeid_link_why %}

@@ -33,23 +33,14 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"                    Find step-by-step instructions how to register a domain "
-"name in the manual <a href=\"%(link_href)s\">%(link_label)s</a>.\n"
+"                    For instructions how to register a domain, see the "
+"manual <a href=\"%(link_href)s\">%(link_label)s</a>.\n"
 "                "
 msgstr ""
 "\n"
 "                    Po stup, jak tuto doménu registrovat krok za krokem, "
 "najdete v návodu <a href=\"%(link_href)s\">%(link_label)s</a>.\n"
 "                "
-
-#, python-format
-msgid ""
-"\n"
-"                    Handle <strong>%(handle)s</strong> search results:\n"
-"                    "
-msgstr ""
-"\n"
-"Výsledek vyhledávání <strong>%(handle)s</strong>:"
 
 #, python-format
 msgid ""
@@ -61,6 +52,15 @@ msgstr ""
 "                Registrátor <a href=\"%(link)s\">certifikovaný</a> pro "
 "maloobchod\n"
 "            "
+
+#, python-format
+msgid ""
+"\n"
+"                    Search results for handle <strong>%(handle)s</strong>:\n"
+"                    "
+msgstr ""
+"\n"
+"Výsledek vyhledávání <strong>%(handle)s</strong>:"
 
 #, python-format
 msgid ""
@@ -86,8 +86,9 @@ msgid ""
 "\n"
 "                Too many parts in the domain name <strong>%(handle)s</"
 "strong>.\n"
-"                Enter only the name and zone: <a href=\"%(whois_form_link)s?"
-"handle=%(example_domain_name)s\">%(example_domain_name)s</a>\n"
+"                Enter only the name and the zone: <a href="
+"\"%(whois_form_link)s?handle=%(example_domain_name)s\">"
+"%(example_domain_name)s</a>\n"
 "           "
 msgstr ""
 "\n"
@@ -109,8 +110,8 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"            Rights restriction is described in the document: <a href="
-"\"%(link)s\">Intended use of supplied data and information</a>.\n"
+"            Terms of Service are given in the document: <a href=\"%(link)s"
+"\">Intended use of supplied data and information</a>.\n"
 "        "
 msgstr ""
 "\n"
@@ -120,11 +121,11 @@ msgstr ""
 
 msgid ""
 "\n"
-"            Searches the domain names, contacts and name server sets.\n"
-"            Enter domain names as <span>domainname.cz</span> including "
-"<span>.cz</span> at the endspanand without <span>www</span> (ie. <span>nic."
-"cz</span>).\n"
-"            Contact and name server set handles fill in as plain text.\n"
+"            Whois searches in domain names, contacts and name server sets.\n"
+"            Enter a domain name without <span>www.</span> prefix and append "
+"the zone, eg. <span>.cz</span> (ie., enter <span>nic.cz</span>).\n"
+"            As regards handles of a contact or a name server set, enter them "
+"as a plain text.\n"
 "        "
 msgstr ""
 "\n"
@@ -136,8 +137,8 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"           Follow the instructions <a href=\"%(link)s\">here</a> to become ."
-"cz domains registrar.\n"
+"           Follow the <a href=\"%(link)s\">instructions</a> to become a .cz "
+"domains registrar.\n"
 "       "
 msgstr ""
 "\n"
@@ -161,26 +162,14 @@ msgstr "Datum narození"
 msgid "Birth day"
 msgstr "Datum narození"
 
-msgid "Browsing Key set"
-msgstr "Prohlížení sady klíčů"
-
-msgid "Browsing Name server set (DNS)"
-msgstr "Prohlížení seznamu jmenných serverů (DNS)"
-
-msgid "Browsing contact"
-msgstr "Prohlížení kontaktu"
-
-msgid "Browsing domain name"
-msgstr "Prohlížení doménového jména"
-
-msgid "Browsing registrar"
-msgstr "Prohlížení registrátora"
-
 msgid "Certification"
 msgstr "Certifikace"
 
 msgid "Contact"
 msgstr "Kontakt"
+
+msgid "Contact details"
+msgstr "Prohlížení kontaktu"
 
 msgid "Contact not found"
 msgstr "Kontakt nenalezen"
@@ -198,7 +187,7 @@ msgstr "Založit mojeID se změnou údajů"
 msgid "Create mojeID from the domain registry"
 msgstr "Založit mojeID z registru domén"
 
-msgid "Creating registrar"
+msgid "Created by registrar"
 msgstr "Vytvořeno registrátorem"
 
 msgid "DNS Key"
@@ -210,16 +199,19 @@ msgstr "Doména"
 
 #, python-format
 msgid ""
-"Domain %s in this zone is not supported in the registry. You can search only "
-"domain zones:"
+"Domain %s cannot be found in the registry. You can search for domains in the "
+"these zones only:"
 msgstr "Doména %s v této zóně není registrem podporována. Udržujeme jen zóny:"
 
-msgid "Domain (without www.) / Handle"
+msgid "Domain (without www. prefix) / Handle"
 msgstr "Doména (bez www.) / identifikátor"
 
 msgctxt "fullname"
 msgid "Domain name"
 msgstr "Doménové jméno"
+
+msgid "Domain name details"
+msgstr "Prohlížení doménového jména"
 
 msgid "Domain not found"
 msgstr "Doména nenalezena"
@@ -235,13 +227,6 @@ msgstr "Datum expirace"
 
 msgid "Fax"
 msgstr "Fax"
-
-msgid ""
-"Form with pre filled contacts values. It is possible to change them before "
-"submit."
-msgstr ""
-"Formulář s předvyplněnými údaji kontaktu. Před odesláním lze tyto údaje "
-"změnit."
 
 msgid "Handle"
 msgstr "Identifikátor"
@@ -264,6 +249,9 @@ msgstr ""
 "Pokud už víte, jak na to, začněte rovnou výběrem registrátora ze seznamu "
 "registrátorů:"
 
+msgid "In this form you can search for domains in the following zones only:"
+msgstr "V tomto formuláři můžete hledat jen domény v zónách:"
+
 msgid "Incorrect input"
 msgstr "Nesprávné zadání"
 
@@ -282,6 +270,9 @@ msgstr "Sada klíčů nenalezena"
 
 msgid "Key set"
 msgstr "Sada klíčů"
+
+msgid "Key set details"
+msgstr "Prohlížení sady klíčů"
 
 msgid "Keyset"
 msgstr "Sada klíčů"
@@ -313,22 +304,17 @@ msgstr "Jmenný server"
 msgid "Name server set"
 msgstr "Sada jmenných serverů"
 
+msgid "Name server set (DNS) details"
+msgstr "Prohlížení seznamu jmenných serverů (DNS)"
+
 msgid "Name server set not found"
 msgstr "Sada jmenných serverů nenalezena"
 
-msgid "New search in registry"
+msgid "New search in the registry"
 msgstr "Nové vyhledávání v registru"
 
 msgid "No"
 msgstr "Ne"
-
-#, python-format
-msgid "No Key server set matches %s handle."
-msgstr "Sada klíčů s identifikátorem %s nebyla nalezena."
-
-#, python-format
-msgid "No Name server set matches %s handle."
-msgstr "Sada jmenných serverů s identifikátorem %s nebyla nalezena."
 
 #, python-format
 msgid "No contact matches %s handle."
@@ -341,6 +327,14 @@ msgstr "Doména %s nebyla nalezena."
 #, python-format
 msgid "No domain, contact or name server set matches %s query."
 msgstr "Jménu %s neodpovídá žádná doména, kontakt ani sada jmenných serverů."
+
+#, python-format
+msgid "No key set matches %s handle."
+msgstr "Sada klíčů s identifikátorem %s nebyla nalezena."
+
+#, python-format
+msgid "No name server set matches %s handle."
+msgstr "Sada jmenných serverů s identifikátorem %s nebyla nalezena."
 
 #, python-format
 msgid "No registrar matches %s handle."
@@ -376,6 +370,9 @@ msgstr "Registrace od"
 msgid "Registrar"
 msgstr "Registrátor"
 
+msgid "Registrar details"
+msgstr "Prohlížení registrátora"
+
 msgid "Registrar list"
 msgstr "Seznam registrátorů"
 
@@ -394,7 +391,7 @@ msgstr "Registrátoři poskytující služby velkoobchodům"
 msgid "Search"
 msgstr "Hledat"
 
-msgid "Search in Registry (Whois)"
+msgid "Search in the Registry (Whois)"
 msgstr "Vyhledávání v registru (Whois)"
 
 msgid "Secured by"
@@ -413,19 +410,23 @@ msgid "Technologies"
 msgstr "Technologie"
 
 msgid ""
-"There are multiple records with given handle. Continue with selection of "
-"requested type."
+"The form with prefilled contacts values. It is possible to change them "
+"before submit."
+msgstr ""
+"Formulář s předvyplněnými údaji kontaktu. Před odesláním lze tyto údaje "
+"změnit."
+
+msgid ""
+"There are multiple records having the given handle. Continue with selection "
+"of a required type."
 msgstr ""
 "Zadaný identifikátor je shodný pro několik záznamů. Pokračujte výběrem "
 "požadovaného typu."
 
-msgid "This form can search only domain zones:"
-msgstr "V tomto formuláři můžete hledat jen domény v zónách:"
-
-msgid "To find a domain in another zone, use the search engine:"
+msgid "To search for a domain in another zone use the search engine:"
 msgstr "Pro vyhledání domény v jiné zóně použijte vyhledávač:"
 
-msgid "Transfer contact under mojeID registrar."
+msgid "Transfer of the contact under mojeID registrar."
 msgstr "Převod kontaktu pod registrátora mojeID."
 
 msgid "URL"

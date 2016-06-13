@@ -5,7 +5,7 @@
 
 {% block webwhois_content %}
     <h1>{% trans "Multiple entries found" %}</h1>
-    <p>{% trans "There are multiple records with given handle. Continue with selection of requested type." %}</p>
+    <p>{% trans "There are multiple records having the given handle. Continue with selection of a required type." %}</p>
     <ul>
         {% for item in registry_objects.values %}
             <li>{{ item.label }}: <a href="{% url item.url_name handle=handle %}">{{ handle }}</a></li>

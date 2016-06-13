@@ -32,7 +32,7 @@ class NssetDetailMixin(RegistryObjectMixin):
         except CORBA.Registry.Whois.OBJECT_NOT_FOUND:
             context["server_exception"] = {
                 "title": _("Name server set not found"),
-                "message": cls.message_with_handle_in_html(_("No Name server set matches %s handle."), handle),
+                "message": cls.message_with_handle_in_html(_("No name server set matches %s handle."), handle),
             }
         except CORBA.Registry.Whois.INVALID_HANDLE:
             context["server_exception"] = cls.message_invalid_handle(handle)

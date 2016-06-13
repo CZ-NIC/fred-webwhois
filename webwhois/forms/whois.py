@@ -9,5 +9,5 @@ from .fields import RemoveWhitespacesField
 class WhoisForm(forms.Form):
     "Whois form to enter HANDLE."
 
-    handle = RemoveWhitespacesField(label=_("Domain (without www.) / Handle"), required=True,
+    handle = RemoveWhitespacesField(label=_("Domain (without www. prefix) / Handle"), required=True,
                                     validators=[MaxLengthValidator(255)])

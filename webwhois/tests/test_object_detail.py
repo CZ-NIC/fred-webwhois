@@ -83,8 +83,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=[])
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
-        self.assertContains(response, "Browsing contact")
-        self.assertContains(response, "Handle <strong>mycontact</strong> search results:")
+        self.assertContains(response, "Contact details")
+        self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
         self.assertCssSelectEqual(response, "table.result tr", [
             'Handle KONTAKT',
             'Sponsoring registrar REG-FRED_A Company A L.t.d.'
@@ -94,8 +94,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=[])
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
-        self.assertContains(response, "Browsing contact")
-        self.assertContains(response, "Handle <strong>mycontact</strong> search results:")
+        self.assertContains(response, "Contact details")
+        self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
         self.assertCssSelectEqual(response, "table.result tr", [
             'Handle KONTAKT',
             'Sponsoring registrar REG-FRED_A Company A L.t.d.'
@@ -106,8 +106,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact()
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
-        self.assertContains(response, "Browsing contact")
-        self.assertContains(response, "Handle <strong>mycontact</strong> search results:")
+        self.assertContains(response, "Contact details")
+        self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
         self.assertCssSelectEqual(response, "table.result tr", [
             'Handle KONTAKT',
             'Organization Company L.t.d.',
@@ -120,7 +120,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
             'Phone +420.728012345',
             'Fax +420.728023456',
             'Registered since 12/15/2015',
-            'Creating registrar REG-FRED_A Company A L.t.d.',
+            'Created by registrar REG-FRED_A Company A L.t.d.',
             'Last update 12/16/2015',
             'Last transfer 12/17/2015',
             'Address Street 756/48, 12300 Prague, CZ',
@@ -133,8 +133,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(disclose=False)
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
-        self.assertContains(response, "Browsing contact")
-        self.assertContains(response, "Handle <strong>mycontact</strong> search results:")
+        self.assertContains(response, "Contact details")
+        self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
         self.assertCssSelectEqual(response, "table.result tr", [
             'Handle KONTAKT',
             'Organization Not disclosed',
@@ -147,7 +147,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
             'Phone Not disclosed',
             'Fax Not disclosed',
             'Registered since 12/15/2015',
-            'Creating registrar REG-FRED_A Company A L.t.d.',
+            'Created by registrar REG-FRED_A Company A L.t.d.',
             'Last update 12/16/2015',
             'Last transfer 12/17/2015',
             'Address Not disclosed',
@@ -160,8 +160,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(creating_registrar_handle=None,
                                                                           sponsoring_registrar_handle=None)
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
-        self.assertContains(response, "Browsing contact")
-        self.assertContains(response, "Handle <strong>mycontact</strong> search results:")
+        self.assertContains(response, "Contact details")
+        self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
         self.assertCssSelectEqual(response, "table.result tr", [
             'Handle KONTAKT',
             'Organization Company L.t.d.',
@@ -174,7 +174,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
             'Phone +420.728012345',
             'Fax +420.728023456',
             'Registered since 12/15/2015',
-            'Creating registrar',
+            'Created by registrar',
             'Last update 12/16/2015',
             'Last transfer 12/17/2015',
             'Address Street 756/48, 12300 Prague, CZ',
@@ -189,8 +189,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
                 identification_type='BIRTHDAY', identification_data='2000-06-28'), disclose=True))
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
-        self.assertContains(response, "Browsing contact")
-        self.assertContains(response, "Handle <strong>mycontact</strong> search results:")
+        self.assertContains(response, "Contact details")
+        self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
         self.assertCssSelectEqual(response, "table.result tr", [
             'Handle KONTAKT',
             'Organization Company L.t.d.',
@@ -203,7 +203,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
             'Phone +420.728012345',
             'Fax +420.728023456',
             'Registered since 12/15/2015',
-            'Creating registrar REG-FRED_A Company A L.t.d.',
+            'Created by registrar REG-FRED_A Company A L.t.d.',
             'Last update 12/16/2015',
             'Last transfer 12/17/2015',
             'Address Street 756/48, 12300 Prague, CZ',
@@ -257,7 +257,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_nsset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
         self.assertContains(response, 'Name server set not found')
-        self.assertContains(response, 'No Name server set matches <strong>mynssid</strong> handle.')
+        self.assertContains(response, 'No name server set matches <strong>mynssid</strong> handle.')
         self.assertNotContains(response, 'Register this domain name?')
 
     def test_nsset_invalid_handle(self):
@@ -274,8 +274,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_nsset_by_handle.return_value = self._get_nsset()
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
-        self.assertContains(response, "Browsing Name server set (DNS)")
-        self.assertContains(response, "Handle <strong>mynssid</strong> search results:")
+        self.assertContains(response, "Name server set (DNS) details")
+        self.assertContains(response, "Search results for handle <strong>mynssid</strong>:")
         self.assertCssSelectEqual(response, "table.result tr", [
             'Name server set NSSET-1',
             'Name server a.ns.nic.cz 194.0.12.1',
@@ -293,8 +293,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
                                                                       fqdn2='xn--frd-cma.cz')
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
-        self.assertContains(response, "Browsing Name server set (DNS)")
-        self.assertContains(response, "Handle <strong>mynssid</strong> search results:")
+        self.assertContains(response, "Name server set (DNS) details")
+        self.assertContains(response, "Search results for handle <strong>mynssid</strong>:")
         self.assertCssSelectEqual(response, "table.result tr", [
             'Name server set NSSET-1',
             u'Name server háčkyčárky.cz 194.0.12.1',
@@ -312,8 +312,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_nsset_by_handle.return_value = self._get_nsset()
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
-        self.assertContains(response, "Browsing Name server set (DNS)")
-        self.assertContains(response, "Handle <strong>mynssid</strong> search results:")
+        self.assertContains(response, "Name server set (DNS) details")
+        self.assertContains(response, "Search results for handle <strong>mynssid</strong>:")
         self.assertCssSelectEqual(response, "table.result tr", [
             'Name server set NSSET-1',
             'Name server a.ns.nic.cz 194.0.12.1',
@@ -331,8 +331,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_nsset_by_handle.return_value = self._get_nsset()
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
-        self.assertContains(response, "Browsing Name server set (DNS)")
-        self.assertContains(response, "Handle <strong>mynssid</strong> search results:")
+        self.assertContains(response, "Name server set (DNS) details")
+        self.assertContains(response, "Search results for handle <strong>mynssid</strong>:")
         self.assertCssSelectEqual(response, "table.result tr", [
             'Name server set NSSET-1',
             'Name server a.ns.nic.cz 194.0.12.1',
@@ -346,7 +346,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_keyset_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:detail_keyset", kwargs={"handle": "mykeysid"}))
         self.assertContains(response, 'Key server set not found')
-        self.assertContains(response, 'No Key server set matches <strong>mykeysid</strong> handle.')
+        self.assertContains(response, 'No key set matches <strong>mykeysid</strong> handle.')
         self.assertNotContains(response, 'Register this domain name?')
 
     def test_keyset_invalid_handle(self):
@@ -363,8 +363,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_keyset_by_handle.return_value = self._get_keyset()
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_keyset", kwargs={"handle": "mykeysid"}))
-        self.assertContains(response, "Browsing Key set")
-        self.assertContains(response, "Handle <strong>mykeysid</strong> search results:")
+        self.assertContains(response, "Key set details")
+        self.assertContains(response, "Search results for handle <strong>mykeysid</strong>:")
         self.assertCssSelectEqual(response, "table.result tr", [
             'Key set KEYSID-1',
             'DNS Key Flags: 257 Protocol: 3 Algorithm: 5 [alg] Key: AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8',
@@ -381,8 +381,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_keyset_by_handle.return_value = self._get_keyset()
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_keyset", kwargs={"handle": "mykeysid"}))
-        self.assertContains(response, "Browsing Key set")
-        self.assertContains(response, "Handle <strong>mykeysid</strong> search results:")
+        self.assertContains(response, "Key set details")
+        self.assertContains(response, "Search results for handle <strong>mykeysid</strong>:")
         self.assertCssSelectEqual(response, "table.result tr", [
             'Key set KEYSID-1',
             'DNS Key Flags: 257 Protocol: 3 Algorithm: 5 [alg] Key: AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8',
@@ -413,8 +413,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
     def test_domain(self):
         self._mocks_for_domain_detail()
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
-        self.assertContains(response, "Browsing domain name")
-        self.assertContains(response, "Handle <strong>fred.cz</strong> search results:")
+        self.assertContains(response, "Domain name details")
+        self.assertContains(response, "Search results for handle <strong>fred.cz</strong>:")
         self.assertCssSelectEqual(response, "table.result tr", [
             'Domain name fred.cz',
             'Registered since 12/09/2015',
@@ -450,8 +450,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_domain_by_handle.return_value = self._get_domain()
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
-        self.assertContains(response, "Browsing domain name")
-        self.assertContains(response, "Handle <strong>fred.cz</strong> search results:")
+        self.assertContains(response, "Domain name details")
+        self.assertContains(response, "Search results for handle <strong>fred.cz</strong>:")
         self.assertCssSelectEqual(response, "table.result tr", [
             'Domain name fred.cz',
             'Registered since 12/09/2015',
@@ -482,8 +482,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_domain_by_handle.return_value = self._get_domain(nsset_handle=None, keyset_handle=None)
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
-        self.assertContains(response, "Browsing domain name")
-        self.assertContains(response, "Handle <strong>fred.cz</strong> search results:")
+        self.assertContains(response, "Domain name details")
+        self.assertContains(response, "Search results for handle <strong>fred.cz</strong>:")
         self.assertCssSelectEqual(response, "table.result tr", [
             'Domain name fred.cz',
             'Registered since 12/09/2015',
@@ -501,7 +501,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.com"}))
         self.assertContains(response, 'Unmanaged zone')
-        self.assertContains(response, 'Domain <strong>fred.com</strong> in this zone is not supported in the registry. You can search only domain zones:')
+        self.assertContains(response, 'Domain <strong>fred.com</strong> cannot be found in the registry. You can search for domains in the these zones only:')
         self.assertNotContains(response, 'Register this domain name?')
         self.assertCssSelectEqual(response, "ul li", ['cz', '0.2.4.e164.arpa'], transform=self.transform_to_text)
 
@@ -517,20 +517,20 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "www.fred.cz"}))
         self.assertContains(response, "Incorrect input")
         self.assertContains(response, "Too many parts in the domain name <strong>www.fred.cz</strong>.")
-        self.assertContains(response, "Enter only the name and zone:")
+        self.assertContains(response, "Enter only the name and the zone:")
         self.assertXpathEqual(response, "//a[text()='fred.cz']/@href", [reverse("webwhois:form_whois") + "?handle=fred.cz"])
 
     def test_idn_domain(self):
         self._mocks_for_domain_detail(handle="xn--frd-cma.cz")
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": u"fréd.cz"}))
-        self.assertContains(response, u"Handle <strong>fréd.cz</strong> search results:")
+        self.assertContains(response, u"Search results for handle <strong>fréd.cz</strong>:")
         self.assertCssSelectEqual(response, ".domain .handle", ["xn--frd-cma.cz"], transform=self.transform_to_text)
         self.assertCssSelectEqual(response, ".domain .idn-handle", [u"fréd.cz"], transform=self.transform_to_text)
 
     def test_idn_domain_punycode(self):
         self._mocks_for_domain_detail(handle="xn--frd-cma.cz")
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "xn--frd-cma.cz"}))
-        self.assertContains(response, "Handle <strong>xn--frd-cma.cz</strong> search results:")
+        self.assertContains(response, "Search results for handle <strong>xn--frd-cma.cz</strong>:")
         self.assertCssSelectEqual(response, ".domain .handle", ["xn--frd-cma.cz"], transform=self.transform_to_text)
         self.assertCssSelectEqual(response, ".domain .idn-handle", [u"fréd.cz"], transform=self.transform_to_text)
 

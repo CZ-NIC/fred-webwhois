@@ -13,7 +13,7 @@
         {% if HOW_TO_REGISTER_LINK %}
             <p>
                 {% blocktrans with link_href=HOW_TO_REGISTER_LINK.href link_label=HOW_TO_REGISTER_LINK.label %}
-                    Find step-by-step instructions how to register a domain name in the manual <a href="{{ link_href }}">{{ link_label }}</a>.
+                    For instructions how to register a domain, see the manual <a href="{{ link_href }}">{{ link_label }}</a>.
                 {% endblocktrans %}
             </p>
         {% endif %}
@@ -26,7 +26,7 @@
         <p>{% url webwhois.form_whois as whois_form_link %}
             {% blocktrans %}
                 Too many parts in the domain name <strong>{{ handle }}</strong>.
-                Enter only the name and zone: <a href="{{ whois_form_link }}?handle={{ example_domain_name }}">{{ example_domain_name }}</a>
+                Enter only the name and the zone: <a href="{{ whois_form_link }}?handle={{ example_domain_name }}">{{ example_domain_name }}</a>
            {% endblocktrans %}
         </p>
     {% endif %}
@@ -37,7 +37,7 @@
             {% endfor %}
         </ul>
         <p>
-            {% trans "To find a domain in another zone, use the search engine:" %}
+            {% trans "To search for a domain in another zone use the search engine:" %}
             <span class="whois-search-engines">
                 {% for link in WHOIS_SEARCH_ENGINES %}{% if not forloop.first %}, {% endif %}<a href="{{ link.href }}">{{ link.label }}</a>{% endfor %}.
             </span>

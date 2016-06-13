@@ -5,7 +5,7 @@
 
 {% block webwhois_header %}
     {{ block.super }}
-    <h2>{% trans "Browsing contact" %}</h2>
+    <h2>{% trans "Contact details" %}</h2>
 {% endblock webwhois_header %}
 
 {% block webwhois_content %}
@@ -114,7 +114,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th>{% trans "Creating registrar" %}</th>
+                    <th>{% trans "Created by registrar" %}</th>
                     <td class="creating-registrar">
                         {% if contact.creating_registrar_handle %}
                             <a href="{% url webwhois.detail.registrar handle=contact.creating_registrar_handle %}">{{ contact.creating_registrar_handle }}</a> {{ registry_objects.contact.creating_registrar.name }}
