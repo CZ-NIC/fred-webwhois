@@ -29,7 +29,7 @@
             <tr>
                 {% block webwhois_registrar_list_row %}
                     <td>{{ registrar.name }}</th>
-                    <td><a href="http://{{ registrar.url }}">{{ registrar.url }}</a></td>
+                    <td><a href="//{{ registrar.url }}">{{ registrar.url }}</a></td>
                     <td>
                         {% if registrar.handle in groups.dnssec.members %}
                             <img src="{% static "webwhois/img/technology/dnssec.png" %}">
