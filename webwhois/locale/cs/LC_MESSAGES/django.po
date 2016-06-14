@@ -142,8 +142,8 @@ msgid ""
 "       "
 msgstr ""
 "\n"
-"           Chcete-li se stát registrátorem domén .cz, postupujte dle <a "
-"href=\"%(link)s\">návodu</a>.\n"
+"           Chcete-li se stát registrátorem domén .cz, postupujte dle <a href="
+"\"%(link)s\">návodu</a>.\n"
 "       "
 
 #, python-format
@@ -203,8 +203,8 @@ msgid ""
 "these zones only:"
 msgstr "Doména %s v této zóně není registrem podporována. Udržujeme jen zóny:"
 
-msgid "Domain (without www. prefix) / Handle"
-msgstr "Doména (bez www.) / identifikátor"
+msgid "Domain (without <em>www.</em> prefix) / Handle"
+msgstr "Doména (bez <em>www.</em>) / identifikátor"
 
 msgctxt "fullname"
 msgid "Domain name"

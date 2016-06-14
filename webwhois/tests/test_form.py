@@ -47,3 +47,5 @@ class TestWhoisFormView(WebwhoisAssertMixin, CorbaInitMixin, SimpleTestCase):
         self.assertXpathEqual(response, "//span[@class='whois-search-engines']/a", [
             'WHOIS.COM Lookup', 'IANA WHOIS Service'
         ], transform=self.transform_to_text)
+        self.assertContains(response, '<label for="id_handle">Domain (without <em>www.</em> prefix)'
+                            ' / Handle:</label>', html=True)
