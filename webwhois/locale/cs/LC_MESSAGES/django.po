@@ -38,7 +38,7 @@ msgid ""
 "                "
 msgstr ""
 "\n"
-"                    Po stup, jak tuto doménu registrovat krok za krokem, "
+"                    Postup, jak tuto doménu registrovat krok za krokem, "
 "najdete v návodu <a href=\"%(link_href)s\">%(link_label)s</a>.\n"
 "                "
 
