@@ -46,7 +46,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         # Handle 'testhandle' for domain raises UNMANAGED_ZONE instead of OBJECT_NOT_FOUND.
         self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.UNMANAGED_ZONE
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "-abc"}))
-        self.assertContains(response, "Invalid domain name")
+        self.assertContains(response, "Handle not found")
         self.assertContains(response, "No domain, contact or name server set matches <strong>-abc</strong> query.")
         self.assertNotContains(response, 'Register this domain name?')
 
@@ -74,6 +74,12 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "testhandle"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>testhandle</strong> is not a valid handle.")
+
+    def test_contact_invalid_handle_escaped(self):
+        self.WHOIS.get_contact_by_handle.side_effect = self.CORBA.Registry.Whois.INVALID_HANDLE
+        response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "test<handle"}))
+        self.assertContains(response, "Invalid handle")
+        self.assertContains(response, "<strong>test&lt;handle</strong> is not a valid handle.")
 
     def test_multiple_entries(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -415,6 +421,14 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.assertContains(response, 'No domain matches <strong>fred.cz</strong> handle.')
         self.assertContains(response, 'Register this domain name?')
 
+    def test_domain_not_found_idna_formated(self):
+        self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.OBJECT_NOT_FOUND
+        self.WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
+        response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "...fred.cz"}))
+        self.assertContains(response, 'Invalid handle')
+        self.assertContains(response, '<strong>...fred.cz</strong> is not a valid handle.')
+        self.assertNotContains(response, 'Register this domain name?')
+
     def _mocks_for_domain_detail(self, handle=None):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact()
@@ -524,15 +538,15 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
     def test_domain_invalid_label(self):
         self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.INVALID_LABEL
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fr:ed.com"}))
-        self.assertContains(response, 'Invalid domain name')
-        self.assertContains(response, 'Invalid domain name <strong>fr:ed.com</strong>.')
+        self.assertContains(response, 'Invalid handle')
+        self.assertContains(response, '<strong>fr:ed.com</strong> is not a valid handle.')
         self.assertNotContains(response, 'Register this domain name?')
 
     def test_domain_invalid_label_with_dash(self):
         self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.INVALID_LABEL
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "-abc"}))
-        self.assertContains(response, 'Invalid domain name')
-        self.assertContains(response, 'Invalid domain name <strong>-abc</strong>.')
+        self.assertContains(response, 'Invalid handle')
+        self.assertContains(response, '<strong>-abc</strong> is not a valid handle.')
         self.assertNotContains(response, 'Register this domain name?')
 
     def test_domain_too_many_labels(self):

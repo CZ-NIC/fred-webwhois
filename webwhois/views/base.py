@@ -2,6 +2,7 @@ from django.core.cache import cache
 from django.utils import six  # Python 3 compatibility
 from django.utils.encoding import force_bytes
 from django.utils.functional import lazy
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language, ugettext_lazy as _
 from django.views.generic.base import ContextMixin
@@ -80,7 +81,7 @@ class RegistryObjectMixin(BaseContextMixin):
     @staticmethod
     def message_with_handle_in_html(text, handle):
         "Make html message and mark it safe."
-        return mark_safe_lazy(text % "<strong>%s</strong>" % handle)
+        return mark_safe_lazy(text % "<strong>%s</strong>" % escape(handle))
 
     @classmethod
     def message_invalid_handle(cls, handle):

@@ -34,18 +34,22 @@ class DomainDetailMixin(RegistryObjectMixin):
         Param 'handle_is_domain' has an impact on error message.
         """
         CORBA, WHOIS = backend
+
+        if handle.startswith("."):
+            context["server_exception"] = cls.message_invalid_handle(handle)
+            return
+
         try:
             idna_handle = idna.encode(handle)
         except idna.IDNAError:
             if handle_is_domain:
-                message = cls.message_with_handle_in_html(_("Invalid domain name %s."), handle)
+                context["server_exception"] = cls.message_invalid_handle(handle)
             else:
-                message = cls.message_with_handle_in_html(_("No domain, contact or name server set matches %s query."),
-                                                          handle)
-            context["server_exception"] = {
-                "title": _("Invalid domain name"),
-                "message": message,
-            }
+                context["server_exception"] = {
+                    "title": _("Handle not found"),
+                    "message": cls.message_with_handle_in_html(
+                        _("No domain, contact or name server set matches %s query."), handle)
+                }
             return
 
         try:
@@ -75,10 +79,7 @@ class DomainDetailMixin(RegistryObjectMixin):
                 context["server_exception"] = cls.make_message_not_found(handle, handle_is_domain)
         except CORBA.Registry.Whois.INVALID_LABEL:
             # Pattern for the handle is more vague than the pattern of domain name format.
-            context["server_exception"] = {
-                "title": _("Invalid domain name"),
-                "message": cls.message_with_handle_in_html(_("Invalid domain name %s."), handle),
-            }
+            context["server_exception"] = cls.message_invalid_handle(handle)
         except CORBA.Registry.Whois.TOO_MANY_LABELS:
             # Caution! Domain name can have more than one fullstop character and it is still valid.
             # for example: '0.2.4.e164.arpa'
