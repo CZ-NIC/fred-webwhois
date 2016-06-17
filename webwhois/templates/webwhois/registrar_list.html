@@ -1,5 +1,5 @@
 {% extends "webwhois/block_main.html" %}
-{% load i18n static %}
+{% load i18n static webwhois_filters %}
 
 {% block title %}{{ block.super }} - {% trans "List of registrars" %}{% endblock %}
 
@@ -29,7 +29,7 @@
             <tr>
                 {% block webwhois_registrar_list_row %}
                     <td>{{ registrar.name }}</th>
-                    <td><a href="//{{ registrar.url }}">{{ registrar.url }}</a></td>
+                    <td><a href="{{ registrar.url|add_scheme }}">{{ registrar.url|strip_scheme }}</a></td>
                     <td>
                         {% if registrar.handle in groups.dnssec.members %}
                             <img src="{% static "webwhois/img/technology/dnssec.png" %}">

@@ -86,9 +86,9 @@ class TestRegisrarsView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMi
         ], transform=lambda node: node)
 
         self.assertXpathEqual(response, "//*[@class='result']//a/@href", [
-            '//www.mojeid.cz', '/whois/registrar-download-evaluation-file/REG-MOJEID/',
-            '//www.fred-a.cz', '/whois/registrar-download-evaluation-file/REG-FRED_A/',
-            '//www.fred-b.cz'
+            'http://www.mojeid.cz', '/whois/registrar-download-evaluation-file/REG-MOJEID/',
+            'http://www.fred-a.cz', '/whois/registrar-download-evaluation-file/REG-FRED_A/',
+            'http://www.fred-b.cz'
         ])
 
     def test_registrars_wholesale(self):
@@ -101,7 +101,7 @@ class TestRegisrarsView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMi
             'Registrar Website Technologies',
             'Company C L.t.d. www.no-credit.cz',
         ], transform=self.transform_to_text)
-        self.assertXpathEqual(response, "//*[@class='result']//a/@href", ["//www.no-credit.cz"])
+        self.assertXpathEqual(response, "//*[@class='result']//a/@href", ["https://www.no-credit.cz"])
 
     def test_dobradomena_list_retail(self):
         self.WHOIS.get_registrar_groups.return_value = self._get_registrar_groups()

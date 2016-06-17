@@ -1,3 +1,4 @@
+import re
 import textwrap
 
 import idna
@@ -46,3 +47,23 @@ def idn_decode(value):
     except idna.IDNAError:
         pass
     return value
+
+
+@register.filter
+@stringfilter
+def add_scheme(value):
+    """
+    Add scheme (protocol) when missing in url.
+    """
+    if not re.match("https?://", value):
+        return "http://" + value
+    return value
+
+
+@register.filter
+@stringfilter
+def strip_scheme(value):
+    """
+    Strip scheme (protocol) from url.
+    """
+    return re.sub("^https?://", "", value)

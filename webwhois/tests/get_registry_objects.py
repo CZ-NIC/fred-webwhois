@@ -218,9 +218,9 @@ class GetRegistryObjectMixin(object):
         return [
             self.RegWhois.Registrar(handle='REG-FRED_A', name="Company A L.t.d.", organization='Testing registrar A', url='www.fred-a.cz',
                                     phone='', fax='', address=self._get_place_address()),
-            self.RegWhois.Registrar(handle='REG-FRED_B', name="Company B L.t.d.", organization='Testing registrar B', url='www.fred-b.cz',
+            self.RegWhois.Registrar(handle='REG-FRED_B', name="Company B L.t.d.", organization='Testing registrar B', url='http://www.fred-b.cz',
                                     phone='', fax='', address=self._get_place_address()),
-            self.RegWhois.Registrar(handle='REG-FRED_C', name="Company C L.t.d.", organization='Testing registrar NOCRED', url='www.no-credit.cz',
+            self.RegWhois.Registrar(handle='REG-FRED_C', name="Company C L.t.d.", organization='Testing registrar NOCRED', url='https://www.no-credit.cz',
                                     phone='', fax='', address=self._get_place_address()),
             self.RegWhois.Registrar(handle='REG-MOJEID', name="MojeID s.r.o.", organization='MojeID registrar', url='www.mojeid.cz',
                                     phone='', fax='', address=self._get_place_address()),
