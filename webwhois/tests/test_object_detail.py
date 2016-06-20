@@ -35,7 +35,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_domain_by_handle.side_effect = self.CORBA.Registry.Whois.UNMANAGED_ZONE
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "testhandle"}))
         self.assertContains(response, "Handle not found")
-        self.assertContains(response, "No domain, contact or name server set matches <strong>testhandle</strong> query.")
+        self.assertContains(response,
+                            "No domain, contact or name server set matches <strong>testhandle</strong> query.")
         self.assertNotContains(response, 'Register this domain name?')
 
     def test_handle_with_dash_not_found(self):
@@ -244,7 +245,9 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
 
     def test_contact_verification_failed(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        self.WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=["linked", "contactFailedManualVerification"])
+        self.WHOIS.get_contact_by_handle.return_value = self._get_contact(
+            statuses=["linked", "contactFailedManualVerification"],
+        )
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertXpathEqual(response, "//th[text()='Contact verification status']/../td", [
@@ -255,7 +258,9 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
 
     def test_contact_verification_in_manual(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        self.WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=["linked", "contactInManualVerification"])
+        self.WHOIS.get_contact_by_handle.return_value = self._get_contact(
+            statuses=["linked", "contactInManualVerification"],
+        )
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertXpathEqual(response, "//th[text()='Contact verification status']/../td", [
@@ -387,9 +392,11 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         response = self.client.get(reverse("webwhois:detail_keyset", kwargs={"handle": "mykeysid"}))
         self.assertContains(response, "Key set details")
         self.assertContains(response, "Search results for handle <strong>mykeysid</strong>:")
+        dns_key = 'DNS Key Flags: 257 Protocol: 3 Algorithm: 5 [alg] Key: ' \
+                  'AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8'
         self.assertCssSelectEqual(response, "table.result tr", [
             'Key set KEYSID-1',
-            'DNS Key Flags: 257 Protocol: 3 Algorithm: 5 [alg] Key: AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8',
+            dns_key,
             'Technical contact KONTAKT Company L.t.d.',
             'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
             'Status Has relation to other records in the registry'
@@ -405,9 +412,11 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         response = self.client.get(reverse("webwhois:detail_keyset", kwargs={"handle": "mykeysid"}))
         self.assertContains(response, "Key set details")
         self.assertContains(response, "Search results for handle <strong>mykeysid</strong>:")
+        dns_key = 'DNS Key Flags: 257 Protocol: 3 Algorithm: 5 [alg] Key: ' \
+                  'AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8'
         self.assertCssSelectEqual(response, "table.result tr", [
             'Key set KEYSID-1',
-            'DNS Key Flags: 257 Protocol: 3 Algorithm: 5 [alg] Key: AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8',
+            dns_key,
             'Technical contact KONTAKT Arnold Rimmer',
             'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
             'Status Has relation to other records in the registry'
@@ -445,6 +454,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
         self.assertContains(response, "Domain name details")
         self.assertContains(response, "Search results for handle <strong>fred.cz</strong>:")
+        dns_key = 'DNS Key Flags: 257 Protocol: 3 Algorithm: 5 [alg] Key: ' \
+                  'AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8'
         self.assertCssSelectEqual(response, "table.result tr", [
             'Domain name fred.cz',
             'Registered since 12/09/2015',
@@ -462,7 +473,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
             'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
             'Status Has relation to other records in the registry',
             'Key set KEYSID-1',
-            'DNS Key Flags: 257 Protocol: 3 Algorithm: 5 [alg] Key: AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8',
+            dns_key,
             'Technical contact KONTAKT Company L.t.d.',
             'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
             'Status Has relation to other records in the registry'
@@ -482,6 +493,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
         self.assertContains(response, "Domain name details")
         self.assertContains(response, "Search results for handle <strong>fred.cz</strong>:")
+        dns_key = 'DNS Key Flags: 257 Protocol: 3 Algorithm: 5 [alg] Key: ' \
+                  'AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8'
         self.assertCssSelectEqual(response, "table.result tr", [
             'Domain name fred.cz',
             'Registered since 12/09/2015',
@@ -499,7 +512,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
             'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
             'Status Has relation to other records in the registry',
             'Key set KEYSID-1',
-            'DNS Key Flags: 257 Protocol: 3 Algorithm: 5 [alg] Key: AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8',
+            dns_key,
             'Technical contact KONTAKT Arnold Rimmer',
             'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
             'Status Has relation to other records in the registry'
@@ -531,7 +544,9 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.com"}))
         self.assertContains(response, 'Unmanaged zone')
-        self.assertContains(response, 'Domain <strong>fred.com</strong> cannot be found in the registry. You can search for domains in the these zones only:')
+        msg = 'Domain <strong>fred.com</strong> cannot be found in the registry. ' \
+              'You can search for domains in the these zones only:'
+        self.assertContains(response, msg)
         self.assertNotContains(response, 'Register this domain name?')
         self.assertCssSelectEqual(response, "ul li", ['cz', '0.2.4.e164.arpa'], transform=self.transform_to_text)
 
@@ -555,7 +570,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjec
         self.assertContains(response, "Incorrect input")
         self.assertContains(response, "Too many parts in the domain name <strong>www.fred.cz</strong>.")
         self.assertContains(response, "Enter only the name and the zone:")
-        self.assertXpathEqual(response, "//a[text()='fred.cz']/@href", [reverse("webwhois:form_whois") + "?handle=fred.cz"])
+        self.assertXpathEqual(response, "//a[text()='fred.cz']/@href",
+                              [reverse("webwhois:form_whois") + "?handle=fred.cz"])
 
     def test_idn_domain(self):
         self._mocks_for_domain_detail(handle="xn--frd-cma.cz")

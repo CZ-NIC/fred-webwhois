@@ -1,5 +1,6 @@
 from django.conf.urls import include, patterns, url
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^whois/', include('webwhois.urls', namespace='webwhois')),
 )

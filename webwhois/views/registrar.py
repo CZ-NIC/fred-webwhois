@@ -1,6 +1,6 @@
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import TemplateView, View
+from django.views.generic import View
 
 from webwhois.views.base import BaseContextMixin, RegistryObjectMixin
 
@@ -41,9 +41,11 @@ class RegistrarListMixin(BaseContextMixin):
         return data
 
     def get_context_data(self, **kwargs):
-        # groups: {'certified': Registry.Whois.RegistrarGroup(name='certified', members=['REG-FRED_A', 'REG-FRED_B']), ...}
+        # groups: {'certified': Registry.Whois.RegistrarGroup(name='certified', members=['REG-FRED_A', 'REG-FRED_B']),
+        #          ...}
         groups = {group.name: group for group in self._WHOIS.get_registrar_groups()}
-        # certs: {'REG-FRED_A': Registry.Whois.RegistrarCertification(registrar_handle='REG-FRED_A', score=2, evaluation_file_id=1L), ...}
+        # certs: {'REG-FRED_A': Registry.Whois.RegistrarCertification(registrar_handle='REG-FRED_A',
+        #                                                             score=2, evaluation_file_id=1L), ...}
         certs = {cert.registrar_handle: cert for cert in self._WHOIS.get_registrar_certification_list()}
         registrars = []
         for reg in self._WHOIS.get_registrars():
@@ -56,7 +58,9 @@ class RegistrarListMixin(BaseContextMixin):
                     continue
             cert = certs.get(reg.handle)
             score = cert.score if cert else 0
-            registrars.append(self._registrar_row({"registrar": reg, "cert": cert, "score": score, "stars": range(score)}))
+            registrars.append(
+                self._registrar_row({"registrar": reg, "cert": cert, "score": score, "stars": range(score)}),
+            )
 
         kwargs.setdefault("groups", groups)
         kwargs.setdefault("registrars", registrars)

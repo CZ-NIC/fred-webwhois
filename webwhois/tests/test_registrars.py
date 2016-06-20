@@ -75,9 +75,12 @@ class TestRegisrarsView(WebwhoisAssertMixin, CorbaInitMixin, GetRegistryObjectMi
         ], transform=lambda node: node)
 
         # Certification (number of stars):
-        self.assertXpathEqual(response, "count(//table[@class='result']/tr[2]/td[4]//img)=8", True)  # MojeID registrar
-        self.assertXpathEqual(response, "count(//table[@class='result']/tr[3]/td[4]//img)=2", True)  # Testing registrar A
-        self.assertXpathEqual(response, "count(//table[@class='result']/tr[4]/td[4]//img)=0", True)  # Testing registrar B
+        # MojeID registrar
+        self.assertXpathEqual(response, "count(//table[@class='result']/tr[2]/td[4]//img)=8", True)
+        # Testing registrar A
+        self.assertXpathEqual(response, "count(//table[@class='result']/tr[3]/td[4]//img)=2", True)
+        # Testing registrar B
+        self.assertXpathEqual(response, "count(//table[@class='result']/tr[4]/td[4]//img)=0", True)
 
         # Evaluation protocol (links):
         self.assertXpathEqual(response, "//table[@class='result']/tr/td[5]//a/@href", [

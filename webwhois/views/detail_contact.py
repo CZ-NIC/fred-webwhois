@@ -58,12 +58,14 @@ class ContactDetailMixin(RegistryObjectMixin):
         descriptions = self._get_status_descriptions("contact", self._WHOIS.get_contact_status_descriptions)
         data = context[self._registry_objects_key]["contact"]  # detail, type, label, href
         registry_object = data["detail"]
+
+        ver_status = [{"code": key, "label": descriptions[key],
+                       "icon": self.VERIFICATION_STATUS_ICON.get(key, self.VERIFICATION_STATUS_ICON["DEFAULT"])}
+                      for key in registry_object.statuses if key in self.CONTACT_VERIFICATION_STATUS]
         data.update({
             "status_descriptions": [descriptions[key] for key in registry_object.statuses
                                     if key not in self.CONTACT_VERIFICATION_STATUS],
-            "verification_status": [{"code": key, "label": descriptions[key],
-                                     "icon": self.VERIFICATION_STATUS_ICON.get(key, self.VERIFICATION_STATUS_ICON["DEFAULT"])}
-                                     for key in registry_object.statuses if key in self.CONTACT_VERIFICATION_STATUS],
+            "verification_status": ver_status,
             "is_linked": "linked" in registry_object.statuses
         })
         if registry_object.creating_registrar_handle:

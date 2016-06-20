@@ -136,8 +136,10 @@ class WebwhoisAssertMixin(object):
         if doc is not None:
             return doc
 
-        self._parsed_response[content] = html.fromstring(content,
-            parser=html.HTMLParser(recover=True, encoding=response._charset))
+        self._parsed_response[content] = html.fromstring(
+            content,
+            parser=html.HTMLParser(recover=True, encoding=response._charset),
+        )
 
         return self._parsed_response[content]
 

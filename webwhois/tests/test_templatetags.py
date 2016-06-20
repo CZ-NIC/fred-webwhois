@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import idna
 from django.test import SimpleTestCase
 
 from webwhois.templatetags.webwhois_filters import add_scheme, contact_ssn_type_label, idn_decode, strip_scheme, \
