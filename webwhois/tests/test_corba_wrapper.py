@@ -4,7 +4,7 @@ from django.test import SimpleTestCase, override_settings
 from django.utils import timezone
 from omniORB import StructBase
 
-from webwhois.utils import CCREG_MODULE, WHOIS_MODULE
+from webwhois.utils import CCREG_MODULE
 from webwhois.utils.corba_wrapper import WebwhoisCorbaRecoder
 
 
