@@ -2,7 +2,7 @@ from django.conf import settings
 from django.utils.functional import SimpleLazyObject
 from django.views.generic import TemplateView
 
-from webwhois.utils.corba_wrapper import CorbaWrapper, get_corba_for_module
+from webwhois.utils.corba_wrapper import CCREG_MODULE, WHOIS_MODULE, CorbaWrapper, get_corba_for_module
 from webwhois.views import ContactDetailMixin, ContactDetailWithMojeidMixin, DomainDetailMixin, DownloadEvalFileView, \
     KeysetDetailMixin, NssetDetailMixin, RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, \
     WhoisFormView
@@ -10,14 +10,12 @@ from webwhois.views import ContactDetailMixin, ContactDetailWithMojeidMixin, Dom
 
 def load_whois_from_idl():
     corba_name_service_client = get_corba_for_module()  # Load IDL.
-    from Registry.Whois import WhoisIntf  # Module from IDL.
-    return CorbaWrapper(corba_name_service_client.get_object('Whois2', WhoisIntf))
+    return CorbaWrapper(corba_name_service_client.get_object('Whois2', WHOIS_MODULE.WhoisIntf))
 
 
 def load_filemanager_from_idl():
     corba_name_service_client = get_corba_for_module()  # Load IDL.
-    from ccReg import FileManager  # Module from IDL.
-    return corba_name_service_client.get_object('FileManager', FileManager)
+    return corba_name_service_client.get_object('FileManager', CCREG_MODULE.FileManager)
 
 
 WHOIS = SimpleLazyObject(load_whois_from_idl)
