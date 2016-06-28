@@ -9,12 +9,12 @@ from webwhois.views import ContactDetailMixin, ContactDetailWithMojeidMixin, Dom
 
 
 def load_whois_from_idl():
-    corba_name_service_client = get_corba_for_module()  # Load IDL.
+    corba_name_service_client = get_corba_for_module()
     return CorbaWrapper(corba_name_service_client.get_object('Whois2', WHOIS_MODULE.WhoisIntf))
 
 
 def load_filemanager_from_idl():
-    corba_name_service_client = get_corba_for_module()  # Load IDL.
+    corba_name_service_client = get_corba_for_module()
     return corba_name_service_client.get_object('FileManager', CCREG_MODULE.FileManager)
 
 
