@@ -23,80 +23,82 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <th>{% trans "Registered since" %}</th>
-                    <td class="registered-since">{{ domain.registered|date:"SHORT_DATE_FORMAT" }}</td>
-                </tr>
-                <tr>
-                    <th>{% trans "Last update date" %}</th>
-                    <td class="last-update-date">{{ domain.changed|date:"SHORT_DATE_FORMAT"|default_if_none:'' }}</td>
-                </tr>
-                <tr>
-                    <th>{% trans "Expiration date" %}</th>
-                    <td class="expiration-date">{{ domain.expire|date:"SHORT_DATE_FORMAT" }}</td>
-                </tr>
-                {% if domain.validated_to %}
+                {% if registry_objects.domain.show_details %}
                     <tr>
-                        <th>{% trans "Validation expiration date" %}</th>
-                        <td class="validated-to">{{ domain.validated_to|date:"SHORT_DATE_FORMAT"|default_if_none:'' }}</td>
+                        <th>{% trans "Registered since" %}</th>
+                        <td class="registered-since">{{ domain.registered|date:"SHORT_DATE_FORMAT" }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Last update date" %}</th>
+                        <td class="last-update-date">{{ domain.changed|date:"SHORT_DATE_FORMAT"|default_if_none:'' }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Expiration date" %}</th>
+                        <td class="expiration-date">{{ domain.expire|date:"SHORT_DATE_FORMAT" }}</td>
+                    </tr>
+                    {% if domain.validated_to %}
+                        <tr>
+                            <th>{% trans "Validation expiration date" %}</th>
+                            <td class="validated-to">{{ domain.validated_to|date:"SHORT_DATE_FORMAT"|default_if_none:'' }}</td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <th>{% trans "Holder" %}</th>
+                        <td class="holder">
+                            <a href="{% url "webwhois:detail_contact" handle=registrant.handle %}">{{ registrant.handle }}</a>
+                            {% if registrant.organization.value %}
+                                {% if registrant.organization.disclose %}
+                                    <span>{{ registrant.organization.value|default_if_none:'' }}</span>
+                                {% endif %}
+                            {% else %}
+                                {% if registrant.name.disclose %}
+                                    <span>{{ registrant.name.value|default_if_none:'' }}</span>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Administrative contact" %}</th>
+                        <td class="admins">
+                            {% for admin in domain_admins %}
+                                <div>
+                                    <a href="{% url "webwhois:detail_contact" handle=admin.handle %}">{{ admin.handle }}</a>
+                                    {% if admin.organization.value %}
+                                        {% if admin.organization.disclose %}
+                                            <span>{{ admin.organization.value|default_if_none:'' }}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if admin.name.disclose %}
+                                            <span>{{ admin.name.value|default_if_none:'' }}</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Sponsoring registrar" %}</th>
+                        <td class="sponsoring-registrar">
+                            <a href="{% url "webwhois:detail_registrar" handle=registrar.handle %}">{{ registrar.handle }}</a>
+                            <span>{{ registrar.name }}</span>
+                            <span>{% spaceless %}
+                                {% blocktrans with date=domain.last_transfer|default:domain.registered trimmed %}
+                                    since {{ date }}
+                                {% endblocktrans %}
+                            {% endspaceless %}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Secured by" %} {% if DNSSEC_URL %}<a href="{{ DNSSEC_URL }}">DNSSEC</a>{% else %}DNSSEC{% endif %}</th>
+                        <td class="dnssec">
+                            {% if domain.keyset_handle %}
+                                <img src='{% static "webwhois/img/icon-yes.gif" %}' alt='{% trans "Yes" %}'>
+                            {% else %}
+                                <img src='{% static "webwhois/img/icon-no.gif" %}' alt='{% trans "No" %}'>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endif %}
-                <tr>
-                    <th>{% trans "Holder" %}</th>
-                    <td class="holder">
-                        <a href="{% url "webwhois:detail_contact" handle=registrant.handle %}">{{ registrant.handle }}</a>
-                        {% if registrant.organization.value %}
-                            {% if registrant.organization.disclose %}
-                                <span>{{ registrant.organization.value|default_if_none:'' }}</span>
-                            {% endif %}
-                        {% else %}
-                            {% if registrant.name.disclose %}
-                                <span>{{ registrant.name.value|default_if_none:'' }}</span>
-                            {% endif %}
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th>{% trans "Administrative contact" %}</th>
-                    <td class="admins">
-                        {% for admin in domain_admins %}
-                            <div>
-                                <a href="{% url "webwhois:detail_contact" handle=admin.handle %}">{{ admin.handle }}</a>
-                                {% if admin.organization.value %}
-                                    {% if admin.organization.disclose %}
-                                        <span>{{ admin.organization.value|default_if_none:'' }}</span>
-                                    {% endif %}
-                                {% else %}
-                                    {% if admin.name.disclose %}
-                                        <span>{{ admin.name.value|default_if_none:'' }}</span>
-                                    {% endif %}
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </td>
-                </tr>
-                <tr>
-                    <th>{% trans "Sponsoring registrar" %}</th>
-                    <td class="sponsoring-registrar">
-                        <a href="{% url "webwhois:detail_registrar" handle=registrar.handle %}">{{ registrar.handle }}</a>
-                        <span>{{ registrar.name }}</span>
-                        <span>{% spaceless %}
-                            {% blocktrans with date=domain.last_transfer|default:domain.registered %}
-                                since {{ date }}
-                            {% endblocktrans %}
-                        {% endspaceless %}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <th>{% trans "Secured by" %} {% if DNSSEC_URL %}<a href="{{ DNSSEC_URL }}">DNSSEC</a>{% else %}DNSSEC{% endif %}</th>
-                    <td class="dnssec">
-                        {% if domain.keyset_handle %}
-                            <img src='{% static "webwhois/img/icon-yes.gif" %}' alt='{% trans "Yes" %}'>
-                        {% else %}
-                            <img src='{% static "webwhois/img/icon-no.gif" %}' alt='{% trans "No" %}'>
-                        {% endif %}
-                    </td>
-                </tr>
                 <tr>
                     <th>{% trans "Status" %}</th>
                     <td class="status" data-codes="{{ domain.statuses|join:"," }}">{% for description in domain_status_descriptions %}

@@ -41,7 +41,7 @@
                     <a href="{% url "webwhois:detail_registrar" handle=registrar.handle %}">{{ registrar.handle }}</a>
                     <span class="name">{{ registrar.name }}</span>
                     <span>{% spaceless %}
-                        {% blocktrans with date=nsset.last_transfer|default:nsset.created %}
+                        {% blocktrans with date=nsset.last_transfer|default:nsset.created trimmed %}
                             since {{ date }}
                         {% endblocktrans %}
                     {% endspaceless %}</span>

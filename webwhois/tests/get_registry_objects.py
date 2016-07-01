@@ -77,6 +77,7 @@ class GetRegistryObjectMixin(object):
             WHOIS_MODULE.ObjectStatusDesc(handle='deleteCandidate', name='To be deleted'),
             WHOIS_MODULE.ObjectStatusDesc(handle='serverRegistrantChangeProhibited',
                                           name='Registrant change forbidden'),
+            WHOIS_MODULE.ObjectStatusDesc(handle='deleteCandidate', name='To be deleted'),
         ]
 
     @corba_wrapper_m

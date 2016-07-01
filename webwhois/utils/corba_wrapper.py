@@ -64,12 +64,17 @@ class WebwhoisCorbaRecoder(CorbaRecoder):
         # entities, so type matching can not be used.
         struct_ident = getattr(value, "_NP_RepositoryId")
         if struct_ident == "IDL:ccReg/DateTimeType:1.0":
+            if value.date.year == 0 and value.date.month == 0 and value.date.day == 0 and value.hour == 0 and \
+                    value.minute == 0 and value.second == 0:
+                return None
             corba_date = timezone.make_aware(datetime.datetime(value.date.year, value.date.month, value.date.day,
                                                                value.hour, value.minute, value.second), timezone.utc)
             if not settings.USE_TZ:
                 corba_date = timezone.make_naive(corba_date, timezone.get_default_timezone())
             return corba_date
         elif struct_ident == "IDL:ccReg/DateType:1.0":
+            if value.year == 0 and value.month == 0 and value.day == 0:
+                return None
             return datetime.date(value.year, value.month, value.day)
         else:
             return super(WebwhoisCorbaRecoder, self)._decode_struct(value)

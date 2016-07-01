@@ -94,11 +94,15 @@ class DomainDetailMixin(RegistryObjectMixin):
         descriptions = self._get_status_descriptions("domain", self._WHOIS.get_domain_status_descriptions)
         data = context[self._registry_objects_key]["domain"]  # detail, type, label, href
         registry_object = data["detail"]
+        data["status_descriptions"] = [descriptions[key] for key in registry_object.statuses]
+        data["show_details"] = True
+        if "deleteCandidate" in registry_object.statuses:
+            data["show_details"] = False
+            return
         data.update({
             "registrant": self._WHOIS.get_contact_by_handle(registry_object.registrant_handle),
             "registrar": self._WHOIS.get_registrar_by_handle(registry_object.registrar_handle),
             "admins": [self._WHOIS.get_contact_by_handle(handle) for handle in registry_object.admin_contact_handles],
-            "status_descriptions": [descriptions[key] for key in registry_object.statuses],
         })
         if registry_object.nsset_handle:
             data["nsset"] = {"detail": self._WHOIS.get_nsset_by_handle(registry_object.nsset_handle)}

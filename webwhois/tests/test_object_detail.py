@@ -5,11 +5,11 @@ from django.core.urlresolvers import reverse
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
 from django.utils.formats import reset_format_cache
-from mock import patch
+from mock import call, patch
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.tests.utils import WebwhoisAssertMixin, apply_patch
-from webwhois.utils import WHOIS_MODULE
+from webwhois.utils import CCREG_MODULE, WHOIS_MODULE
 
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None)
@@ -587,6 +587,33 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response, "Search results for handle <strong>xn--frd-cma.cz</strong>:")
         self.assertCssSelectEqual(response, ".domain .handle", ["xn--frd-cma.cz"], transform=self.transform_to_text)
         self.assertCssSelectEqual(response, ".domain .idn-handle", [u"fréd.cz"], transform=self.transform_to_text)
+
+    def test_domain_with_datetime_zero_values(self):
+        date = CCREG_MODULE.DateType(day=0, month=0, year=0)
+        datetime = CCREG_MODULE.DateTimeType(date=date, hour=0, minute=0, second=0),
+        self.WHOIS.get_domain_by_handle.return_value = self._get_domain(
+            handle='fred.cz',
+            registrant_handle='',
+            admin_contact_handles=[],
+            nsset_handle=None,
+            keyset_handle=None,
+            registrar_handle='',
+            statuses=['deleteCandidate'],
+            registered=datetime,
+            changed=None,
+            last_transfer=None,
+            expire=date,
+            expire_time_estimate=datetime,
+            expire_time_actual=None,
+            validated_to=None,
+            validated_to_time_estimate=None,
+            validated_to_time_actual=None
+        )
+        self.WHOIS.get_domain_status_descriptions.return_value = self._get_domain_status()
+        response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
+        self.assertCssSelectEqual(response, ".domain tr td", ["fred.cz", "To be deleted"],
+                                  transform=self.transform_to_text)
+        self.assertEqual(self.WHOIS.mock_calls, [call.get_domain_by_handle('fred.cz')])
 
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None)

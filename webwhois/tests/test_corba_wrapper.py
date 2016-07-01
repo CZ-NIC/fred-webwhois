@@ -41,9 +41,17 @@ class TestWebwhoisCorbaRecoder(SimpleTestCase):
         raw = CCREG_MODULE.DateType(day=12, month=5, year=2012)
         self.assertEqual(WebwhoisCorbaRecoder().decode(raw), date(2012, 5, 12))
 
+    def test_decode_date_with_zeros(self):
+        raw = CCREG_MODULE.DateType(day=0, month=0, year=0)
+        self.assertEqual(WebwhoisCorbaRecoder().decode(raw), None)
+
     def test_other_date_type_class(self):
         raw = OtherDateType(day=12, month=5, year=2012)
         self.assertEqual(WebwhoisCorbaRecoder().decode(raw), date(2012, 5, 12))
+
+    def test_other_date_type_class_with_zeros(self):
+        raw = OtherDateType(day=0, month=0, year=0)
+        self.assertEqual(WebwhoisCorbaRecoder().decode(raw), None)
 
     def test_decode_datetime_tz_off(self):
         raw = CCREG_MODULE.DateTimeType(date=CCREG_MODULE.DateType(12, 5, 2012), hour=5, minute=42, second=13)
@@ -61,3 +69,11 @@ class TestWebwhoisCorbaRecoder(SimpleTestCase):
         raw = OtherDateTimeType(date=OtherDateType(12, 5, 2012), hour=5, minute=42, second=13)
         with override_settings(USE_TZ=True):
             self.assertEqual(WebwhoisCorbaRecoder().decode(raw), datetime(2012, 5, 12, 5, 42, 13, tzinfo=timezone.utc))
+
+    def test_decode_datetime_with_zeros(self):
+        raw = CCREG_MODULE.DateTimeType(date=CCREG_MODULE.DateType(0, 0, 0), hour=0, minute=0, second=0)
+        self.assertEqual(WebwhoisCorbaRecoder().decode(raw), None)
+
+    def test_other_datetime_type_class_with_zeros(self):
+        raw = OtherDateTimeType(date=OtherDateType(0, 0, 0), hour=0, minute=0, second=0)
+        self.assertEqual(WebwhoisCorbaRecoder().decode(raw), None)
