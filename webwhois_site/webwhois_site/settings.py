@@ -133,6 +133,10 @@ WEBWHOIS_HOW_TO_REGISTER_LINK = {
     "label": "www.dobradomena.cz"
 }
 
+# Groups names that will be displayed with/without certifications.
+WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED = ["certified"]
+WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED = ["uncertified"]
+
 # Captcha configuration
 WEBWHOIS_CAPTCHA_MAX_REQUESTS = 100  # Number of requests, when captcha will appear
 

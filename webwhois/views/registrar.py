@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
@@ -42,6 +43,15 @@ class RegistrarListMixin(BaseContextMixin):
         # groups: {'certified': Registry.Whois.RegistrarGroup(name='certified', members=['REG-FRED_A', 'REG-FRED_B']),
         #          ...}
         groups = {group.name: group for group in self._WHOIS.get_registrar_groups()}
+
+        certified_members, uncertified_members = set(), set()
+        for name in settings.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED:
+            if name in groups:
+                certified_members |= set(groups[name].members)
+        for name in settings.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED:
+            if name in groups:
+                uncertified_members |= set(groups[name].members)
+
         # certs: {'REG-FRED_A': Registry.Whois.RegistrarCertification(registrar_handle='REG-FRED_A',
         #                                                             score=2, evaluation_file_id=1L), ...}
         certs = {cert.registrar_handle: cert for cert in self._WHOIS.get_registrar_certification_list()}
@@ -49,10 +59,10 @@ class RegistrarListMixin(BaseContextMixin):
         for reg in self._WHOIS.get_registrars():
             # reg: Registry.Whois.Registrar(handle='REG-FRED_A', organization='Testing registrar A', ...)
             if self.is_retail:
-                if reg.handle not in groups["certified"].members:
+                if reg.handle not in certified_members:
                     continue
             else:
-                if reg.handle not in groups["uncertified"].members:
+                if reg.handle not in uncertified_members:
                     continue
             cert = certs.get(reg.handle)
             score = cert.score if cert else 0
