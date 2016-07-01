@@ -14,6 +14,8 @@ from webwhois.tests.utils import WebwhoisAssertMixin, apply_patch
 from webwhois.utils import CCREG_MODULE, WHOIS_MODULE
 
 
+@override_settings(WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED=["certified"],
+                   WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED=["uncertified"])
 class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     urls = 'webwhois.tests.urls'
@@ -132,6 +134,36 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
         self.assertXpathEqual(response, "//table[@class='result']/tr[4]/td[6]/a/@href", [
             'http://fred-b.dobradomena.cz/manual.pdf',
         ], transform=lambda node: node)
+
+
+@override_settings(WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED=["foo"], WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED=["unfoo"])
+class TestRegisrarsUnknownGroupNames(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
+
+    urls = 'webwhois.tests.urls'
+
+    def setUp(self):
+        self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
+        self.WHOIS.get_registrar_groups.return_value = self._get_registrar_groups() + [
+            WHOIS_MODULE.RegistrarGroup(name='foo', members=['REG-FOO'])
+        ]
+        self.WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()
+        self.WHOIS.get_registrars.return_value = self._get_registrars() + [
+            WHOIS_MODULE.Registrar(handle='REG-FOO', name="Foo s.r.o.", organization='Foo registrar',
+                                   url='www.foo.foo', phone='', fax='', address=self._get_place_address()),
+        ]
+
+    def test_registrars_retail(self):
+        response = self.client.get(reverse("webwhois:registrar_list_retail"))
+        self.assertContains(response, "Registrars offering also retail services")
+        self.assertCssSelectEqual(response, "table.result tr", [
+            'Registrar Website Technologies Certification Evaluation protocol',
+            'Foo s.r.o. www.foo.foo'], transform=self.transform_to_text)
+
+    def test_registrars_wholesale(self):
+        response = self.client.get(reverse("webwhois:registrar_list_wholesale"))
+        self.assertContains(response, "Registrars offering only wholesale services")
+        self.assertCssSelectEqual(response, "table.result tr", [
+            'Registrar Website Technologies'], transform=self.transform_to_text)
 
 
 @override_settings(TEMPLATE_DIRS=(os.path.join(os.path.dirname(upath(__file__)), 'templates'), ))
