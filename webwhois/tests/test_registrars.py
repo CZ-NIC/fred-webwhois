@@ -40,7 +40,7 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
         response = self.client.get(reverse("webwhois:detail_registrar", kwargs={"handle": "REG_FRED_A"}))
         self.assertContains(response, "Registrar details")
         self.assertContains(response, "Search results for handle <strong>REG_FRED_A</strong>:")
-        self.assertCssSelectEqual(response, "table.result tr", [
+        self.assertCssSelectEqual(response, "table.registrar tr", [
             'Handle REG-FRED_A',
             'Name Company A L.t.d.',
             'Phone +420.72645123',
@@ -67,7 +67,7 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
         self.WHOIS.get_registrars.return_value = self._get_registrars()
         response = self.client.get(reverse("webwhois:registrar_list_retail"))
         self.assertContains(response, "Registrars offering also retail services")
-        self.assertCssSelectEqual(response, "table.result tr", [
+        self.assertCssSelectEqual(response, "table.registrars tr", [
             'Registrar Website Technologies Certification Evaluation protocol',
             'MojeID s.r.o. www.mojeid.cz',
             'Company A L.t.d. www.fred-a.cz',
@@ -76,32 +76,32 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
 
         # Technologies (number of icons):
         # MojeID registrar
-        self.assertXpathEqual(response, "count(//table[@class='result']/tr[2]/td[3]//img)=0", True)  # MojeID registrar
+        self.assertXpathEqual(response, "count(//table[contains(@class, 'registrars')]/tr[2]/td[3]//img)=0", True)
         # Testing registrar A
-        self.assertXpathEqual(response, "//table[@class='result']/tr[3]/td[3]//img/@src", [
+        self.assertXpathEqual(response, "//table[contains(@class, 'registrars')]/tr[3]/td[3]//img/@src", [
             "/static/webwhois/img/technology/dnssec.png",
             "/static/webwhois/img/technology/mojeid.png",
         ], transform=lambda node: node)
         # Testing registrar B
-        self.assertXpathEqual(response, "//table[@class='result']/tr[4]/td[3]//img/@src", [
+        self.assertXpathEqual(response, "//table[contains(@class, 'registrars')]/tr[4]/td[3]//img/@src", [
             "/static/webwhois/img/technology/ipv6.png",
         ], transform=lambda node: node)
 
         # Certification (number of stars):
         # MojeID registrar
-        self.assertXpathEqual(response, "count(//table[@class='result']/tr[2]/td[4]//img)=8", True)
+        self.assertXpathEqual(response, "count(//table[contains(@class, 'registrars')]/tr[2]/td[4]//img)=8", True)
         # Testing registrar A
-        self.assertXpathEqual(response, "count(//table[@class='result']/tr[3]/td[4]//img)=2", True)
+        self.assertXpathEqual(response, "count(//table[contains(@class, 'registrars')]/tr[3]/td[4]//img)=2", True)
         # Testing registrar B
-        self.assertXpathEqual(response, "count(//table[@class='result']/tr[4]/td[4]//img)=0", True)
+        self.assertXpathEqual(response, "count(//table[contains(@class, 'registrars')]/tr[4]/td[4]//img)=0", True)
 
         # Evaluation protocol (links):
-        self.assertXpathEqual(response, "//table[@class='result']/tr/td[5]//a/@href", [
+        self.assertXpathEqual(response, "//table[contains(@class, 'registrars')]/tr/td[5]//a/@href", [
             '/whois/registrar-download-evaluation-file/REG-MOJEID/',
             '/whois/registrar-download-evaluation-file/REG-FRED_A/',
         ], transform=lambda node: node)
 
-        self.assertXpathEqual(response, "//*[@class='result']//a/@href", [
+        self.assertXpathEqual(response, "//*[contains(@class, 'registrars')]//a/@href", [
             'http://www.mojeid.cz', '/whois/registrar-download-evaluation-file/REG-MOJEID/',
             'http://www.fred-a.cz', '/whois/registrar-download-evaluation-file/REG-FRED_A/',
             'http://www.fred-b.cz'
@@ -113,11 +113,11 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
         self.WHOIS.get_registrars.return_value = self._get_registrars()
         response = self.client.get(reverse("webwhois:registrar_list_wholesale"))
         self.assertContains(response, "Registrars offering only wholesale services")
-        self.assertCssSelectEqual(response, "table.result tr", [
+        self.assertCssSelectEqual(response, "table.registrars tr", [
             'Registrar Website Technologies',
             'Company C L.t.d. www.no-credit.cz',
         ], transform=self.transform_to_text)
-        self.assertXpathEqual(response, "//*[@class='result']//a/@href", ["https://www.no-credit.cz"])
+        self.assertXpathEqual(response, "//*[contains(@class, 'registrars')]//a/@href", ["https://www.no-credit.cz"])
 
     def test_dobradomena_list_retail(self):
         self.WHOIS.get_registrar_groups.return_value = self._get_registrar_groups()
@@ -131,21 +131,78 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
             'Registrar supports IPv6',
             'Registrar Certified for Retail',
         ], transform=self.transform_to_text)
-        self.assertXpathEqual(response, "//table[@class='result']/tr[1]/th[6]", [
+        self.assertXpathEqual(response, "//table[contains(@class, 'registrars')]/tr[1]/th[6]", [
             u'How to register a Dobrá doména.'
         ], transform=self.transform_to_text)
 
         # How to register "Dobrá doména":
         # MojeID registrar
-        self.assertXpathEqual(response, "count(//table[@class='result']/tr[2]/td[6]/a)=0", True)
+        self.assertXpathEqual(response, "count(//table[contains(@class, 'registrars')]/tr[2]/td[6]/a)=0", True)
         # Testing registrar A
-        self.assertXpathEqual(response, "//table[@class='result']/tr[3]/td[6]/a/@href", [
+        self.assertXpathEqual(response, "//table[contains(@class, 'registrars')]/tr[3]/td[6]/a/@href", [
             'http://fred-a.dobradomena.cz/manual.pdf',
         ], transform=lambda node: node)
         # Testing registrar B
-        self.assertXpathEqual(response, "//table[@class='result']/tr[4]/td[6]/a/@href", [
+        self.assertXpathEqual(response, "//table[contains(@class, 'registrars')]/tr[4]/td[6]/a/@href", [
             'http://fred-b.dobradomena.cz/manual.pdf',
         ], transform=lambda node: node)
+
+    def _table_line(self, node):
+        regisrar_name = self.normalize_spaces("".join(node.xpath("td[1]/text()")))
+        stars = "*" * int(node.xpath("count(td[4]//img)"))
+        return (regisrar_name, stars)
+
+    @patch("webwhois.views.registrar.random.SystemRandom.shuffle")
+    def test_shuffle_and_sorted_registrars(self, mock_shuffle):
+        self.WHOIS.get_registrar_groups.return_value = self._get_registrar_groups()
+        self.WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()
+        self.WHOIS.get_registrars.return_value = self._get_registrars()
+
+        self.WHOIS.get_registrar_groups.return_value[0].members.extend(("REG-ACTIVE", "REG-DEACTIVE", "REG-FRED_X",
+                                                                        "REG-FRED_Y"))
+        self.WHOIS.get_registrar_certification_list.return_value.extend((
+            WHOIS_MODULE.RegistrarCertification(registrar_handle='REG-ACTIVE', score=8, evaluation_file_id=None),
+            WHOIS_MODULE.RegistrarCertification(registrar_handle='REG-DEACTIVE', score=8, evaluation_file_id=None),
+            WHOIS_MODULE.RegistrarCertification(registrar_handle='REG-FRED_X', score=2, evaluation_file_id=None),
+            WHOIS_MODULE.RegistrarCertification(registrar_handle='REG-FRED_Y', score=2, evaluation_file_id=None),
+        ))
+        self.WHOIS.get_registrars.return_value.extend((
+            WHOIS_MODULE.Registrar(handle='REG-FRED_X', name="Company X L.t.d.", organization='Testing registrar X',
+                                   url='www.fred-x.cz', phone='', fax='', address=self._get_place_address()),
+            WHOIS_MODULE.Registrar(handle='REG-FRED_Y', name="Company Y L.t.d.", organization='Testing registrar Y',
+                                   url='www.fred-y.cz', phone='', fax='', address=self._get_place_address()),
+            WHOIS_MODULE.Registrar(handle='REG-ACTIVE', name="Active L.t.d.", organization='Active registrar',
+                                   url='www.active.cz', phone='', fax='', address=self._get_place_address()),
+            WHOIS_MODULE.Registrar(handle='REG-DEACTIVE', name="Deactive L.t.d.", organization='Deactive registrar',
+                                   url='www.deactive.cz', phone='', fax='', address=self._get_place_address()),
+        ))
+
+        mock_shuffle.side_effect = lambda regs: regs.sort(key=lambda row: row['registrar'].name, reverse=False)
+        response = self.client.get(reverse("webwhois:registrar_list_retail"))
+
+        self.assertXpathEqual(response, "//table[contains(@class, 'registrars')]//tr[position()>1]", [
+            ('Active L.t.d.',    '********'),
+            ('Deactive L.t.d.',  '********'),
+            ('MojeID s.r.o.',    '********'),
+            ('Company A L.t.d.', '**'),
+            ('Company X L.t.d.', '**'),
+            ('Company Y L.t.d.', '**'),
+            ('Company B L.t.d.', ''),
+        ], transform=self._table_line, normalize=False)
+
+        mock_shuffle.side_effect = lambda regs: regs.sort(key=lambda row: row['registrar'].name, reverse=True)
+        response = self.client.get(reverse("webwhois:registrar_list_retail"))
+        self.assertXpathEqual(response, "//table[contains(@class, 'registrars')]//tr[position()>1]", [
+            ('MojeID s.r.o.',    '********'),
+            ('Deactive L.t.d.',  '********'),
+            ('Active L.t.d.',    '********'),
+            ('Company Y L.t.d.', '**'),
+            ('Company X L.t.d.', '**'),
+            ('Company A L.t.d.', '**'),
+            ('Company B L.t.d.', '')
+        ], transform=self._table_line, normalize=False)
+
+        self.assertEqual(mock_shuffle.call_count, 2)
 
 
 @override_settings(WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED=["foo"], WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED=["unfoo"])
@@ -167,14 +224,14 @@ class TestRegisrarsUnknownGroupNames(WebwhoisAssertMixin, GetRegistryObjectMixin
     def test_registrars_retail(self):
         response = self.client.get(reverse("webwhois:registrar_list_retail"))
         self.assertContains(response, "Registrars offering also retail services")
-        self.assertCssSelectEqual(response, "table.result tr", [
+        self.assertCssSelectEqual(response, "table.registrars tr", [
             'Registrar Website Technologies Certification Evaluation protocol',
             'Foo s.r.o. www.foo.foo'], transform=self.transform_to_text)
 
     def test_registrars_wholesale(self):
         response = self.client.get(reverse("webwhois:registrar_list_wholesale"))
         self.assertContains(response, "Registrars offering only wholesale services")
-        self.assertCssSelectEqual(response, "table.result tr", [
+        self.assertCssSelectEqual(response, "table.registrars tr", [
             'Registrar Website Technologies'], transform=self.transform_to_text)
 
 

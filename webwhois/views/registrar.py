@@ -1,3 +1,5 @@
+import random
+
 from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _
@@ -70,8 +72,12 @@ class RegistrarListMixin(BaseContextMixin):
                 self._registrar_row({"registrar": reg, "cert": cert, "score": score, "stars": range(score)}),
             )
 
+        # Randomize order of the list of registrars and than sort it by score.
+        rand = random.SystemRandom()
+        rand.shuffle(registrars)
+
         kwargs.setdefault("groups", groups)
-        kwargs.setdefault("registrars", registrars)
+        kwargs.setdefault("registrars", sorted(registrars, key=lambda row: row["score"], reverse=True))
         kwargs.setdefault("is_retail", self.is_retail)
         return super(RegistrarListMixin, self).get_context_data(**kwargs)
 

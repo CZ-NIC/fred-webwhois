@@ -244,4 +244,8 @@ class GetRegistryObjectMixin(object):
                                    phone='', fax='', address=self._get_place_address()),
             WHOIS_MODULE.Registrar(handle='REG-MOJEID', name="MojeID s.r.o.", organization='MojeID registrar',
                                    url='www.mojeid.cz', phone='', fax='', address=self._get_place_address()),
+            WHOIS_MODULE.Registrar(handle='REG-OLD_ONE', name="Company One L.t.d.", organization='Old One',
+                                   url='www.old-one.cz', phone='', fax='', address=self._get_place_address()),
+            WHOIS_MODULE.Registrar(handle='REG-OLD_TWO', name="Company Two L.t.d.", organization='Old Two',
+                                   url='www.old-two.cz', phone='', fax='', address=self._get_place_address()),
         ]
