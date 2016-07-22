@@ -1,5 +1,5 @@
 {% extends "webwhois/block_main.html" %}
-{% load i18n %}
+{% load i18n webwhois_filters %}
 
 {% block title %}{{ block.super }} - {% trans "Registrar" %} {{ handle }}{% endblock %}
 
@@ -29,7 +29,7 @@
             </tr>
             <tr>
                 <th>{% trans "URL" %}</th>
-                <td class="url">{% if registrar.url %}<a href="http://{{ registrar.url }}">{{ registrar.url }}</a>{% endif %}</td>
+                <td class="url">{% if registrar.url %}<a href="{{ registrar.url|add_scheme }}">{{ registrar.url|strip_scheme }}</a>{% endif %}</td>
             </tr>
             <tr>
                 <th>{% trans "Address" %}</th>
