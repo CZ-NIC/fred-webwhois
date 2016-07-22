@@ -48,6 +48,18 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
             'URL www.nic.cz',
             'Address The street 123, 12300 Prague, CZ'
         ], transform=self.transform_to_text)
+        self.assertCssSelectEqual(response, ".url a", [
+            ("http://www.nic.cz", "www.nic.cz")
+        ], transform=lambda node: (node.attrib["href"], self.transform_to_text(node)), normalize=False)
+
+    def test_registrar_url_with_schema(self):
+        registrar = self._get_registrar()
+        registrar.url = "https://foo.foo"
+        self.WHOIS.get_registrar_by_handle.return_value = registrar
+        response = self.client.get(reverse("webwhois:detail_registrar", kwargs={"handle": "REG_FRED_A"}))
+        self.assertCssSelectEqual(response, ".url a", [
+            ("https://foo.foo", "foo.foo")
+        ], transform=lambda node: (node.attrib["href"], self.transform_to_text(node)), normalize=False)
 
     def test_registrars_retail(self):
         self.WHOIS.get_registrar_groups.return_value = self._get_registrar_groups()
