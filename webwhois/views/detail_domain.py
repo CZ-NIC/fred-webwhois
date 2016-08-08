@@ -83,7 +83,7 @@ class DomainDetailMixin(RegistryObjectMixin):
             # Caution! Domain name can have more than one fullstop character and it is still valid.
             # for example: '0.2.4.e164.arpa'
             # remove subdomain names: 'www.sub.domain.cz' -> 'domain.cz'
-            context["example_domain_name"] = re.search("([^.]+\.\w+)$", handle, re.IGNORECASE).group(1)
+            context["example_domain_name"] = re.search("([^.]+\.\w+)\.?$", handle, re.IGNORECASE).group(1)
             context["server_exception"] = {
                 "title": _("Incorrect input"),
                 "too_many_parts_in_domain_name": True,

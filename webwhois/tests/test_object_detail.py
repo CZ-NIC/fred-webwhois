@@ -574,6 +574,15 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertXpathEqual(response, "//a[text()='fred.cz']/@href",
                               [reverse("webwhois:form_whois") + "?handle=fred.cz"])
 
+    def test_domain_too_many_labels_with_dot_at_the_end(self):
+        self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.TOO_MANY_LABELS
+        response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "www.fred.cz."}))
+        self.assertContains(response, "Incorrect input")
+        self.assertContains(response, "Too many parts in the domain name <strong>www.fred.cz.</strong>.")
+        self.assertContains(response, "Enter only the name and the zone:")
+        self.assertXpathEqual(response, "//a[text()='fred.cz']/@href",
+                              [reverse("webwhois:form_whois") + "?handle=fred.cz"])
+
     def test_idn_domain(self):
         self._mocks_for_domain_detail(handle="xn--frd-cma.cz")
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": u"fréd.cz"}))
