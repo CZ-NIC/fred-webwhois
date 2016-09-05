@@ -7,15 +7,9 @@ import omniORB
 from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import SimpleLazyObject
-from pyfco.corba import CorbaNameServiceClient, init_omniorb_exception_handles
 from pyfco.corbarecoder import CorbaRecoder
 
 CORBA_WEBWHOIS = []
-
-init_omniorb_exception_handles(None)
-
-# http://omniorb.sourceforge.net/omnipy3/omniORBpy/omniORBpy004.html
-CORBA_ORB = omniORB.CORBA.ORB_init(["-ORBnativeCharCodeSet", "UTF-8"], omniORB.CORBA.ORB_ID)
 
 
 def _import_idl():
@@ -106,16 +100,3 @@ class CorbaWrapper(object):
                 return self._call_method(name, *args)
             return wrapper
         raise AttributeError
-
-
-def get_corba_for_module():
-    """
-    Import IDL and create Corba object for a module.
-    """
-    if CORBA_WEBWHOIS:
-        return CORBA_WEBWHOIS[0]
-
-    obj = CorbaNameServiceClient(CORBA_ORB, settings.WEBWHOIS_CORBA_IOR, settings.WEBWHOIS_CORBA_CONTEXT)
-
-    CORBA_WEBWHOIS.append(obj)
-    return CORBA_WEBWHOIS[0]

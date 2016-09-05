@@ -1,21 +1,27 @@
+import omniORB
 from django.conf import settings
 from django.utils.functional import SimpleLazyObject
 from django.views.generic import TemplateView
+from pyfco.corba import CorbaNameServiceClient, init_omniorb_exception_handles
 
-from webwhois.utils.corba_wrapper import CCREG_MODULE, WHOIS_MODULE, CorbaWrapper, get_corba_for_module
+from webwhois.utils.corba_wrapper import CCREG_MODULE, WHOIS_MODULE, CorbaWrapper
 from webwhois.views import ContactDetailMixin, ContactDetailWithMojeidMixin, DomainDetailMixin, DownloadEvalFileView, \
     KeysetDetailMixin, NssetDetailMixin, RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, \
     WhoisFormView
 
+init_omniorb_exception_handles(None)
+
+# http://omniorb.sourceforge.net/omnipy3/omniORBpy/omniORBpy004.html
+CORBA_ORB = omniORB.CORBA.ORB_init(["-ORBnativeCharCodeSet", "UTF-8"], omniORB.CORBA.ORB_ID)
+_CLIENT = CorbaNameServiceClient(CORBA_ORB, settings.WEBWHOIS_CORBA_IOR, settings.WEBWHOIS_CORBA_CONTEXT)
+
 
 def load_whois_from_idl():
-    corba_name_service_client = get_corba_for_module()
-    return CorbaWrapper(corba_name_service_client.get_object('Whois2', WHOIS_MODULE.WhoisIntf))
+    return CorbaWrapper(_CLIENT.get_object('Whois2', WHOIS_MODULE.WhoisIntf))
 
 
 def load_filemanager_from_idl():
-    corba_name_service_client = get_corba_for_module()
-    return corba_name_service_client.get_object('FileManager', CCREG_MODULE.FileManager)
+    return _CLIENT.get_object('FileManager', CCREG_MODULE.FileManager)
 
 
 WHOIS = SimpleLazyObject(load_whois_from_idl)
