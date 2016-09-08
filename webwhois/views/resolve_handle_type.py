@@ -36,8 +36,8 @@ class ResolveHandleTypeMixin(RegistryObjectMixin):
             return HttpResponseRedirect(context["redirect_to_type"])
         return super(ResolveHandleTypeMixin, self).get(request, *args, **kwargs)
 
-    def get_context_data(self, handle, **kwargs):
-        context = super(ResolveHandleTypeMixin, self).get_context_data(handle, **kwargs)
-        if context["number_of_found_objects"] > 1:
-            self.template_name = self.multiple_entries_template
-        return context
+    def get_template_names(self):
+        context = self._get_registry_objects()
+        if len(context[self._registry_objects_key]) > 1:
+            return [self.multiple_entries_template]
+        return super(ResolveHandleTypeMixin, self).get_template_names()

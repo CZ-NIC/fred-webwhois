@@ -131,9 +131,10 @@ class RegistryObjectMixin(BaseContextMixin):
     def get_context_data(self, handle, **kwargs):
         kwargs.setdefault("handle", handle)
         kwargs.update(self._get_registry_objects())
-        kwargs["number_of_found_objects"] = len(kwargs[self._registry_objects_key])
-        if "template_name" in kwargs:
-            self.template_name = kwargs["template_name"]
-        elif "server_exception" in kwargs:
-            self.template_name = self.server_exception_template
         return super(RegistryObjectMixin, self).get_context_data(**kwargs)
+
+    def get_template_names(self):
+        context = self._get_registry_objects()
+        if "server_exception" in context:
+            return [self.server_exception_template]
+        return super(RegistryObjectMixin, self).get_template_names()
