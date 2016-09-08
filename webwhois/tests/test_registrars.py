@@ -7,7 +7,7 @@ from django.http.response import HttpResponseNotFound
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
 from django.utils._os import upath
-from mock import patch
+from mock import call, patch
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.tests.utils import WebwhoisAssertMixin, apply_patch
@@ -22,18 +22,33 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
 
     def setUp(self):
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
+        self.LOGGER = apply_patch(self, patch("webwhois.views.pages.LOGGER"))
 
     def test_registrar_not_found(self):
         self.WHOIS.get_registrar_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:detail_registrar", kwargs={"handle": "REG_FRED_A"}))
         self.assertContains(response, 'Registrar not found')
         self.assertContains(response, 'No registrar matches <strong>REG_FRED_A</strong> handle.')
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'REG_FRED_A'), ('handleType', 'registrar'))),
+            call.create_request().close(properties=[])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_registrar_invalid_handle(self):
         self.WHOIS.get_registrar_by_handle.side_effect = WHOIS_MODULE.INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_registrar", kwargs={"handle": "REG_FRED_A"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>REG_FRED_A</strong> is not a valid handle.")
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'REG_FRED_A'), ('handleType', 'registrar'))),
+            call.create_request().close(properties=[('reason', 'INVALID_HANDLE')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_registrar(self):
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
@@ -51,6 +66,13 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
         self.assertCssSelectEqual(response, ".url a", [
             ("http://www.nic.cz", "www.nic.cz")
         ], transform=lambda node: (node.attrib["href"], self.transform_to_text(node)), normalize=False)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'REG_FRED_A'), ('handleType', 'registrar'))),
+            call.create_request().close(properties=[('foundType', 'registrar')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_registrar_url_with_schema(self):
         registrar = self._get_registrar()
@@ -60,6 +82,13 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
         self.assertCssSelectEqual(response, ".url a", [
             ("https://foo.foo", "foo.foo")
         ], transform=lambda node: (node.attrib["href"], self.transform_to_text(node)), normalize=False)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'REG_FRED_A'), ('handleType', 'registrar'))),
+            call.create_request().close(properties=[('foundType', 'registrar')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_registrars_retail(self):
         self.WHOIS.get_registrar_groups.return_value = self._get_registrar_groups()
@@ -106,6 +135,7 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
             'http://www.fred-a.cz', '/whois/registrar-download-evaluation-file/REG-FRED_A/',
             'http://www.fred-b.cz'
         ])
+        self.assertEqual(self.LOGGER.mock_calls, [])
 
     def test_registrars_wholesale(self):
         self.WHOIS.get_registrar_groups.return_value = self._get_registrar_groups()
@@ -118,6 +148,7 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
             'Company C L.t.d. www.no-credit.cz',
         ], transform=self.transform_to_text)
         self.assertXpathEqual(response, "//*[contains(@class, 'registrars')]//a/@href", ["https://www.no-credit.cz"])
+        self.assertEqual(self.LOGGER.mock_calls, [])
 
     def test_dobradomena_list_retail(self):
         self.WHOIS.get_registrar_groups.return_value = self._get_registrar_groups()
@@ -146,6 +177,7 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
         self.assertXpathEqual(response, "//table[contains(@class, 'registrars')]/tr[4]/td[6]/a/@href", [
             'http://fred-b.dobradomena.cz/manual.pdf',
         ], transform=lambda node: node)
+        self.assertEqual(self.LOGGER.mock_calls, [])
 
     def _table_line(self, node):
         regisrar_name = self.normalize_spaces("".join(node.xpath("td[1]/text()")))

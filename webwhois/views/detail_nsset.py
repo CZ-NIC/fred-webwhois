@@ -7,6 +7,7 @@ from webwhois.views.base import RegistryObjectMixin
 class NssetDetailMixin(RegistryObjectMixin):
 
     template_name = "webwhois/nsset.html"
+    object_type_name = "nsset"
 
     @classmethod
     def append_nsset_related(cls, data, backend_whois):

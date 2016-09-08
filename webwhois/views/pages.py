@@ -5,6 +5,7 @@ from django.views.generic import TemplateView
 from pyfco.corba import CorbaNameServiceClient, init_omniorb_exception_handles
 
 from webwhois.utils.corba_wrapper import CCREG_MODULE, WHOIS_MODULE, CorbaWrapper
+from webwhois.utils.logger import create_logger
 from webwhois.views import ContactDetailMixin, ContactDetailWithMojeidMixin, DomainDetailMixin, DownloadEvalFileView, \
     KeysetDetailMixin, NssetDetailMixin, RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, \
     WhoisFormView
@@ -24,8 +25,18 @@ def load_filemanager_from_idl():
     return _CLIENT.get_object('FileManager', CCREG_MODULE.FileManager)
 
 
+def load_logger_from_idl():
+    service_client = CorbaNameServiceClient(CORBA_ORB, settings.WEBWHOIS_LOGGER_CORBA_IOR,
+                                            settings.WEBWHOIS_LOGGER_CORBA_CONTEXT)
+    return service_client.get_object('Logger', CCREG_MODULE.Logger)
+
+
 WHOIS = SimpleLazyObject(load_whois_from_idl)
 FILEMANAGER = SimpleLazyObject(load_filemanager_from_idl)
+if settings.WEBWHOIS_LOGGER:
+    LOGGER = SimpleLazyObject(lambda: create_logger(settings.WEBWHOIS_LOGGER, load_logger_from_idl(), CCREG_MODULE))
+else:
+    LOGGER = None
 
 
 class CorbaWhoisBaseMixin(object):
@@ -35,6 +46,7 @@ class CorbaWhoisBaseMixin(object):
     def __init__(self, *args, **kwargs):
         super(CorbaWhoisBaseMixin, self).__init__(*args, **kwargs)
         self._WHOIS = WHOIS
+        self._LOGGER = LOGGER
 
     def get_context_data(self, **kwargs):
         kwargs.setdefault("base_template", self.base_template)

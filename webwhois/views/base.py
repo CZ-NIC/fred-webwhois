@@ -35,9 +35,12 @@ class RegistryObjectMixin(BaseContextMixin):
     and redirect to your own customized page if you need.
     """
     _WHOIS = None
+    _LOGGER = None
     _registry_objects_key = "registry_objects"
+    _registry_objects_cache = None
 
     server_exception_template = "webwhois/server_exception.html"
+    object_type_name = None
 
     @staticmethod
     def _get_status_descriptions(type_name, fnc_get_descriptions):
@@ -62,8 +65,9 @@ class RegistryObjectMixin(BaseContextMixin):
         return mark_safe_lazy(text % "<strong>%s</strong>" % escape(handle))
 
     @classmethod
-    def message_invalid_handle(cls, handle):
+    def message_invalid_handle(cls, handle, code="INVALID_HANDLE"):
         return {
+            "code": code,
             "title": _("Invalid handle"),
             "message": cls.message_with_handle_in_html(_("%s is not a valid handle."), handle),
         }
@@ -75,14 +79,60 @@ class RegistryObjectMixin(BaseContextMixin):
     def load_related_objects(self, context):
         "Load objects related to the main registry object and append them into the context."
 
+    def prepare_logging_request(self):
+        if self.object_type_name is None:
+            raise NotImplementedError
+        if not self._LOGGER:
+            return
+        properties_in = (
+            ("handle", self.kwargs["handle"]),
+            ("handleType", self.object_type_name),
+        )
+        return self._LOGGER.create_request(self.request.META.get('REMOTE_ADDR', ''), "Web whois", "Info",
+                                           properties=properties_in)
+
+    def finish_logging_request(self, log_request, context, exception_type_name=None):
+        if log_request is None:
+            return
+        properties_out = []
+        if exception_type_name is not None:
+            log_request.result = "Error"
+            properties_out.append(("exception", exception_type_name))
+        else:
+            found_types = [("foundType", name) for name in context.get(self._registry_objects_key, {}).keys()]
+            if len(found_types):
+                log_request.result = "Ok"
+                properties_out.extend(found_types)
+            else:
+                log_request.result = "NotFound"
+                exception_code = context.get("server_exception", {}).get("code")
+                if exception_code and exception_code != "OBJECT_NOT_FOUND":
+                    properties_out.append(("reason", exception_code))
+        log_request.close(properties=properties_out)
+
+    def _get_registry_objects(self):
+        "The function returns a dict with objects loaded from the registry."
+        if self._registry_objects_cache is None:
+            context = {self._registry_objects_key: {}}
+            log_request = self.prepare_logging_request()
+            exception_name = None
+            try:
+                self.load_registry_object(context, self.kwargs["handle"], self._WHOIS)
+            except BaseException as err:
+                exception_name = err.__class__.__name__
+                raise
+            finally:
+                self.finish_logging_request(log_request, context, exception_name)
+            if len(context[self._registry_objects_key]) == 1:
+                self.load_related_objects(context)
+            self._registry_objects_cache = context
+        return self._registry_objects_cache
+
     def get_context_data(self, handle, **kwargs):
         kwargs.setdefault("handle", handle)
-        kwargs.setdefault(self._registry_objects_key, {})
-        self.load_registry_object(kwargs, handle, self._WHOIS)
+        kwargs.update(self._get_registry_objects())
         kwargs["number_of_found_objects"] = len(kwargs[self._registry_objects_key])
-        if kwargs["number_of_found_objects"] == 1:
-            self.load_related_objects(kwargs)
-        elif "template_name" in kwargs:
+        if "template_name" in kwargs:
             self.template_name = kwargs["template_name"]
         elif "server_exception" in kwargs:
             self.template_name = self.server_exception_template

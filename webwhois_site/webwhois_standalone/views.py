@@ -14,7 +14,7 @@ from webwhois.forms import WhoisForm
 from webwhois.utils.dobradomena import get_dobradomena_list
 from webwhois.views import ContactDetailWithMojeidMixin, DomainDetailMixin, DownloadEvalFileView, KeysetDetailMixin, \
     NssetDetailMixin, RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, WhoisFormView
-from webwhois.views.pages import FILEMANAGER, WHOIS
+from webwhois.views.pages import FILEMANAGER, LOGGER, WHOIS
 
 
 class WhoisWithCaptchaForm(WhoisForm):
@@ -41,12 +41,14 @@ class SiteMenuMixin(object):
         return super(SiteMenuMixin, self).get_context_data(**kwargs)
 
 
-get_captcha_cache_key = lambda request: 'webwhois_captcha_limit:%s' % request.META.get('REMOTE_ADDR')
+def get_captcha_cache_key(request):
+    return 'webwhois_captcha_limit:%s' % request.META.get('REMOTE_ADDR')
 
 
 class CountCaptchaMixin(SiteMenuMixin):
 
     _WHOIS = WHOIS
+    _LOGGER = LOGGER
     redirect_to_form = 'webwhois:form_whois'
 
     def dispatch(self, request, *args, **kwargs):
@@ -54,8 +56,8 @@ class CountCaptchaMixin(SiteMenuMixin):
         used_n_times = cache.get(cache_key, 0) + 1
         cache.set(cache_key, used_n_times)
         if used_n_times > settings.WEBWHOIS_CAPTCHA_MAX_REQUESTS:
-            return redirect(reverse(self.redirect_to_form, current_app=self.request.resolver_match.namespace)
-                            + "?" + urlencode({"handle": kwargs.get("handle")}))
+            return redirect(reverse(self.redirect_to_form, current_app=self.request.resolver_match.namespace) + "?" +
+                            urlencode({"handle": kwargs.get("handle")}))
         return super(CountCaptchaMixin, self).dispatch(request, *args, **kwargs)
 
 
@@ -114,6 +116,7 @@ class WebwhoisDomainDetailView(CountCaptchaMixin, DomainDetailMixin, TemplateVie
 
 class WebwhoisRegistrarDetailView(SiteMenuMixin, RegistrarDetailMixin, TemplateView):
     _WHOIS = WHOIS
+    _LOGGER = LOGGER
 
 
 class WebwhoisRegistrarListView(SiteMenuMixin, RegistrarListMixin, TemplateView):

@@ -13,6 +13,7 @@ class RegistrarDetailMixin(RegistryObjectMixin):
     "Detail of Registrar."
 
     template_name = "webwhois/registrar.html"
+    object_type_name = "registrar"
 
     @classmethod
     def load_registry_object(cls, context, handle, backend):

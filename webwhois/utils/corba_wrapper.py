@@ -9,8 +9,6 @@ from django.utils import timezone
 from django.utils.functional import SimpleLazyObject
 from pyfco.corbarecoder import CorbaRecoder
 
-CORBA_WEBWHOIS = []
-
 
 def _import_idl():
     for idl in settings.WEBWHOIS_CORBA_IDL:

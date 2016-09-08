@@ -11,6 +11,7 @@ from webwhois.views.base import RegistryObjectMixin
 class ContactDetailMixin(RegistryObjectMixin):
 
     template_name = "webwhois/contact.html"
+    object_type_name = "contact"
 
     CONTACT_VERIFICATION_STATUS = (
         'conditionallyIdentifiedContact',

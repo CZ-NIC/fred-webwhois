@@ -97,7 +97,8 @@ STATIC_URL = '/static/'
 
 # CORBA CONFIGURATION
 WEBWHOIS_CORBA_IDL = os.environ.get('FRED_WEBWHOIS_IDL_FILE', ['/usr/share/idl/fred/Whois2.idl',
-                                                               '/usr/share/idl/fred/FileManager.idl'])
+                                                               '/usr/share/idl/fred/FileManager.idl',
+                                                               '/usr/share/idl/fred/Logger.idl'])
 WEBWHOIS_CORBA_IOR = os.environ.get('FRED_WEBWHOIS_IOR', 'localhost')
 WEBWHOIS_CORBA_CONTEXT = 'fred'
 
@@ -105,6 +106,11 @@ if type(WEBWHOIS_CORBA_IDL) is str:
     # Paths in environment are saved in a string separated by a space:
     # export FRED_MOJEID_IDL_FILE="path path path"
     WEBWHOIS_CORBA_IDL = WEBWHOIS_CORBA_IDL.split(" ")
+
+# Logger module. E.g. "pylogger.corbalogger.LoggerFailSilent"
+WEBWHOIS_LOGGER = None
+WEBWHOIS_LOGGER_CORBA_IOR = WEBWHOIS_CORBA_IOR
+WEBWHOIS_LOGGER_CORBA_CONTEXT = WEBWHOIS_CORBA_CONTEXT
 
 WEBWHOIS_DNSSEC_URL = "http://www.nic.cz/dnssec/"  # ths can be None
 

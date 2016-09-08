@@ -13,6 +13,7 @@ from webwhois.views.base import RegistryObjectMixin
 class DomainDetailMixin(RegistryObjectMixin):
 
     template_name = "webwhois/domain.html"
+    object_type_name = "domain"
 
     @classmethod
     def make_message_not_found(cls, handle, handle_is_domain):
@@ -43,9 +44,10 @@ class DomainDetailMixin(RegistryObjectMixin):
             idna_handle = idna.encode(handle)
         except idna.IDNAError:
             if handle_is_domain:
-                context["server_exception"] = cls.message_invalid_handle(handle)
+                context["server_exception"] = cls.message_invalid_handle(handle, "IDNAError")
             else:
                 context["server_exception"] = {
+                    "code": "IDNAError",
                     "title": _("Handle not found"),
                     "message": cls.message_with_handle_in_html(
                         _("No domain, contact or name server set matches %s query."), handle)
@@ -68,6 +70,7 @@ class DomainDetailMixin(RegistryObjectMixin):
                 context["managed_zone_list"] = backend.get_managed_zone_list()
                 context["WHOIS_SEARCH_ENGINES"] = check_links(settings.WEBWHOIS_SEARCH_ENGINES)
                 context["server_exception"] = {
+                    "code": "UNMANAGED_ZONE",
                     "title": _("Unmanaged zone"),
                     "message": cls.message_with_handle_in_html(
                         _("Domain %s cannot be found in the registry. "
@@ -78,13 +81,14 @@ class DomainDetailMixin(RegistryObjectMixin):
                 context["server_exception"] = cls.make_message_not_found(handle, handle_is_domain)
         except WHOIS_MODULE.INVALID_LABEL:
             # Pattern for the handle is more vague than the pattern of domain name format.
-            context["server_exception"] = cls.message_invalid_handle(handle)
+            context["server_exception"] = cls.message_invalid_handle(handle, "INVALID_LABEL")
         except WHOIS_MODULE.TOO_MANY_LABELS:
             # Caution! Domain name can have more than one fullstop character and it is still valid.
             # for example: '0.2.4.e164.arpa'
             # remove subdomain names: 'www.sub.domain.cz' -> 'domain.cz'
             context["example_domain_name"] = re.search("([^.]+\.\w+)\.?$", handle, re.IGNORECASE).group(1)
             context["server_exception"] = {
+                "code": "TOO_MANY_LABELS",
                 "title": _("Incorrect input"),
                 "too_many_parts_in_domain_name": True,
             }

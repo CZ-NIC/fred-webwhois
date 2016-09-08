@@ -7,6 +7,7 @@ from webwhois.views.base import RegistryObjectMixin
 class KeysetDetailMixin(RegistryObjectMixin):
 
     template_name = "webwhois/keyset.html"
+    object_type_name = "keyset"
 
     @classmethod
     def append_keyset_related(cls, data, backend_whois):

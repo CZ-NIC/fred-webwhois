@@ -10,9 +10,11 @@ from mock import call, patch
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.tests.utils import WebwhoisAssertMixin, apply_patch
 from webwhois.utils import CCREG_MODULE, WHOIS_MODULE
+from webwhois.views.base import RegistryObjectMixin
 
 
-@override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None)
+@override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None, LANGUAGE_CODE='en',
+                   CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
 class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     urls = 'webwhois.tests.urls'
@@ -24,6 +26,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
 
     def setUp(self):
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
+        self.LOGGER = apply_patch(self, patch("webwhois.views.pages.LOGGER"))
 
     def test_handle_not_found(self):
         self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
@@ -37,6 +40,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response,
                             "No domain, contact or name server set matches <strong>testhandle</strong> query.")
         self.assertNotContains(response, 'Register this domain name?')
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'testhandle'), ('handleType', 'multiple'))),
+            call.create_request().close(properties=[])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_handle_with_dash_not_found(self):
         self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
@@ -49,6 +59,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response, "Handle not found")
         self.assertContains(response, "No domain, contact or name server set matches <strong>-abc</strong> query.")
         self.assertNotContains(response, 'Register this domain name?')
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', '-abc'), ('handleType', 'multiple'))),
+            call.create_request().close(properties=[('reason', 'IDNAError')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_handle_in_zone_not_found(self):
         self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
@@ -61,6 +78,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response, "Handle not found")
         self.assertContains(response, "No domain, contact or name server set matches <strong>fred.cz</strong> query.")
         self.assertContains(response, 'Register this domain name?')
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'fred.cz'), ('handleType', 'multiple'))),
+            call.create_request().close(properties=[])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_contact_not_found(self):
         self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
@@ -68,18 +92,39 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response, 'Contact not found')
         self.assertContains(response, 'No contact matches <strong>testhandle</strong> handle.')
         self.assertNotContains(response, 'Register this domain name?')
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'testhandle'), ('handleType', 'contact'))),
+            call.create_request().close(properties=[])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_contact_invalid_handle(self):
         self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "testhandle"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>testhandle</strong> is not a valid handle.")
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'testhandle'), ('handleType', 'contact'))),
+            call.create_request().close(properties=[('reason', 'INVALID_HANDLE')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_contact_invalid_handle_escaped(self):
         self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "test<handle"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>test&lt;handle</strong> is not a valid handle.")
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'test<handle'), ('handleType', 'contact'))),
+            call.create_request().close(properties=[('reason', 'INVALID_HANDLE')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_multiple_entries(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -100,6 +145,19 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             'Registrar: testhandle.cz /whois/registrar/testhandle.cz/',
             'Nsset: testhandle.cz /whois/nsset/testhandle.cz/',
         ], transform=lambda node: "%s %s" % ("".join(node.xpath(".//text()")), ",".join(node.xpath("a/@href"))))
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'testhandle.cz'), ('handleType', 'multiple'))),
+            call.create_request().close(properties=[
+                ('foundType', 'keyset'),
+                ('foundType', 'domain'),
+                ('foundType', 'contact'),
+                ('foundType', 'registrar'),
+                ('foundType', 'nsset'),
+            ])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_handle_contact_not_linked(self):
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=[])
@@ -111,8 +169,16 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             'Handle KONTAKT',
             'Sponsoring registrar REG-FRED_A Company A L.t.d.'
         ], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mycontact'), ('handleType', 'contact'))),
+            call.create_request().close(properties=[('foundType', 'contact')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_contact_not_linked(self):
+        self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=[])
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
@@ -122,6 +188,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             'Handle KONTAKT',
             'Sponsoring registrar REG-FRED_A Company A L.t.d.'
         ], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mycontact'), ('handleType', 'contact'))),
+            call.create_request().close(properties=[('foundType', 'contact')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_contact_linked(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -149,6 +222,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             'Sponsoring registrar REG-FRED_A Company A L.t.d.',
             'Status Has relation to other records in the registry',
         ], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mycontact'), ('handleType', 'contact'))),
+            call.create_request().close(properties=[('foundType', 'contact')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_contact_with_not_disclosed(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -176,6 +256,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             'Sponsoring registrar REG-FRED_A Company A L.t.d.',
             'Status Has relation to other records in the registry'
         ], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mycontact'), ('handleType', 'contact'))),
+            call.create_request().close(properties=[('foundType', 'contact')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_contact_without_registrars_handle(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -203,6 +290,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             'Sponsoring registrar',
             'Status Has relation to other records in the registry',
         ], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mycontact'), ('handleType', 'contact'))),
+            call.create_request().close(properties=[('foundType', 'contact')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_contact_with_ssn_type_birthday(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -234,6 +328,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             'Sponsoring registrar REG-FRED_A Company A L.t.d.',
             'Status Has relation to other records in the registry',
         ], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mycontact'), ('handleType', 'contact'))),
+            call.create_request().close(properties=[('foundType', 'contact')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_contact_with_invalid_birthday_value(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -243,6 +344,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertCssSelectEqual(response, ".contact .ident-value", ['FOO'], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mycontact'), ('handleType', 'contact'))),
+            call.create_request().close(properties=[('foundType', 'contact')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_contact_verification_failed(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -256,6 +364,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         ], transform=self.transform_to_text)
         self.assertXpathEqual(response, "//img[@alt='contactFailedManualVerification']/@src", [
             '/static/webwhois/img/icon-red-cross.gif'])
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mycontact'), ('handleType', 'contact'))),
+            call.create_request().close(properties=[('foundType', 'contact')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_contact_verification_in_manual(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -269,6 +384,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         ], transform=self.transform_to_text)
         self.assertXpathEqual(response, "//img[@alt='contactInManualVerification']/@src", [
             '/static/webwhois/img/icon-orange-cross.gif'])
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mycontact'), ('handleType', 'contact'))),
+            call.create_request().close(properties=[('foundType', 'contact')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_contact_verification_ok(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -280,6 +402,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         ], transform=self.transform_to_text)
         self.assertXpathEqual(response, "//img[@alt='validatedContact']/@src", [
             '/static/webwhois/img/icon-yes.gif'])
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mycontact'), ('handleType', 'contact'))),
+            call.create_request().close(properties=[('foundType', 'contact')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_nsset_not_found(self):
         self.WHOIS.get_nsset_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
@@ -287,6 +416,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response, 'Name server set not found')
         self.assertContains(response, 'No name server set matches <strong>mynssid</strong> handle.')
         self.assertNotContains(response, 'Register this domain name?')
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mynssid'), ('handleType', 'nsset'))),
+            call.create_request().close(properties=[])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_nsset_invalid_handle(self):
         self.WHOIS.get_nsset_by_handle.side_effect = WHOIS_MODULE.INVALID_HANDLE
@@ -294,6 +430,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>mynssid</strong> is not a valid handle.")
         self.assertNotContains(response, 'Register this domain name?')
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mynssid'), ('handleType', 'nsset'))),
+            call.create_request().close(properties=[('reason', 'INVALID_HANDLE')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_nsset(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -312,6 +455,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
             'Status Has relation to other records in the registry'
         ], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mynssid'), ('handleType', 'nsset'))),
+            call.create_request().close(properties=[('foundType', 'nsset')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_nsset_fqds_idna(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -331,6 +481,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
             'Status Has relation to other records in the registry'
         ], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mynssid'), ('handleType', 'nsset'))),
+            call.create_request().close(properties=[('foundType', 'nsset')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     @override_settings(USE_TZ=False, TIME_ZONE='UTC')
     def test_nsset_witout_zone(self):
@@ -350,6 +507,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 6:18 p.m.',
             'Status Has relation to other records in the registry'
         ], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mynssid'), ('handleType', 'nsset'))),
+            call.create_request().close(properties=[('foundType', 'nsset')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_nsset_with_contact_no_organization(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -369,6 +533,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
             'Status Has relation to other records in the registry'
         ], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mynssid'), ('handleType', 'nsset'))),
+            call.create_request().close(properties=[('foundType', 'nsset')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_keyset_not_found(self):
         self.WHOIS.get_keyset_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
@@ -376,6 +547,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response, 'Key server set not found')
         self.assertContains(response, 'No key set matches <strong>mykeysid</strong> handle.')
         self.assertNotContains(response, 'Register this domain name?')
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mykeysid'), ('handleType', 'keyset'))),
+            call.create_request().close(properties=[])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_keyset_invalid_handle(self):
         self.WHOIS.get_keyset_by_handle.side_effect = WHOIS_MODULE.INVALID_HANDLE
@@ -383,6 +561,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>mykeysid</strong> is not a valid handle.")
         self.assertNotContains(response, 'Register this domain name?')
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mykeysid'), ('handleType', 'keyset'))),
+            call.create_request().close(properties=[('reason', 'INVALID_HANDLE')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_keyset(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -402,6 +587,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
             'Status Has relation to other records in the registry'
         ], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mykeysid'), ('handleType', 'keyset'))),
+            call.create_request().close(properties=[('foundType', 'keyset')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_keyset_with_contact_no_organization(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -422,6 +614,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
             'Status Has relation to other records in the registry'
         ], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'mykeysid'), ('handleType', 'keyset'))),
+            call.create_request().close(properties=[('foundType', 'keyset')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_domain_not_found(self):
         self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
@@ -430,6 +629,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response, 'Domain not found')
         self.assertContains(response, 'No domain matches <strong>fred.cz</strong> handle.')
         self.assertContains(response, 'Register this domain name?')
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'fred.cz'), ('handleType', 'domain'))),
+            call.create_request().close(properties=[])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_domain_not_found_idna_formated(self):
         self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
@@ -438,6 +644,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response, 'Invalid handle')
         self.assertContains(response, '<strong>...fred.cz</strong> is not a valid handle.')
         self.assertNotContains(response, 'Register this domain name?')
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', '...fred.cz'), ('handleType', 'domain'))),
+            call.create_request().close(properties=[('reason', 'INVALID_HANDLE')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def _mocks_for_domain_detail(self, handle=None):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -479,6 +692,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
             'Status Has relation to other records in the registry'
         ], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'fred.cz'), ('handleType', 'domain'))),
+            call.create_request().close(properties=[('foundType', 'domain')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_domain_with_contact_no_organization(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -518,6 +738,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
             'Status Has relation to other records in the registry'
         ], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'fred.cz'), ('handleType', 'domain'))),
+            call.create_request().close(properties=[('foundType', 'domain')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_domain_without_nsset_and_keyset(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -539,6 +766,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             'Secured by DNSSEC',
             'Status Deletion forbidden Update forbidden',
         ], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'fred.cz'), ('handleType', 'domain'))),
+            call.create_request().close(properties=[('foundType', 'domain')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_domain_unmanaged_zone(self):
         self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.UNMANAGED_ZONE
@@ -550,6 +784,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response, msg)
         self.assertNotContains(response, 'Register this domain name?')
         self.assertCssSelectEqual(response, "ul li", ['cz', '0.2.4.e164.arpa'], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'fred.com'), ('handleType', 'domain'))),
+            call.create_request().close(properties=[('reason', 'UNMANAGED_ZONE')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_domain_invalid_label(self):
         self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.INVALID_LABEL
@@ -557,6 +798,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response, 'Invalid handle')
         self.assertContains(response, '<strong>fr:ed.com</strong> is not a valid handle.')
         self.assertNotContains(response, 'Register this domain name?')
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'fr:ed.com'), ('handleType', 'domain'))),
+            call.create_request().close(properties=[('reason', 'IDNAError')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_domain_invalid_label_with_dash(self):
         self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.INVALID_LABEL
@@ -564,6 +812,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response, 'Invalid handle')
         self.assertContains(response, '<strong>-abc</strong> is not a valid handle.')
         self.assertNotContains(response, 'Register this domain name?')
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', '-abc'), ('handleType', 'domain'))),
+            call.create_request().close(properties=[('reason', 'IDNAError')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_domain_too_many_labels(self):
         self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.TOO_MANY_LABELS
@@ -573,6 +828,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response, "Enter only the name and the zone:")
         self.assertXpathEqual(response, "//a[text()='fred.cz']/@href",
                               [reverse("webwhois:form_whois") + "?handle=fred.cz"])
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'www.fred.cz'), ('handleType', 'domain'))),
+            call.create_request().close(properties=[('reason', 'TOO_MANY_LABELS')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_domain_too_many_labels_with_dot_at_the_end(self):
         self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.TOO_MANY_LABELS
@@ -589,6 +851,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response, u"Search results for handle <strong>fréd.cz</strong>:")
         self.assertCssSelectEqual(response, ".domain .handle", ["xn--frd-cma.cz"], transform=self.transform_to_text)
         self.assertCssSelectEqual(response, ".domain .idn-handle", [u"fréd.cz"], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', u'fréd.cz'), ('handleType', 'domain'))),
+            call.create_request().close(properties=[('foundType', 'domain')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_idn_domain_punycode(self):
         self._mocks_for_domain_detail(handle="xn--frd-cma.cz")
@@ -596,6 +865,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertContains(response, "Search results for handle <strong>xn--frd-cma.cz</strong>:")
         self.assertCssSelectEqual(response, ".domain .handle", ["xn--frd-cma.cz"], transform=self.transform_to_text)
         self.assertCssSelectEqual(response, ".domain .idn-handle", [u"fréd.cz"], transform=self.transform_to_text)
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'xn--frd-cma.cz'), ('handleType', 'domain'))),
+            call.create_request().close(properties=[('foundType', 'domain')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_domain_with_datetime_zero_values(self):
         date = CCREG_MODULE.DateType(day=0, month=0, year=0)
@@ -622,16 +898,44 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
         self.assertCssSelectEqual(response, ".domain tr td", ["fred.cz", "To be deleted"],
                                   transform=self.transform_to_text)
+        self.assertEqual(self.WHOIS.mock_calls, [
+            call.get_domain_by_handle('fred.cz'),
+            call.get_domain_status_descriptions('en')
+        ])
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'fred.cz'), ('handleType', 'domain'))),
+            call.create_request().close(properties=[('foundType', 'domain')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
+
+    def test_unexpected_exeption(self):
+        class TestException(Exception):
+            pass
+        self.WHOIS.get_domain_by_handle.side_effect = TestException("Unexpected exception.")
+        with self.assertRaises(TestException):
+            self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
         self.assertEqual(self.WHOIS.mock_calls, [call.get_domain_by_handle('fred.cz')])
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'fred.cz'), ('handleType', 'domain'))),
+            call.create_request().close(properties=[('exception', 'TestException')])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'Error')
 
 
-@override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None)
+@override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None, LANGUAGE_CODE='en',
+                   CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
 class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     urls = 'webwhois.tests.urls'
 
     def setUp(self):
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
+        self.LOGGER = apply_patch(self, patch("webwhois.views.pages.LOGGER"))
+        self.LOGGER.__nonzero__.return_value = False
 
     def test_button_mojeid(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -645,6 +949,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         self.assertXpathEqual(response, "count(//a[@href='%s?username=kontakt'])=1" % (
             settings.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT), True)
         self.assertXpathEqual(response, "//a[@href='%s']/text()" % settings.WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID"])
+        self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
 
     def test_improper_handle_format(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -653,6 +958,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "MY.HANDLE"}))
         self.assertXpathEqual(response, "count(//form)=0", True)
         self.assertXpathEqual(response, "//a[@href='%s']/text()" % settings.WEBWHOIS_MOJEID_LINK_WHY, [])
+        self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
 
     def test_status_not_linked(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -666,6 +972,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         self.assertXpathEqual(response, "count(//a[@href='%s?username=kontakt'])=1" % (
             settings.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT), True)
         self.assertXpathEqual(response, "//a[@href='%s']/text()" % settings.WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID"])
+        self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
 
     def _do_test_statuses(self, statuses):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -674,6 +981,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "mycontact"}))
         self.assertXpathEqual(response, "count(//form)=0", True)
         self.assertXpathEqual(response, "//a[@href='%s']/text()" % settings.WEBWHOIS_MOJEID_LINK_WHY, [])
+        self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
 
     def test_status_mojeid_contact(self):
         self._do_test_statuses(["linked", "mojeidContact"])
@@ -694,7 +1002,8 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         self._do_test_statuses(["linked", "serverBlocked"])
 
 
-@override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None)
+@override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None,
+                   LANGUAGE_CODE='en', CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
 class TestDetailCss(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     urls = 'webwhois.tests.urls'
@@ -706,11 +1015,13 @@ class TestDetailCss(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase)
 
     def setUp(self):
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
+        self.LOGGER = apply_patch(self, patch("webwhois.views.pages.LOGGER"))
 
     def _assert_css(self, selector, result):
         self.assertCssSelectEqual(self._response, selector, [result], transform=self.transform_to_text)
 
     def test_contact(self):
+        self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=["linked", "validatedContact"])
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         self._response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
@@ -830,3 +1141,11 @@ class TestDetailCss(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase)
         self._assert_css(".keyset .sponsoring-registrar a", "REG-KEYSET")
         self.assertCssSelectEqual(self._response, ".keyset .status", ["linked,serverUpdateProhibited"],
                                   transform=lambda node: node.attrib["data-codes"])
+
+
+class TestRegistryObjectMixin(SimpleTestCase):
+
+    def test_logging_request(self):
+        view = RegistryObjectMixin()
+        with self.assertRaises(NotImplementedError):
+            view.prepare_logging_request()
