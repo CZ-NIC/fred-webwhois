@@ -11,7 +11,7 @@ msg: msg-py
 msg-py: msg-make-py msg-sort-py
 
 msg-make-py:
-	cd ${APP} && django-admin.py makemessages -l cs
+	cd ${APP} && django-admin makemessages -l cs
 
 msg-sort-py:
 	msgattrib --sort-output --no-location --no-obsolete -o ${APP}/locale/cs/LC_MESSAGES/django.po \
