@@ -1,9 +1,8 @@
 APP = webwhois
 
-.PHONY: default msg msg-py msg-make-py msg-sort-py test isort check-isort check-flake8
+.PHONY: default msg msg-py msg-make-py msg-sort-py test isort check-isort check-flake8 check-all
 
-default:
-	echo "No default action, specify the target"
+default: check-all
 
 # Translations
 msg: msg-py
@@ -22,6 +21,8 @@ test:
 
 isort:
 	isort --recursive ${APP}
+
+check-all: check-isort check-flake8
 
 check-isort:
 	isort --recursive --check-only --diff ${APP}
