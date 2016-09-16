@@ -7,6 +7,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import get_language, ugettext_lazy as _
 from django.views.generic.base import ContextMixin
 
+from webwhois.utils import LOGGER
+
 mark_safe_lazy = lazy(mark_safe, six.text_type)
 
 
@@ -34,8 +36,6 @@ class RegistryObjectMixin(BaseContextMixin):
     Catch omniORB.CORBA.TRANSIENT and omniORB.CORBA.OBJECT_NOT_EXIST
     and redirect to your own customized page if you need.
     """
-    _WHOIS = None
-    _LOGGER = None
     _registry_objects_key = "registry_objects"
     _registry_objects_cache = None
 
@@ -73,7 +73,7 @@ class RegistryObjectMixin(BaseContextMixin):
         }
 
     @classmethod
-    def load_registry_object(cls, context, handle, backend):
+    def load_registry_object(cls, context, handle):
         "Load registry object of the handle and append it into the context."
 
     def load_related_objects(self, context):
@@ -82,14 +82,14 @@ class RegistryObjectMixin(BaseContextMixin):
     def prepare_logging_request(self):
         if self.object_type_name is None:
             raise NotImplementedError
-        if not self._LOGGER:
+        if not LOGGER:
             return
         properties_in = (
             ("handle", self.kwargs["handle"]),
             ("handleType", self.object_type_name),
         )
-        return self._LOGGER.create_request(self.request.META.get('REMOTE_ADDR', ''), "Web whois", "Info",
-                                           properties=properties_in)
+        return LOGGER.create_request(self.request.META.get('REMOTE_ADDR', ''), "Web whois", "Info",
+                                     properties=properties_in)
 
     def finish_logging_request(self, log_request, context, exception_type_name=None):
         if log_request is None:
@@ -117,7 +117,7 @@ class RegistryObjectMixin(BaseContextMixin):
             log_request = self.prepare_logging_request()
             exception_name = None
             try:
-                self.load_registry_object(context, self.kwargs["handle"], self._WHOIS)
+                self.load_registry_object(context, self.kwargs["handle"])
             except BaseException as err:
                 exception_name = err.__class__.__name__
                 raise

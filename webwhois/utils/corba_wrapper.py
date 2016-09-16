@@ -7,7 +7,10 @@ import omniORB
 from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import SimpleLazyObject
+from pyfco.corba import CorbaNameServiceClient, init_omniorb_exception_handles
 from pyfco.corbarecoder import CorbaRecoder
+
+from .logger import create_logger
 
 
 def _import_idl():
@@ -98,3 +101,32 @@ class CorbaWrapper(object):
                 return self._call_method(name, *args)
             return wrapper
         raise AttributeError
+
+
+init_omniorb_exception_handles(None)
+
+# http://omniorb.sourceforge.net/omnipy3/omniORBpy/omniORBpy004.html
+CORBA_ORB = omniORB.CORBA.ORB_init(["-ORBnativeCharCodeSet", "UTF-8"], omniORB.CORBA.ORB_ID)
+_CLIENT = CorbaNameServiceClient(CORBA_ORB, settings.WEBWHOIS_CORBA_IOR, settings.WEBWHOIS_CORBA_CONTEXT)
+
+
+def load_whois_from_idl():
+    return CorbaWrapper(_CLIENT.get_object('Whois2', WHOIS_MODULE.WhoisIntf))
+
+
+def load_filemanager_from_idl():
+    return _CLIENT.get_object('FileManager', CCREG_MODULE.FileManager)
+
+
+def load_logger_from_idl():
+    service_client = CorbaNameServiceClient(CORBA_ORB, settings.WEBWHOIS_LOGGER_CORBA_IOR,
+                                            settings.WEBWHOIS_LOGGER_CORBA_CONTEXT)
+    return service_client.get_object('Logger', CCREG_MODULE.Logger)
+
+
+WHOIS = SimpleLazyObject(load_whois_from_idl)
+FILEMANAGER = SimpleLazyObject(load_filemanager_from_idl)
+if settings.WEBWHOIS_LOGGER:
+    LOGGER = SimpleLazyObject(lambda: create_logger(settings.WEBWHOIS_LOGGER, load_logger_from_idl(), CCREG_MODULE))
+else:
+    LOGGER = None

@@ -26,7 +26,12 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
 
     def setUp(self):
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
-        self.LOGGER = apply_patch(self, patch("webwhois.views.pages.LOGGER"))
+        apply_patch(self, patch("webwhois.views.detail_contact.WHOIS", self.WHOIS))
+        apply_patch(self, patch("webwhois.views.detail_domain.WHOIS", self.WHOIS))
+        apply_patch(self, patch("webwhois.views.detail_keyset.WHOIS", self.WHOIS))
+        apply_patch(self, patch("webwhois.views.detail_nsset.WHOIS", self.WHOIS))
+        apply_patch(self, patch("webwhois.views.registrar.WHOIS", self.WHOIS))
+        self.LOGGER = apply_patch(self, patch("webwhois.views.base.LOGGER"))
 
     def test_handle_not_found(self):
         self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
@@ -933,8 +938,8 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
     urls = 'webwhois.tests.urls'
 
     def setUp(self):
-        self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
-        self.LOGGER = apply_patch(self, patch("webwhois.views.pages.LOGGER"))
+        self.WHOIS = apply_patch(self, patch("webwhois.views.detail_contact.WHOIS"))
+        self.LOGGER = apply_patch(self, patch("webwhois.views.base.LOGGER"))
         self.LOGGER.__nonzero__.return_value = False
 
     def test_button_mojeid(self):
@@ -1015,7 +1020,11 @@ class TestDetailCss(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase)
 
     def setUp(self):
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
-        self.LOGGER = apply_patch(self, patch("webwhois.views.pages.LOGGER"))
+        apply_patch(self, patch("webwhois.views.detail_contact.WHOIS", self.WHOIS))
+        apply_patch(self, patch("webwhois.views.detail_domain.WHOIS", self.WHOIS))
+        apply_patch(self, patch("webwhois.views.detail_keyset.WHOIS", self.WHOIS))
+        apply_patch(self, patch("webwhois.views.detail_nsset.WHOIS", self.WHOIS))
+        self.LOGGER = apply_patch(self, patch("webwhois.views.base.LOGGER"))
 
     def _assert_css(self, selector, result):
         self.assertCssSelectEqual(self._response, selector, [result], transform=self.transform_to_text)

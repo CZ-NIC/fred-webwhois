@@ -21,8 +21,8 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
     urls = 'webwhois.tests.urls'
 
     def setUp(self):
-        self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
-        self.LOGGER = apply_patch(self, patch("webwhois.views.pages.LOGGER"))
+        self.WHOIS = apply_patch(self, patch("webwhois.views.registrar.WHOIS"))
+        self.LOGGER = apply_patch(self, patch("webwhois.views.base.LOGGER"))
 
     def test_registrar_not_found(self):
         self.WHOIS.get_registrar_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
@@ -243,7 +243,7 @@ class TestRegisrarsUnknownGroupNames(WebwhoisAssertMixin, GetRegistryObjectMixin
     urls = 'webwhois.tests.urls'
 
     def setUp(self):
-        self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
+        self.WHOIS = apply_patch(self, patch("webwhois.views.registrar.WHOIS"))
         self.WHOIS.get_registrar_groups.return_value = self._get_registrar_groups() + [
             WHOIS_MODULE.RegistrarGroup(name='foo', members=['REG-FOO'])
         ]
@@ -273,8 +273,8 @@ class TestDownloadView(GetRegistryObjectMixin, SimpleTestCase):
     urls = 'webwhois.tests.urls'
 
     def setUp(self):
-        self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
-        self.FILE = apply_patch(self, patch("webwhois.views.pages.FILEMANAGER"))
+        self.WHOIS = apply_patch(self, patch("webwhois.views.registrar.WHOIS"))
+        self.FILE = apply_patch(self, patch("webwhois.views.registrar.FILEMANAGER"))
 
     def test_download_not_found(self):
         self.WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()

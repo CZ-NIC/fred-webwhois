@@ -11,10 +11,10 @@ from django.views.generic import TemplateView, View
 from django.views.static import serve
 
 from webwhois.forms import WhoisForm
+from webwhois.utils import WHOIS
 from webwhois.utils.dobradomena import get_dobradomena_list
 from webwhois.views import ContactDetailWithMojeidMixin, DomainDetailMixin, DownloadEvalFileView, KeysetDetailMixin, \
     NssetDetailMixin, RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, WhoisFormView
-from webwhois.views.pages import FILEMANAGER, LOGGER, WHOIS
 
 
 class WhoisWithCaptchaForm(WhoisForm):
@@ -47,8 +47,6 @@ def get_captcha_cache_key(request):
 
 class CountCaptchaMixin(SiteMenuMixin):
 
-    _WHOIS = WHOIS
-    _LOGGER = LOGGER
     redirect_to_form = 'webwhois:form_whois'
 
     def dispatch(self, request, *args, **kwargs):
@@ -67,13 +65,12 @@ class HomePageView(SiteMenuMixin, TemplateView):
 
 class WebwhoisFormView(SiteMenuMixin, WhoisFormView):
 
-    _WHOIS = WHOIS
     template_name = "webwhois_in_cms/form_whois.html"
     captcha_limit = 'webwhois_captcha_limit:%s'
 
     def get_context_data(self, **kwargs):
         kwargs.setdefault("WHOIS_SEARCH_ENGINES", settings.WEBWHOIS_SEARCH_ENGINES)
-        kwargs.setdefault("managed_zone_list", self._WHOIS.get_managed_zone_list())
+        kwargs.setdefault("managed_zone_list", WHOIS.get_managed_zone_list())
         return super(WebwhoisFormView, self).get_context_data(**kwargs)
 
     def get_form_class(self):
@@ -115,13 +112,11 @@ class WebwhoisDomainDetailView(CountCaptchaMixin, DomainDetailMixin, TemplateVie
 
 
 class WebwhoisRegistrarDetailView(SiteMenuMixin, RegistrarDetailMixin, TemplateView):
-    _WHOIS = WHOIS
-    _LOGGER = LOGGER
+    pass
 
 
 class WebwhoisRegistrarListView(SiteMenuMixin, RegistrarListMixin, TemplateView):
     template_name = "webwhois_in_cms/registrar_list_with_dobradomena.html"
-    _WHOIS = WHOIS
 
     def _registrar_row(self, data):
         # self._dobradomena_dict: {'REG-NIC': 'http://nic.dobradomena.cz/dobradomena/manual.pdf', ...}
@@ -133,11 +128,6 @@ class WebwhoisRegistrarListView(SiteMenuMixin, RegistrarListMixin, TemplateView)
         kwargs.setdefault("REGISTRAR_CERTIFIED_FOR_RETAIL_URL", settings.WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL)
         self._dobradomena_dict = get_dobradomena_list(get_language())
         return super(WebwhoisRegistrarListView, self).get_context_data(**kwargs)
-
-
-class WebwhoisDownloadEvalFileView(DownloadEvalFileView):
-    _WHOIS = WHOIS
-    _FILE = FILEMANAGER
 
 
 class DobradomenaServeFile(View):

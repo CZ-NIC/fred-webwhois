@@ -4,7 +4,7 @@ import re
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from webwhois.utils import WHOIS_MODULE
+from webwhois.utils import WHOIS, WHOIS_MODULE
 from webwhois.views.base import RegistryObjectMixin
 
 
@@ -29,10 +29,10 @@ class ContactDetailMixin(RegistryObjectMixin):
     }
 
     @classmethod
-    def load_registry_object(cls, context, handle, backend):
+    def load_registry_object(cls, context, handle):
         "Load contact of the handle and append it into the context."
         try:
-            contact = backend.get_contact_by_handle(handle)
+            contact = WHOIS.get_contact_by_handle(handle)
             birthday = None
             if contact.identification.value.identification_type == "BIRTHDAY":
                 try:
@@ -55,7 +55,7 @@ class ContactDetailMixin(RegistryObjectMixin):
 
     def load_related_objects(self, context):
         "Load objects related to the contact and append them into the context."
-        descriptions = self._get_status_descriptions("contact", self._WHOIS.get_contact_status_descriptions)
+        descriptions = self._get_status_descriptions("contact", WHOIS.get_contact_status_descriptions)
         data = context[self._registry_objects_key]["contact"]  # detail, type, label, href
         registry_object = data["detail"]
 
@@ -69,11 +69,9 @@ class ContactDetailMixin(RegistryObjectMixin):
             "is_linked": "linked" in registry_object.statuses
         })
         if registry_object.creating_registrar_handle:
-            data["creating_registrar"] = self._WHOIS.get_registrar_by_handle(
-                registry_object.creating_registrar_handle)
+            data["creating_registrar"] = WHOIS.get_registrar_by_handle(registry_object.creating_registrar_handle)
         if registry_object.sponsoring_registrar_handle:
-            data["sponsoring_registrar"] = self._WHOIS.get_registrar_by_handle(
-                registry_object.sponsoring_registrar_handle)
+            data["sponsoring_registrar"] = WHOIS.get_registrar_by_handle(registry_object.sponsoring_registrar_handle)
 
 
 class ContactDetailWithMojeidMixin(ContactDetailMixin):

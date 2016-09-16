@@ -1,6 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 
-from webwhois.utils import WHOIS_MODULE
+from webwhois.utils import WHOIS, WHOIS_MODULE
 from webwhois.views.base import RegistryObjectMixin
 
 
@@ -10,9 +10,8 @@ class KeysetDetailMixin(RegistryObjectMixin):
     object_type_name = "keyset"
 
     @classmethod
-    def append_keyset_related(cls, data, backend_whois):
+    def append_keyset_related(cls, data):
         "Load objects related to the nsset and append them into the data context."
-        WHOIS = backend_whois
         descriptions = cls._get_status_descriptions("keyset", WHOIS.get_keyset_status_descriptions)
         registry_object = data["detail"]
         data.update({
@@ -22,11 +21,11 @@ class KeysetDetailMixin(RegistryObjectMixin):
         })
 
     @classmethod
-    def load_registry_object(cls, context, handle, backend):
+    def load_registry_object(cls, context, handle):
         "Load keyset of the handle and append it into the context."
         try:
             context[cls._registry_objects_key]["keyset"] = {
-                "detail": backend.get_keyset_by_handle(handle),
+                "detail": WHOIS.get_keyset_by_handle(handle),
                 "label": _("Keyset"),
             }
         except WHOIS_MODULE.OBJECT_NOT_FOUND:
@@ -39,4 +38,4 @@ class KeysetDetailMixin(RegistryObjectMixin):
 
     def load_related_objects(self, context):
         "Load objects related to the keyset and append them into the context."
-        self.append_keyset_related(context[self._registry_objects_key]["keyset"], self._WHOIS)
+        self.append_keyset_related(context[self._registry_objects_key]["keyset"])

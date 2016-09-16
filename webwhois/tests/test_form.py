@@ -13,7 +13,12 @@ class TestWhoisFormView(WebwhoisAssertMixin, SimpleTestCase):
 
     def setUp(self):
         self.WHOIS = apply_patch(self, patch("webwhois.views.pages.WHOIS"))
-        self.LOGGER = apply_patch(self, patch("webwhois.views.pages.LOGGER"))
+        apply_patch(self, patch("webwhois.views.detail_contact.WHOIS", self.WHOIS))
+        apply_patch(self, patch("webwhois.views.detail_domain.WHOIS", self.WHOIS))
+        apply_patch(self, patch("webwhois.views.detail_keyset.WHOIS", self.WHOIS))
+        apply_patch(self, patch("webwhois.views.detail_nsset.WHOIS", self.WHOIS))
+        apply_patch(self, patch("webwhois.views.registrar.WHOIS", self.WHOIS))
+        self.LOGGER = apply_patch(self, patch("webwhois.views.base.LOGGER"))
 
     def test_handle_required(self):
         self.WHOIS.get_managed_zone_list.return_value = self.managed_zone_list

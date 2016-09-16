@@ -1,52 +1,15 @@
-import omniORB
 from django.conf import settings
-from django.utils.functional import SimpleLazyObject
 from django.views.generic import TemplateView
-from pyfco.corba import CorbaNameServiceClient, init_omniorb_exception_handles
 
-from webwhois.utils.corba_wrapper import CCREG_MODULE, WHOIS_MODULE, CorbaWrapper
-from webwhois.utils.logger import create_logger
+from webwhois.utils import WHOIS
 from webwhois.views import ContactDetailMixin, ContactDetailWithMojeidMixin, DomainDetailMixin, DownloadEvalFileView, \
     KeysetDetailMixin, NssetDetailMixin, RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, \
     WhoisFormView
-
-init_omniorb_exception_handles(None)
-
-# http://omniorb.sourceforge.net/omnipy3/omniORBpy/omniORBpy004.html
-CORBA_ORB = omniORB.CORBA.ORB_init(["-ORBnativeCharCodeSet", "UTF-8"], omniORB.CORBA.ORB_ID)
-_CLIENT = CorbaNameServiceClient(CORBA_ORB, settings.WEBWHOIS_CORBA_IOR, settings.WEBWHOIS_CORBA_CONTEXT)
-
-
-def load_whois_from_idl():
-    return CorbaWrapper(_CLIENT.get_object('Whois2', WHOIS_MODULE.WhoisIntf))
-
-
-def load_filemanager_from_idl():
-    return _CLIENT.get_object('FileManager', CCREG_MODULE.FileManager)
-
-
-def load_logger_from_idl():
-    service_client = CorbaNameServiceClient(CORBA_ORB, settings.WEBWHOIS_LOGGER_CORBA_IOR,
-                                            settings.WEBWHOIS_LOGGER_CORBA_CONTEXT)
-    return service_client.get_object('Logger', CCREG_MODULE.Logger)
-
-
-WHOIS = SimpleLazyObject(load_whois_from_idl)
-FILEMANAGER = SimpleLazyObject(load_filemanager_from_idl)
-if settings.WEBWHOIS_LOGGER:
-    LOGGER = SimpleLazyObject(lambda: create_logger(settings.WEBWHOIS_LOGGER, load_logger_from_idl(), CCREG_MODULE))
-else:
-    LOGGER = None
 
 
 class CorbaWhoisBaseMixin(object):
 
     base_template = "base_site_example.html"
-
-    def __init__(self, *args, **kwargs):
-        super(CorbaWhoisBaseMixin, self).__init__(*args, **kwargs)
-        self._WHOIS = WHOIS
-        self._LOGGER = LOGGER
 
     def get_context_data(self, **kwargs):
         kwargs.setdefault("base_template", self.base_template)
@@ -58,7 +21,7 @@ class WebwhoisFormView(CorbaWhoisBaseMixin, WhoisFormView):
 
     def get_context_data(self, **kwargs):
         kwargs.setdefault("WHOIS_SEARCH_ENGINES", settings.WEBWHOIS_SEARCH_ENGINES)
-        kwargs.setdefault("managed_zone_list", self._WHOIS.get_managed_zone_list())
+        kwargs.setdefault("managed_zone_list", WHOIS.get_managed_zone_list())
         return super(WebwhoisFormView, self).get_context_data(**kwargs)
 
 
@@ -112,7 +75,4 @@ class DobradomaneRegistrarListView(CorbaWhoisBaseMixin, RegistrarListMixin, Temp
 
 
 class WebwhoisDownloadEvalFileView(CorbaWhoisBaseMixin, DownloadEvalFileView):
-
-    def __init__(self, *args, **kwargs):
-        super(WebwhoisDownloadEvalFileView, self).__init__(*args, **kwargs)
-        self._FILE = FILEMANAGER
+    pass

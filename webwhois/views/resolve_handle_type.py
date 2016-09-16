@@ -13,15 +13,15 @@ class ResolveHandleTypeMixin(RegistryObjectMixin):
     object_type_name = "multiple"
 
     @classmethod
-    def load_registry_object(cls, context, handle, backend):
+    def load_registry_object(cls, context, handle):
         "Load all registry objects of the handle and append it into the context."
-        ContactDetailMixin.load_registry_object(context, handle, backend)
-        NssetDetailMixin.load_registry_object(context, handle, backend)
-        KeysetDetailMixin.load_registry_object(context, handle, backend)
-        RegistrarDetailMixin.load_registry_object(context, handle, backend)
+        ContactDetailMixin.load_registry_object(context, handle)
+        NssetDetailMixin.load_registry_object(context, handle)
+        KeysetDetailMixin.load_registry_object(context, handle)
+        RegistrarDetailMixin.load_registry_object(context, handle)
         # handle_is_domain = False - It is not known whether that handle is a domain.
         # It has an impact on error message.
-        DomainDetailMixin.load_registry_object(context, handle, backend, handle_is_domain=False)
+        DomainDetailMixin.load_registry_object(context, handle, handle_is_domain=False)
 
     def load_related_objects(self, context):
         "Prepare url for redirect to the registry object type."

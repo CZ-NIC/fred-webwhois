@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
-from webwhois.utils import WHOIS_MODULE
+from webwhois.utils import WHOIS, WHOIS_MODULE
 from webwhois.views import KeysetDetailMixin, NssetDetailMixin
 from webwhois.views.base import RegistryObjectMixin
 
@@ -30,7 +30,7 @@ class DomainDetailMixin(RegistryObjectMixin):
         }
 
     @classmethod
-    def load_registry_object(cls, context, handle, backend, handle_is_domain=True):
+    def load_registry_object(cls, context, handle, handle_is_domain=True):
         """
         Load domain of the handle and append it into the context.
 
@@ -56,7 +56,7 @@ class DomainDetailMixin(RegistryObjectMixin):
 
         try:
             context[cls._registry_objects_key]["domain"] = {
-                "detail": backend.get_domain_by_handle(idna_handle),
+                "detail": WHOIS.get_domain_by_handle(idna_handle),
                 "label": pgettext_lazy("singular", "Domain"),
             }
         except WHOIS_MODULE.OBJECT_NOT_FOUND:
@@ -67,7 +67,7 @@ class DomainDetailMixin(RegistryObjectMixin):
         except WHOIS_MODULE.UNMANAGED_ZONE:
             # Handle in domain invalid format raises UNMANAGED_ZONE instead of OBJECT_NOT_FOUND.
             if "." in handle:
-                context["managed_zone_list"] = backend.get_managed_zone_list()
+                context["managed_zone_list"] = WHOIS.get_managed_zone_list()
                 context["WHOIS_SEARCH_ENGINES"] = check_links(settings.WEBWHOIS_SEARCH_ENGINES)
                 context["server_exception"] = {
                     "code": "UNMANAGED_ZONE",
@@ -95,7 +95,7 @@ class DomainDetailMixin(RegistryObjectMixin):
 
     def load_related_objects(self, context):
         "Load objects related to the domain and append them into the context."
-        descriptions = self._get_status_descriptions("domain", self._WHOIS.get_domain_status_descriptions)
+        descriptions = self._get_status_descriptions("domain", WHOIS.get_domain_status_descriptions)
         data = context[self._registry_objects_key]["domain"]  # detail, type, label, href
         registry_object = data["detail"]
         data["status_descriptions"] = [descriptions[key] for key in registry_object.statuses]
@@ -104,16 +104,16 @@ class DomainDetailMixin(RegistryObjectMixin):
             data["show_details"] = False
             return
         data.update({
-            "registrant": self._WHOIS.get_contact_by_handle(registry_object.registrant_handle),
-            "registrar": self._WHOIS.get_registrar_by_handle(registry_object.registrar_handle),
-            "admins": [self._WHOIS.get_contact_by_handle(handle) for handle in registry_object.admin_contact_handles],
+            "registrant": WHOIS.get_contact_by_handle(registry_object.registrant_handle),
+            "registrar": WHOIS.get_registrar_by_handle(registry_object.registrar_handle),
+            "admins": [WHOIS.get_contact_by_handle(handle) for handle in registry_object.admin_contact_handles],
         })
         if registry_object.nsset_handle:
-            data["nsset"] = {"detail": self._WHOIS.get_nsset_by_handle(registry_object.nsset_handle)}
-            NssetDetailMixin.append_nsset_related(data["nsset"], self._WHOIS)
+            data["nsset"] = {"detail": WHOIS.get_nsset_by_handle(registry_object.nsset_handle)}
+            NssetDetailMixin.append_nsset_related(data["nsset"])
         if registry_object.keyset_handle:
-            data["keyset"] = {"detail": self._WHOIS.get_keyset_by_handle(registry_object.keyset_handle)}
-            KeysetDetailMixin.append_keyset_related(data["keyset"], self._WHOIS)
+            data["keyset"] = {"detail": WHOIS.get_keyset_by_handle(registry_object.keyset_handle)}
+            KeysetDetailMixin.append_keyset_related(data["keyset"])
 
     def get_context_data(self, **kwargs):
         kwargs.setdefault("DNSSEC_URL", settings.WEBWHOIS_DNSSEC_URL)
