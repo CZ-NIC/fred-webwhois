@@ -1,6 +1,6 @@
 APP = webwhois
 
-.PHONY: default msg msg-py msg-make-py msg-sort-py isort check-isort check-flake8
+.PHONY: default msg msg-py msg-make-py msg-sort-py test isort check-isort check-flake8
 
 default:
 	echo "No default action, specify the target"
@@ -16,6 +16,9 @@ msg-make-py:
 msg-sort-py:
 	msgattrib --sort-output --no-location --no-obsolete -o ${APP}/locale/cs/LC_MESSAGES/django.po \
 		${APP}/locale/cs/LC_MESSAGES/django.po
+
+test:
+	PYTHONPATH='./test_cfg:${PYTHONPATH}' DJANGO_SETTINGS_MODULE='settings' django-admin test webwhois
 
 isort:
 	isort --recursive ${APP}

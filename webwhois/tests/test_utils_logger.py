@@ -12,7 +12,7 @@ class TestLogger(SimpleTestCase):
             create_logger("foo", None, None)
         with self.assertRaisesRegexp(ImportError, "No module named foo"):
             create_logger("foo.off", None, None)
-        with self.assertRaisesRegexp(ImportError, 'Module "pylogger.foo" does not define a "foo" attribute/class'):
+        with self.assertRaisesRegexp(ImportError, 'does not define a "foo" attribute/class'):
             create_logger("pylogger.foo", None, None)
 
         corba, ccreg = MagicMock(), Mock()
