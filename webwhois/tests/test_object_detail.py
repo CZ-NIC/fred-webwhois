@@ -17,6 +17,7 @@ from webwhois.views.base import RegistryObjectMixin
                    CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
 class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
+    allow_database_queries = True  # Temporary attr. up to Django 1.10.
     urls = 'webwhois.tests.urls'
 
     @classmethod

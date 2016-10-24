@@ -41,6 +41,9 @@ class TestWebwhoisCorbaRecoder(SimpleTestCase):
     """
     Tests for `WebwhoisCorbaRecoder`.
     """
+
+    allow_database_queries = True  # Temporary attr. up to Django 1.10.
+
     def test_decode_date(self):
         raw = CCREG_MODULE.DateType(day=12, month=5, year=2012)
         self.assertEqual(WebwhoisCorbaRecoder().decode(raw), date(2012, 5, 12))
