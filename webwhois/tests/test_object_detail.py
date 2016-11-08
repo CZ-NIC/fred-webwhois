@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
@@ -11,18 +12,21 @@ from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.tests.utils import WebwhoisAssertMixin, apply_patch
 from webwhois.utils import CCREG_MODULE, WHOIS_MODULE
 from webwhois.views.base import RegistryObjectMixin
+from webwhois.views.detail_domain import check_context, check_links
+from webwhois.views.detail_keyset import KeysetDetailMixin
+from webwhois.views.detail_nsset import NssetDetailMixin
 
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None, LANGUAGE_CODE='en',
                    CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
-class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
+class ObjectDetailMixin(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     allow_database_queries = True  # Temporary attr. up to Django 1.10.
     urls = 'webwhois.tests.urls'
 
     @classmethod
     def setUpClass(cls):
-        super(TestObjectDetailView, cls).setUpClass()
+        super(ObjectDetailMixin, cls).setUpClass()
         reset_format_cache()  # Reset cache with formats for date and time.
 
     def setUp(self):
@@ -33,6 +37,9 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         apply_patch(self, patch("webwhois.views.detail_nsset.WHOIS", self.WHOIS))
         apply_patch(self, patch("webwhois.views.registrar.WHOIS", self.WHOIS))
         self.LOGGER = apply_patch(self, patch("webwhois.views.base.LOGGER"))
+
+
+class TestResolveHandleType(ObjectDetailMixin):
 
     def test_handle_not_found(self):
         self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
@@ -195,23 +202,39 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             call.get_domain_by_handle('testhandle.cz')
         ])
 
-    def test_handle_contact_not_linked(self):
-        self.WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=[])
+    def test_one_entry(self):
+        self.WHOIS.get_contact_by_handle.return_value = self._get_contact()
+        self.WHOIS.get_nsset_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_keyset_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_registrar_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.UNMANAGED_ZONE
+        response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "testhandle"}))
+        self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
-        response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
-        self.assertContains(response, "Contact details")
-        self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
-        self.assertCssSelectEqual(response, "table.result tr", [
-            'Handle KONTAKT',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d.'
-        ], transform=self.transform_to_text)
-        self.assertEqual(self.LOGGER.mock_calls, [
-            call.__nonzero__(),
-            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
-                ('handle', 'mycontact'), ('handleType', 'contact'))),
-            call.create_request().close(properties=[('foundType', 'contact')])
-        ])
-        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
+        self.WHOIS.get_registrar_by_handle.side_effect = None
+        self.assertRedirects(response, reverse("webwhois:detail_contact", kwargs={"handle": "testhandle"}))
+
+
+class TestDetailContact(ObjectDetailMixin):
+
+    def test_contact_not_found(self):
+        self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "testhandle"}))
+        self.assertContains(response, 'Contact not found')
+        self.assertContains(response, 'No contact matches <strong>testhandle</strong> handle.')
+        self.assertNotContains(response, 'Register this domain name?')
+
+    def test_contact_invalid_handle(self):
+        self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.INVALID_HANDLE
+        response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "testhandle"}))
+        self.assertContains(response, "Invalid handle")
+        self.assertContains(response, "<strong>testhandle</strong> is not a valid handle.")
+
+    def test_contact_invalid_handle_escaped(self):
+        self.WHOIS.get_contact_by_handle.side_effect = WHOIS_MODULE.INVALID_HANDLE
+        response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "test<handle"}))
+        self.assertContains(response, "Invalid handle")
+        self.assertContains(response, "<strong>test&lt;handle</strong> is not a valid handle.")
 
     def test_contact_not_linked(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -320,8 +343,8 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
 
     def test_contact_without_registrars_handle(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        self.WHOIS.get_contact_by_handle.return_value = self._get_contact(creating_registrar_handle=None,
-                                                                          sponsoring_registrar_handle=None)
+        self.WHOIS.get_contact_by_handle.return_value = self._get_contact(creating_registrar_handle="",
+                                                                          sponsoring_registrar_handle="")
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertContains(response, "Contact details")
         self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
@@ -498,6 +521,9 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             call.get_registrar_by_handle('REG-FRED_A')
         ])
 
+
+class TestDetailNsset(ObjectDetailMixin):
+
     def test_nsset_not_found(self):
         self.WHOIS.get_nsset_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
@@ -558,6 +584,22 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
+
+    def test_append_nsset_related(self):
+        nsset = self._get_nsset()
+        admin = self._get_contact()
+        registrar = self._get_registrar()
+        self.WHOIS.get_nsset_status_descriptions.return_value = self._get_nsset_status()
+        self.WHOIS.get_contact_by_handle.return_value = admin
+        self.WHOIS.get_registrar_by_handle.return_value = registrar
+        data = {"detail": nsset}
+        NssetDetailMixin.append_nsset_related(data)
+        self.assertEqual(data, {
+            "detail": nsset,
+            "admins": [admin],
+            "registrar": registrar,
+            "status_descriptions": ['Has relation to other records in the registry'],
+        })
 
     def test_nsset_fqds_idna(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -624,6 +666,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         ])
 
     def test_nsset_with_contact_no_organization(self):
+        "Test for set disclose of organization to True."
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(
             organization=WHOIS_MODULE.DisclosableString(value='', disclose=True))
@@ -654,6 +697,9 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
+
+
+class TestDetailKeyset(ObjectDetailMixin):
 
     def test_keyset_not_found(self):
         self.WHOIS.get_keyset_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
@@ -717,7 +763,24 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             call.get_registrar_by_handle('REG-FRED_A')
         ])
 
+    def test_append_keyset_related(self):
+        keyset = self._get_keyset()
+        admin = self._get_contact()
+        registrar = self._get_registrar()
+        self.WHOIS.get_keyset_status_descriptions.return_value = self._get_keyset_status()
+        self.WHOIS.get_contact_by_handle.return_value = admin
+        self.WHOIS.get_registrar_by_handle.return_value = registrar
+        data = {"detail": keyset}
+        KeysetDetailMixin.append_keyset_related(data)
+        self.assertEqual(data, {
+            "detail": keyset,
+            "admins": [admin],
+            "registrar": registrar,
+            "status_descriptions": ['Has relation to other records in the registry'],
+        })
+
     def test_keyset_with_contact_no_organization(self):
+        "Test for set disclose of organization to True."
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(
             organization=WHOIS_MODULE.DisclosableString(value='', disclose=True))
@@ -749,6 +812,9 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
+
+
+class TestDetailDomain(ObjectDetailMixin):
 
     def test_domain_not_found(self):
         self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
@@ -846,6 +912,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         ])
 
     def test_domain_with_contact_no_organization(self):
+        "Test for set disclose of organization to True."
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(
             organization=WHOIS_MODULE.DisclosableString(value='', disclose=True))
@@ -960,8 +1027,7 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
         self.assertEqual(self.WHOIS.mock_calls, [call.get_domain_by_handle('fred.com'), call.get_managed_zone_list()])
 
-    def test_domain_invalid_label(self):
-        self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.INVALID_LABEL
+    def test_domain_idna_invalid_codepoint(self):
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fr:ed.com"}))
         self.assertContains(response, 'Invalid handle')
         self.assertContains(response, '<strong>fr:ed.com</strong> is not a valid handle.')
@@ -974,6 +1040,13 @@ class TestObjectDetailView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTe
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
         self.assertEqual(self.WHOIS.mock_calls, [])
+
+    def test_domain_invalid_label(self):
+        self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.INVALID_LABEL
+        response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.com"}))
+        self.assertContains(response, 'Invalid handle')
+        self.assertContains(response, '<strong>fred.com</strong> is not a valid handle.')
+        self.assertNotContains(response, 'Register this domain name?')
 
     def test_domain_invalid_label_with_dash(self):
         self.WHOIS.get_domain_by_handle.side_effect = WHOIS_MODULE.INVALID_LABEL
@@ -1386,3 +1459,29 @@ class TestRegistryObjectMixin(SimpleTestCase):
         view = RegistryObjectMixin()
         with self.assertRaises(NotImplementedError):
             view.prepare_logging_request()
+
+
+class TestViewFunctions(SimpleTestCase):
+
+    def test_check_no_links(self):
+        self.assertEqual(check_links([]), [])
+
+    def test_check_links(self):
+        links = ({"href": "foo1", "label": "oof1"}, {"href": "foo2", "label": "oof2"})
+        self.assertEqual(check_links(links), links)
+
+    def test_check_invalid_links(self):
+        with self.assertRaisesRegexp(ImproperlyConfigured, "Data {'href': 'foo1'} does not have required keys."):
+            check_links(({"href": "foo1"}, ))
+
+    def test_check_context_empty(self):
+        self.assertEqual(check_context({}), {})
+        self.assertIsNone(check_context(None))
+
+    def test_check_context_invalid(self):
+        with self.assertRaisesRegexp(ImproperlyConfigured, "Data {'href': 'foo1'} does not have required keys."):
+            check_context({"href": "foo1"})
+
+    def test_check_context(self):
+        link = {"href": "foo", "label": "oof"}
+        self.assertEqual(check_context(link), link)

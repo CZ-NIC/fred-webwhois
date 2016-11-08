@@ -123,7 +123,7 @@ class DomainDetailMixin(RegistryObjectMixin):
 def check_context(link):
     "Check if link context has keys required by the template."
     if link and not (link.get("href") and link.get("label")):
-        raise ImproperlyConfigured("Data %s does not have requred keys." % link)
+        raise ImproperlyConfigured("Data %s does not have required keys." % link)
     return link
 
 

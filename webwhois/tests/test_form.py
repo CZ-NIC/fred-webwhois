@@ -2,8 +2,31 @@ from django.core.urlresolvers import reverse
 from django.test import SimpleTestCase
 from mock import call, patch
 
+from webwhois.forms import WhoisForm
 from webwhois.tests.utils import WebwhoisAssertMixin, apply_patch
 from webwhois.utils import WHOIS_MODULE
+
+
+class TestWhoisForm(SimpleTestCase):
+
+    def test_is_valid(self):
+        form = WhoisForm({"handle": "foo"})
+        self.assertEqual(form.errors, {})
+
+    def test_field_is_required(self):
+        form = WhoisForm({"handle": None})
+        self.assertEqual(form.errors, {'handle': ['This field is required.']})
+        form = WhoisForm({"handle": ""})
+        self.assertEqual(form.errors, {'handle': ['This field is required.']})
+
+    def test_max_length(self):
+        form = WhoisForm({"handle": "o" * 256})
+        self.assertEqual(form.errors, {'handle': ['Ensure this value has at most 255 characters (it has 256).']})
+
+    def test_cleaned_data(self):
+        form = WhoisForm({"handle": "  foo  "})
+        self.assertEqual(form.errors, {})
+        self.assertEqual(form.cleaned_data, {"handle": "foo"})
 
 
 class TestWhoisFormView(WebwhoisAssertMixin, SimpleTestCase):

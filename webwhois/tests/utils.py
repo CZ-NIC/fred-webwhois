@@ -1,4 +1,6 @@
 import re
+from shutil import rmtree
+from tempfile import mkdtemp
 
 from django.http.response import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.utils.encoding import smart_text
@@ -21,6 +23,15 @@ def apply_patch(case, patcher):
         start, stop = patcher.enable, patcher.disable
     case.addCleanup(stop)
     return start()
+
+
+def prepare_mkdtemp(case):
+    """
+    Creates temporary directory and returns its name.
+    """
+    dirname = mkdtemp()
+    case.addCleanup(rmtree, dirname)
+    return dirname
 
 
 def transform_to_text(node):

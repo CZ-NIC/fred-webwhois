@@ -16,7 +16,7 @@ from webwhois.utils import CCREG_MODULE, WHOIS_MODULE
 
 @override_settings(WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED=["certified"],
                    WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED=["uncertified"])
-class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
+class TestRegistrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     urls = 'webwhois.tests.urls'
 
@@ -36,6 +36,7 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
             call.create_request().close(properties=[])
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
+        self.assertEqual(self.WHOIS.mock_calls, [call.get_registrar_by_handle('REG_FRED_A')])
 
     def test_registrar_invalid_handle(self):
         self.WHOIS.get_registrar_by_handle.side_effect = WHOIS_MODULE.INVALID_HANDLE
@@ -49,6 +50,7 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
             call.create_request().close(properties=[('reason', 'INVALID_HANDLE')])
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
+        self.assertEqual(self.WHOIS.mock_calls, [call.get_registrar_by_handle('REG_FRED_A')])
 
     def test_registrar(self):
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
@@ -73,6 +75,7 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
             call.create_request().close(properties=[('foundType', 'registrar')])
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
+        self.assertEqual(self.WHOIS.mock_calls, [call.get_registrar_by_handle('REG_FRED_A')])
 
     def test_registrar_url_with_schema(self):
         registrar = self._get_registrar()
@@ -89,6 +92,7 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
             call.create_request().close(properties=[('foundType', 'registrar')])
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
+        self.assertEqual(self.WHOIS.mock_calls, [call.get_registrar_by_handle('REG_FRED_A')])
 
     def test_registrars_retail(self):
         self.WHOIS.get_registrar_groups.return_value = self._get_registrar_groups()
@@ -136,6 +140,11 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
             'http://www.fred-b.cz'
         ])
         self.assertEqual(self.LOGGER.mock_calls, [])
+        self.assertEqual(self.WHOIS.mock_calls, [
+            call.get_registrar_groups(),
+            call.get_registrar_certification_list(),
+            call.get_registrars()
+        ])
 
     def test_registrars_wholesale(self):
         self.WHOIS.get_registrar_groups.return_value = self._get_registrar_groups()
@@ -149,6 +158,11 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
         ], transform=self.transform_to_text)
         self.assertXpathEqual(response, "//*[contains(@class, 'registrars')]//a/@href", ["https://www.no-credit.cz"])
         self.assertEqual(self.LOGGER.mock_calls, [])
+        self.assertEqual(self.WHOIS.mock_calls, [
+            call.get_registrar_groups(),
+            call.get_registrar_certification_list(),
+            call.get_registrars()
+        ])
 
     def test_dobradomena_list_retail(self):
         self.WHOIS.get_registrar_groups.return_value = self._get_registrar_groups()
@@ -178,6 +192,11 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
             'http://fred-b.dobradomena.cz/manual.pdf',
         ], transform=lambda node: node)
         self.assertEqual(self.LOGGER.mock_calls, [])
+        self.assertEqual(self.WHOIS.mock_calls, [
+            call.get_registrar_groups(),
+            call.get_registrar_certification_list(),
+            call.get_registrars()
+        ])
 
     def _table_line(self, node):
         regisrar_name = self.normalize_spaces("".join(node.xpath("td[1]/text()")))
@@ -235,10 +254,17 @@ class TestRegisrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
         ], transform=self._table_line, normalize=False)
 
         self.assertEqual(mock_shuffle.call_count, 2)
+        self.assertEqual(self.WHOIS.mock_calls, [
+            call.get_registrar_groups(),
+            call.get_registrar_certification_list(),
+            call.get_registrars(),
+            call.get_registrar_groups(),
+            call.get_registrar_certification_list(),
+            call.get_registrars()
+        ])
 
 
-@override_settings(WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED=["foo"], WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED=["unfoo"])
-class TestRegisrarsUnknownGroupNames(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
+class SetMocksMixin(object):
 
     urls = 'webwhois.tests.urls'
 
@@ -253,18 +279,58 @@ class TestRegisrarsUnknownGroupNames(WebwhoisAssertMixin, GetRegistryObjectMixin
                                    url='www.foo.foo', phone='', fax='', address=self._get_place_address()),
         ]
 
+
+@override_settings(WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED=["foo"], WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED=["unfoo"])
+class TestRegistrarsUnknownGroupNames(WebwhoisAssertMixin, SetMocksMixin, GetRegistryObjectMixin, SimpleTestCase):
+
     def test_registrars_retail(self):
         response = self.client.get(reverse("webwhois:registrar_list_retail"))
         self.assertContains(response, "Registrars offering also retail services")
         self.assertCssSelectEqual(response, "table.registrars tr", [
             'Registrar Website Technologies Certification Evaluation protocol',
             'Foo s.r.o. www.foo.foo'], transform=self.transform_to_text)
+        self.assertEqual(self.WHOIS.mock_calls, [
+            call.get_registrar_groups(),
+            call.get_registrar_certification_list(),
+            call.get_registrars()
+        ])
 
     def test_registrars_wholesale(self):
         response = self.client.get(reverse("webwhois:registrar_list_wholesale"))
         self.assertContains(response, "Registrars offering only wholesale services")
         self.assertCssSelectEqual(response, "table.registrars tr", [
             'Registrar Website Technologies'], transform=self.transform_to_text)
+        self.assertEqual(self.WHOIS.mock_calls, [
+            call.get_registrar_groups(),
+            call.get_registrar_certification_list(),
+            call.get_registrars()
+        ])
+
+
+@override_settings(WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED=[], WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED=[])
+class TestRegistrarsEmptyGroupNames(WebwhoisAssertMixin, SetMocksMixin, GetRegistryObjectMixin, SimpleTestCase):
+
+    def test_registrars_retail(self):
+        response = self.client.get(reverse("webwhois:registrar_list_retail"))
+        self.assertContains(response, "Registrars offering also retail services")
+        self.assertCssSelectEqual(response, "table.result tr", [
+            'Registrar Website Technologies Certification Evaluation protocol'], transform=self.transform_to_text)
+        self.assertEqual(self.WHOIS.mock_calls, [
+            call.get_registrar_groups(),
+            call.get_registrar_certification_list(),
+            call.get_registrars()
+        ])
+
+    def test_registrars_wholesale(self):
+        response = self.client.get(reverse("webwhois:registrar_list_wholesale"))
+        self.assertContains(response, "Registrars offering only wholesale services")
+        self.assertCssSelectEqual(response, "table.result tr", [
+            'Registrar Website Technologies'], transform=self.transform_to_text)
+        self.assertEqual(self.WHOIS.mock_calls, [
+            call.get_registrar_groups(),
+            call.get_registrar_certification_list(),
+            call.get_registrars()
+        ])
 
 
 @override_settings(TEMPLATE_DIRS=(os.path.join(os.path.dirname(upath(__file__)), 'templates'), ))
@@ -280,6 +346,8 @@ class TestDownloadView(GetRegistryObjectMixin, SimpleTestCase):
         self.WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()
         response = self.client.get(reverse("webwhois:download_evaluation_file", kwargs={"handle": "REG-MISSING"}))
         self.assertIsInstance(response, HttpResponseNotFound)
+        self.assertEqual(self.WHOIS.mock_calls, [call.get_registrar_certification_list()])
+        self.assertEqual(self.FILE.mock_calls, [])
 
     def test_download_eval_file(self):
         self.WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()
@@ -298,3 +366,10 @@ class TestDownloadView(GetRegistryObjectMixin, SimpleTestCase):
         self.assertEqual(response.content, content)
         self.assertEqual(response['Content-Type'], 'text/html')
         self.assertEqual(response['Content-Disposition'], 'attachment; filename="test.html"')
+        self.assertEqual(self.WHOIS.mock_calls, [call.get_registrar_certification_list()])
+        self.assertEqual(self.FILE.mock_calls, [
+            call.info(2L),
+            call.load(2),
+            call.load().download(5L),
+            call.load().finalize_download()
+        ])
