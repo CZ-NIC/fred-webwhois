@@ -1,9 +1,10 @@
 import datetime
 import re
 
-from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
+from webwhois.settings import WEBWHOIS_MOJEID_LINK_WHY, WEBWHOIS_MOJEID_REGISTRY_ENDPOINT, \
+    WEBWHOIS_MOJEID_TRANSFER_ENDPOINT
 from webwhois.utils import WHOIS, WHOIS_MODULE
 from webwhois.views.base import RegistryObjectMixin
 
@@ -80,9 +81,9 @@ class ContactDetailWithMojeidMixin(ContactDetailMixin):
     valid_mojeid_handle_format = re.compile('^[A-Z0-9](-?[A-Z0-9])*$', re.IGNORECASE)
 
     def get_context_data(self, **kwargs):
-        kwargs.setdefault("mojeid_registry_endpoint", settings.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT)
-        kwargs.setdefault("mojeid_transfer_endpoint", settings.WEBWHOIS_MOJEID_TRANSFER_ENDPOINT)
-        kwargs.setdefault("mojeid_link_why", settings.WEBWHOIS_MOJEID_LINK_WHY)
+        kwargs.setdefault("mojeid_registry_endpoint", WEBWHOIS_MOJEID_REGISTRY_ENDPOINT)
+        kwargs.setdefault("mojeid_transfer_endpoint", WEBWHOIS_MOJEID_TRANSFER_ENDPOINT)
+        kwargs.setdefault("mojeid_link_why", WEBWHOIS_MOJEID_LINK_WHY)
         return super(ContactDetailWithMojeidMixin, self).get_context_data(**kwargs)
 
     def load_related_objects(self, context):

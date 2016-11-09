@@ -1,7 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
@@ -12,9 +10,13 @@ from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.tests.utils import WebwhoisAssertMixin, apply_patch
 from webwhois.utils import CCREG_MODULE, WHOIS_MODULE
 from webwhois.views.base import RegistryObjectMixin
-from webwhois.views.detail_domain import check_context, check_links
 from webwhois.views.detail_keyset import KeysetDetailMixin
 from webwhois.views.detail_nsset import NssetDetailMixin
+
+WEBWHOIS_MOJEID_TRANSFER_ENDPOINT = "https://mojeid.cz/endpoint/"
+WEBWHOIS_MOJEID_REGISTRY_ENDPOINT = "https://mojeid.cz/mogrify/preface/"
+WEBWHOIS_MOJEID_LINK_WHY = "https://mojeid.cz/why/"
+WEBWHOIS_DNSSEC_URL = "http://www.nic.cz/dnssec/"
 
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None, LANGUAGE_CODE='en',
@@ -859,6 +861,7 @@ class TestDetailDomain(ObjectDetailMixin):
         self.WHOIS.get_domain_by_handle.return_value = self._get_domain(handle=handle) if handle else self._get_domain()
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
 
+    @patch("webwhois.views.detail_domain.WEBWHOIS_DNSSEC_URL", WEBWHOIS_DNSSEC_URL)
     def test_domain(self):
         self._mocks_for_domain_detail()
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
@@ -910,6 +913,7 @@ class TestDetailDomain(ObjectDetailMixin):
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
+        self.assertContains(response, '<a href="%s">DNSSEC</a>' % WEBWHOIS_DNSSEC_URL, html=True)
 
     def test_domain_with_contact_no_organization(self):
         "Test for set disclose of organization to True."
@@ -1218,18 +1222,21 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         self.LOGGER = apply_patch(self, patch("webwhois.views.base.LOGGER"))
         self.LOGGER.__nonzero__.return_value = False
 
+    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_TRANSFER_ENDPOINT", WEBWHOIS_MOJEID_TRANSFER_ENDPOINT)
+    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT", WEBWHOIS_MOJEID_REGISTRY_ENDPOINT)
+    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_LINK_WHY", WEBWHOIS_MOJEID_LINK_WHY)
     def test_button_mojeid(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact()
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "mycontact"}))
-        self.assertXpathEqual(response, "//form[@action='%s']/input" % settings.WEBWHOIS_MOJEID_TRANSFER_ENDPOINT, [
+        self.assertXpathEqual(response, "//form[@action='%s']/input" % WEBWHOIS_MOJEID_TRANSFER_ENDPOINT, [
             ('hidden', 'username', 'kontakt'),
             ('submit', None, 'Create mojeID from the domain registry')
         ], transform=lambda node: (node.attrib["type"], node.attrib.get("name"), node.attrib["value"]), normalize=False)
         self.assertXpathEqual(response, "count(//a[@href='%s?username=kontakt'])=1" % (
-            settings.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT), True)
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % settings.WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID"])
+            WEBWHOIS_MOJEID_REGISTRY_ENDPOINT), True)
+        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID"])
         self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
         self.assertEqual(self.WHOIS.mock_calls, [
             call.get_contact_by_handle('mycontact'),
@@ -1237,6 +1244,21 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
+        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID"])
+
+    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_TRANSFER_ENDPOINT", None)
+    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT", None)
+    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_LINK_WHY", None)
+    def test_no_button_mojeid(self):
+        self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
+        self.WHOIS.get_contact_by_handle.return_value = self._get_contact()
+        self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
+        response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "mycontact"}))
+        self.assertXpathEqual(response, "//form[@action='%s']/input" % WEBWHOIS_MOJEID_TRANSFER_ENDPOINT, [])
+        self.assertXpathEqual(response, "count(//a[@href='%s?username=kontakt'])=1" % (
+            WEBWHOIS_MOJEID_REGISTRY_ENDPOINT), False)
+        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, [])
+        # TODO: LOGGER, WHOIS
 
     def test_improper_handle_format(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -1244,7 +1266,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "MY.HANDLE"}))
         self.assertXpathEqual(response, "count(//form)=0", True)
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % settings.WEBWHOIS_MOJEID_LINK_WHY, [])
+        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, [])
         self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
         self.assertEqual(self.WHOIS.mock_calls, [
             call.get_contact_by_handle('MY.HANDLE'),
@@ -1252,19 +1274,23 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
+        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, [])
 
+    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_TRANSFER_ENDPOINT", WEBWHOIS_MOJEID_TRANSFER_ENDPOINT)
+    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT", WEBWHOIS_MOJEID_REGISTRY_ENDPOINT)
+    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_LINK_WHY", WEBWHOIS_MOJEID_LINK_WHY)
     def test_status_not_linked(self):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=[])
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "mycontact"}))
-        self.assertXpathEqual(response, "//form[@action='%s']/input" % settings.WEBWHOIS_MOJEID_TRANSFER_ENDPOINT, [
+        self.assertXpathEqual(response, "//form[@action='%s']/input" % WEBWHOIS_MOJEID_TRANSFER_ENDPOINT, [
             ('hidden', 'username', 'kontakt'),
             ('submit', None, 'Create mojeID from the domain registry')
         ], transform=lambda node: (node.attrib["type"], node.attrib.get("name"), node.attrib["value"]), normalize=False)
         self.assertXpathEqual(response, "count(//a[@href='%s?username=kontakt'])=1" % (
-            settings.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT), True)
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % settings.WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID"])
+            WEBWHOIS_MOJEID_REGISTRY_ENDPOINT), True)
+        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID"])
         self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
         self.assertEqual(self.WHOIS.mock_calls, [
             call.get_contact_by_handle('mycontact'),
@@ -1272,6 +1298,21 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
+        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID"])
+
+    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_TRANSFER_ENDPOINT", None)
+    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT", None)
+    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_LINK_WHY", None)
+    def test_status_not_linked_without_mojeid_form(self):
+        self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
+        self.WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=[])
+        self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
+        response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "mycontact"}))
+        self.assertXpathEqual(response, "//form[@action='%s']/input" % WEBWHOIS_MOJEID_TRANSFER_ENDPOINT, [])
+        self.assertXpathEqual(response, "count(//a[@href='%s?username=kontakt'])=1" % (
+            WEBWHOIS_MOJEID_REGISTRY_ENDPOINT), False)
+        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, [])
+        # TODO: LOGGER, WHOIS
 
     def _do_test_statuses(self, statuses):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -1279,7 +1320,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "mycontact"}))
         self.assertXpathEqual(response, "count(//form)=0", True)
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % settings.WEBWHOIS_MOJEID_LINK_WHY, [])
+        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, [])
         self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
         self.assertEqual(self.WHOIS.mock_calls, [
             call.get_contact_by_handle('mycontact'),
@@ -1287,6 +1328,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
+        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, [])
 
     def test_status_mojeid_contact(self):
         self._do_test_statuses(["linked", "mojeidContact"])
@@ -1457,29 +1499,3 @@ class TestRegistryObjectMixin(SimpleTestCase):
         view = RegistryObjectMixin()
         with self.assertRaises(NotImplementedError):
             view.prepare_logging_request()
-
-
-class TestViewFunctions(SimpleTestCase):
-
-    def test_check_no_links(self):
-        self.assertEqual(check_links([]), [])
-
-    def test_check_links(self):
-        links = ({"href": "foo1", "label": "oof1"}, {"href": "foo2", "label": "oof2"})
-        self.assertEqual(check_links(links), links)
-
-    def test_check_invalid_links(self):
-        with self.assertRaisesRegexp(ImproperlyConfigured, "Data {'href': 'foo1'} does not have required keys."):
-            check_links(({"href": "foo1"}, ))
-
-    def test_check_context_empty(self):
-        self.assertEqual(check_context({}), {})
-        self.assertIsNone(check_context(None))
-
-    def test_check_context_invalid(self):
-        with self.assertRaisesRegexp(ImproperlyConfigured, "Data {'href': 'foo1'} does not have required keys."):
-            check_context({"href": "foo1"})
-
-    def test_check_context(self):
-        link = {"href": "foo", "label": "oof"}
-        self.assertEqual(check_context(link), link)

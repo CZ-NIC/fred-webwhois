@@ -11,6 +11,10 @@ from django.views.generic import TemplateView, View
 from django.views.static import serve
 
 from webwhois.forms import WhoisForm
+from webwhois.settings import WEBWHOIS_DOBRADOMENA_FILE_NAME, WEBWHOIS_DOBRADOMENA_ROOT, \
+    WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL, WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL, \
+    WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC, WEBWHOIS_REGISTRAR_SUPPORTS_IPV6, WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID, \
+    WEBWHOIS_SEARCH_ENGINES
 from webwhois.utils import WHOIS
 from webwhois.utils.dobradomena import get_dobradomena_list
 from webwhois.views import ContactDetailWithMojeidMixin, DomainDetailMixin, KeysetDetailMixin, NssetDetailMixin, \
@@ -54,9 +58,9 @@ class CountCaptchaMixin(SiteMenuMixin):
         cache_key = get_captcha_cache_key(request)
         used_n_times = cache.get(cache_key, 0) + 1
         cache.set(cache_key, used_n_times)
-        if used_n_times > settings.WEBWHOIS_CAPTCHA_MAX_REQUESTS:
-            return redirect(reverse(self.redirect_to_form, current_app=self.request.resolver_match.namespace) + "?" +
-                            urlencode({"handle": kwargs.get("handle")}))
+        if used_n_times > settings.CAPTCHA_MAX_REQUESTS:
+            return redirect(reverse(self.redirect_to_form, current_app=self.request.resolver_match.namespace) +
+                            "?" + urlencode({"handle": kwargs.get("handle")}))
         return super(CountCaptchaMixin, self).dispatch(request, *args, **kwargs)
 
 
@@ -70,12 +74,12 @@ class WebwhoisFormView(SiteMenuMixin, WhoisFormView):
     captcha_limit = 'webwhois_captcha_limit:%s'
 
     def get_context_data(self, **kwargs):
-        kwargs.setdefault("WHOIS_SEARCH_ENGINES", settings.WEBWHOIS_SEARCH_ENGINES)
+        kwargs.setdefault("WHOIS_SEARCH_ENGINES", WEBWHOIS_SEARCH_ENGINES)
         kwargs.setdefault("managed_zone_list", WHOIS.get_managed_zone_list())
         return super(WebwhoisFormView, self).get_context_data(**kwargs)
 
     def get_form_class(self):
-        if cache.get(get_captcha_cache_key(self.request), 0) >= settings.WEBWHOIS_CAPTCHA_MAX_REQUESTS:
+        if cache.get(get_captcha_cache_key(self.request), 0) >= settings.CAPTCHA_MAX_REQUESTS:
             return WhoisWithCaptchaForm
         return self.form_class
 
@@ -125,11 +129,11 @@ class WebwhoisRegistrarListView(SiteMenuMixin, RegistrarListMixin, TemplateView)
         return data
 
     def get_context_data(self, **kwargs):
-        kwargs.setdefault("HOW_TO_BECOME_A_REGISTRAR_URL", settings.WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL)
-        kwargs.setdefault("REGISTRAR_CERTIFIED_FOR_RETAIL_URL", settings.WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL)
-        kwargs.setdefault("REGISTRAR_SUPPORTS_DNSSEC", settings.WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC)
-        kwargs.setdefault("REGISTRAR_SUPPORTS_MOJEID", settings.WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID)
-        kwargs.setdefault("REGISTRAR_SUPPORTS_IPV6", settings.WEBWHOIS_REGISTRAR_SUPPORTS_IPV6)
+        kwargs.setdefault("HOW_TO_BECOME_A_REGISTRAR_URL", WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL)
+        kwargs.setdefault("REGISTRAR_CERTIFIED_FOR_RETAIL_URL", WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL)
+        kwargs.setdefault("REGISTRAR_SUPPORTS_DNSSEC", WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC)
+        kwargs.setdefault("REGISTRAR_SUPPORTS_MOJEID", WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID)
+        kwargs.setdefault("REGISTRAR_SUPPORTS_IPV6", WEBWHOIS_REGISTRAR_SUPPORTS_IPV6)
         self._dobradomena_dict = get_dobradomena_list(get_language())
         return super(WebwhoisRegistrarListView, self).get_context_data(**kwargs)
 
@@ -137,5 +141,5 @@ class WebwhoisRegistrarListView(SiteMenuMixin, RegistrarListMixin, TemplateView)
 class DobradomenaServeFile(View):
 
     def get(self, request, handle, lang):
-        path = os.path.join(handle, lang, settings.WEBWHOIS_DOBRADOMENA_FILE_NAME)
-        return serve(self.request, path, document_root=settings.WEBWHOIS_DOBRADOMENA_ROOT)
+        path = os.path.join(handle, lang, WEBWHOIS_DOBRADOMENA_FILE_NAME)
+        return serve(self.request, path, document_root=WEBWHOIS_DOBRADOMENA_ROOT)

@@ -36,12 +36,14 @@
             {% for zone in managed_zone_list %}<li>{{ zone }}</li>
             {% endfor %}
         </ul>
-        <p>
-            {% trans "To search for a domain in another zone use the search engine:" %}
-            <span class="whois-search-engines">
-                {% for link in WHOIS_SEARCH_ENGINES %}{% if not forloop.first %}, {% endif %}<a href="{{ link.href }}">{{ link.label }}</a>{% endfor %}.
-            </span>
-        </p>
+        {% if WHOIS_SEARCH_ENGINES %}
+            <p>
+                {% trans "To search for a domain in another zone use the search engine:" %}
+                <span class="whois-search-engines">
+                    {% for link in WHOIS_SEARCH_ENGINES %}{% if not forloop.first %}, {% endif %}<a href="{{ link.href }}">{{ link.label }}</a>{% endfor %}.
+                </span>
+            </p>
+        {% endif %}
     {% endif %}
 
 {% endblock webwhois_content %}

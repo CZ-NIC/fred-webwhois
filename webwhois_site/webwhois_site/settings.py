@@ -92,39 +92,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-
-# Webwhois settings
-
-# CORBA CONFIGURATION
-WEBWHOIS_CORBA_IDL = os.environ.get('FRED_WEBWHOIS_IDL_FILE', ['/usr/share/idl/fred/Whois2.idl',
-                                                               '/usr/share/idl/fred/FileManager.idl',
-                                                               '/usr/share/idl/fred/Logger.idl'])
-WEBWHOIS_CORBA_IOR = os.environ.get('FRED_WEBWHOIS_IOR', 'localhost')
-WEBWHOIS_CORBA_CONTEXT = 'fred'
-
-if type(WEBWHOIS_CORBA_IDL) is str:
-    # Paths in environment are saved in a string separated by a space:
-    # export FRED_MOJEID_IDL_FILE="path path path"
-    WEBWHOIS_CORBA_IDL = WEBWHOIS_CORBA_IDL.split(" ")
-
-# Logger module. E.g. "pylogger.corbalogger.LoggerFailSilent"
-WEBWHOIS_LOGGER = None
-WEBWHOIS_LOGGER_CORBA_IOR = WEBWHOIS_CORBA_IOR
-WEBWHOIS_LOGGER_CORBA_CONTEXT = WEBWHOIS_CORBA_CONTEXT
-
-WEBWHOIS_DNSSEC_URL = "http://www.nic.cz/dnssec/"  # ths can be None
-
-WEBWHOIS_SEARCH_ENGINES = (
-    {"label": "WHOIS.COM Lookup", "href": "http://www.whois.com/whois/"},
-    {"label": "IANA WHOIS Service", "href": "http://www.iana.org/whois"},
-)
-
-# Mojeid urls configuration
-MOJEID_HOST = os.environ.get('MOJEID_HOST', "https://mojeid.cz")
-WEBWHOIS_MOJEID_REGISTRY_ENDPOINT = "%s/mogrify/preface/" % MOJEID_HOST
-WEBWHOIS_MOJEID_TRANSFER_ENDPOINT = "%s/transfer/endpoint/" % MOJEID_HOST
-WEBWHOIS_MOJEID_LINK_WHY = "%s/vyhody/" % MOJEID_HOST
-
 # WebWhois - List of Registrars:
 WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL = "https://www.nic.cz/page/309/how-to-become-a-registrar-/"
 WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL = "https://www.nic.cz/page/928/"
@@ -132,26 +99,10 @@ WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC = "https://www.nic.cz/page/928/#dnssec"
 WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID = "https://www.nic.cz/page/928/#mojeid"
 WEBWHOIS_REGISTRAR_SUPPORTS_IPV6 = "https://www.nic.cz/page/928/#ipv6"
 
-# /tmp/dobradomena/fred_a/en/manual.pdf
-WEBWHOIS_DOBRADOMENA_ROOT = '/tmp/dobradomena/'
-WEBWHOIS_DOBRADOMENA_FILE_NAME = "manual.pdf"
-# http://%(handle)s.dobradomena.cz/dobradomena/
-WEBWHOIS_DOBRADOMENA_MANUAL_URL_PATTERN = os.environ.get('DOBRADOMENA_MANUAL', '/dobradomena/%(handle)s/%(lang)s/')
-WEBWHOIS_HOW_TO_REGISTER_LINK = {
-    "href": "http://www.dobradomena.cz/",
-    "label": "www.dobradomena.cz"
-}
-
-# Groups names that will be displayed with/without certifications.
-WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED = ["certified"]
-WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED = ["uncertified"]
-
 # Captcha configuration
-WEBWHOIS_CAPTCHA_MAX_REQUESTS = 100  # Number of requests, when captcha will appear
 
-# Load corba modules at start (if False, then it is loaded when needed).
-# Environemnt variable must be set to empty string to be set to False!
-LOAD_CORBA_AT_START = os.environ.get('LOAD_CORBA_AT_START', not DEBUG)
+# Number of requests, when captcha will appear
+CAPTCHA_MAX_REQUESTS = 100
 
 # Google Recaptcha configuration
 RECAPTCHA_PUBLIC_KEY = '6Ld-fwkTAAAAAHLbjPfo5zaL4jXIOTxsRa1f_KPL'

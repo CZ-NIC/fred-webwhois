@@ -14,9 +14,9 @@ from webwhois.tests.utils import WebwhoisAssertMixin, apply_patch
 from webwhois.utils import CCREG_MODULE, WHOIS_MODULE
 
 
-@override_settings(WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED=["certified"],
-                   WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED=["uncertified"],
-                   ROOT_URLCONF='webwhois.tests.urls')
+@patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', ['certified'])
+@patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', ['uncertified'])
+@override_settings(ROOT_URLCONF='webwhois.tests.urls')
 class TestRegistrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     def setUp(self):
@@ -277,8 +277,9 @@ class SetMocksMixin(object):
         ]
 
 
-@override_settings(WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED=["foo"], WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED=["unfoo"],
-                   ROOT_URLCONF='webwhois.tests.urls')
+@patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', ['foo'])
+@patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', ['unfoo'])
+@override_settings(ROOT_URLCONF='webwhois.tests.urls')
 class TestRegistrarsUnknownGroupNames(WebwhoisAssertMixin, SetMocksMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     def test_registrars_retail(self):
@@ -305,8 +306,9 @@ class TestRegistrarsUnknownGroupNames(WebwhoisAssertMixin, SetMocksMixin, GetReg
         ])
 
 
-@override_settings(WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED=[], WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED=[],
-                   ROOT_URLCONF='webwhois.tests.urls')
+@patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', [])
+@patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', [])
+@override_settings(ROOT_URLCONF='webwhois.tests.urls')
 class TestRegistrarsEmptyGroupNames(WebwhoisAssertMixin, SetMocksMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     def test_registrars_retail(self):

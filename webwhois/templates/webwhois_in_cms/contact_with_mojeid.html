@@ -7,7 +7,7 @@
 
 {% block webwhois_contact_handle %}
     {% with contact=registry_objects.contact.detail valid_mojeid_handle_format=registry_objects.contact.valid_mojeid_handle_format %}
-        {% if registry_objects.contact.show_button_mojeid %}
+        {% if mojeid_transfer_endpoint and registry_objects.contact.show_button_mojeid %}
         <div id="mojeid-buttons">
             <span>{% trans "Create mojeID" context "button" %}</span>
             <ul>

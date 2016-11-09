@@ -1,6 +1,8 @@
-from django.conf import settings
 from django.views.generic import TemplateView
 
+from webwhois.settings import WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL, WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL, \
+    WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC, WEBWHOIS_REGISTRAR_SUPPORTS_IPV6, WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID, \
+    WEBWHOIS_SEARCH_ENGINES
 from webwhois.utils import WHOIS
 from webwhois.views import ContactDetailMixin, ContactDetailWithMojeidMixin, DomainDetailMixin, DownloadEvalFileView, \
     KeysetDetailMixin, NssetDetailMixin, RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, \
@@ -20,7 +22,7 @@ class WebwhoisFormView(CorbaWhoisBaseMixin, WhoisFormView):
     template_name = "webwhois_in_cms/form_whois.html"
 
     def get_context_data(self, **kwargs):
-        kwargs.setdefault("WHOIS_SEARCH_ENGINES", settings.WEBWHOIS_SEARCH_ENGINES)
+        kwargs.setdefault("WHOIS_SEARCH_ENGINES", WEBWHOIS_SEARCH_ENGINES)
         kwargs.setdefault("managed_zone_list", WHOIS.get_managed_zone_list())
         return super(WebwhoisFormView, self).get_context_data(**kwargs)
 
@@ -65,11 +67,11 @@ class DobradomaneRegistrarListView(CorbaWhoisBaseMixin, RegistrarListMixin, Temp
         return data
 
     def get_context_data(self, **kwargs):
-        kwargs.setdefault("HOW_TO_BECOME_A_REGISTRAR_URL", settings.WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL)
-        kwargs.setdefault("REGISTRAR_CERTIFIED_FOR_RETAIL_URL", settings.WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL)
-        kwargs.setdefault("REGISTRAR_SUPPORTS_DNSSEC", settings.WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC)
-        kwargs.setdefault("REGISTRAR_SUPPORTS_MOJEID", settings.WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID)
-        kwargs.setdefault("REGISTRAR_SUPPORTS_IPV6", settings.WEBWHOIS_REGISTRAR_SUPPORTS_IPV6)
+        kwargs.setdefault("HOW_TO_BECOME_A_REGISTRAR_URL", WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL)
+        kwargs.setdefault("REGISTRAR_CERTIFIED_FOR_RETAIL_URL", WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL)
+        kwargs.setdefault("REGISTRAR_SUPPORTS_DNSSEC", WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC)
+        kwargs.setdefault("REGISTRAR_SUPPORTS_MOJEID", WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID)
+        kwargs.setdefault("REGISTRAR_SUPPORTS_IPV6", WEBWHOIS_REGISTRAR_SUPPORTS_IPV6)
         self._dobradomena_dict = {
             'REG-FRED_A': 'http://fred-a.dobradomena.cz/manual.pdf',
             'REG-FRED_B': 'http://fred-b.dobradomena.cz/manual.pdf',

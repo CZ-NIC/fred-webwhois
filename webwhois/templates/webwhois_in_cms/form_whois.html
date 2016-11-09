@@ -20,12 +20,14 @@
             <li>{{ zone }}</li>
         {% endfor %}
     </ul>
-    <p>
-        {% trans "To search for a domain in another zone use the search engine:" %}
-        <span class="whois-search-engines">
-            {% for link in WHOIS_SEARCH_ENGINES %}{% if not forloop.first %}, {% endif %}<a href="{{ link.href }}">{{ link.label }}</a>{% endfor %}.
-        </span>
-    </p>
+    {% if WHOIS_SEARCH_ENGINES %}
+        <p>
+            {% trans "To search for a domain in another zone use the search engine:" %}
+            <span class="whois-search-engines">
+                {% for link in WHOIS_SEARCH_ENGINES %}{% if not forloop.first %}, {% endif %}<a href="{{ link.href }}">{{ link.label }}</a>{% endfor %}.
+            </span>
+        </p>
+    {% endif %}
     <p>
         {% blocktrans with link="https://www.nic.cz/page/306/intended-use-of-supplied-data-and-information/" %}
             Terms of Service are given in the document: <a href="{{ link }}">Intended use of supplied data and information</a>.

@@ -1,10 +1,10 @@
 import random
 
-from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
 
+from webwhois.settings import WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED, WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED
 from webwhois.utils import FILEMANAGER, WHOIS, WHOIS_MODULE
 from webwhois.views.base import BaseContextMixin, RegistryObjectMixin
 
@@ -47,10 +47,10 @@ class RegistrarListMixin(BaseContextMixin):
         groups = {group.name: group for group in WHOIS.get_registrar_groups()}
 
         certified_members, uncertified_members = set(), set()
-        for name in settings.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED:
+        for name in WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED:
             if name in groups:
                 certified_members |= set(groups[name].members)
-        for name in settings.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED:
+        for name in WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED:
             if name in groups:
                 uncertified_members |= set(groups[name].members)
 

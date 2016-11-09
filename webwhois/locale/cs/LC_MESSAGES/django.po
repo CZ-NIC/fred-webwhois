@@ -85,18 +85,6 @@ msgstr ""
 "Identifikátory kontaktu nebo sady jmenných serverů vkládejte jako běžný text."
 
 #, python-format
-msgid ""
-"\n"
-"           Follow the <a href=\"%(link)s\">instructions</a> to become a .cz "
-"domains registrar.\n"
-"       "
-msgstr ""
-"\n"
-"           Chcete-li se stát registrátorem domén .cz, postupujte dle <a href="
-"\"%(link)s\">návodu</a>.\n"
-"       "
-
-#, python-format
 msgid "%s is not a valid handle."
 msgstr "%s je neplatný identifikátor."
 
@@ -177,6 +165,14 @@ msgstr "Datum expirace"
 
 msgid "Fax"
 msgstr "Fax"
+
+#, python-format
+msgid ""
+"Follow the <a href=\"%(link)s\">instructions</a> to become a .cz domains "
+"registrar."
+msgstr ""
+"Chcete-li se stát registrátorem domén .cz, postupujte dle <a href=\"%(link)s"
+"\">návodu</a>."
 
 msgid "Handle"
 msgstr "Identifikátor"
