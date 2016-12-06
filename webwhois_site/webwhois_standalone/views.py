@@ -13,8 +13,8 @@ from django.views.static import serve
 from webwhois.forms import WhoisForm
 from webwhois.utils import WHOIS
 from webwhois.utils.dobradomena import get_dobradomena_list
-from webwhois.views import ContactDetailWithMojeidMixin, DomainDetailMixin, DownloadEvalFileView, KeysetDetailMixin, \
-    NssetDetailMixin, RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, WhoisFormView
+from webwhois.views import ContactDetailWithMojeidMixin, DomainDetailMixin, KeysetDetailMixin, NssetDetailMixin, \
+    RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, WhoisFormView
 
 
 class WhoisWithCaptchaForm(WhoisForm):
@@ -27,7 +27,8 @@ class SiteMenuMixin(object):
 
     def get_context_data(self, **kwargs):
         kwargs.setdefault("base_template", self.base_template)
-        kwargs.setdefault("page_url_name", (":".join((self.request.resolver_match.namespace, self.request.resolver_match.url_name))).lstrip(":"))
+        kwargs.setdefault("page_url_name", (":".join((self.request.resolver_match.namespace,
+                                                      self.request.resolver_match.url_name))).lstrip(":"))
         # The pages with selected menu item "Web whois".
         kwargs.setdefault("menu_item_whois_form", (
             "standalone_webwhois:form_whois",
@@ -126,6 +127,9 @@ class WebwhoisRegistrarListView(SiteMenuMixin, RegistrarListMixin, TemplateView)
     def get_context_data(self, **kwargs):
         kwargs.setdefault("HOW_TO_BECOME_A_REGISTRAR_URL", settings.WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL)
         kwargs.setdefault("REGISTRAR_CERTIFIED_FOR_RETAIL_URL", settings.WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL)
+        kwargs.setdefault("REGISTRAR_SUPPORTS_DNSSEC", settings.WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC)
+        kwargs.setdefault("REGISTRAR_SUPPORTS_MOJEID", settings.WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID)
+        kwargs.setdefault("REGISTRAR_SUPPORTS_IPV6", settings.WEBWHOIS_REGISTRAR_SUPPORTS_IPV6)
         self._dobradomena_dict = get_dobradomena_list(get_language())
         return super(WebwhoisRegistrarListView, self).get_context_data(**kwargs)
 

@@ -67,6 +67,9 @@ class DobradomaneRegistrarListView(CorbaWhoisBaseMixin, RegistrarListMixin, Temp
     def get_context_data(self, **kwargs):
         kwargs.setdefault("HOW_TO_BECOME_A_REGISTRAR_URL", settings.WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL)
         kwargs.setdefault("REGISTRAR_CERTIFIED_FOR_RETAIL_URL", settings.WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL)
+        kwargs.setdefault("REGISTRAR_SUPPORTS_DNSSEC", settings.WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC)
+        kwargs.setdefault("REGISTRAR_SUPPORTS_MOJEID", settings.WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID)
+        kwargs.setdefault("REGISTRAR_SUPPORTS_IPV6", settings.WEBWHOIS_REGISTRAR_SUPPORTS_IPV6)
         self._dobradomena_dict = {
             'REG-FRED_A': 'http://fred-a.dobradomena.cz/manual.pdf',
             'REG-FRED_B': 'http://fred-b.dobradomena.cz/manual.pdf',

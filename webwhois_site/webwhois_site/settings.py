@@ -128,6 +128,9 @@ WEBWHOIS_MOJEID_LINK_WHY = "%s/vyhody/" % MOJEID_HOST
 # WebWhois - List of Registrars:
 WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL = "https://www.nic.cz/page/309/how-to-become-a-registrar-/"
 WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL = "https://www.nic.cz/page/928/"
+WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC = "https://www.nic.cz/page/928/#dnssec"
+WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID = "https://www.nic.cz/page/928/#mojeid"
+WEBWHOIS_REGISTRAR_SUPPORTS_IPV6 = "https://www.nic.cz/page/928/#ipv6"
 
 # /tmp/dobradomena/fred_a/en/manual.pdf
 WEBWHOIS_DOBRADOMENA_ROOT = '/tmp/dobradomena/'

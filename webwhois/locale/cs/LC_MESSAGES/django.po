@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-01 08:45+0200\n"
+"POT-Creation-Date: 2016-12-06 16:04+0100\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -25,41 +25,11 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"                    Registrar <a href=\"%(link)s\">Certified</a> for Retail\n"
-"                "
-msgstr ""
-"\n"
-"                Registrátor <a href=\"%(link)s\">certifikovaný</a> pro "
-"maloobchod\n"
-"            "
-
-#, python-format
-msgid ""
-"\n"
 "                    Search results for handle <strong>%(handle)s</strong>:\n"
 "                    "
 msgstr ""
 "\n"
 "Výsledek vyhledávání <strong>%(handle)s</strong>:"
-
-#, python-format
-msgid ""
-"\n"
-"                Registrar supports <a href=\"%(link)s\">mojeID</a>\n"
-"            "
-msgstr ""
-"\n"
-"Registrátor podporuje <a href=\"%(link)s\">mojeID</a>"
-
-#, python-format
-msgid ""
-"\n"
-"                Registrar supports secured domains <a href=\"%(link)s"
-"\">DNSSEC</a>\n"
-"            "
-msgstr ""
-"\n"
-"Registrátor podporuje bezpečné domény <a href=\"%(link)s\">DNSSEC</a>"
 
 #, python-format
 msgid ""
@@ -343,6 +313,10 @@ msgstr "Registrace od"
 msgid "Registrar"
 msgstr "Registrátor"
 
+#, python-format
+msgid "Registrar <a href=\"%(link)s\">Certified</a> for Retail"
+msgstr "Registrátor <a href=\"%(link)s\">certifikovaný</a> pro maloobchod"
+
 msgid "Registrar details"
 msgstr "Prohlížení registrátora"
 
@@ -352,8 +326,17 @@ msgstr "Seznam registrátorů"
 msgid "Registrar not found"
 msgstr "Registrátor nenalezen"
 
-msgid "Registrar supports IPv6"
-msgstr "Registrátor podporuje IPv6"
+#, python-format
+msgid "Registrar supports <a href=\"%(link)s\">IPv6</a>"
+msgstr "Registrátor podporuje <a href=\"%(link)s\">IPv6</a>"
+
+#, python-format
+msgid "Registrar supports <a href=\"%(link)s\">mojeID</a>"
+msgstr "Registrátor podporuje <a href=\"%(link)s\">mojeID</a>"
+
+#, python-format
+msgid "Registrar supports secured domains <a href=\"%(link)s\">DNSSEC</a>"
+msgstr "Registrátor podporuje bezpečné domény <a href=\"%(link)s\">DNSSEC</a>"
 
 msgid "Registrars offering also retail services"
 msgstr "Registrátoři poskytující také služby koncovým držitelům"
