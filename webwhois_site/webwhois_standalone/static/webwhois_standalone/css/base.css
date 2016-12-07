@@ -281,17 +281,15 @@ ul.messagelist li {
     margin: 0 0 3px 0;
     border-bottom: 1px solid #ddd;
     color: #666;
-    background: #ffc url(/static/admin/img/icon_success.gif) 5px .3em no-repeat;
+    background: #ffc url(/static/admin/img/icon-yes.svg) 5px .3em no-repeat;
 }
 
 ul.messagelist li.warning, ul.messagelist li.info {
-    background-color: #ffc;
-    background-image: url(/static/admin/img/icon_alert.gif);
+    background: #ffc url(/static/admin/img/icon-alert.svg);
 }
 
 ul.messagelist li.error {
-    background-color: #FFA3A3;
-    background-image: url(/static/admin/img/icon_error.gif);
+    background: #FFA3A3 url(/static/admin/img/icon-no.svg);
 }
 
 ul.messagelist li.success {
