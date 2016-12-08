@@ -15,10 +15,9 @@ from webwhois.utils import CCREG_MODULE, WHOIS_MODULE
 
 
 @override_settings(WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED=["certified"],
-                   WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED=["uncertified"])
+                   WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED=["uncertified"],
+                   ROOT_URLCONF='webwhois.tests.urls')
 class TestRegistrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
-
-    urls = 'webwhois.tests.urls'
 
     def setUp(self):
         self.WHOIS = apply_patch(self, patch("webwhois.views.registrar.WHOIS"))
@@ -266,8 +265,6 @@ class TestRegistrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTest
 
 class SetMocksMixin(object):
 
-    urls = 'webwhois.tests.urls'
-
     def setUp(self):
         self.WHOIS = apply_patch(self, patch("webwhois.views.registrar.WHOIS"))
         self.WHOIS.get_registrar_groups.return_value = self._get_registrar_groups() + [
@@ -280,7 +277,8 @@ class SetMocksMixin(object):
         ]
 
 
-@override_settings(WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED=["foo"], WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED=["unfoo"])
+@override_settings(WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED=["foo"], WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED=["unfoo"],
+                   ROOT_URLCONF='webwhois.tests.urls')
 class TestRegistrarsUnknownGroupNames(WebwhoisAssertMixin, SetMocksMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     def test_registrars_retail(self):
@@ -307,7 +305,8 @@ class TestRegistrarsUnknownGroupNames(WebwhoisAssertMixin, SetMocksMixin, GetReg
         ])
 
 
-@override_settings(WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED=[], WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED=[])
+@override_settings(WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED=[], WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED=[],
+                   ROOT_URLCONF='webwhois.tests.urls')
 class TestRegistrarsEmptyGroupNames(WebwhoisAssertMixin, SetMocksMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     def test_registrars_retail(self):
@@ -333,10 +332,9 @@ class TestRegistrarsEmptyGroupNames(WebwhoisAssertMixin, SetMocksMixin, GetRegis
         ])
 
 
-@override_settings(TEMPLATE_DIRS=(os.path.join(os.path.dirname(upath(__file__)), 'templates'), ))
+@override_settings(TEMPLATE_DIRS=(os.path.join(os.path.dirname(upath(__file__)), 'templates'), ),
+                   ROOT_URLCONF='webwhois.tests.urls')
 class TestDownloadView(GetRegistryObjectMixin, SimpleTestCase):
-
-    urls = 'webwhois.tests.urls'
 
     def setUp(self):
         self.WHOIS = apply_patch(self, patch("webwhois.views.registrar.WHOIS"))

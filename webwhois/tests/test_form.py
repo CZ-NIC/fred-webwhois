@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, override_settings
 from mock import call, patch
 
 from webwhois.forms import WhoisForm
@@ -29,9 +29,9 @@ class TestWhoisForm(SimpleTestCase):
         self.assertEqual(form.cleaned_data, {"handle": "foo"})
 
 
+@override_settings(ROOT_URLCONF='webwhois.tests.urls')
 class TestWhoisFormView(WebwhoisAssertMixin, SimpleTestCase):
 
-    urls = 'webwhois.tests.urls'
     managed_zone_list = ("cz", "0.2.4.e164.arpa")
 
     def setUp(self):

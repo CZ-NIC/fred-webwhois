@@ -18,11 +18,11 @@ from webwhois.views.detail_nsset import NssetDetailMixin
 
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None, LANGUAGE_CODE='en',
-                   CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
+                   CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}},
+                   ROOT_URLCONF='webwhois.tests.urls')
 class ObjectDetailMixin(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     allow_database_queries = True  # Temporary attr. up to Django 1.10.
-    urls = 'webwhois.tests.urls'
 
     @classmethod
     def setUpClass(cls):
@@ -1209,10 +1209,9 @@ class TestDetailDomain(ObjectDetailMixin):
 
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None, LANGUAGE_CODE='en',
-                   CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
+                   CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}},
+                   ROOT_URLCONF='webwhois.tests.urls')
 class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
-
-    urls = 'webwhois.tests.urls'
 
     def setUp(self):
         self.WHOIS = apply_patch(self, patch("webwhois.views.detail_contact.WHOIS"))
@@ -1309,10 +1308,9 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
 
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None, LANGUAGE_CODE='en',
-                   CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
+                   CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}},
+                   ROOT_URLCONF='webwhois.tests.urls')
 class TestDetailCss(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
-
-    urls = 'webwhois.tests.urls'
 
     @classmethod
     def setUpClass(cls):
