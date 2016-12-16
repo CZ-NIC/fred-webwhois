@@ -9,6 +9,7 @@ def corba_wrapper(fnc):
         return recoder.decode(fnc(*args, **kwargs))
     return wrap
 
+
 corba_wrapper_m = method_decorator(corba_wrapper)
 recoder = WebwhoisCorbaRecoder("utf-8")
 
