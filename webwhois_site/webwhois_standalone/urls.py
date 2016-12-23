@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from webwhois.views import DownloadEvalFileView
 
@@ -7,7 +7,7 @@ from .views import WebwhoisContactDetailView, WebwhoisDomainDetailView, Webwhois
 
 
 # WebWhois_standalone site urls.
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^form/$', WebwhoisFormView.as_view(), name='form_whois'),
     url(r'^object/(?P<handle>[\w_.:-]{1,255})/$', WebwhoisResolveHandleTypeView.as_view(), name='registry_object_type'),
     url(r'^contact/(?P<handle>[\w_.:-]{1,255})/$', WebwhoisContactDetailView.as_view(), name='detail_contact'),
@@ -19,4 +19,4 @@ urlpatterns = patterns('',
     url(r'^registrars/wholesale/$', WebwhoisRegistrarListView.as_view(), name='registrar_list_wholesale'),
     url(r'^registrar-download-evaluation-file/(?P<handle>[\w_.:-]{1,255})/$', DownloadEvalFileView.as_view(),
         name='download_evaluation_file'),
-)
+]
