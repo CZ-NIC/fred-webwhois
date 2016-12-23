@@ -4,6 +4,7 @@ from webwhois.views.pages import DobradomaneRegistrarListView, WebwhoisContactDe
     WebwhoisDownloadEvalFileView, WebwhoisFormView, WebwhoisKeysetDetailView, WebwhoisMojeidContactDetailView, \
     WebwhoisNssetDetailView, WebwhoisRegistrarDetailView, WebwhoisRegistrarListView, WebwhoisResolveHandleTypeView
 
+app_name = 'webwhois'
 urlpatterns = [
     url(r'^form/$', WebwhoisFormView.as_view(), name='form_whois'),
     url(r'^object/(?P<handle>.{1,255})/$', WebwhoisResolveHandleTypeView.as_view(), name='registry_object_type'),
