@@ -334,8 +334,15 @@ class TestRegistrarsEmptyGroupNames(WebwhoisAssertMixin, SetMocksMixin, GetRegis
         ])
 
 
-@override_settings(TEMPLATE_DIRS=(os.path.join(os.path.dirname(upath(__file__)), 'templates'), ),
-                   ROOT_URLCONF='webwhois.tests.urls')
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(os.path.dirname(upath(__file__)), 'templates')],
+    },
+]
+
+
+@override_settings(TEMPLATES=TEMPLATES, ROOT_URLCONF='webwhois.tests.urls')
 class TestDownloadView(GetRegistryObjectMixin, SimpleTestCase):
 
     def setUp(self):

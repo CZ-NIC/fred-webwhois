@@ -9,8 +9,6 @@ ROOT_URLCONF = 'webwhois.urls'
 SECRET_KEY = 'SECRET'
 STATIC_URL = '/static/'
 
-TEMPLATE_CONTEXT_PROCESSORS = ()
-
 _IDL_DIR = os.environ.get('FRED_IDL_DIR', './idl/idl')
 WEBWHOIS_CORBA_IDL = (os.path.join(_IDL_DIR, 'Whois2.idl'), os.path.join(_IDL_DIR, 'FileManager.idl'),
                       os.path.join(_IDL_DIR, 'Logger.idl'))
