@@ -21,7 +21,7 @@ WEBWHOIS_DNSSEC_URL = "http://www.nic.cz/dnssec/"
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None, LANGUAGE_CODE='en',
                    CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}},
-                   ROOT_URLCONF='webwhois.tests.urls')
+                   ROOT_URLCONF='webwhois.tests.urls', STATIC_URL='/static/')
 class ObjectDetailMixin(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     allow_database_queries = True  # Temporary attr. up to Django 1.10.

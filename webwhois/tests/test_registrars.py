@@ -16,7 +16,7 @@ from webwhois.utils import CCREG_MODULE, WHOIS_MODULE
 
 @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', ['certified'])
 @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', ['uncertified'])
-@override_settings(ROOT_URLCONF='webwhois.tests.urls')
+@override_settings(ROOT_URLCONF='webwhois.tests.urls', STATIC_URL='/static/')
 class TestRegistrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     def setUp(self):
