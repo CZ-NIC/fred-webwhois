@@ -116,14 +116,9 @@ class GetRegistryObjectMixin(object):
             setattr(obj, key, value)
         return obj
 
-    def _get_place_address(self, **kwargs):
-        obj = WHOIS_MODULE.PlaceAddress(street1='The street 123', street2='', street3='', city='Prague',
-                                        stateorprovince='', postalcode='13200', country_code='CZ')
-        field_names = obj.__dict__.keys()
-        for key, value in kwargs.items():
-            assert key in field_names, "Unknown arg '%s' in _get_place_address." % key
-            setattr(obj, key, value)
-        return obj
+    def _get_place_address(self):
+        return WHOIS_MODULE.PlaceAddress(street1='The street 123', street2='', street3='', city='Prague',
+                                         stateorprovince='', postalcode='13200', country_code='CZ')
 
     def _get_registrar(self, **kwargs):
         address = WHOIS_MODULE.PlaceAddress(street1='The street 123', street2='', street3='', city='Prague',

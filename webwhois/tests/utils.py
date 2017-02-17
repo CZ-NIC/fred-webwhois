@@ -2,7 +2,6 @@ import re
 from shutil import rmtree
 from tempfile import mkdtemp
 
-from django.http.response import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.utils.encoding import smart_text
 from lxml import etree, html
 
@@ -17,10 +16,7 @@ def apply_patch(case, patcher):
         self.apply_patch(patch('module'))
         mocked = self.apply_patch(patch('module', mock))
     """
-    if hasattr(patcher, "start"):
-        start, stop = patcher.start, patcher.stop
-    else:
-        start, stop = patcher.enable, patcher.disable
+    start, stop = patcher.start, patcher.stop
     case.addCleanup(stop)
     return start()
 
@@ -41,7 +37,7 @@ def transform_to_text(node):
 
 def transform_to_html(node):
     "Transform the node to the string with html tags together with attributes and text inside."
-    if isinstance(node, etree.ElementBase):
+    if isinstance(node, etree.ElementBase):  # pragma: no cover
         node = smart_text(html.tostring(node, encoding="UTF-8"))
     return node
 
@@ -116,17 +112,7 @@ class WebwhoisAssertMixin(object):
         Parse HTML document into etree. Response must be one of the type:
         str, unicode, HttpResponse, StreamingHttpResponse.
         """
-        if isinstance(response, (str, unicode)):
-            response = HttpResponse(response)
-        elif not isinstance(response, (HttpResponse, StreamingHttpResponse)):
-            raise TypeError("Response in not type of HttpResponseBase.")
-        elif isinstance(response, HttpResponseRedirect):
-            raise TypeError("Response can not be a type of HttpResponseRedirect.")
-
-        if isinstance(response, StreamingHttpResponse):
-            content = b''.join(response.streaming_content)
-        else:
-            content = response.content
+        content = response.content
 
         doc = self._parsed_response.get(content)
         if doc is not None:
@@ -152,6 +138,4 @@ class WebwhoisAssertMixin(object):
         fn:normalize-space(string)
         http://www.w3schools.com/xpath/xpath_functions.asp
         """
-        if isinstance(value, html.HtmlElement):
-            return "<Element %s at 0x...>" % value.tag
         return re.sub("\s+", " ", value).strip()
