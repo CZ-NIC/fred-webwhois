@@ -19,6 +19,9 @@ msg-sort-py:
 test:
 	PYTHONPATH='./test_cfg:${PYTHONPATH}' DJANGO_SETTINGS_MODULE='settings' django-admin test webwhois
 
+test-coverage:
+	PYTHONPATH='./test_cfg:${PYTHONPATH}' DJANGO_SETTINGS_MODULE='settings' coverage run --source=${APP} --branch -m django test ${APP}
+
 isort:
 	isort --recursive ${APP}
 
