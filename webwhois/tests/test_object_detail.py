@@ -7,7 +7,7 @@ from django.utils.formats import reset_format_cache
 from mock import call, patch
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
-from webwhois.tests.utils import WebwhoisAssertMixin, apply_patch
+from webwhois.tests.utils import TEMPLATES, WebwhoisAssertMixin, apply_patch
 from webwhois.utils import CCREG_MODULE, WHOIS_MODULE
 from webwhois.views.base import RegistryObjectMixin
 from webwhois.views.detail_keyset import KeysetDetailMixin
@@ -41,6 +41,7 @@ class ObjectDetailMixin(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
         self.LOGGER = apply_patch(self, patch("webwhois.views.base.LOGGER"))
 
 
+@override_settings(TEMPLATES=TEMPLATES)
 class TestResolveHandleType(ObjectDetailMixin):
 
     def test_handle_not_found(self):
@@ -217,6 +218,7 @@ class TestResolveHandleType(ObjectDetailMixin):
         self.assertRedirects(response, reverse("webwhois:detail_contact", kwargs={"handle": "testhandle"}))
 
 
+@override_settings(TEMPLATES=TEMPLATES)
 class TestDetailContact(ObjectDetailMixin):
 
     def test_contact_not_found(self):
@@ -524,6 +526,7 @@ class TestDetailContact(ObjectDetailMixin):
         ])
 
 
+@override_settings(TEMPLATES=TEMPLATES)
 class TestDetailNsset(ObjectDetailMixin):
 
     def test_nsset_not_found(self):
@@ -701,6 +704,7 @@ class TestDetailNsset(ObjectDetailMixin):
         ])
 
 
+@override_settings(TEMPLATES=TEMPLATES)
 class TestDetailKeyset(ObjectDetailMixin):
 
     def test_keyset_not_found(self):
@@ -816,6 +820,7 @@ class TestDetailKeyset(ObjectDetailMixin):
         ])
 
 
+@override_settings(TEMPLATES=TEMPLATES)
 class TestDetailDomain(ObjectDetailMixin):
 
     def test_domain_not_found(self):
@@ -1214,7 +1219,7 @@ class TestDetailDomain(ObjectDetailMixin):
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None, LANGUAGE_CODE='en',
                    CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}},
-                   ROOT_URLCONF='webwhois.tests.urls')
+                   ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
 class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     def setUp(self):
@@ -1351,7 +1356,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None, LANGUAGE_CODE='en',
                    CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}},
-                   ROOT_URLCONF='webwhois.tests.urls')
+                   ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
 class TestDetailCss(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     @classmethod

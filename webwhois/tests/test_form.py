@@ -3,10 +3,11 @@ from django.test import SimpleTestCase, override_settings
 from mock import call, patch
 
 from webwhois.forms import WhoisForm
-from webwhois.tests.utils import WebwhoisAssertMixin, apply_patch
+from webwhois.tests.utils import TEMPLATES, WebwhoisAssertMixin, apply_patch
 from webwhois.utils import WHOIS_MODULE
 
 
+@override_settings(TEMPLATES=TEMPLATES)
 class TestWhoisForm(SimpleTestCase):
 
     def test_is_valid(self):
@@ -29,7 +30,7 @@ class TestWhoisForm(SimpleTestCase):
         self.assertEqual(form.cleaned_data, {"handle": "foo"})
 
 
-@override_settings(ROOT_URLCONF='webwhois.tests.urls')
+@override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
 class TestWhoisFormView(WebwhoisAssertMixin, SimpleTestCase):
 
     managed_zone_list = ("cz", "0.2.4.e164.arpa")
