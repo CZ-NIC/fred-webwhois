@@ -59,6 +59,12 @@ flake8:
 test:django1.9:
     <<: *test
 
+test:django1.10:
+    <<: *test
+    variables:
+        COVERAGE_FILE: "coverage/.coverage.$CI_BUILD_ID"
+        DJANGO_VERSION: ">=1.10,<1.10.99"
+
 coverage-report:
     image: cznic/ubuntu_python_runner:latest
     stage: coverage
