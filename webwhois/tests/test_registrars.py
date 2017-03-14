@@ -11,7 +11,7 @@ from mock import call, patch
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.tests.utils import TEMPLATES, WebwhoisAssertMixin, apply_patch
-from webwhois.utils import CCREG_MODULE, WHOIS_MODULE
+from webwhois.utils import CCREG_MODULE, REGISTRY_MODULE
 
 
 @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', ['certified'])
@@ -24,7 +24,7 @@ class TestRegistrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTest
         self.LOGGER = apply_patch(self, patch("webwhois.views.base.LOGGER"))
 
     def test_registrar_not_found(self):
-        self.WHOIS.get_registrar_by_handle.side_effect = WHOIS_MODULE.OBJECT_NOT_FOUND
+        self.WHOIS.get_registrar_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:detail_registrar", kwargs={"handle": "REG_FRED_A"}))
         self.assertContains(response, 'Registrar not found')
         self.assertContains(response, 'No registrar matches <strong>REG_FRED_A</strong> handle.')
@@ -38,7 +38,7 @@ class TestRegistrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTest
         self.assertEqual(self.WHOIS.mock_calls, [call.get_registrar_by_handle('REG_FRED_A')])
 
     def test_registrar_invalid_handle(self):
-        self.WHOIS.get_registrar_by_handle.side_effect = WHOIS_MODULE.INVALID_HANDLE
+        self.WHOIS.get_registrar_by_handle.side_effect = REGISTRY_MODULE.Whois.INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_registrar", kwargs={"handle": "REG_FRED_A"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>REG_FRED_A</strong> is not a valid handle.")
@@ -211,20 +211,28 @@ class TestRegistrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTest
         self.WHOIS.get_registrar_groups.return_value[0].members.extend(("REG-ACTIVE", "REG-DEACTIVE", "REG-FRED_X",
                                                                         "REG-FRED_Y"))
         self.WHOIS.get_registrar_certification_list.return_value.extend((
-            WHOIS_MODULE.RegistrarCertification(registrar_handle='REG-ACTIVE', score=8, evaluation_file_id=None),
-            WHOIS_MODULE.RegistrarCertification(registrar_handle='REG-DEACTIVE', score=8, evaluation_file_id=None),
-            WHOIS_MODULE.RegistrarCertification(registrar_handle='REG-FRED_X', score=2, evaluation_file_id=None),
-            WHOIS_MODULE.RegistrarCertification(registrar_handle='REG-FRED_Y', score=2, evaluation_file_id=None),
+            REGISTRY_MODULE.Whois.RegistrarCertification(registrar_handle='REG-ACTIVE', score=8,
+                                                         evaluation_file_id=None),
+            REGISTRY_MODULE.Whois.RegistrarCertification(registrar_handle='REG-DEACTIVE', score=8,
+                                                         evaluation_file_id=None),
+            REGISTRY_MODULE.Whois.RegistrarCertification(registrar_handle='REG-FRED_X', score=2,
+                                                         evaluation_file_id=None),
+            REGISTRY_MODULE.Whois.RegistrarCertification(registrar_handle='REG-FRED_Y', score=2,
+                                                         evaluation_file_id=None),
         ))
         self.WHOIS.get_registrars.return_value.extend((
-            WHOIS_MODULE.Registrar(handle='REG-FRED_X', name="Company X L.t.d.", organization='Testing registrar X',
-                                   url='www.fred-x.cz', phone='', fax='', address=self._get_place_address()),
-            WHOIS_MODULE.Registrar(handle='REG-FRED_Y', name="Company Y L.t.d.", organization='Testing registrar Y',
-                                   url='www.fred-y.cz', phone='', fax='', address=self._get_place_address()),
-            WHOIS_MODULE.Registrar(handle='REG-ACTIVE', name="Active L.t.d.", organization='Active registrar',
-                                   url='www.active.cz', phone='', fax='', address=self._get_place_address()),
-            WHOIS_MODULE.Registrar(handle='REG-DEACTIVE', name="Deactive L.t.d.", organization='Deactive registrar',
-                                   url='www.deactive.cz', phone='', fax='', address=self._get_place_address()),
+            REGISTRY_MODULE.Whois.Registrar(
+                handle='REG-FRED_X', name="Company X L.t.d.", organization='Testing registrar X', url='www.fred-x.cz',
+                phone='', fax='', address=self._get_place_address()),
+            REGISTRY_MODULE.Whois.Registrar(
+                handle='REG-FRED_Y', name="Company Y L.t.d.", organization='Testing registrar Y', url='www.fred-y.cz',
+                phone='', fax='', address=self._get_place_address()),
+            REGISTRY_MODULE.Whois.Registrar(
+                handle='REG-ACTIVE', name="Active L.t.d.", organization='Active registrar', url='www.active.cz',
+                phone='', fax='', address=self._get_place_address()),
+            REGISTRY_MODULE.Whois.Registrar(
+                handle='REG-DEACTIVE', name="Deactive L.t.d.", organization='Deactive registrar', url='www.deactive.cz',
+                phone='', fax='', address=self._get_place_address()),
         ))
 
         mock_shuffle.side_effect = lambda regs: regs.sort(key=lambda row: row['registrar'].name, reverse=False)
@@ -268,12 +276,13 @@ class SetMocksMixin(object):
     def setUp(self):
         self.WHOIS = apply_patch(self, patch("webwhois.views.registrar.WHOIS"))
         self.WHOIS.get_registrar_groups.return_value = self._get_registrar_groups() + [
-            WHOIS_MODULE.RegistrarGroup(name='foo', members=['REG-FOO'])
+            REGISTRY_MODULE.Whois.RegistrarGroup(name='foo', members=['REG-FOO'])
         ]
         self.WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()
         self.WHOIS.get_registrars.return_value = self._get_registrars() + [
-            WHOIS_MODULE.Registrar(handle='REG-FOO', name="Foo s.r.o.", organization='Foo registrar',
-                                   url='www.foo.foo', phone='', fax='', address=self._get_place_address()),
+            REGISTRY_MODULE.Whois.Registrar(
+                handle='REG-FOO', name="Foo s.r.o.", organization='Foo registrar', url='www.foo.foo', phone='', fax='',
+                address=self._get_place_address()),
         ]
 
 

@@ -7,7 +7,7 @@ from django.utils import timezone
 from mock import Mock, call, patch, sentinel
 from omniORB import StructBase
 
-from webwhois.utils import CCREG_MODULE, WHOIS_MODULE
+from webwhois.utils import CCREG_MODULE, REGISTRY_MODULE
 from webwhois.utils.corba_wrapper import CORBA_ORB, CorbaWrapper, WebwhoisCorbaRecoder, load_filemanager_from_idl, \
     load_logger_from_idl, load_whois_from_idl
 
@@ -100,7 +100,7 @@ class TestLoadIdl(SimpleTestCase):
 
         self.assertIsInstance(wrapper, CorbaWrapper)
         self.assertEqual(wrapper.corba_object, sentinel.corba_object)
-        self.assertEqual(self.corba_mock.mock_calls, [call.get_object('Whois2', WHOIS_MODULE.WhoisIntf)])
+        self.assertEqual(self.corba_mock.mock_calls, [call.get_object('Whois2', REGISTRY_MODULE.Whois.WhoisIntf)])
 
     def test_load_filemanager_from_idl(self):
         result = load_filemanager_from_idl()

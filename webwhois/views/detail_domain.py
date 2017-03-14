@@ -4,7 +4,7 @@ import idna
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
 from webwhois.settings import WEBWHOIS_DNSSEC_URL, WEBWHOIS_HOW_TO_REGISTER_LINK, WEBWHOIS_SEARCH_ENGINES
-from webwhois.utils import WHOIS, WHOIS_MODULE
+from webwhois.utils import REGISTRY_MODULE, WHOIS
 from webwhois.views import KeysetDetailMixin, NssetDetailMixin
 from webwhois.views.base import RegistryObjectMixin
 
@@ -58,12 +58,12 @@ class DomainDetailMixin(RegistryObjectMixin):
                 "detail": WHOIS.get_domain_by_handle(idna_handle),
                 "label": pgettext_lazy("singular", "Domain"),
             }
-        except WHOIS_MODULE.OBJECT_NOT_FOUND:
+        except REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND:
             # Only handle with format of valid domain name and in managed zone raises OBJECT_NOT_FOUND.
             context["server_exception"] = cls.make_message_not_found(handle, handle_is_domain)
             context["server_exception"]["handle_is_in_zone"] = True
             context["HOW_TO_REGISTER_LINK"] = WEBWHOIS_HOW_TO_REGISTER_LINK
-        except WHOIS_MODULE.UNMANAGED_ZONE:
+        except REGISTRY_MODULE.Whois.UNMANAGED_ZONE:
             # Handle in domain invalid format raises UNMANAGED_ZONE instead of OBJECT_NOT_FOUND.
             if "." in handle:
                 context["managed_zone_list"] = WHOIS.get_managed_zone_list()
@@ -78,10 +78,10 @@ class DomainDetailMixin(RegistryObjectMixin):
                 }
             else:
                 context["server_exception"] = cls.make_message_not_found(handle, handle_is_domain)
-        except WHOIS_MODULE.INVALID_LABEL:
+        except REGISTRY_MODULE.Whois.INVALID_LABEL:
             # Pattern for the handle is more vague than the pattern of domain name format.
             context["server_exception"] = cls.message_invalid_handle(handle, "INVALID_LABEL")
-        except WHOIS_MODULE.TOO_MANY_LABELS:
+        except REGISTRY_MODULE.Whois.TOO_MANY_LABELS:
             # Caution! Domain name can have more than one fullstop character and it is still valid.
             # for example: '0.2.4.e164.arpa'
             # remove subdomain names: 'www.sub.domain.cz' -> 'domain.cz'

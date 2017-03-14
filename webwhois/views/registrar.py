@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
 
 from webwhois.settings import WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED, WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED
-from webwhois.utils import FILEMANAGER, WHOIS, WHOIS_MODULE
+from webwhois.utils import FILEMANAGER, REGISTRY_MODULE, WHOIS
 from webwhois.views.base import BaseContextMixin, RegistryObjectMixin
 
 
@@ -23,12 +23,12 @@ class RegistrarDetailMixin(RegistryObjectMixin):
                 "detail": WHOIS.get_registrar_by_handle(handle),
                 "label": _("Registrar"),
             }
-        except WHOIS_MODULE.OBJECT_NOT_FOUND:
+        except REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND:
             context["server_exception"] = {
                 "title": _("Registrar not found"),
                 "message": cls.message_with_handle_in_html(_("No registrar matches %s handle."), handle),
             }
-        except WHOIS_MODULE.INVALID_HANDLE:
+        except REGISTRY_MODULE.Whois.INVALID_HANDLE:
             context["server_exception"] = cls.message_invalid_handle(handle)
 
 

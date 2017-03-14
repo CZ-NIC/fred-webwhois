@@ -21,16 +21,16 @@ def _import_idl():
         omniORB.importIDL(idl)
 
 
-def _get_whois_module():
+def _get_registry_module():
     """
-    Returns `Registry.Whois` module.
+    Returns `Registry` module.
     """
     try:
-        from Registry import Whois
+        import Registry
     except ImportError:
         _import_idl()
-        from Registry import Whois
-    return Whois
+        import Registry
+    return Registry
 
 
 def _get_ccreg_module():
@@ -45,7 +45,7 @@ def _get_ccreg_module():
     return ccReg
 
 
-WHOIS_MODULE = SimpleLazyObject(_get_whois_module)
+REGISTRY_MODULE = SimpleLazyObject(_get_registry_module)
 CCREG_MODULE = SimpleLazyObject(_get_ccreg_module)
 
 
@@ -114,7 +114,7 @@ _CLIENT = CorbaNameServiceClient(CORBA_ORB, WEBWHOIS_CORBA_IOR, WEBWHOIS_CORBA_C
 
 
 def load_whois_from_idl():
-    return CorbaWrapper(_CLIENT.get_object('Whois2', WHOIS_MODULE.WhoisIntf))
+    return CorbaWrapper(_CLIENT.get_object('Whois2', REGISTRY_MODULE.Whois.WhoisIntf))
 
 
 def load_filemanager_from_idl():

@@ -1,6 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 
-from webwhois.utils import WHOIS, WHOIS_MODULE
+from webwhois.utils import REGISTRY_MODULE, WHOIS
 from webwhois.views.base import RegistryObjectMixin
 
 
@@ -28,12 +28,12 @@ class KeysetDetailMixin(RegistryObjectMixin):
                 "detail": WHOIS.get_keyset_by_handle(handle),
                 "label": _("Keyset"),
             }
-        except WHOIS_MODULE.OBJECT_NOT_FOUND:
+        except REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND:
             context["server_exception"] = {
                 "title": _("Key server set not found"),
                 "message": cls.message_with_handle_in_html(_("No key set matches %s handle."), handle),
             }
-        except WHOIS_MODULE.INVALID_HANDLE:
+        except REGISTRY_MODULE.Whois.INVALID_HANDLE:
             context["server_exception"] = cls.message_invalid_handle(handle)
 
     def load_related_objects(self, context):
