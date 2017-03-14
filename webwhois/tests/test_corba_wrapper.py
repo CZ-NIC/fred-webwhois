@@ -87,6 +87,10 @@ class TestWebwhoisCorbaRecoder(SimpleTestCase):
         raw = OtherDateTimeType(date=OtherDateType(0, 0, 0), hour=0, minute=0, second=0)
         self.assertEqual(WebwhoisCorbaRecoder().decode(raw), None)
 
+    def test_decode_buffer(self):
+        buffer_obj = REGISTRY_MODULE.PublicRequest.Buffer('foo')
+        self.assertEqual(WebwhoisCorbaRecoder().decode(buffer_obj), 'foo')
+
 
 class TestLoadIdl(SimpleTestCase):
 

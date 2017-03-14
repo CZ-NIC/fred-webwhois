@@ -14,6 +14,7 @@ if WEBWHOIS_CORBA_IDL is None:
     WEBWHOIS_CORBA_IDL = os.environ.get('FRED_WEBWHOIS_IDL_FILE')
     if WEBWHOIS_CORBA_IDL is None:
         WEBWHOIS_CORBA_IDL = ['/usr/share/idl/fred/Whois2.idl',
+                              '/usr/share/idl/fred/PublicRequest.idl',
                               '/usr/share/idl/fred/FileManager.idl',
                               '/usr/share/idl/fred/Logger.idl',
                               ]

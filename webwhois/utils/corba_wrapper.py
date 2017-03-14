@@ -56,7 +56,16 @@ class WebwhoisCorbaRecoder(CorbaRecoder):
     Decodes corba structure `ccReg.DateTimeType` into datetime.datetime with zone.
     Decodes corba structure `ccReg/DateType` into datetime.date.
     Decodes contact identifiers to datetime.date if it is a birthday.
+    Decodes IDL:Registry/PublicRequest/Buffer:1.0. into bytes.
     """
+
+    def __init__(self, coding='ascii'):
+        super(WebwhoisCorbaRecoder, self).__init__(coding)
+        self.add_recode_function(REGISTRY_MODULE.PublicRequest.Buffer, self._decode_buffer, self._identity)
+
+    def _decode_buffer(self, value):
+        return value.value  # IDL:Registry/PublicRequest/Buffer:1.0
+
     def _decode_struct(self, value):
         # Dynamic loading of IDL with includes causes problems with classes. The same class may appear in several
         # entities, so type matching can not be used.
