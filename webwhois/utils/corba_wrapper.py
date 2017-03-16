@@ -26,10 +26,14 @@ def _get_registry_module():
     Returns `Registry` module.
     """
     try:
+        from Registry import Whois, PublicRequest
         import Registry
     except ImportError:
         _import_idl()
+        from Registry import Whois, PublicRequest
         import Registry
+    assert Whois
+    assert PublicRequest
     return Registry
 
 

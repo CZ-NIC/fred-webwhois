@@ -432,8 +432,8 @@ class TestDetailContact(ObjectDetailMixin):
         self.WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         self.WHOIS.get_contact_by_handle.return_value = self._get_contact(
             identification=REGISTRY_MODULE.Whois.DisclosableContactIdentification(
-                value=REGISTRY_MODULE.Whois.ContactIdentification(
-                    identification_type='BIRTHDAY', identification_data='FOO'), disclose=True))
+                value=REGISTRY_MODULE.Whois.ContactIdentification(identification_type='BIRTHDAY',
+                                                                  identification_data='FOO'), disclose=True))
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertCssSelectEqual(response, ".contact .ident-value", ['FOO'], transform=self.transform_to_text)
