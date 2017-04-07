@@ -1,6 +1,7 @@
 import os
 
 from django.core.exceptions import ImproperlyConfigured
+
 from webwhois.settings import WEBWHOIS_DOBRADOMENA_FILE_NAME, WEBWHOIS_DOBRADOMENA_MANUAL_URL_PATTERN, \
     WEBWHOIS_DOBRADOMENA_ROOT
 

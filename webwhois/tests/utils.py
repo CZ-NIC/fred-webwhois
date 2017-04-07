@@ -5,7 +5,6 @@ from tempfile import mkdtemp
 from django.utils.encoding import smart_text
 from lxml import etree, html
 
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
