@@ -1075,8 +1075,8 @@ msgstr ""
 "span> na konci a bez úvodního <span>www</span> (např. <span>nic.cz</span>).\n"
 "Identifikátory kontaktu nebo sady jmenných serverů vkládejte jako běžný text."
 
-msgid "Why mojeID"
-msgstr "Proč mojeID"
+msgid "Why mojeID?"
+msgstr "Proč mojeID?"
 
 msgid ""
 "With this form, you can <a href=\"%(form_unblock_object_url)s\">cancel the "

@@ -1243,7 +1243,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         ], transform=lambda node: (node.attrib["type"], node.attrib.get("name"), node.attrib["value"]), normalize=False)
         self.assertXpathEqual(response, "count(//a[@href='%s?username=kontakt'])=1" % (
             WEBWHOIS_MOJEID_REGISTRY_ENDPOINT), True)
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID"])
+        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID?"])
         self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
         self.assertEqual(self.WHOIS.mock_calls, [
             call.get_contact_by_handle('mycontact'),
@@ -1251,7 +1251,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID"])
+        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID?"])
 
     @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_TRANSFER_ENDPOINT", None)
     @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT", None)
@@ -1297,7 +1297,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         ], transform=lambda node: (node.attrib["type"], node.attrib.get("name"), node.attrib["value"]), normalize=False)
         self.assertXpathEqual(response, "count(//a[@href='%s?username=kontakt'])=1" % (
             WEBWHOIS_MOJEID_REGISTRY_ENDPOINT), True)
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID"])
+        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID?"])
         self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
         self.assertEqual(self.WHOIS.mock_calls, [
             call.get_contact_by_handle('mycontact'),
@@ -1305,7 +1305,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID"])
+        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID?"])
 
     @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_TRANSFER_ENDPOINT", None)
     @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT", None)
