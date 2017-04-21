@@ -1,4 +1,4 @@
-{% load i18n webwhois_filters %}
+{% load i18n webwhois_filters keyset_filters %}
 <table class="result keyset">
     <tbody>
         <tr>
@@ -9,10 +9,27 @@
             <tr>
                 <th>{% trans "DNS Key" %}</th>
                 <td class="dns-key">
-                    <div><span class="label">Flags:</span> <span>{{ dns.flags }}</span></div>
-                    <div><span class="label">Protocol:</span> <span>{{ dns.protocol }}</span></div>
-                    <div><span class="label">Algorithm:</span> <span>{{ dns.alg }}</span> [<span>alg</span>]</div>
-                    <div><span class="label">Key:</span> <pre class="dnskey">{{ dns.public_key|text_wrap:40 }}</pre></div>
+                    <div>
+                        <span class="label">{% trans "Flags" %}:</span>
+                        <a href="https://www.iana.org/assignments/dnskey-flags/dnskey-flags.xhtml#dnskey-flags-1" title="IANA - DNSKEY FLAGS">{{ dns.flags }}</a>
+                        (<span>{{ dns.flags|dnskey_flag_labels }}</span>)
+                    </div>
+                    <div>
+                        <span class="label">{% trans "Protocol" %}:</span>
+                        <a href="https://www.iana.org/assignments/dns-key-rr/dns-key-rr.xhtml" title="IANA - DNS KEY Resource Record Protocol Octet Values">{{ dns.protocol }}</a>
+                        {% if dns.protocol == 3 %}
+                            (<span>DNSSEC</span>)
+                        {% endif %}
+                    </div>
+                    <div>
+                        <span class="label">{% trans "Algorithm" %}:</span>
+                        <a href="https://www.iana.org/assignments/dns-sec-alg-numbers/dns-sec-alg-numbers.xhtml" title="IANA - Domain Name System Security (DNSSEC) Algorithm Numbers">{{ dns.alg }}</a>
+                        (<span>{{ dns.alg|dnskey_alg_label }}</span>)
+                    </div>
+                    <div>
+                        <span class="label">{% trans "Key" %}:</span>
+                        <pre class="dnskey">{{ dns.public_key|text_wrap:40 }}</pre>
+                    </div>
                 </td>
             </tr>
         {% endfor %}

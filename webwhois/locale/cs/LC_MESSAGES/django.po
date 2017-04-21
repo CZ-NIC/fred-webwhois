@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-20 14:39+0200\n"
+"POT-Creation-Date: 2017-04-21 11:27+0200\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -23,6 +23,9 @@ msgstr "Adresa"
 
 msgid "Administrative contact"
 msgstr "Administrativní kontakt"
+
+msgid "Algorithm"
+msgstr "Algoritmus"
 
 msgid "Authorized person"
 msgstr "Zodpovědná osoba"
@@ -101,6 +104,18 @@ msgstr ""
 msgid "DNS Key"
 msgstr "Klíč DNS"
 
+msgid "DSA-NSEC3-SHA1"
+msgstr "DSA-NSEC3-SHA1"
+
+msgid "DSA/SHA1"
+msgstr "DSA/SHA1"
+
+msgid "Delete DS"
+msgstr "Delete DS"
+
+msgid "Diffie-Helman"
+msgstr "Diffie-Helman"
+
 msgid "Domain"
 msgstr "Doména"
 
@@ -123,6 +138,18 @@ msgstr "Prohlížení doménového jména"
 msgid "Domain not found"
 msgstr "Doména nenalezena"
 
+msgid "ECDSA Curve P-256 with SHA-256"
+msgstr "ECDSA Křivka P-256 se SHA-256"
+
+msgid "ECDSA Curve P-384 with SHA-384"
+msgstr "ECDSA Křivka P-384 se SHA-384"
+
+msgid "Ed25519"
+msgstr "Ed25519"
+
+msgid "Ed448"
+msgstr "Ed448"
+
 msgid "Email"
 msgstr "E-mail"
 
@@ -137,6 +164,9 @@ msgstr "Datum expirace"
 
 msgid "Fax"
 msgstr "Fax"
+
+msgid "Flags"
+msgstr "Příznaky"
 
 #, python-format
 msgid ""
@@ -156,6 +186,9 @@ msgstr ""
 
 msgid "Form to send the password request"
 msgstr "Formulář k odeslání žádosti o poskytnutí hesla"
+
+msgid "GOST R 34.10-2001"
+msgstr "GOST R 34.10-2001"
 
 msgid "Handle"
 msgstr "Identifikátor"
@@ -476,6 +509,9 @@ msgstr "Nesprávné zadání"
 msgid "Invalid handle"
 msgstr "Neplatný identifikátor"
 
+msgid "Key"
+msgstr "Klíč"
+
 msgid "Key server set not found"
 msgstr "Sada klíčů nenalezena"
 
@@ -637,6 +673,30 @@ msgstr ""
 "%(pdf_name)s</a> (PDF), podepište ji (je nutný úředně ověřený podpis) a "
 "podepsaný originál zašlete na e-mail registru."
 
+msgid "Private algorithm"
+msgstr "Soukromý algoritmus"
+
+msgid "Private algorithm OID"
+msgstr "Soukromý algoritmus OID"
+
+msgid "Protocol"
+msgstr "Protokol"
+
+msgid "RSA/MD5 (deprecated, see 5)"
+msgstr "RSA/MD5 (zastaralý, viz 5)"
+
+msgid "RSA/SHA-1"
+msgstr "RSA/SHA-1"
+
+msgid "RSA/SHA-256"
+msgstr "RSA/SHA-256"
+
+msgid "RSA/SHA-512"
+msgstr "RSA/SHA-512"
+
+msgid "RSASHA1-NSEC3-SHA1"
+msgstr "RSASHA1-NSEC3-SHA1"
+
 msgid "Register this domain name?"
 msgstr "Registrovat tuto doménu?"
 
@@ -749,6 +809,12 @@ msgstr "Žádost o zrušení blokace sady jmenných serverů %(handle)s"
 
 msgid "Request to cancel the enhanced object security in CZ.NIC database"
 msgstr "Žádost o zrušení zvýšeného zabezpečení objektu v databázi CZ.NIC"
+
+msgid "Reserved"
+msgstr "Rezervováno"
+
+msgid "Reserved for Indirect Keys"
+msgstr "Rezervováno pro Indirect Keys"
 
 msgid "Search"
 msgstr "Hledat"
@@ -923,12 +989,18 @@ msgstr "Žádost o heslo pro převod"
 msgid "URL"
 msgstr "URL"
 
+msgid "Unassigned"
+msgstr "Nepřiřazeno"
+
 msgctxt "verb_inf"
 msgid "Unblock"
 msgstr "Odblokovat"
 
 msgid "Unblocking Request"
 msgstr "Žádost o odblokování"
+
+msgid "Unknown"
+msgstr "Neznámý"
 
 msgid "Unmanaged zone"
 msgstr "Nepodporovaná zóna"

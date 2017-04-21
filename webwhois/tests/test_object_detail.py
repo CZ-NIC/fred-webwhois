@@ -748,8 +748,8 @@ class TestDetailKeyset(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_keyset", kwargs={"handle": "mykeysid"}))
         self.assertContains(response, "Key set details")
         self.assertContains(response, "Search results for handle <strong>mykeysid</strong>:")
-        dns_key = 'DNS Key Flags: 257 Protocol: 3 Algorithm: 5 [alg] Key: ' \
-                  'AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8'
+        dns_key = 'DNS Key Flags: 257 (ZONE, Secure Entry Point (SEP)) Protocol: 3 (DNSSEC) Algorithm: 5 (RSA/SHA-1) ' \
+                  'Key: AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8'
         self.assertCssSelectEqual(response, "table.result tr", [
             'Key set KEYSID-1',
             dns_key,
@@ -798,8 +798,8 @@ class TestDetailKeyset(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_keyset", kwargs={"handle": "mykeysid"}))
         self.assertContains(response, "Key set details")
         self.assertContains(response, "Search results for handle <strong>mykeysid</strong>:")
-        dns_key = 'DNS Key Flags: 257 Protocol: 3 Algorithm: 5 [alg] Key: ' \
-                  'AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8'
+        dns_key = 'DNS Key Flags: 257 (ZONE, Secure Entry Point (SEP)) Protocol: 3 (DNSSEC) Algorithm: 5 (RSA/SHA-1) ' \
+                  'Key: AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8'
         self.assertCssSelectEqual(response, "table.result tr", [
             'Key set KEYSID-1',
             dns_key,
@@ -874,8 +874,8 @@ class TestDetailDomain(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
         self.assertContains(response, "Domain name details")
         self.assertContains(response, "Search results for handle <strong>fred.cz</strong>:")
-        dns_key = 'DNS Key Flags: 257 Protocol: 3 Algorithm: 5 [alg] Key: ' \
-                  'AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8'
+        dns_key = 'DNS Key Flags: 257 (ZONE, Secure Entry Point (SEP)) Protocol: 3 (DNSSEC) Algorithm: 5 (RSA/SHA-1) ' \
+                  'Key: AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8'
         self.assertCssSelectEqual(response, "table.result tr", [
             'Domain name fred.cz',
             'Registered since 12/09/2015',
@@ -937,8 +937,8 @@ class TestDetailDomain(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
         self.assertContains(response, "Domain name details")
         self.assertContains(response, "Search results for handle <strong>fred.cz</strong>:")
-        dns_key = 'DNS Key Flags: 257 Protocol: 3 Algorithm: 5 [alg] Key: ' \
-                  'AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8'
+        dns_key = 'DNS Key Flags: 257 (ZONE, Secure Entry Point (SEP)) Protocol: 3 (DNSSEC) Algorithm: 5 (RSA/SHA-1) ' \
+                  'Key: AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8'
         self.assertCssSelectEqual(response, "table.result tr", [
             'Domain name fred.cz',
             'Registered since 12/09/2015',
@@ -1430,8 +1430,10 @@ class TestDetailCss(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase)
         self.WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         self._response = self.client.get(reverse("webwhois:detail_keyset", kwargs={"handle": "mykeysid"}))
         self._assert_css(".keyset .handle", "KEYSID-1")
+        self.assertCssSelectEqual(self._response, ".keyset .dns-key a", ['257', '3', '5'],
+                                  transform=self.transform_to_text)
         self.assertCssSelectEqual(self._response, ".keyset .dns-key span:not(.label)", [
-            '257', '3', '5', 'alg'], transform=self.transform_to_text)
+            'ZONE, Secure Entry Point (SEP)', 'DNSSEC', 'RSA/SHA-1'], transform=self.transform_to_text)
         self._assert_css(".keyset .dns-key .dnskey", "AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8")
         self._assert_css(".keyset .technical-contact", "KONTAKT Company L.t.d.")
         self._assert_css(".keyset .technical-contact a", "KONTAKT")
@@ -1489,8 +1491,10 @@ class TestDetailCss(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase)
                                   transform=lambda node: node.attrib["data-codes"])
         # keyset
         self._assert_css(".keyset .handle", "KEYSID-1")
+        self.assertCssSelectEqual(self._response, ".keyset .dns-key a", ['257', '3', '5'],
+                                  transform=self.transform_to_text)
         self.assertCssSelectEqual(self._response, ".keyset .dns-key span:not(.label)", [
-            '257', '3', '5', 'alg'], transform=self.transform_to_text)
+            'ZONE, Secure Entry Point (SEP)', 'DNSSEC', 'RSA/SHA-1'], transform=self.transform_to_text)
         self._assert_css(".keyset .dns-key .dnskey", "AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8")
         self._assert_css(".keyset .technical-contact", "TECH-KEYSET Company L.t.d.")
         self._assert_css(".keyset .technical-contact a", "TECH-KEYSET")
