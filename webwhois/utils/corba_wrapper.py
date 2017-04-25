@@ -130,6 +130,10 @@ def load_whois_from_idl():
     return CorbaWrapper(_CLIENT.get_object('Whois2', REGISTRY_MODULE.Whois.WhoisIntf))
 
 
+def load_public_request_from_idl():
+    return CorbaWrapper(_CLIENT.get_object('PublicRequest', REGISTRY_MODULE.PublicRequest.PublicRequestIntf))
+
+
 def load_filemanager_from_idl():
     return _CLIENT.get_object('FileManager', CCREG_MODULE.FileManager)
 
@@ -140,6 +144,7 @@ def load_logger_from_idl():
 
 
 WHOIS = SimpleLazyObject(load_whois_from_idl)
+PUBLIC_REQUEST = SimpleLazyObject(load_public_request_from_idl)
 FILEMANAGER = SimpleLazyObject(load_filemanager_from_idl)
 if WEBWHOIS_LOGGER:
     LOGGER = SimpleLazyObject(lambda: create_logger(WEBWHOIS_LOGGER, load_logger_from_idl(), CCREG_MODULE))

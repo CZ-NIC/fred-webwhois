@@ -4,8 +4,13 @@ from .detail_nsset import NssetDetailMixin
 from .detail_keyset import KeysetDetailMixin
 from .detail_domain import DomainDetailMixin
 from .resolve_handle_type import ResolveHandleTypeMixin
-from .registrar import RegistrarDetailMixin, RegistrarListMixin, DownloadEvalFileView
+from .registrar import DownloadEvalFileView, RegistrarDetailMixin, RegistrarListMixin
+from .public_request import BlockObjectFormView, CustomEmailView, EmailInRegistryView, NotarizedLetterView, \
+    ResponseNotFoundView, SendPasswordFormView, ServeNotarizedLetterView, UnblockObjectFormView
 
-__all__ = ['ContactDetailMixin', 'ContactDetailWithMojeidMixin', 'DomainDetailMixin', 'DownloadEvalFileView',
-           'KeysetDetailMixin', 'NssetDetailMixin', 'RegistrarDetailMixin', 'RegistrarListMixin',
-           'ResolveHandleTypeMixin', 'WhoisFormView']
+
+__all__ = ['BlockObjectFormView', 'ContactDetailMixin', 'ContactDetailWithMojeidMixin', 'CustomEmailView',
+           'DomainDetailMixin', 'DownloadEvalFileView', 'EmailInRegistryView', 'KeysetDetailMixin',
+           'NotarizedLetterView', 'NssetDetailMixin', 'RegistrarDetailMixin', 'RegistrarListMixin',
+           'ResolveHandleTypeMixin', 'ResponseNotFoundView', 'SendPasswordFormView', 'ServeNotarizedLetterView',
+           'UnblockObjectFormView', 'WhoisFormView']

@@ -249,3 +249,37 @@ div#whois #mojeid-buttons a:hover, #mojeid-buttons input {
 * html #mojeid-buttons.hover ul {
     display: block;
 }
+
+/* Public request forms */
+
+#id_lock_type, #id_send_to {
+    margin: 0;
+    padding: 0;
+}
+
+#id_lock_type li, #id_send_to li {
+    display: inline;
+    list-style-type: none;
+}
+
+#public_request_forms ul.form-menu {
+    margin: 0;
+    margin-bottom: 6px;
+    padding: 0;
+}
+
+#public_request_forms ul.form-menu li
+{
+    border: solid gray 1px;
+    display: inline;
+    list-style-type: none;
+    padding: .4em 1em;
+}
+
+#public_request_forms ul.form-menu li a {
+    text-decoration: none;
+}
+
+#public_request_forms ul.form-menu li.selected {
+    font-weight: bold;
+}

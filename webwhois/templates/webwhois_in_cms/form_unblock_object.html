@@ -1,0 +1,10 @@
+{% extends "webwhois/form_unblock_object.html" %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans "form" %}{% endblock %}
+
+{% block webwhois_header %}
+    {% include "webwhois_in_cms/public_request_description.html" %}
+{% endblock webwhois_header %}
+
+{% block webwhois_footer %}{% endblock webwhois_footer %}

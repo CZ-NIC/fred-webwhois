@@ -1,0 +1,37 @@
+{% extends "webwhois/block_main.html" %}
+{% load i18n %}
+
+{% block title %}
+    {{ block.super }} - {{ text_title }}
+{% endblock %}
+
+{% block webwhois_header %}
+    <h1>{{ text_header }}</h1>
+{% endblock %}
+
+{% block webwhois_content %}
+    <p>
+        {% if company_email %}
+            {% blocktrans trimmed %}
+                Copy the following text and insert it into an email, sign it with your digital signature and send it
+                at <a href="mailto:{{ company_email }}">{{ company_email }}</a>.
+            {% endblocktrans %}
+        {% else %}
+            {% blocktrans trimmed %}
+                Copy the following text and insert it into an email, sign it with your digital signature and send it
+                at our company email.
+            {% endblocktrans %}
+        {% endif %}
+    </p>
+    <div class="letter">
+        <div>
+            {{ text_subject }}
+        </div>
+        <div>
+            {{ text_content }}
+        </div>
+        <div>{% trans "Authorized person" %}:</div>
+    </div>
+{% endblock %}
+
+{% block webwhois_footer %}{% endblock webwhois_footer %}

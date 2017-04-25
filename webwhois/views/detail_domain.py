@@ -1,7 +1,7 @@
 import re
 
 import idna
-from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _
 
 from webwhois.settings import WEBWHOIS_DNSSEC_URL, WEBWHOIS_HOW_TO_REGISTER_LINK, WEBWHOIS_SEARCH_ENGINES
 from webwhois.utils import REGISTRY_MODULE, WHOIS
@@ -56,7 +56,7 @@ class DomainDetailMixin(RegistryObjectMixin):
         try:
             context[cls._registry_objects_key]["domain"] = {
                 "detail": WHOIS.get_domain_by_handle(idna_handle),
-                "label": pgettext_lazy("singular", "Domain"),
+                "label": _("Domain"),
             }
         except REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND:
             # Only handle with format of valid domain name and in managed zone raises OBJECT_NOT_FOUND.

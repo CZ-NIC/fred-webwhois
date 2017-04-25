@@ -1,0 +1,18 @@
+{% extends "webwhois/block_main.html" %}
+{% load i18n %}
+
+{% block title %}
+    {{ block.super }} - {% trans "Request does not exist or has expired." %}
+{% endblock %}
+
+{% block webwhois_header %}
+    <h1>{% trans "Request does not exist or has expired." %}</h1>
+{% endblock %}
+
+{% block webwhois_content %}
+    <div class="error">
+        {% trans "Sorry, but the request does not exist or has expired. Please enter a new one." %}
+    </div>
+{% endblock %}
+
+{% block webwhois_footer %}{% endblock webwhois_footer %}

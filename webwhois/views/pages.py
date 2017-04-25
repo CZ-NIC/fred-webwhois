@@ -4,21 +4,22 @@ from webwhois.settings import WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL, WEBWHOIS_R
     WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC, WEBWHOIS_REGISTRAR_SUPPORTS_IPV6, WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID, \
     WEBWHOIS_SEARCH_ENGINES
 from webwhois.utils import WHOIS
-from webwhois.views import ContactDetailMixin, ContactDetailWithMojeidMixin, DomainDetailMixin, DownloadEvalFileView, \
-    KeysetDetailMixin, NssetDetailMixin, RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, \
-    WhoisFormView
+from webwhois.views import BlockObjectFormView, ContactDetailMixin, ContactDetailWithMojeidMixin, CustomEmailView, \
+    DomainDetailMixin, DownloadEvalFileView, EmailInRegistryView, KeysetDetailMixin, NotarizedLetterView, \
+    NssetDetailMixin, RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, ResponseNotFoundView, \
+    SendPasswordFormView, ServeNotarizedLetterView, UnblockObjectFormView, WhoisFormView
 
 
-class CorbaWhoisBaseMixin(object):
+class BaseTemplateMixin(object):
 
     base_template = "base_site_example.html"
 
     def get_context_data(self, **kwargs):
         kwargs.setdefault("base_template", self.base_template)
-        return super(CorbaWhoisBaseMixin, self).get_context_data(**kwargs)
+        return super(BaseTemplateMixin, self).get_context_data(**kwargs)
 
 
-class WebwhoisFormView(CorbaWhoisBaseMixin, WhoisFormView):
+class WebwhoisFormView(BaseTemplateMixin, WhoisFormView):
     template_name = "webwhois_in_cms/form_whois.html"
 
     def get_context_data(self, **kwargs):
@@ -27,39 +28,39 @@ class WebwhoisFormView(CorbaWhoisBaseMixin, WhoisFormView):
         return super(WebwhoisFormView, self).get_context_data(**kwargs)
 
 
-class WebwhoisResolveHandleTypeView(CorbaWhoisBaseMixin, ResolveHandleTypeMixin, TemplateView):
+class WebwhoisResolveHandleTypeView(BaseTemplateMixin, ResolveHandleTypeMixin, TemplateView):
     pass
 
 
-class WebwhoisContactDetailView(CorbaWhoisBaseMixin, ContactDetailMixin, TemplateView):
+class WebwhoisContactDetailView(BaseTemplateMixin, ContactDetailMixin, TemplateView):
     pass
 
 
-class WebwhoisMojeidContactDetailView(CorbaWhoisBaseMixin, ContactDetailWithMojeidMixin, TemplateView):
+class WebwhoisMojeidContactDetailView(BaseTemplateMixin, ContactDetailWithMojeidMixin, TemplateView):
     pass
 
 
-class WebwhoisNssetDetailView(CorbaWhoisBaseMixin, NssetDetailMixin, TemplateView):
+class WebwhoisNssetDetailView(BaseTemplateMixin, NssetDetailMixin, TemplateView):
     pass
 
 
-class WebwhoisKeysetDetailView(CorbaWhoisBaseMixin, KeysetDetailMixin, TemplateView):
+class WebwhoisKeysetDetailView(BaseTemplateMixin, KeysetDetailMixin, TemplateView):
     pass
 
 
-class WebwhoisDomainDetailView(CorbaWhoisBaseMixin, DomainDetailMixin, TemplateView):
+class WebwhoisDomainDetailView(BaseTemplateMixin, DomainDetailMixin, TemplateView):
     pass
 
 
-class WebwhoisRegistrarDetailView(CorbaWhoisBaseMixin, RegistrarDetailMixin, TemplateView):
+class WebwhoisRegistrarDetailView(BaseTemplateMixin, RegistrarDetailMixin, TemplateView):
     pass
 
 
-class WebwhoisRegistrarListView(CorbaWhoisBaseMixin, RegistrarListMixin, TemplateView):
+class WebwhoisRegistrarListView(BaseTemplateMixin, RegistrarListMixin, TemplateView):
     pass
 
 
-class DobradomaneRegistrarListView(CorbaWhoisBaseMixin, RegistrarListMixin, TemplateView):
+class DobradomaneRegistrarListView(BaseTemplateMixin, RegistrarListMixin, TemplateView):
     template_name = "webwhois_in_cms/registrar_list_with_dobradomena.html"
 
     def _registrar_row(self, data):
@@ -79,5 +80,37 @@ class DobradomaneRegistrarListView(CorbaWhoisBaseMixin, RegistrarListMixin, Temp
         return super(DobradomaneRegistrarListView, self).get_context_data(**kwargs)
 
 
-class WebwhoisDownloadEvalFileView(CorbaWhoisBaseMixin, DownloadEvalFileView):
+class WebwhoisDownloadEvalFileView(BaseTemplateMixin, DownloadEvalFileView):
+    pass
+
+
+class WebwhoisSendPasswordFormView(BaseTemplateMixin, SendPasswordFormView):
+    pass
+
+
+class WebwhoisBlockObjectFormView(BaseTemplateMixin, BlockObjectFormView):
+    pass
+
+
+class WebwhoisUnblockObjectFormView(BaseTemplateMixin, UnblockObjectFormView):
+    pass
+
+
+class WebwhoisResponseNotFoundView(BaseTemplateMixin, ResponseNotFoundView):
+    pass
+
+
+class WebwhoisCustomEmailView(BaseTemplateMixin, CustomEmailView):
+    pass
+
+
+class WebwhoisEmailInRegistryView(BaseTemplateMixin, EmailInRegistryView):
+    pass
+
+
+class WebwhoisNotarizedLetterView(BaseTemplateMixin, NotarizedLetterView):
+    pass
+
+
+class WebwhoisServeNotarizedLetterView(BaseTemplateMixin, ServeNotarizedLetterView):
     pass

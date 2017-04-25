@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-06 16:04+0100\n"
+"POT-Creation-Date: 2017-04-20 14:39+0200\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -15,80 +15,6 @@ msgstr ""
 "X-Generator: Weblate 2.8\n"
 
 #, python-format
-msgid ""
-"\n"
-"                    For instructions how to register a domain, see the "
-"manual <a href=\"%(link_href)s\">%(link_label)s</a>.\n"
-"                "
-msgstr ""
-"\n"
-"                    Postup, jak tuto doménu registrovat krok za krokem, "
-"najdete v návodu <a href=\"%(link_href)s\">%(link_label)s</a>.\n"
-"                "
-
-#, python-format
-msgid ""
-"\n"
-"                    Search results for handle <strong>%(handle)s</strong>:\n"
-"                    "
-msgstr ""
-"\n"
-"Výsledek vyhledávání <strong>%(handle)s</strong>:"
-
-#, python-format
-msgid ""
-"\n"
-"                Too many parts in the domain name <strong>%(handle)s</"
-"strong>.\n"
-"                Enter only the name and the zone: <a href="
-"\"%(whois_form_link)s?handle=%(example_domain_name)s\">"
-"%(example_domain_name)s</a>\n"
-"           "
-msgstr ""
-"\n"
-"V doménovém jméně <strong>%(handle)s</strong> je příliš mnoho částí. Zadejte "
-"pouze jméno a zónu: <a href=\"%(whois_form_link)s?handle="
-"%(example_domain_name)s\">%(example_domain_name)s</a>"
-
-#, python-format
-msgid ""
-"\n"
-"            How to register a <a href=\"%(link)s\" title=\"How to register a "
-"Dobrá doména\">Dobrá doména</a>.\n"
-"        "
-msgstr ""
-"\n"
-"Jak registrovat <a href=\"%(link)s\" title=\"Jak registrovat Dobrá doména"
-"\">Dobrá doména</a>."
-
-#, python-format
-msgid ""
-"\n"
-"            Terms of Service are given in the document: <a href=\"%(link)s"
-"\">Intended use of supplied data and information</a>.\n"
-"        "
-msgstr ""
-"\n"
-"            Právo k užití poskytovaných služeb vymezuje dokument: <a href="
-"\"%(link)s\">Účel použití poskytovaných dat a informací</a>.\n"
-"        "
-
-msgid ""
-"\n"
-"            Whois searches in domain names, contacts and name server sets.\n"
-"            Enter a domain name without <span>www.</span> prefix and append "
-"the zone, eg. <span>.cz</span> (ie., enter <span>nic.cz</span>).\n"
-"            As regards handles of a contact or a name server set, enter them "
-"as a plain text.\n"
-"        "
-msgstr ""
-"\n"
-"Hledá v doménových jménech, kontaktech a sadách nameserverů.\n"
-"Doménová jména vkládejte ve tvaru <span>domenovejmeno.cz</span> s <span>.cz</"
-"span> na konci a bez úvodního <span>www</span> (např. <span>nic.cz</span>).\n"
-"Identifikátory kontaktu nebo sady jmenných serverů vkládejte jako běžný text."
-
-#, python-format
 msgid "%s is not a valid handle."
 msgstr "%s je neplatný identifikátor."
 
@@ -98,14 +24,27 @@ msgstr "Adresa"
 msgid "Administrative contact"
 msgstr "Administrativní kontakt"
 
+msgid "Authorized person"
+msgstr "Zodpovědná osoba"
+
 msgid "Birth date"
 msgstr "Datum narození"
 
 msgid "Birth day"
 msgstr "Datum narození"
 
+msgctxt "verb_inf"
+msgid "Block"
+msgstr "Blokovat"
+
+msgid "Blocking Request"
+msgstr "Žádost o zablokování"
+
 msgid "Certification"
 msgstr "Certifikace"
+
+msgid "Confirmation method"
+msgstr "Způsob ověření"
 
 msgid "Contact"
 msgstr "Kontakt"
@@ -118,6 +57,23 @@ msgstr "Kontakt nenalezen"
 
 msgid "Contact verification status"
 msgstr "Ověření kontaktu"
+
+#, python-format
+msgid ""
+"Copy the following text and insert it into an email, sign it with your "
+"digital signature and send it at <a href=\"mailto:%(company_email)s\">"
+"%(company_email)s</a>."
+msgstr ""
+"Následující text prosím zkopírujte a vložte do těla e-mailu, e-mail "
+"podepište Vaším digitálním podpisem a zašlete na adresu <a href=\"mailto:"
+"%(company_email)s\">%(company_email)s</a>."
+
+msgid ""
+"Copy the following text and insert it into an email, sign it with your "
+"digital signature and send it at our company email."
+msgstr ""
+"Následující text prosím zkopírujte a vložte do těla e-mailu, e-mail "
+"podepište Vaším digitálním podpisem a zašlete na e-mail naší společnosti."
 
 msgctxt "button"
 msgid "Create mojeID"
@@ -132,10 +88,19 @@ msgstr "Založit mojeID z registru domén"
 msgid "Created by registrar"
 msgstr "Vytvořeno registrátorem"
 
+msgid "Custom email"
+msgstr "Jiný e-mail"
+
+msgid ""
+"Custom email is required as \"Send to custom email\" option is selected. "
+"Please fill it in."
+msgstr ""
+"Jiný e-mail s přepínačem \"Zaslat na jiný e-mail\" je povinný. Prosím, "
+"doplňte jej."
+
 msgid "DNS Key"
 msgstr "Klíč DNS"
 
-msgctxt "singular"
 msgid "Domain"
 msgstr "Doména"
 
@@ -158,8 +123,11 @@ msgstr "Prohlížení doménového jména"
 msgid "Domain not found"
 msgstr "Doména nenalezena"
 
-msgid "E-mail"
+msgid "Email"
 msgstr "E-mail"
+
+msgid "Email signed by a qualified certificate"
+msgstr "E-mail podepsaný kvalifikovaným certifikátem"
 
 msgid "Evaluation protocol"
 msgstr "Certifikační protokol"
@@ -178,6 +146,17 @@ msgstr ""
 "Chcete-li se stát registrátorem domén .cz, postupujte dle <a href=\"%(link)s"
 "\">návodu</a>."
 
+#, python-format
+msgid ""
+"For instructions on how to register a domain, see the manual <a href="
+"\"%(link_href)s\">%(link_label)s</a>."
+msgstr ""
+"Postup, jak tuto doménu registrovat krok za krokem, najdete v návodu <a href="
+"\"%(link_href)s\">%(link_label)s</a>."
+
+msgid "Form to send the password request"
+msgstr "Formulář k odeslání žádosti o poskytnutí hesla"
+
 msgid "Handle"
 msgstr "Identifikátor"
 
@@ -186,6 +165,295 @@ msgstr "Záznam nenalezen"
 
 msgid "Holder"
 msgstr "Držitel"
+
+#, python-format
+msgid ""
+"How to register a <a href=\"%(link)s\" title=\"How to register a Dobrá doména"
+"\">Dobrá doména</a>."
+msgstr ""
+"Jak registrovat <a href=\"%(link)s\" title=\"Jak registrovat Dobrá doména"
+"\">Dobrá doména</a>."
+
+#, python-format
+msgid ""
+"I hereby confirm my request to get the password for contact %(handle)s, "
+"submitted through the web form at %(form_url)s on %(created_date)s, assigned "
+"id number %(response_id)s. Please send the password to %(custom_email)s."
+msgstr ""
+"Potvrzuji tímto žádost o poskytnutí hesla ke kontaktu %(handle)s, která byla "
+"podána prostřednictvím webového formuláře na stránce %(form_url)s dne "
+"%(created_date)s, s přiděleným identifikačním číslem %(response_id)s a žádám "
+"o poskytnutí příslušného hesla na adresu %(custom_email)s."
+
+#, python-format
+msgid ""
+"I hereby confirm my request to get the password for domain name %(handle)s, "
+"submitted through the web form at %(form_url)s on %(created_date)s, assigned "
+"id number %(response_id)s. Please send the password to %(custom_email)s."
+msgstr ""
+"Potvrzuji tímto žádost o poskytnutí hesla k doménovému jménu %(handle)s, "
+"která byla podána prostřednictvím webového formuláře na stránce %(form_url)s "
+"dne %(created_date)s, s přiděleným identifikačním číslem %(response_id)s a "
+"žádám o poskytnutí příslušného hesla na adresu %(custom_email)s."
+
+#, python-format
+msgid ""
+"I hereby confirm my request to get the password for keyset %(handle)s, "
+"submitted through the web form at %(form_url)s on %(created_date)s, assigned "
+"id number %(response_id)s. Please send the password to %(custom_email)s."
+msgstr ""
+"Potvrzuji tímto žádost o poskytnutí hesla k sadě klíčů %(handle)s, která "
+"byla podána prostřednictvím webového formuláře na stránce %(form_url)s dne "
+"%(created_date)s, s přiděleným identifikačním číslem %(response_id)s a žádám "
+"o poskytnutí příslušného hesla na adresu %(custom_email)s."
+
+#, python-format
+msgid ""
+"I hereby confirm my request to get the password for nameserver set "
+"%(handle)s, submitted through the web form at %(form_url)s on "
+"%(created_date)s, assigned id number %(response_id)s. Please send the "
+"password to %(custom_email)s."
+msgstr ""
+"Potvrzuji tímto žádost o poskytnutí hesla k sadě jmenných serverů "
+"%(handle)s, která byla podána prostřednictvím webového formuláře na stránce "
+"%(form_url)s dne %(created_date)s, s přiděleným identifikačním číslem "
+"%(response_id)s a žádám o poskytnutí příslušného hesla na adresu "
+"%(custom_email)s."
+
+#, python-format
+msgid ""
+"I hereby confirm the request to block all changes made to contact %(handle)s "
+"submitted through the web form on the web site %(form_url)s on "
+"%(created_date)s with the assigned identification number %(response_id)s, "
+"and I request the activation of the specified blocking option. I agree that, "
+"with respect to the particular contact %(handle)s, no change will be "
+"possible until I cancel the blocking option through the applicable form on "
+"%(company_website)s."
+msgstr ""
+"Potvrzuji tímto žádost o zablokování všech změn u kontaktu %(handle)s, která "
+"byla podána prostřednictvím webového formuláře na stránce %(form_url)s dne "
+"%(created_date)s s přiděleným identifikačním číslem %(response_id)s, a žádám "
+"o provedení příslušné blokace. Souhlasím s tím, že u kontaktu %(handle)s "
+"nebude možné provést žádnou změnu až do okamžiku, kdy tuto blokaci zruším "
+"pomocí příslušného formuláře na %(company_website)s."
+
+#, python-format
+msgid ""
+"I hereby confirm the request to block all changes made to domain name "
+"%(handle)s submitted through the web form on the web site %(form_url)s on "
+"%(created_date)s with the assigned identification number %(response_id)s, "
+"and I request the activation of the specified blocking option. I agree that, "
+"with respect to the particular domain name %(handle)s, no change will be "
+"possible until I cancel the blocking option through the applicable form on "
+"%(company_website)s."
+msgstr ""
+"Potvrzuji tímto žádost o zablokování všech změn u doménového jména "
+"%(handle)s, která byla podána prostřednictvím webového formuláře na stránce "
+"%(form_url)s dne %(created_date)s s přiděleným identifikačním číslem "
+"%(response_id)s, a žádám o provedení příslušné blokace. Souhlasím s tím, že "
+"u doménového jména %(handle)s nebude možné provést žádnou změnu až do "
+"okamžiku, kdy tuto blokaci zruším pomocí příslušného formuláře na "
+"%(company_website)s."
+
+#, python-format
+msgid ""
+"I hereby confirm the request to block all changes made to keyset %(handle)s "
+"submitted through the web form on the web site %(form_url)s on "
+"%(created_date)s with the assigned identification number %(response_id)s, "
+"and I request the activation of the specified blocking option. I agree that, "
+"with respect to the particular keyset %(handle)s, no change will be possible "
+"until I cancel the blocking option through the applicable form on "
+"%(company_website)s."
+msgstr ""
+"Potvrzuji tímto žádost o zablokování všech změn u sady klíčů %(handle)s, "
+"která byla podána prostřednictvím webového formuláře na stránce %(form_url)s "
+"dne %(created_date)s s přiděleným identifikačním číslem %(response_id)s, a "
+"žádám o provedení příslušné blokace. Souhlasím s tím, že u sady klíčů "
+"%(handle)s nebude možné provést žádnou změnu až do okamžiku, kdy tuto "
+"blokaci zruším pomocí příslušného formuláře na %(company_website)s."
+
+#, python-format
+msgid ""
+"I hereby confirm the request to block all changes made to nameserver set "
+"%(handle)s submitted through the web form on the web site %(form_url)s on "
+"%(created_date)s with the assigned identification number %(response_id)s, "
+"and I request the activation of the specified blocking option. I agree that, "
+"with respect to the particular nameserver set %(handle)s, no change will be "
+"possible until I cancel the blocking option through the applicable form on "
+"%(company_website)s."
+msgstr ""
+"Potvrzuji tímto žádost o zablokování všech změn u sady jmenných serverů "
+"%(handle)s, která byla podána prostřednictvím webového formuláře na stránce "
+"%(form_url)s dne %(created_date)s s přiděleným identifikačním číslem "
+"%(response_id)s, a žádám o provedení příslušné blokace. Souhlasím s tím, že "
+"u sady jmenných serverů %(handle)s nebude možné provést žádnou změnu až do "
+"okamžiku, kdy tuto blokaci zruším pomocí příslušného formuláře na "
+"%(company_website)s."
+
+#, python-format
+msgid ""
+"I hereby confirm the request to block any change of the sponsoring registrar "
+"for the contact %(handle)s submitted through the web form on the web site "
+"%(form_url)s on %(created_date)s with the assigned identification number "
+"%(response_id)s, and I request the activation of the specified blocking "
+"option. I agree that, regarding the particular contact %(handle)s, no change "
+"of the sponsoring registrar will be possible until I cancel the blocking "
+"option through the applicable form on %(company_website)s."
+msgstr ""
+"Potvrzuji tímto žádost o zablokování změny určeného registrátora kontaktu "
+"%(handle)s, která byla podána prostřednictvím webového formuláře na stránce "
+"%(form_url)s dne %(created_date)s s přiděleným identifikačním číslem "
+"%(response_id)s, a žádám o provedení příslušné blokace. Souhlasím s tím, že "
+"u kontaktu %(handle)s nebude možné provést změnu určeného registrátora až do "
+"okamžiku, kdy tuto blokaci zruším pomocí příslušného formuláře na "
+"%(company_website)s."
+
+#, python-format
+msgid ""
+"I hereby confirm the request to block any change of the sponsoring registrar "
+"for the domain name %(handle)s submitted through the web form on the web "
+"site %(form_url)s on %(created_date)s with the assigned identification "
+"number %(response_id)s, and I request the activation of the specified "
+"blocking option. I agree that, regarding the particular domain name "
+"%(handle)s, no change of the sponsoring registrar will be possible until I "
+"cancel the blocking option through the applicable form on "
+"%(company_website)s."
+msgstr ""
+"Potvrzuji tímto žádost o zablokování změny určeného registrátora doménového "
+"jména %(handle)s, která byla podána prostřednictvím webového formuláře na "
+"stránce %(form_url)s dne %(created_date)s s přiděleným identifikačním číslem "
+"%(response_id)s, a žádám o provedení příslušné blokace. Souhlasím s tím, že "
+"u doménového jména %(handle)s nebude možné provést změnu určeného "
+"registrátora až do okamžiku, kdy tuto blokaci zruším pomocí příslušného "
+"formuláře na %(company_website)s."
+
+#, python-format
+msgid ""
+"I hereby confirm the request to block any change of the sponsoring registrar "
+"for the keyset %(handle)s submitted through the web form on the web site "
+"%(form_url)s on %(created_date)s with the assigned identification number "
+"%(response_id)s, and I request the activation of the specified blocking "
+"option. I agree that, regarding the particular keyset %(handle)s, no change "
+"of the sponsoring registrar will be possible until I cancel the blocking "
+"option through the applicable form on %(company_website)s."
+msgstr ""
+"Potvrzuji tímto žádost o zablokování změny určeného registrátora sady klíčů "
+"%(handle)s, která byla podána prostřednictvím webového formuláře na stránce "
+"%(form_url)s dne %(created_date)s s přiděleným identifikačním číslem "
+"%(response_id)s, a žádám o provedení příslušné blokace. Souhlasím s tím, že "
+"u sady klíčů %(handle)s nebude možné provést změnu určeného registrátora až "
+"do okamžiku, kdy tuto blokaci zruším pomocí příslušného formuláře na "
+"%(company_website)s."
+
+#, python-format
+msgid ""
+"I hereby confirm the request to block any change of the sponsoring registrar "
+"for the nameserver set %(handle)s submitted through the web form on the web "
+"site %(form_url)s on %(created_date)s with the assigned identification "
+"number %(response_id)s, and I request the activation of the specified "
+"blocking option. I agree that, regarding the particular nameserver set "
+"%(handle)s, no change of the sponsoring registrar will be possible until I "
+"cancel the blocking option through the applicable form on "
+"%(company_website)s."
+msgstr ""
+"Potvrzuji tímto žádost o zablokování změny určeného registrátora sady "
+"jmenných serverů %(handle)s, která byla podána prostřednictvím webového "
+"formuláře na stránce %(form_url)s dne %(created_date)s s přiděleným "
+"identifikačním číslem %(response_id)s, a žádám o provedení příslušné "
+"blokace. Souhlasím s tím, že u sady jmenných serverů %(handle)s nebude možné "
+"provést změnu určeného registrátora až do okamžiku, kdy tuto blokaci zruším "
+"pomocí příslušného formuláře na %(company_website)s."
+
+#, python-format
+msgid ""
+"I hereby confirm the request to cancel the blocking of all changes for the "
+"contact %(handle)s submitted through the web form on %(form_url)s on "
+"%(created_date)s with the assigned identification number %(response_id)s."
+msgstr ""
+"Potvrzuji tímto žádost o zrušení zablokování všech změn kontaktu %(handle)s, "
+"která byla podána prostřednictvím webového formuláře na stránce %(form_url)s "
+"dne %(created_date)s s přiděleným identifikačním číslem %(response_id)s."
+
+#, python-format
+msgid ""
+"I hereby confirm the request to cancel the blocking of all changes for the "
+"domain name %(handle)s submitted through the web form on %(form_url)s on "
+"%(created_date)s with the assigned identification number %(response_id)s."
+msgstr ""
+"Potvrzuji tímto žádost o zrušení zablokování všech změn doménového jména "
+"%(handle)s, která byla podána prostřednictvím webového formuláře na stránce "
+"%(form_url)s dne %(created_date)s s přiděleným identifikačním číslem "
+"%(response_id)s."
+
+#, python-format
+msgid ""
+"I hereby confirm the request to cancel the blocking of all changes for the "
+"keyset %(handle)s submitted through the web form on %(form_url)s on "
+"%(created_date)s with the assigned identification number %(response_id)s."
+msgstr ""
+"Potvrzuji tímto žádost o zrušení zablokování všech změn sady klíčů "
+"%(handle)s, která byla podána prostřednictvím webového formuláře na stránce "
+"%(form_url)s dne %(created_date)s s přiděleným identifikačním číslem "
+"%(response_id)s."
+
+#, python-format
+msgid ""
+"I hereby confirm the request to cancel the blocking of all changes for the "
+"nameserver set %(handle)s submitted through the web form on %(form_url)s on "
+"%(created_date)s with the assigned identification number %(response_id)s."
+msgstr ""
+"Potvrzuji tímto žádost o zrušení zablokování všech změn sady jmenných "
+"serverů %(handle)s, která byla podána prostřednictvím webového formuláře na "
+"stránce %(form_url)s dne %(created_date)s s přiděleným identifikačním číslem "
+"%(response_id)s."
+
+#, python-format
+msgid ""
+"I hereby confirm the request to cancel the blocking of the sponsoring "
+"registrar change for the contact %(handle)s submitted through the web form "
+"on %(form_url)s on %(created_date)s with the assigned identification number "
+"%(response_id)s."
+msgstr ""
+"Potvrzuji tímto žádost o zrušení zablokování změny určeného registrátora "
+"kontaktu %(handle)s, která byla podána prostřednictvím webového formuláře na "
+"stránce %(form_url)s dne %(created_date)s s přiděleným identifikačním číslem "
+"%(response_id)s."
+
+#, python-format
+msgid ""
+"I hereby confirm the request to cancel the blocking of the sponsoring "
+"registrar change for the domain name %(handle)s submitted through the web "
+"form on %(form_url)s on %(created_date)s with the assigned identification "
+"number %(response_id)s."
+msgstr ""
+"Potvrzuji tímto žádost o zrušení zablokování změny určeného registrátora "
+"doménového jména %(handle)s, která byla podána prostřednictvím webového "
+"formuláře na stránce %(form_url)s dne %(created_date)s s přiděleným "
+"identifikačním číslem %(response_id)s."
+
+#, python-format
+msgid ""
+"I hereby confirm the request to cancel the blocking of the sponsoring "
+"registrar change for the keyset %(handle)s submitted through the web form on "
+"%(form_url)s on %(created_date)s with the assigned identification number "
+"%(response_id)s."
+msgstr ""
+"Potvrzuji tímto žádost o zrušení zablokování změny určeného registrátora "
+"sady klíčů %(handle)s, která byla podána prostřednictvím webového formuláře "
+"na stránce %(form_url)s dne %(created_date)s s přiděleným identifikačním "
+"číslem %(response_id)s."
+
+#, python-format
+msgid ""
+"I hereby confirm the request to cancel the blocking of the sponsoring "
+"registrar change for the nameserver set %(handle)s submitted through the web "
+"form on %(form_url)s on %(created_date)s with the assigned identification "
+"number %(response_id)s."
+msgstr ""
+"Potvrzuji tímto žádost o zrušení zablokování změny určeného registrátora "
+"sady jmenných serverů %(handle)s, která byla podána prostřednictvím webového "
+"formuláře na stránce %(form_url)s dne %(created_date)s s přiděleným "
+"identifikačním číslem %(response_id)s."
 
 msgid "Identification data"
 msgstr "Identifikační údaj"
@@ -228,6 +496,13 @@ msgstr "Poslední aktualizace"
 
 msgid "Last update date"
 msgstr "Poslední aktualizace"
+
+msgid ""
+"Letter with officially verified signature can be sent only to the custom "
+"email. Please select \"Send to custom email\" and enter it."
+msgstr ""
+"Úředně ověřený dopis může být odeslán jen na jiný e-mail. Prosím, nastavte "
+"\"Zaslat na jiný e-mail\" a zadejte jej."
 
 msgid "List of registrars"
 msgstr "Seznam registrátorů"
@@ -292,6 +567,44 @@ msgstr "E-mail pro oznámení"
 msgid "Nsset"
 msgstr "Sada jmenných serverů"
 
+msgid ""
+"Object not found. Check that you have correctly entered the Object type and "
+"Handle."
+msgstr ""
+"Objekt nebyl nalezen. Zkontrolujte si, že jste Typ objektu a Identifikátor "
+"zadali správně."
+
+msgid "Object type"
+msgstr "Typ objektu"
+
+msgid "Officially verified signature"
+msgstr "Úředně ověřený podpis"
+
+msgid ""
+"Once data changes are blocked, you cannot make any change to the data "
+"related to the particular object in the central registry. If you wish to "
+"cancel the blocking options above, please continue to the next paragraph."
+msgstr ""
+"V případě, že bude aktivována blokace změn údajů, nebude možné provést "
+"žádnou změnu údajů vedených v centrálním registru k danému objektu. Pokud "
+"budete chtít výše uvedené blokace zrušit, pokračujte na následující odstavec."
+
+msgid ""
+"Once the change of the sponsoring registrar is blocked, you cannot transfer "
+"the particular object to another registrar nor request the sending of a "
+"password needed for email changes in the central registry."
+msgstr ""
+"V případě, že bude aktivována blokace změny určeného registrátora, nebude "
+"možné daný objekt přesunout k jinému registrátorovi a nebude možné požádat o "
+"zaslání hesla ke změně na e-mail uvedený v centrálním registru."
+
+msgid ""
+"Option \"Send to email in registry\" is incompatible with custom email. "
+"Please choose one of the two options."
+msgstr ""
+"Nastavení \"Zaslat na e-mail v registru\" se neslučuje se zadáním \"Jiný e-"
+"mail\". Prosím, vyberte jedno nebo druhé."
+
 msgid "Organization"
 msgstr "Organizace"
 
@@ -303,6 +616,26 @@ msgstr "Číslo OP"
 
 msgid "Phone"
 msgstr "Telefon"
+
+#, python-format
+msgid ""
+"Please print this <a href=\"%(notarized_letter_pdf_url)s\">%(pdf_name)s</a> "
+"(PDF), sign it (an officially authenticated signature is required) and send "
+"the signed original to the following address:"
+msgstr ""
+"Prosím, vytiskněte tuto <a href=\"%(notarized_letter_pdf_url)s\">"
+"%(pdf_name)s</a> (PDF), podepište ji (je nutný úředně ověřený podpis) a "
+"podepsaný originál zašlete na adresu:"
+
+#, python-format
+msgid ""
+"Please print this <a href=\"%(notarized_letter_pdf_url)s\">%(pdf_name)s</a> "
+"(PDF), sign it (an officially authenticated signature is required) and send "
+"the signed original to the mailing address of the registry."
+msgstr ""
+"Prosím, vytiskněte tuto <a href=\"%(notarized_letter_pdf_url)s\">"
+"%(pdf_name)s</a> (PDF), podepište ji (je nutný úředně ověřený podpis) a "
+"podepsaný originál zašlete na e-mail registru."
 
 msgid "Register this domain name?"
 msgstr "Registrovat tuto doménu?"
@@ -344,14 +677,117 @@ msgstr "Registrátoři poskytující také služby koncovým držitelům"
 msgid "Registrars offering only wholesale services"
 msgstr "Registrátoři poskytující služby velkoobchodům"
 
+msgid "Request does not exist or has expired."
+msgstr "Žádost neexistuje nebo již vypršela."
+
+msgid "Request for blocking an object"
+msgstr "Žádost o zablokování objektu"
+
+#, python-format
+msgid "Request for blocking of contact %(handle)s"
+msgstr "Žádost o zablokování kontaktu %(handle)s"
+
+#, python-format
+msgid "Request for blocking of domain name %(handle)s"
+msgstr "Žádost o zablokování doménového jména %(handle)s"
+
+#, python-format
+msgid "Request for blocking of keyset %(handle)s"
+msgstr "Žádost o zablokování sady klíčů %(handle)s"
+
+#, python-format
+msgid "Request for blocking of nameserver set %(handle)s"
+msgstr "Žádost o zablokování sady jmenných serverů %(handle)s"
+
+msgid "Request for enhanced object security in CZ.NIC database."
+msgstr "Žádost o zvýšené zabezpečení objektu v databázi CZ.NIC."
+
+msgid "Request for password for transfer"
+msgstr "Žádost o zaslání hesla pro převod"
+
+msgid ""
+"Request for password for transfer and enhanced object security in CZ.NIC "
+"database"
+msgstr ""
+"Žádost o zaslání hesla k převodu, blokování a odblokování objektu v CZ.NIC "
+"databázi"
+
+#, python-format
+msgid "Request for password for transfer contact %(handle)s"
+msgstr "Žádost o zaslání hesla pro převod kontaktu %(handle)s"
+
+#, python-format
+msgid "Request for password for transfer domain name %(handle)s"
+msgstr "Žádost o zaslání hesla pro převod doménového jména %(handle)s"
+
+#, python-format
+msgid "Request for password for transfer keyset %(handle)s"
+msgstr "Žádost o zaslání hesla pro převod sady klíčů %(handle)s"
+
+#, python-format
+msgid "Request for password for transfer nameserver set %(handle)s"
+msgstr "Žádost o zaslání hesla pro převod sady jmenných serverů %(handle)s"
+
+msgid "Request for unblocking an object"
+msgstr "Žádost o odblokování objektu"
+
+#, python-format
+msgid "Request to cancel the blocking of contact %(handle)s"
+msgstr "Žádost o zrušení blokace kontaktu %(handle)s"
+
+#, python-format
+msgid "Request to cancel the blocking of domain name %(handle)s"
+msgstr "Žádost o zrušení blokace doménového jména %(handle)s"
+
+#, python-format
+msgid "Request to cancel the blocking of keyset %(handle)s"
+msgstr "Žádost o zrušení blokace sady klíčů %(handle)s"
+
+#, python-format
+msgid "Request to cancel the blocking of nameserver set %(handle)s"
+msgstr "Žádost o zrušení blokace sady jmenných serverů %(handle)s"
+
+msgid "Request to cancel the enhanced object security in CZ.NIC database."
+msgstr "Žádost o zrušení zvýšeného zabezpečení objektu v databázi CZ.NIC."
+
 msgid "Search"
 msgstr "Hledat"
 
 msgid "Search in the Registry (Whois)"
 msgstr "Vyhledávání v registru (Whois)"
 
+#, python-format
+msgid "Search results for handle <strong>%(handle)s</strong>:"
+msgstr "Výsledek vyhledávání <strong>%(handle)s</strong>:"
+
 msgid "Secured by"
 msgstr "Zabezpečeno pomocí"
+
+msgid "Send"
+msgstr "Odeslat"
+
+msgid "Send password"
+msgstr "Poslat heslo"
+
+msgid "Send password for transfer"
+msgstr "Poslat heslo pro převod"
+
+msgid "Send to"
+msgstr "Zaslat na"
+
+msgid ""
+"Signatories whose name is not listed in the Central domain name registry, "
+"must attach the original or an officially authenticated copy of a document "
+"allowing them to perform the relevant request."
+msgstr ""
+"V případě, že podepisující osoba není uvedena v Centrálním registru "
+"doménových jmen, je k této žádosti potřeba přiložit originál nebo úředně "
+"ověřenou kopii dokumentu, který zmocňuje tuto osobu k uvedenému požadavku."
+
+msgid ""
+"Sorry, but the request does not exist or has expired. Please enter a new one."
+msgstr ""
+"Litujeme, ale žádost neexistuje nebo již vypršela. Zadejte si prosím novou."
 
 msgid "Sponsoring registrar"
 msgstr "Určený registrátor"
@@ -359,11 +795,73 @@ msgstr "Určený registrátor"
 msgid "Status"
 msgstr "Stav"
 
+#, python-format
+msgid "Subject: Confirmation of the request to block of contact %(handle)s:"
+msgstr "Věc: Potvrzení žádosti o blokaci kontaktu %(handle)s:"
+
+#, python-format
+msgid ""
+"Subject: Confirmation of the request to block of domain name %(handle)s:"
+msgstr "Věc: Potvrzení žádosti o blokaci doménového jména %(handle)s:"
+
+#, python-format
+msgid "Subject: Confirmation of the request to block of keyset %(handle)s:"
+msgstr "Věc: Potvrzení žádosti o blokaci sady klíčů %(handle)s:"
+
+#, python-format
+msgid ""
+"Subject: Confirmation of the request to block of nameserver set %(handle)s:"
+msgstr "Věc: Potvrzení žádosti o blokaci sady jmenných serverů %(handle)s:"
+
+#, python-format
+msgid ""
+"Subject: Confirmation of the request to cancel the blocking of contact "
+"%(handle)s:"
+msgstr "Věc: Potvrzení žádosti o zrušení blokace kontaktu %(handle)s:"
+
+#, python-format
+msgid ""
+"Subject: Confirmation of the request to cancel the blocking of domain name "
+"%(handle)s:"
+msgstr "Věc: Potvrzení žádosti o zrušení blokace doménového jména %(handle)s:"
+
+#, python-format
+msgid ""
+"Subject: Confirmation of the request to cancel the blocking of keyset "
+"%(handle)s:"
+msgstr "Věc: Potvrzení žádosti o zrušení blokace sady klíčů %(handle)s:"
+
+#, python-format
+msgid ""
+"Subject: Confirmation of the request to cancel the blocking of nameserver "
+"set %(handle)s:"
+msgstr ""
+"Věc: Potvrzení žádosti o zrušení blokace sady jmenných serverů %(handle)s:"
+
+#, python-format
+msgid "Subject: Request for password for transfer contact %(handle)s:"
+msgstr "Žádost o zaslání hesla pro převod kontaktu %(handle)s:"
+
+#, python-format
+msgid "Subject: Request for password for transfer domain name %(handle)s:"
+msgstr "Žádost o zaslání hesla pro převod doménového jména %(handle)s:"
+
+#, python-format
+msgid "Subject: Request for password for transfer keyset %(handle)s:"
+msgstr "Žádost o zaslání hesla pro převod sady klíčů %(handle)s:"
+
+#, python-format
+msgid "Subject: Request for password for transfer nameserver set %(handle)s:"
+msgstr "Žádost o zaslání hesla pro převod sady jmenných serverů %(handle)s:"
+
 msgid "Technical contact"
 msgstr "Technický kontakt"
 
 msgid "Technologies"
 msgstr "Technologie"
+
+msgid "The email was not found or the address is not valid."
+msgstr "E-mail nebyl nalezen nebo je neplatný."
 
 msgid ""
 "The form with prefilled contacts values. It is possible to change them "
@@ -379,14 +877,58 @@ msgstr ""
 "Zadaný identifikátor je shodný pro několik záznamů. Pokračujte výběrem "
 "požadovaného typu."
 
+#, python-format
+msgid ""
+"This form sends <a href=\"%(form_send_password_url)s\">the request for a "
+"password required to change the sponsoring registrar</a> of an object in the "
+"registry (domains, contacts or name server set). Use the form in case you "
+"are not able to get this password directly directly from the current "
+"sponsoring registrar."
+msgstr ""
+"Tento formulář slouží k odeslání <a href=\"%(form_send_password_url)s"
+"\">žádosti o poskytnutí hesla</a> pro změnu určeného registrátora objektu v "
+"registru (domény, kontaktu nebo sady jmenných serverů). Formulář použijte v "
+"případě, že toto heslo nemůžete získat přímo od současného určeného "
+"registrátora."
+
+msgid ""
+"This object has another active blocking. The request can not be accepted."
+msgstr "Objekt má jinou blokaci. Žádost nelze přijmout."
+
+msgid "This object is already blocked. The request can not be accepted."
+msgstr "Objekt je již blokován. Žádost nelze přijmout."
+
+msgid "This object is not blocked. The request can not be accepted."
+msgstr "Objekt není blokován. Žádost nelze přijmout."
+
 msgid "To search for a domain in another zone use the search engine:"
 msgstr "Pro vyhledání domény v jiné zóně použijte vyhledávač:"
+
+#, python-format
+msgid ""
+"Too many parts in the domain name <strong>%(handle)s</strong>. Enter only "
+"the name and the zone: <a href=\"%(whois_form_link)s?handle="
+"%(example_domain_name)s\">%(example_domain_name)s</a>"
+msgstr ""
+"V doménovém jméně <strong>%(handle)s</strong> je příliš mnoho částí. Zadejte "
+"pouze jméno a zónu: <a href=\"%(whois_form_link)s?handle="
+"%(example_domain_name)s\">%(example_domain_name)s</a>"
 
 msgid "Transfer of the contact under mojeID registrar."
 msgstr "Převod kontaktu pod registrátora mojeID."
 
+msgid "Transfer password request"
+msgstr "Žádost o heslo pro převod"
+
 msgid "URL"
 msgstr "URL"
+
+msgctxt "verb_inf"
+msgid "Unblock"
+msgstr "Odblokovat"
+
+msgid "Unblocking Request"
+msgstr "Žádost o odblokování"
 
 msgid "Unmanaged zone"
 msgstr "Nepodporovaná zóna"
@@ -403,17 +945,111 @@ msgstr "DIČ"
 msgid "Validation expiration date"
 msgstr "Validováno do"
 
+#, python-brace-format
+msgid ""
+"We received successfully your request for a password to change the contact "
+"<strong>{handle}</strong> sponsoring registrar. An email with the password "
+"will be sent to the email address from the registry."
+msgstr ""
+"Žádost o zaslání hesla pro změnu určeného registrátora kontaktu "
+"<strong>{handle}</strong> byla úspěšně přijata. E-mail s tímto heslem bude "
+"odeslán na e-mailovou adresu uvedenou v registru."
+
+#, python-brace-format
+msgid ""
+"We received successfully your request for a password to change the domain "
+"<strong>{handle}</strong> sponsoring registrar. An email with the password "
+"will be sent to the email address of domain holder and admin contacts."
+msgstr ""
+"Žádost o zaslání hesla pro změnu určeného registrátora domény "
+"<strong>{handle}</strong> byla úspěšně přijata. E-mail s tímto heslem bude "
+"odeslán na e-mailovou adresu držitele domény a administrativnich kontaktů."
+
+#, python-brace-format
+msgid ""
+"We received successfully your request for a password to change the keyset "
+"<strong>{handle}</strong> sponsoring registrar. An email with the password "
+"will be sent to the email addresses of the keyset's technical contacts."
+msgstr ""
+"Žádost o zaslání hesla pro změnu určeného registrátora sady klíčů "
+"<strong>{handle}</strong> byla úspěšně přijata. E-mail s tímto heslem bude "
+"odeslán na e-mailové adresy technických kontaktů sady."
+
+#, python-brace-format
+msgid ""
+"We received successfully your request for a password to change the "
+"nameserver set <strong>{handle}</strong> sponsoring registrar. An email with "
+"the password will be sent to the email addresses of the nameserver set's "
+"technical contacts."
+msgstr ""
+"Žádost o zaslání hesla pro změnu určeného registrátora sady jmenných serverů "
+"<strong>{handle}</strong> byla úspěšně přijata. E-mail s tímto heslem bude "
+"odeslán na e-mailové adresy technických kontaktů sady."
+
 msgid "Website"
 msgstr "Webové stránky"
 
 msgid "What are the benefits of mojeID?"
 msgstr "Jaké jsou výhody mojeID?"
 
+msgid ""
+"Whois searches in domain names, contacts and name server sets. Enter domain "
+"names without <span>www.</span> prefix and followed by the zone (i.e. "
+"<span>nic.cz</span>, not www.nic.cz, nor nic). Enter contact handles or name "
+"server sets as plain text."
+msgstr ""
+"Hledá v doménových jménech, kontaktech a sadách nameserverů.\n"
+"Doménová jména vkládejte ve tvaru <span>domenovejmeno.cz</span> s <span>.cz</"
+"span> na konci a bez úvodního <span>www</span> (např. <span>nic.cz</span>).\n"
+"Identifikátory kontaktu nebo sady jmenných serverů vkládejte jako běžný text."
+
 msgid "Why mojeID"
 msgstr "Proč mojeID"
 
+msgid ""
+"With this form, you can <a href=\"%(form_unblock_object_url)s\">cancel the "
+"blocking of the change of the sponsoring registrar</a> or <a href="
+"\"%(form_unblock_object_url_lock_type_all)s\">cancel the blocking of any "
+"change </a> of a domain, contact, or a name server set."
+msgstr ""
+"Pomocí tohoto formuláře je možné požádat o <a href="
+"\"%(form_unblock_object_url)s\">zrušení již provedeného zablokování změny "
+"určeného registrátora</a> či <a href="
+"\"%(form_unblock_object_url_lock_type_all)s\">zablokování jakýchkoliv změn</"
+"a> u domén, kontaktů nebo sad jmenných serverů."
+
+#, python-format
+msgid ""
+"With this form, you can request <a href=\"%(form_block_object_url)s\">to "
+"block the change of the sponsoring registrar</a> for a domain, contact, or a "
+"name server set, or you can <a href=\"%(form_block_object_url_lock_type_all)s"
+"\">block the change</a> of a domain, contact, or a name server set."
+msgstr ""
+"Pomocí tohoto formuláře je možné požádat o <a href="
+"\"%(form_block_object_url)s\">zablokování možnosti změnit určeného "
+"registrátora</a> domény, kontaktu nebo sady jmenných serverů nebo o <a href="
+"\"%(form_block_object_url_lock_type_all)s\">zablokování možností provádět "
+"jakékoliv změny údajů</a> u domény, kontaktu nebo sady jmenných serverů."
+
 msgid "Yes"
 msgstr "Ano"
+
+#, python-format
+msgid ""
+"You will find the Terms of Service in: <a href=\"%(link)s\">Intended use of "
+"supplied data and information</a>."
+msgstr ""
+"Právo k užití poskytovaných služeb vymezuje dokument: <a href=\"%(link)s"
+"\">Účel použití poskytovaných dat a informací</a>."
+
+msgid "all object changes"
+msgstr "všechny změny objektu"
+
+msgid "custom email"
+msgstr "jiný e-mail"
+
+msgid "email in registry"
+msgstr "e-mail v registru"
 
 msgid "form"
 msgstr "formulář"
@@ -421,3 +1057,9 @@ msgstr "formulář"
 #, python-format
 msgid "since %(date)s"
 msgstr "od %(date)s"
+
+msgid "the company website"
+msgstr "web společnosti"
+
+msgid "transfer object"
+msgstr "převod objektu"

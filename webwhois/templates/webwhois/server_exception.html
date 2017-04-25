@@ -12,8 +12,8 @@
         <h1>{% trans "Register this domain name?" %}</h1>
         {% if HOW_TO_REGISTER_LINK %}
             <p>
-                {% blocktrans with link_href=HOW_TO_REGISTER_LINK.href link_label=HOW_TO_REGISTER_LINK.label %}
-                    For instructions how to register a domain, see the manual <a href="{{ link_href }}">{{ link_label }}</a>.
+                {% blocktrans with link_href=HOW_TO_REGISTER_LINK.href link_label=HOW_TO_REGISTER_LINK.label trimmed %}
+                    For instructions on how to register a domain, see the manual <a href="{{ link_href }}">{{ link_label }}</a>.
                 {% endblocktrans %}
             </p>
         {% endif %}
@@ -24,7 +24,7 @@
 
     {% if server_exception.too_many_parts_in_domain_name %}
         <p>{% url "webwhois:form_whois" as whois_form_link %}
-            {% blocktrans %}
+            {% blocktrans trimmed %}
                 Too many parts in the domain name <strong>{{ handle }}</strong>.
                 Enter only the name and the zone: <a href="{{ whois_form_link }}?handle={{ example_domain_name }}">{{ example_domain_name }}</a>
            {% endblocktrans %}

@@ -1,0 +1,30 @@
+{% extends "webwhois/block_main.html" %}
+{% load i18n %}
+
+{% block title %}
+    {{ block.super }} - {{ text_title }}
+{% endblock %}
+
+{% block webwhois_header %}
+    <h1>{{ text_header }}</h1>
+{% endblock %}
+
+{% block webwhois_content %}
+    {% block print_this_letter %}
+        <p>
+            {% blocktrans trimmed %}
+                Please print this <a href="{{ notarized_letter_pdf_url }}">{{ pdf_name }}</a> (PDF), sign it
+                (an officially authenticated signature is required) and send the signed original to the mailing
+                address of the registry.
+            {% endblocktrans %}
+        </p>
+    {% endblock %}
+    <p>
+        {% blocktrans trimmed %}
+            Signatories whose name is not listed in the Central domain name registry, must attach the original
+            or an officially authenticated copy of a document allowing them to perform the relevant request.
+        {% endblocktrans %}
+    </p>
+{% endblock %}
+
+{% block webwhois_footer %}{% endblock webwhois_footer %}

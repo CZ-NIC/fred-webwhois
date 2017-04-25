@@ -8,7 +8,7 @@
             {% block webwhois_header %}
                 <h1>{% trans "Search in the Registry (Whois)" %}</h1>
                 <p>
-                    {% blocktrans with handle=handle %}
+                    {% blocktrans with handle=handle trimmed %}
                     Search results for handle <strong>{{ handle }}</strong>:
                     {% endblocktrans %}
                 </p>

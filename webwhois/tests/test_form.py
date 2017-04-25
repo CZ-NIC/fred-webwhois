@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.test import SimpleTestCase, override_settings
 from mock import call, patch
 
-from webwhois.forms import WhoisForm
+from webwhois.forms import BlockObjectForm, SendPasswordForm, UnblockObjectForm, WhoisForm
 from webwhois.tests.utils import TEMPLATES, WebwhoisAssertMixin, apply_patch
 from webwhois.utils import REGISTRY_MODULE
 
@@ -91,3 +91,233 @@ class TestWhoisFormView(WebwhoisAssertMixin, SimpleTestCase):
                             ' / Handle:</label>', html=True)
         self.assertEqual(self.LOGGER.mock_calls, [])
         self.assertEqual(self.WHOIS.mock_calls, [call.get_managed_zone_list()])
+
+
+class TestSendPasswordForm(SimpleTestCase):
+
+    def test_is_valid(self):
+        form = SendPasswordForm({
+            "object_type": "domain",
+            "handle": "foo.cz",
+            "confirmation_method": "signed_email",
+            "send_to": "email_in_registry",
+        })
+        self.assertEqual(form.errors, {})
+        self.assertEqual(form.cleaned_data, {
+            'object_type': 'domain',
+            'handle': 'foo.cz',
+            'send_to': 'email_in_registry',
+            'custom_email': '',
+            'confirmation_method': 'signed_email',
+        })
+
+    def test_field_is_required(self):
+        form = SendPasswordForm({})
+        self.assertEqual(form.errors, {
+            'object_type': ['This field is required.'],
+            'handle': ['This field is required.'],
+            'send_to': ['This field is required.'],
+        })
+
+    def test_max_length(self):
+        form = SendPasswordForm({
+            "object_type": "domain",
+            "handle": "o" * 256,
+            "confirmation_method": "signed_email",
+            "send_to": "email_in_registry",
+        })
+        self.assertEqual(form.errors, {'handle': ['Ensure this value has at most 255 characters (it has 256).']})
+
+    def test_stripped_handle(self):
+        form = SendPasswordForm({
+            "object_type": "domain",
+            "handle": "  foo  ",
+            "confirmation_method": "signed_email",
+            "send_to": "email_in_registry",
+        })
+        self.assertEqual(form.errors, {})
+        self.assertEqual(form.cleaned_data["handle"], "foo")
+
+    def test_enum_types(self):
+        form = SendPasswordForm({
+            "object_type": "foo",
+            "handle": "foo.cz",
+            "confirmation_method": "foo",
+            "send_to": "foo",
+        })
+        self.assertEqual(form.errors, {
+            'confirmation_method': ['Select a valid choice. foo is not one of the available choices.'],
+            'object_type': ['Select a valid choice. foo is not one of the available choices.'],
+            'send_to': ['Select a valid choice. foo is not one of the available choices.'],
+        })
+
+    def test_invalid_custom_email(self):
+        form = SendPasswordForm({
+            "object_type": "domain",
+            "handle": "foo.cz",
+            "confirmation_method": "signed_email",
+            "send_to": "email_in_registry",
+            "custom_email": "foo",
+        })
+        self.assertEqual(form.errors, {'custom_email': ['Enter a valid email address.']})
+
+    def test_custom_email_and_sent_to_registry(self):
+        form = SendPasswordForm({
+            "object_type": "domain",
+            "handle": "foo.cz",
+            "confirmation_method": "signed_email",
+            "send_to": "email_in_registry",
+            "custom_email": "foo@foo.off",
+        })
+        self.assertEqual(form.errors, {
+            '__all__': ['Option "Send to email in registry" is incompatible with custom email. '
+                        'Please choose one of the two options.']
+        })
+
+    def test_sent_to_custom_email(self):
+        form = SendPasswordForm({
+            "object_type": "domain",
+            "handle": "foo.cz",
+            "confirmation_method": "signed_email",
+            "send_to": "custom_email",
+            "custom_email": "",
+        })
+        self.assertEqual(form.errors, {
+            '__all__': ['Custom email is required as "Send to custom email" option is selected. Please fill it in.']
+        })
+
+    def test_notarized_letter_send_to_registry(self):
+        form = SendPasswordForm({
+            "object_type": "domain",
+            "handle": "foo.cz",
+            "confirmation_method": "notarized_letter",
+            "send_to": "email_in_registry",
+        })
+        self.assertEqual(form.errors, {
+            '__all__': ['Letter with officially verified signature can be sent only to the custom email. '
+                        'Please select "Send to custom email" and enter it.']
+        })
+
+    def test_notarized_letter_without_custom_email(self):
+        form = SendPasswordForm({
+            "object_type": "domain",
+            "handle": "foo.cz",
+            "confirmation_method": "notarized_letter",
+            "send_to": "custom_email",
+        })
+        self.assertEqual(form.errors, {
+            '__all__': ['Custom email is required as "Send to custom email" option is selected. Please fill it in.']
+        })
+
+    def test_notarized_letter(self):
+        form = SendPasswordForm({
+            "object_type": "domain",
+            "handle": "foo.cz",
+            "confirmation_method": "notarized_letter",
+            "send_to": "custom_email",
+            "custom_email": "foo@foo.off",
+        })
+        self.assertEqual(form.errors, {})
+        self.assertEqual(form.cleaned_data, {
+            "object_type": "domain",
+            "handle": "foo.cz",
+            "confirmation_method": "notarized_letter",
+            "send_to": "custom_email",
+            "custom_email": "foo@foo.off",
+        })
+
+
+class BlockUnblockFormMixin(object):
+
+    def test_is_valid(self):
+        form = self.form_class({
+            "object_type": "domain",
+            "handle": "foo.cz",
+            "confirmation_method": "signed_email",
+            "lock_type": "transfer",
+        })
+        self.assertEqual(form.errors, {})
+        self.assertEqual(form.cleaned_data, {
+            "object_type": "domain",
+            "handle": "foo.cz",
+            "confirmation_method": "signed_email",
+            "lock_type": "transfer",
+        })
+
+    def test_field_is_required(self):
+        form = self.form_class({})
+        self.assertEqual(form.errors, {
+            'object_type': ['This field is required.'],
+            'handle': ['This field is required.'],
+            'lock_type': ['This field is required.'],
+        })
+
+    def test_max_length(self):
+        form = self.form_class({
+            "object_type": "domain",
+            "handle": "o" * 256,
+            "confirmation_method": "signed_email",
+            "lock_type": "transfer",
+        })
+        self.assertEqual(form.errors, {'handle': ['Ensure this value has at most 255 characters (it has 256).']})
+
+    def test_stripped_handle(self):
+        form = self.form_class({
+            "object_type": "domain",
+            "handle": "  foo  ",
+            "confirmation_method": "signed_email",
+            "lock_type": "transfer",
+        })
+        self.assertEqual(form.errors, {})
+        self.assertEqual(form.cleaned_data["handle"], "foo")
+
+    def test_enum_types(self):
+        form = self.form_class({
+            "object_type": "foo",
+            "handle": "foo.cz",
+            "confirmation_method": "foo",
+            "lock_type": "foo",
+        })
+        self.assertEqual(form.errors, {
+            'confirmation_method': ['Select a valid choice. foo is not one of the available choices.'],
+            'object_type': ['Select a valid choice. foo is not one of the available choices.'],
+            'lock_type': ['Select a valid choice. foo is not one of the available choices.'],
+        })
+
+    def test_is_valid_notarized_letter_transfer(self):
+        form = self.form_class({
+            "object_type": "domain",
+            "handle": "foo.cz",
+            "confirmation_method": "notarized_letter",
+            "lock_type": "transfer",
+        })
+        self.assertEqual(form.errors, {})
+        self.assertEqual(form.cleaned_data, {
+            "object_type": "domain",
+            "handle": "foo.cz",
+            "confirmation_method": "notarized_letter",
+            "lock_type": "transfer",
+        })
+
+    def test_is_valid_notarized_letter_all(self):
+        form = self.form_class({
+            "object_type": "domain",
+            "handle": "foo.cz",
+            "confirmation_method": "notarized_letter",
+            "lock_type": "all",
+        })
+        self.assertEqual(form.errors, {})
+        self.assertEqual(form.cleaned_data, {
+            "object_type": "domain",
+            "handle": "foo.cz",
+            "confirmation_method": "notarized_letter",
+            "lock_type": "all",
+        })
+
+
+class TestBlockObjectForm(BlockUnblockFormMixin, SimpleTestCase):
+    form_class = BlockObjectForm
+
+
+class TestUnblockObjectForm(BlockUnblockFormMixin, SimpleTestCase):
+    form_class = UnblockObjectForm

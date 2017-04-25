@@ -256,6 +256,14 @@ ul.simple-version li:hover {
 
 /* MESSAGES & ERRORS */
 
+#whois .error {
+    font-size: 100%;
+    color: #f00;
+    border: solid 1px #f00;
+    padding: 1em;
+    margin-bottom: 0.6em;
+}
+
 .errorlist {
     padding-left: 0;
 }
@@ -321,4 +329,79 @@ table.result {
 .not-disclosed {
     font-style: italic;
     color: #555555;
+}
+
+/* Public request forms */
+
+#id_lock_type, #id_send_to {
+    margin: 0;
+    padding: 0;
+}
+
+#id_lock_type li, #id_send_to li {
+    display: inline;
+    list-style-type: none;
+}
+
+#public_request_forms {
+   margin-top: 2em;
+}
+
+#public_request_forms form {
+    border: solid lightgray 4px;
+    width: 48em;
+    padding: 1em;
+}
+
+#public_request_forms ul.form-menu {
+    margin: 0;
+    margin-bottom: 2px;
+    padding: 0;
+}
+
+#public_request_forms ul.form-menu li
+{
+    border: solid lightgray 1px;
+    border-bottom: 0;
+    display: inline;
+    list-style-type: none;
+    padding: .4em 1em;
+}
+
+#public_request_forms ul.form-menu li a {
+    text-decoration: none;
+}
+
+#public_request_forms ul.form-menu li.selected {
+    font-weight: bold;
+    background-color: white;
+    border: solid lightgray 4px;
+    border-bottom: 0;
+}
+
+#public_request_forms table th {
+   text-align: right;
+   padding-right: 1em;
+   background-color: #eee;
+}
+
+#public_request_forms table caption {
+   padding: 1em;
+   padding-top: 0;
+   font-weight: bold;
+   color: darkblue;
+}
+
+#public_request_forms input[type=text], #public_request_forms input[type=email], #public_request_forms select {
+    min-width: 20em;
+}
+
+#whois .letter {
+    background-color: #f0f0eb;
+    padding: 1em;
+    border: solid gray 1px;
+}
+
+#whois .letter div {
+    padding-bottom: 1em;
 }

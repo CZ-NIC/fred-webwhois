@@ -1,0 +1,21 @@
+{% load i18n %}
+
+<ul class="form-menu">
+    {% if pubreq_selected_menu == "send_password" %}
+        <li class="selected">{% trans "Send password" %}</li>
+    {% else %}
+        <li><a href="{% url "webwhois:form_send_password" %}">{% trans "Send password" %}</a></li>
+    {% endif %}
+
+    {% if pubreq_selected_menu == "block_object" %}
+        <li class="selected">{% trans "Block" context "verb_inf" %}</li>
+    {% else %}
+        <li><a href="{% url "webwhois:form_block_object" %}">{% trans "Block" context "verb_inf" %}</a></li>
+    {% endif %}
+
+    {% if pubreq_selected_menu == "unblock_object" %}
+        <li class="selected">{% trans "Unblock" context "verb_inf" %}</li>
+    {% else %}
+        <li><a href="{% url "webwhois:form_unblock_object" %}">{% trans "Unblock" context "verb_inf" %}</a></li>
+    {% endif %}
+</ul>

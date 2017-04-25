@@ -1,8 +1,11 @@
 from django.conf.urls import url
 
-from webwhois.views.pages import DobradomaneRegistrarListView, WebwhoisContactDetailView, WebwhoisDomainDetailView, \
-    WebwhoisDownloadEvalFileView, WebwhoisFormView, WebwhoisKeysetDetailView, WebwhoisMojeidContactDetailView, \
-    WebwhoisNssetDetailView, WebwhoisRegistrarDetailView, WebwhoisRegistrarListView, WebwhoisResolveHandleTypeView
+from webwhois.views.pages import DobradomaneRegistrarListView, WebwhoisBlockObjectFormView, WebwhoisContactDetailView, \
+    WebwhoisCustomEmailView, WebwhoisDomainDetailView, WebwhoisDownloadEvalFileView, WebwhoisEmailInRegistryView, \
+    WebwhoisFormView, WebwhoisKeysetDetailView, WebwhoisMojeidContactDetailView, WebwhoisNotarizedLetterView, \
+    WebwhoisNssetDetailView, WebwhoisRegistrarDetailView, WebwhoisRegistrarListView, WebwhoisResolveHandleTypeView, \
+    WebwhoisResponseNotFoundView, WebwhoisSendPasswordFormView, WebwhoisServeNotarizedLetterView, \
+    WebwhoisUnblockObjectFormView
 
 app_name = 'webwhois'
 urlpatterns = [
@@ -20,4 +23,17 @@ urlpatterns = [
     url(r'^registrar-download-evaluation-file/(?P<handle>.{1,255})/$', WebwhoisDownloadEvalFileView.as_view(),
         name='download_evaluation_file'),
     url(r'^dobradomena/$', DobradomaneRegistrarListView.as_view(is_retail=True), name='dobradomena_list_retail'),
+    url(r'^send-password/$', WebwhoisSendPasswordFormView.as_view(), name='form_send_password'),
+    url(r'^block-object/$', WebwhoisBlockObjectFormView.as_view(), name='form_block_object'),
+    url(r'^unblock-object/$', WebwhoisUnblockObjectFormView.as_view(), name='form_unblock_object'),
+    url(r'^response-not-found/(?P<public_key>\w{64})/$', WebwhoisResponseNotFoundView.as_view(),
+        name='response_not_found'),
+    url(r'^email-in-registry/(?P<public_key>\w{64})/$', WebwhoisEmailInRegistryView.as_view(),
+        name='email_in_registry_response'),
+    url(r'^custom-email/(?P<public_key>\w{64})/$', WebwhoisCustomEmailView.as_view(),
+        name='custom_email_response'),
+    url(r'^notarized-letter/(?P<public_key>\w{64})/$', WebwhoisNotarizedLetterView.as_view(),
+        name='notarized_letter_response'),
+    url(r'^pdf-notarized-letter/(?P<public_key>\w{64})/$', WebwhoisServeNotarizedLetterView.as_view(),
+        name='notarized_letter_serve_pdf'),
 ]

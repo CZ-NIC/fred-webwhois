@@ -23,6 +23,10 @@ class BaseContextMixin(ContextMixin):
         kwargs.setdefault("webwhois_base_template", self.webwhois_base_template)
         return super(BaseContextMixin, self).get_context_data(**kwargs)
 
+    def render_to_response(self, context, **response_kwargs):
+        self.request.current_app = self.request.resolver_match.namespace
+        return super(BaseContextMixin, self).render_to_response(context, **response_kwargs)
+
 
 class RegistryObjectMixin(BaseContextMixin):
     """

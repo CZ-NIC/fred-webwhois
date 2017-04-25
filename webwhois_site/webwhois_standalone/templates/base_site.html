@@ -7,11 +7,13 @@
     <li{% if page_url_name in menu_item_whois_form %} class="selected"{% endif %}><a href="{% url "standalone_webwhois:form_whois" %}">{% trans "Web whois" %}</a></li>
     <li{% if page_url_name == "standalone_webwhois:registrar_list_retail" %} class="selected"{% endif %}><a href="{% url "standalone_webwhois:registrar_list_retail" %}">{% trans "List of registrars (retail)" %}</a></li>
     <li{% if page_url_name == "standalone_webwhois:registrar_list_wholesale" %} class="selected"{% endif %}><a href="{% url "standalone_webwhois:registrar_list_wholesale" %}">{% trans "List of registrars (wholesale)" %}</a></li>
+    <li{% if page_url_name in menu_item_public_request_form %} class="selected"{% endif %}><a href="{% url "standalone_webwhois:form_send_password" %}">{% trans "Passwords and locks" %}</a></li>
 </ul>
 <ul class="top-menu simple-version">
     <li><a>{% trans "Basic version" %}:</a></li>
     <li><a href="{% url "basic_webwhois:form_whois" %}">{% trans "Web whois" %}</a></li>
     <li><a href="{% url "basic_webwhois:registrar_list_retail" %}">{% trans "List of registrars (retail)" %}</a></li>
     <li><a href="{% url "basic_webwhois:registrar_list_wholesale" %}">{% trans "List of registrars (wholesale)" %}</a></li>
+    <li><a href="{% url "basic_webwhois:form_send_password" %}">{% trans "Passwords and locks" %}</a></li>
 </ul>
 {% endblock main_menu %}
