@@ -699,8 +699,8 @@ msgstr "Žádost o zablokování sady klíčů %(handle)s"
 msgid "Request for blocking of nameserver set %(handle)s"
 msgstr "Žádost o zablokování sady jmenných serverů %(handle)s"
 
-msgid "Request for enhanced object security in CZ.NIC database."
-msgstr "Žádost o zvýšené zabezpečení objektu v databázi CZ.NIC."
+msgid "Request for enhanced object security in CZ.NIC database"
+msgstr "Žádost o zvýšené zabezpečení objektu v databázi CZ.NIC"
 
 msgid "Request for password for transfer"
 msgstr "Žádost o zaslání hesla pro převod"
@@ -747,8 +747,8 @@ msgstr "Žádost o zrušení blokace sady klíčů %(handle)s"
 msgid "Request to cancel the blocking of nameserver set %(handle)s"
 msgstr "Žádost o zrušení blokace sady jmenných serverů %(handle)s"
 
-msgid "Request to cancel the enhanced object security in CZ.NIC database."
-msgstr "Žádost o zrušení zvýšeného zabezpečení objektu v databázi CZ.NIC."
+msgid "Request to cancel the enhanced object security in CZ.NIC database"
+msgstr "Žádost o zrušení zvýšeného zabezpečení objektu v databázi CZ.NIC"
 
 msgid "Search"
 msgstr "Hledat"
