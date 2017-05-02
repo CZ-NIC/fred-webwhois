@@ -1015,8 +1015,8 @@ msgstr ""
 "Pomocí tohoto formuláře je možné požádat o <a href="
 "\"%(form_unblock_object_url)s\">zrušení již provedeného zablokování změny "
 "určeného registrátora</a> či <a href="
-"\"%(form_unblock_object_url_lock_type_all)s\">zablokování jakýchkoliv změn</"
-"a> u domén, kontaktů nebo sad jmenných serverů."
+"\"%(form_unblock_object_url_lock_type_all)s\">zrušení již provedené blokace "
+"jakýchkoli změn</a> u domén, kontaktů nebo sad jmenných serverů."
 
 #, python-format
 msgid ""
