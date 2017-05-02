@@ -8,13 +8,15 @@
         $("input[name=send_to]").click(function() {
             if ($(this).val() == "email_in_registry") {
                 $("input[name=custom_email]").val("").prop('disabled', true).removeClass("required");
-                $("select[name=confirmation_method]").val("signed_email");
+                $("select[name=confirmation_method]").val("signed_email").prop('disabled', true);
             } else {
                 $("input[name=custom_email]").prop('disabled', false).addClass("required");
+                $("select[name=confirmation_method]").prop('disabled', false);
             }
         });
         if ($("input[name=send_to]:checked").val() == "email_in_registry") {
             $("input[name=custom_email]").val("").prop('disabled', true).removeClass("required");
+            $("select[name=confirmation_method]").prop('disabled', true);
         } else {
             $("input[name=custom_email]").prop('disabled', false).addClass("required");
         }
@@ -23,10 +25,6 @@
             if ($(this).val() == "notarized_letter") {
                 $("input[name=send_to][value=custom_email]").prop('checked', true);
                 $("input[name=custom_email]").prop('disabled', false).addClass("required");
-            } else {
-                // signed_email
-                $("input[name=send_to][value=email_in_registry]").prop('checked', true);
-                $("input[name=custom_email]").val("").prop('disabled', true).removeClass("required");
             }
         });
 
