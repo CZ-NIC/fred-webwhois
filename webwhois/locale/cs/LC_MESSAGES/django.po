@@ -571,7 +571,7 @@ msgid ""
 "Object not found. Check that you have correctly entered the Object type and "
 "Handle."
 msgstr ""
-"Objekt nebyl nalezen. Zkontrolujte si, že jste Typ objektu a Identifikátor "
+"Objekt nebyl nalezen. Zkontrolujte si, že jste typ objektu a identifikátor "
 "zadali správně."
 
 msgid "Object type"
