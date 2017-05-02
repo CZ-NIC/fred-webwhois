@@ -554,7 +554,7 @@ class ServeNotarizedLetterView(PublicRequestLoggerMixin, View):
         except BaseException as error_object:
             raise
         finally:
-            self.finish_logging_request(log_request, log_request_id, error_object)
+            self.finish_logging_request(log_request, response_data['response_id'], error_object)
 
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="notarized-letter-{0}.pdf"'.format(lang_code)

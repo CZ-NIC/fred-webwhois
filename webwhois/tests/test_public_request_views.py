@@ -979,7 +979,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.PUBLIC_REQUEST = apply_patch(self, patch("webwhois.views.public_request.PUBLIC_REQUEST"))
         self.LOGGER = apply_patch(self, patch("webwhois.views.public_request.LOGGER"))
         apply_patch(self, patch("webwhois.views.public_request_mixin.LOGGER", self.LOGGER))
-        self.LOGGER.create_request.return_value.request_id = 42
+        self.LOGGER.create_request.return_value.request_id = 21
         self.LOGGER.create_request.return_value.result = 'Error'
 
     def tearDown(self):
