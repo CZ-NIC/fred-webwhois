@@ -1,5 +1,7 @@
 from django import forms
 from django.core.validators import MaxLengthValidator
+from django.utils.functional import lazy
+from django.utils.safestring import mark_safe
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
 from .fields import RemoveWhitespacesField
@@ -31,7 +33,9 @@ class PublicRequestBaseForm(forms.Form):
     )
 
     object_type = forms.ChoiceField(label=_("Object type"), choices=REGISTRY_OBJECT_TYPE)
-    handle = RemoveWhitespacesField(label=_("Handle"), validators=[MaxLengthValidator(255)])
+    handle = RemoveWhitespacesField(
+        label=lazy(lambda: mark_safe(_("Domain (without <em>www.</em> prefix) / Handle")), unicode)(),
+        validators=[MaxLengthValidator(255)])
     confirmation_method = forms.ChoiceField(label=_("Confirmation method"), choices=CONFIRMATION_METHOD, required=False)
 
 
