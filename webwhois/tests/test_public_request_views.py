@@ -76,10 +76,11 @@ class SubmittedFormTestCase(SimpleTestCase):
 
     def setUp(self):
         self.PUBLIC_REQUEST = apply_patch(self, patch("webwhois.views.public_request.PUBLIC_REQUEST"))
-        self.LOGGER = apply_patch(self, patch("webwhois.views.public_request_mixin.LOGGER"))
+        self.LOGGER = apply_patch(self, patch("webwhois.views.logger_mixin.LOGGER"))
         self.LOGGER.create_request.return_value.request_id = 42
         self.LOGGER.create_request.return_value.result = 'Error'
         self.LOGGER.create_request.return_value.request_type = 'AuthInfo'
+        apply_patch(self, patch("webwhois.views.public_request_mixin.LOGGER", self.LOGGER))
         mock_timezone_now = apply_patch(self, patch("webwhois.views.public_request_mixin.timezone_now"))
         mock_timezone_now.return_value.date.return_value = datetime.date(2017, 3, 8)
         apply_patch(self, patch("webwhois.views.public_request_mixin.get_random_string", lambda n: self.public_key))
@@ -918,6 +919,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.PUBLIC_REQUEST = apply_patch(self, patch("webwhois.views.public_request.PUBLIC_REQUEST"))
         self.LOGGER = apply_patch(self, patch("webwhois.views.public_request.LOGGER"))
         apply_patch(self, patch("webwhois.views.public_request_mixin.LOGGER", self.LOGGER))
+        apply_patch(self, patch("webwhois.views.logger_mixin.LOGGER", self.LOGGER))
         self.LOGGER.create_request.return_value.request_id = 21
         self.LOGGER.create_request.return_value.result = 'Error'
 

@@ -4,6 +4,7 @@ from django.utils.timezone import now as timezone_now
 from django.views.generic import FormView
 
 from webwhois.utils.corba_wrapper import LOGGER, REGISTRY_MODULE
+from webwhois.views.logger_mixin import LoggerMixin
 
 
 class PublicRequestKnownException(Exception):
@@ -13,26 +14,17 @@ class PublicRequestKnownException(Exception):
         self.exception_code_name = exception_code_name
 
 
-class PublicRequestLoggerMixin(object):
+class PublicRequestLoggerMixin(LoggerMixin):
     """Mixin for logging request if LOGGER is set."""
 
-    def prepare_logging_request(self, cleaned_data):
-        """
-        Prepare logging request.
-
-        @param cleaned_data: Cleaned data for logger properties.
-        @return: Logger instance.
-        """
-        request_name, properties_in = self._get_logging_request_name_and_properties(cleaned_data)
-        return LOGGER.create_request(self.request.META.get('REMOTE_ADDR', ''), "Public Request", request_name,
-                                     properties=properties_in)
+    service_name = "Public Request"
 
     def finish_logging_request(self, log_request, response_id, error_object):
         """
         Finish logging request.
 
         @param log_request: Logger instace.
-        @param response_id: Response ID.
+        @param response_id: Response ID. It can be None. None causes the request result is 'Fail'.
         @param error_object: Error object of python exception or corba exception.
         """
         if log_request is None:
@@ -43,7 +35,7 @@ class PublicRequestLoggerMixin(object):
                 properties_out.append(("reason", error_object.exception_code_name))
                 log_request.result = "Fail"
             else:
-                # Defaulr result is "Error"
+                # Default result is "Error"
                 properties_out.append(("exception", error_object.__class__.__name__))
         else:
             if response_id:
@@ -52,10 +44,6 @@ class PublicRequestLoggerMixin(object):
             else:
                 log_request.result = "Fail"
         log_request.close(properties=properties_out, references=references)
-
-    def _get_logging_request_name_and_properties(self, data):
-        """Return request_name and properties_in for logger."""
-        raise NotImplementedError
 
 
 class PublicRequestFormView(PublicRequestLoggerMixin, FormView):

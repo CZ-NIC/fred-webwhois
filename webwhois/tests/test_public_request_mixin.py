@@ -45,6 +45,7 @@ class TestPublicRequestFormView(SimpleTestCase):
 
     def setUp(self):
         self.LOGGER = apply_patch(self, patch("webwhois.views.public_request_mixin.LOGGER"))
+        apply_patch(self, patch("webwhois.views.logger_mixin.LOGGER", self.LOGGER))
         apply_patch(self, patch("webwhois.views.public_request_mixin.get_random_string", lambda n: "foooo"))
 
     def tearDown(self):
