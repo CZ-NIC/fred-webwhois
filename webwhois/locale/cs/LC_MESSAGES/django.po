@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-21 11:27+0200\n"
+"POT-Creation-Date: 2017-05-25 13:03+0200\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -682,6 +682,9 @@ msgstr "Soukromý algoritmus OID"
 msgid "Protocol"
 msgstr "Protokol"
 
+msgid "REVOKE"
+msgstr "REVOKE"
+
 msgid "RSA/MD5 (deprecated, see 5)"
 msgstr "RSA/MD5 (zastaralý, viz 5)"
 
@@ -825,6 +828,9 @@ msgstr "Vyhledávání v registru (Whois)"
 #, python-format
 msgid "Search results for handle <strong>%(handle)s</strong>:"
 msgstr "Výsledek vyhledávání <strong>%(handle)s</strong>:"
+
+msgid "Secure Entry Point (SEP)"
+msgstr "Secure Entry Point (SEP)"
 
 msgid "Secured by"
 msgstr "Zabezpečeno pomocí"
@@ -999,9 +1005,6 @@ msgstr "Odblokovat"
 msgid "Unblocking Request"
 msgstr "Žádost o odblokování"
 
-msgid "Unknown"
-msgstr "Neznámý"
-
 msgid "Unmanaged zone"
 msgstr "Nepodporovaná zóna"
 
@@ -1078,6 +1081,7 @@ msgstr ""
 msgid "Why mojeID?"
 msgstr "Proč mojeID?"
 
+#, python-format
 msgid ""
 "With this form, you can <a href=\"%(form_unblock_object_url)s\">cancel the "
 "blocking of the change of the sponsoring registrar</a> or <a href="
@@ -1113,6 +1117,9 @@ msgid ""
 msgstr ""
 "Právo k užití poskytovaných služeb vymezuje dokument: <a href=\"%(link)s"
 "\">Účel použití poskytovaných dat a informací</a>."
+
+msgid "ZONE"
+msgstr "ZONE"
 
 msgid "all object changes"
 msgstr "všechny změny objektu"

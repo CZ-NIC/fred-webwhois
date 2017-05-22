@@ -22,6 +22,14 @@ flake8:
         - pip list
     script: "make check-flake8"
 
+i18n:
+    image: cznic/ubuntu_python_runner:latest
+    stage: analysis
+    before_script:
+        - pip install django$DJANGO_VERSION
+        - pip list
+    script: "make check-i18n"
+
 .test: &test
     image: cznic/ubuntu_python_runner:latest
     stage: test

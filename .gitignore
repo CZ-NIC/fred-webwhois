@@ -1,4 +1,6 @@
 RELEASE-VERSION
 *.pyc
 *.mo
+/webwhois/locale/*.pot
+/webwhois/locale/C
 *~
