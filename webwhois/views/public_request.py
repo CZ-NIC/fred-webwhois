@@ -70,6 +70,9 @@ class SendPasswordFormView(ContextFormUrlsMixin, PublicRequestFormView):
             form.add_error('handle',
                            _('Object not found. Check that you have correctly entered the Object type and Handle.'))
             raise PublicRequestKnownException(type(err).__name__)
+        except REGISTRY_MODULE.PublicRequest.OBJECT_TRANSFER_PROHIBITED as err:
+            form.add_error('handle', _('Transfer of object is prohibited. The request can not be accepted.'))
+            raise PublicRequestKnownException(type(err).__name__)
         except REGISTRY_MODULE.PublicRequest.INVALID_EMAIL as err:
             form.add_error('custom_email', _('The email was not found or the address is not valid.'))
             raise PublicRequestKnownException(type(err).__name__)
@@ -139,6 +142,9 @@ class BlockUnblockFormView(PublicRequestFormView):
             raise PublicRequestKnownException(type(err).__name__)
         except REGISTRY_MODULE.PublicRequest.HAS_DIFFERENT_BLOCK as err:
             form.add_error('handle', _('This object has another active blocking. The request can not be accepted.'))
+            raise PublicRequestKnownException(type(err).__name__)
+        except REGISTRY_MODULE.PublicRequest.OPERATION_PROHIBITED as err:
+            form.add_error('handle', _('Operation for this object is prohibited. The request can not be accepted.'))
             raise PublicRequestKnownException(type(err).__name__)
         return response_id
 

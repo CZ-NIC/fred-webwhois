@@ -599,6 +599,10 @@ msgstr ""
 "zaslání hesla ke změně na e-mail uvedený v centrálním registru."
 
 msgid ""
+"Operation for this object is prohibited. The request can not be accepted."
+msgstr "Změna tohoto objektu není povolena. Žádost nelze přijmout."
+
+msgid ""
 "Option \"Send to email in registry\" is incompatible with custom email. "
 "Please choose one of the two options."
 msgstr ""
@@ -913,6 +917,9 @@ msgstr ""
 "V doménovém jméně <strong>%(handle)s</strong> je příliš mnoho částí. Zadejte "
 "pouze jméno a zónu: <a href=\"%(whois_form_link)s?handle="
 "%(example_domain_name)s\">%(example_domain_name)s</a>"
+
+msgid "Transfer of object is prohibited. The request can not be accepted."
+msgstr "Převod objektu není povolen. Žádost nelze přijmout."
 
 msgid "Transfer of the contact under mojeID registrar."
 msgstr "Převod kontaktu pod registrátora mojeID."

@@ -187,9 +187,7 @@ class TestSendPasswodForm(SubmittedFormTestCase):
                   "the email addresses of the keyset's technical contacts."
         self._send_password_email_in_registry(post, 'AuthInfo', properties, object_type, title, message)
 
-    def test_send_password_object_not_found(self):
-        self.PUBLIC_REQUEST.create_authinfo_request_registry_email.side_effect = REGISTRY_MODULE.PublicRequest. \
-                                                                                 OBJECT_NOT_FOUND
+    def _assert_send_password_exception(self, exception_code, form_error_message):
         post = {
             "object_type": "domain",
             "handle": "foo.cz",
@@ -197,11 +195,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "send_to": "email_in_registry",
         }
         response = self.client.post(reverse("webwhois:form_send_password"), post)
-        self.assertEqual(response.context['form'].errors, {'handle': [
-            'Object not found. Check that you have correctly entered the Object type and Handle.'
-        ]})
-        self.assertContains(response,
-                            "Object not found. Check that you have correctly entered the Object type and Handle.")
+        self.assertEqual(response.context['form'].errors, {'handle': [form_error_message]})
+        self.assertContains(response, form_error_message)
         object_type = REGISTRY_MODULE.PublicRequest.ObjectType_PR.domain
         self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [
             call.create_authinfo_request_registry_email(object_type, 'foo.cz', 42)
@@ -213,9 +208,21 @@ class TestSendPasswodForm(SubmittedFormTestCase):
                 ('confirmMethod', 'signed_email'),
                 ('sendTo', 'email_in_registry')
             ]),
-            call().close(properties=[('reason', 'OBJECT_NOT_FOUND')], references=[])
+            call().close(properties=[('reason', exception_code)], references=[])
         ])
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
+
+    def test_send_password_object_not_found(self):
+        self.PUBLIC_REQUEST.create_authinfo_request_registry_email.side_effect = REGISTRY_MODULE.PublicRequest. \
+                                                                                 OBJECT_NOT_FOUND
+        self._assert_send_password_exception('OBJECT_NOT_FOUND', 'Object not found. Check that you have correctly '
+                                             'entered the Object type and Handle.')
+
+    def test_send_password_object_transfer_prohibited(self):
+        self.PUBLIC_REQUEST.create_authinfo_request_registry_email.side_effect = REGISTRY_MODULE.PublicRequest. \
+                                                                                 OBJECT_TRANSFER_PROHIBITED
+        self._assert_send_password_exception('OBJECT_TRANSFER_PROHIBITED', 'Transfer of object is prohibited. '
+                                             'The request can not be accepted.')
 
     def test_send_password_invalid_email(self):
         self.PUBLIC_REQUEST.create_authinfo_request_non_registry_email.side_effect = REGISTRY_MODULE.PublicRequest. \
@@ -841,8 +848,7 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
                   '(PDF)' % self.public_key
         self._unblock_all_notarized_letter(object_name, object_type, title, message)
 
-    def test_block_object_not_found(self):
-        self.PUBLIC_REQUEST.create_block_unblock_request.side_effect = REGISTRY_MODULE.PublicRequest.OBJECT_NOT_FOUND
+    def _assert_create_block_unblock_exception(self, exception_code, form_error_message):
         post = {
             "object_type": "domain",
             "handle": "foo.cz",
@@ -850,11 +856,8 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
             "lock_type": "transfer",
         }
         response = self.client.post(reverse("webwhois:form_block_object"), post)
-        self.assertEqual(response.context['form'].errors, {'handle': [
-            'Object not found. Check that you have correctly entered the Object type and Handle.'
-        ]})
-        self.assertContains(response,
-                            "Object not found. Check that you have correctly entered the Object type and Handle.")
+        self.assertEqual(response.context['form'].errors, {'handle': [form_error_message]})
+        self.assertContains(response, form_error_message)
         object_type = REGISTRY_MODULE.PublicRequest.ObjectType_PR.domain
         signed_email = REGISTRY_MODULE.PublicRequest.ConfirmedBy.signed_email
         block_transfer = REGISTRY_MODULE.PublicRequest.LockRequestType.block_transfer
@@ -867,102 +870,38 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
                 ('handleType', 'domain'),
                 ('confirmMethod', 'signed_email'),
             ]),
-            call().close(properties=[('reason', 'OBJECT_NOT_FOUND')], references=[])
+            call().close(properties=[('reason', exception_code)], references=[])
         ])
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
+
+    def test_block_object_not_found(self):
+        self.PUBLIC_REQUEST.create_block_unblock_request.side_effect = REGISTRY_MODULE.PublicRequest.OBJECT_NOT_FOUND
+        self._assert_create_block_unblock_exception('OBJECT_NOT_FOUND', 'Object not found. Check that you have'
+                                                    ' correctly entered the Object type and Handle.')
 
     def test_block_object_already_blocked(self):
         self.PUBLIC_REQUEST.create_block_unblock_request.side_effect = REGISTRY_MODULE.PublicRequest. \
                                                                        OBJECT_ALREADY_BLOCKED
-        post = {
-            "object_type": "domain",
-            "handle": "foo.cz",
-            "confirmation_method": "signed_email",
-            "lock_type": "transfer",
-        }
-        response = self.client.post(reverse("webwhois:form_block_object"), post)
-        self.assertEqual(response.context['form'].errors, {'handle': [
-            'This object is already blocked. The request can not be accepted.'
-        ]})
-        self.assertContains(response,
-                            "This object is already blocked. The request can not be accepted.")
-        object_type = REGISTRY_MODULE.PublicRequest.ObjectType_PR.domain
-        signed_email = REGISTRY_MODULE.PublicRequest.ConfirmedBy.signed_email
-        block_transfer = REGISTRY_MODULE.PublicRequest.LockRequestType.block_transfer
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [
-            call.create_block_unblock_request(object_type, 'foo.cz', 42, signed_email, block_transfer)
-        ])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'BlockTransfer', properties=[
-                ('handle', 'foo.cz'),
-                ('handleType', 'domain'),
-                ('confirmMethod', 'signed_email'),
-            ]),
-            call().close(properties=[('reason', 'OBJECT_ALREADY_BLOCKED')], references=[])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
+        self._assert_create_block_unblock_exception('OBJECT_ALREADY_BLOCKED', 'This object is already blocked. '
+                                                    'The request can not be accepted.')
 
     def test_unblock_object_not_blocked(self):
         self.PUBLIC_REQUEST.create_block_unblock_request.side_effect = REGISTRY_MODULE.PublicRequest. \
                                                                        OBJECT_NOT_BLOCKED
-        post = {
-            "object_type": "domain",
-            "handle": "foo.cz",
-            "confirmation_method": "signed_email",
-            "lock_type": "transfer",
-        }
-        response = self.client.post(reverse("webwhois:form_unblock_object"), post)
-        self.assertEqual(response.context['form'].errors, {'handle': [
-            'This object is not blocked. The request can not be accepted.'
-        ]})
-        self.assertContains(response,
-                            "This object is not blocked. The request can not be accepted.")
-        object_type = REGISTRY_MODULE.PublicRequest.ObjectType_PR.domain
-        signed_email = REGISTRY_MODULE.PublicRequest.ConfirmedBy.signed_email
-        block_transfer = REGISTRY_MODULE.PublicRequest.LockRequestType.unblock_transfer
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [
-            call.create_block_unblock_request(object_type, 'foo.cz', 42, signed_email, block_transfer)
-        ])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'UnblockTransfer', properties=[
-                ('handle', 'foo.cz'),
-                ('handleType', 'domain'),
-                ('confirmMethod', 'signed_email'),
-            ]),
-            call().close(properties=[('reason', 'OBJECT_NOT_BLOCKED')], references=[])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
+        self._assert_create_block_unblock_exception('OBJECT_NOT_BLOCKED', 'This object is not blocked. '
+                                                    'The request can not be accepted.')
 
     def test_block_object_has_different_block(self):
         self.PUBLIC_REQUEST.create_block_unblock_request.side_effect = REGISTRY_MODULE.PublicRequest. \
                                                                        HAS_DIFFERENT_BLOCK
-        post = {
-            "object_type": "domain",
-            "handle": "foo.cz",
-            "confirmation_method": "signed_email",
-            "lock_type": "transfer",
-        }
-        response = self.client.post(reverse("webwhois:form_block_object"), post)
-        self.assertEqual(response.context['form'].errors, {'handle': [
-            'This object has another active blocking. The request can not be accepted.'
-        ]})
-        self.assertContains(response,
-                            "This object has another active blocking. The request can not be accepted.")
-        object_type = REGISTRY_MODULE.PublicRequest.ObjectType_PR.domain
-        signed_email = REGISTRY_MODULE.PublicRequest.ConfirmedBy.signed_email
-        block_transfer = REGISTRY_MODULE.PublicRequest.LockRequestType.block_transfer
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [
-            call.create_block_unblock_request(object_type, 'foo.cz', 42, signed_email, block_transfer)
-        ])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'BlockTransfer', properties=[
-                ('handle', 'foo.cz'),
-                ('handleType', 'domain'),
-                ('confirmMethod', 'signed_email'),
-            ]),
-            call().close(properties=[('reason', 'HAS_DIFFERENT_BLOCK')], references=[])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
+        self._assert_create_block_unblock_exception('HAS_DIFFERENT_BLOCK', 'This object has another active blocking. '
+                                                    'The request can not be accepted.')
+
+    def test_block_object_operation_prohibited(self):
+        self.PUBLIC_REQUEST.create_block_unblock_request.side_effect = REGISTRY_MODULE.PublicRequest. \
+                                                                       OPERATION_PROHIBITED
+        self._assert_create_block_unblock_exception('OPERATION_PROHIBITED', 'Operation for this object is prohibited. '
+                                                    'The request can not be accepted.')
 
 
 class TestException(Exception):
