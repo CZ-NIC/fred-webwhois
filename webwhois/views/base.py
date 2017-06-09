@@ -13,9 +13,7 @@ mark_safe_lazy = lazy(mark_safe, six.text_type)
 
 
 class BaseContextMixin(ContextMixin):
-    """
-    Set 'webwhois_base_template' into the context.
-    """
+    """Set 'webwhois_base_template' into the context."""
 
     webwhois_base_template = "webwhois_in_cms/main_in_content.html"
 
@@ -36,6 +34,7 @@ class RegistryObjectMixin(BaseContextMixin):
     Catch omniORB.CORBA.TRANSIENT and omniORB.CORBA.OBJECT_NOT_EXIST
     and redirect to your own customized page if you need.
     """
+
     _registry_objects_key = "registry_objects"
     _registry_objects_cache = None
 
@@ -61,7 +60,7 @@ class RegistryObjectMixin(BaseContextMixin):
 
     @staticmethod
     def message_with_handle_in_html(text, handle):
-        "Make html message and mark it safe."
+        """Make html message and mark it safe."""
         return mark_safe_lazy(text % "<strong>%s</strong>" % escape(handle))
 
     @classmethod
@@ -74,10 +73,10 @@ class RegistryObjectMixin(BaseContextMixin):
 
     @classmethod
     def load_registry_object(cls, context, handle):
-        "Load registry object of the handle and append it into the context."
+        """Load registry object of the handle and append it into the context."""
 
     def load_related_objects(self, context):
-        "Load objects related to the main registry object and append them into the context."
+        """Load objects related to the main registry object and append them into the context."""
 
     def prepare_logging_request(self):
         if self.object_type_name is None:
@@ -111,7 +110,7 @@ class RegistryObjectMixin(BaseContextMixin):
         log_request.close(properties=properties_out)
 
     def _get_registry_objects(self):
-        "The function returns a dict with objects loaded from the registry."
+        """Return a dict with objects loaded from the registry."""
         if self._registry_objects_cache is None:
             context = {self._registry_objects_key: {}}
             log_request = self.prepare_logging_request()

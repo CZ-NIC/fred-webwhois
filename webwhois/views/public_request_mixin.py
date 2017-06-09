@@ -7,16 +7,14 @@ from webwhois.utils.corba_wrapper import LOGGER, REGISTRY_MODULE
 
 
 class PublicRequestKnownException(Exception):
-    "Used for displaying message on the form."
+    """Used for displaying message on the form."""
 
     def __init__(self, exception_code_name):
         self.exception_code_name = exception_code_name
 
 
 class PublicRequestLoggerMixin(object):
-    """
-    Mixin for logging request if LOGGER is set.
-    """
+    """Mixin for logging request if LOGGER is set."""
 
     def prepare_logging_request(self, cleaned_data):
         """
@@ -56,12 +54,12 @@ class PublicRequestLoggerMixin(object):
         log_request.close(properties=properties_out, references=references)
 
     def _get_logging_request_name_and_properties(self, data):
-        "Return request_name and properties_in for logger."
+        """Return request_name and properties_in for logger."""
         raise NotImplementedError
 
 
 class PublicRequestFormView(PublicRequestLoggerMixin, FormView):
-    "FormView for manage public requests. Logs calls to the registry if LOGGER is set."
+    """FormView for manage public requests. Logs calls to the registry if LOGGER is set."""
 
     public_key = None  # public key for the cache key with a response values.
 
@@ -80,16 +78,16 @@ class PublicRequestFormView(PublicRequestLoggerMixin, FormView):
         }[name]
 
     def _call_registry_command(self, form, log_request_id):
-        "Call a registry command. Return response_id or raise exception if the call failed."
+        """Call a registry command. Return response_id or raise exception if the call failed."""
         raise NotImplementedError
 
     def set_to_cache(self, data):
-        "Set values into the cache."
+        """Set values into the cache."""
         cache.set(self.public_key, data, 60 * 60 * 24)
 
     def logged_call_to_registry(self, form):
         """
-        A logged call to the registry.
+         Log the call to the registry.
 
         @param form: Django form instance with cleaned_data.
         @return: Response ID.

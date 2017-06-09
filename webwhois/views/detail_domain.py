@@ -16,7 +16,7 @@ class DomainDetailMixin(RegistryObjectMixin):
 
     @classmethod
     def make_message_not_found(cls, handle, handle_is_domain):
-        "Handle or domain not found."
+        """Handle or domain not found."""
         if handle_is_domain:
             title = _("Domain not found")
             message = _("No domain matches %s handle.")
@@ -93,7 +93,7 @@ class DomainDetailMixin(RegistryObjectMixin):
             }
 
     def load_related_objects(self, context):
-        "Load objects related to the domain and append them into the context."
+        """Load objects related to the domain and append them into the context."""
         descriptions = self._get_status_descriptions("domain", WHOIS.get_domain_status_descriptions)
         data = context[self._registry_objects_key]["domain"]  # detail, type, label, href
         registry_object = data["detail"]

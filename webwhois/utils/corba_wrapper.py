@@ -1,6 +1,4 @@
-"""
-Utilities for Corba.
-"""
+"""Utilities for Corba."""
 import datetime
 
 import omniORB
@@ -22,9 +20,7 @@ def _import_idl():
 
 
 def _get_registry_module():
-    """
-    Returns `Registry` module.
-    """
+    """Return `Registry` module."""
     try:
         from Registry import Whois, PublicRequest
         import Registry
@@ -38,9 +34,7 @@ def _get_registry_module():
 
 
 def _get_ccreg_module():
-    """
-    Returns `ccReg` module.
-    """
+    """Return `ccReg` module."""
     try:
         import ccReg
     except ImportError:
@@ -92,26 +86,20 @@ class WebwhoisCorbaRecoder(CorbaRecoder):
 
 
 class CorbaWrapper(object):
-    """
-    Client for object of CORBA interface.
-    """
+    """Client for object of CORBA interface."""
 
     def __init__(self, corba_object):
         self.corba_object = corba_object
         self.recoder = WebwhoisCorbaRecoder("utf-8")
 
     def _call_method(self, method_name, *args):
-        """
-        Utility method that actually performs the Corba call.
-        """
+        """Actually perform the Corba call."""
         args = self.recoder.encode(args)
         result = getattr(self.corba_object, method_name)(*args)
         return self.recoder.decode(result)
 
     def __getattr__(self, name):
-        """
-        Call CORBA object methods.
-        """
+        """Call CORBA object methods."""
         if hasattr(self.corba_object, name):
             def wrapper(*args):
                 return self._call_method(name, *args)

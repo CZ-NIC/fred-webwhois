@@ -1,7 +1,7 @@
 APP = webwhois
 TRANSLATIONS = ${APP}/locale/cs/LC_MESSAGES/django.po
 
-.PHONY: default msg msg-py msg-make-py msg-sort-py test isort check-isort check-flake8 check-i18n check-all
+.PHONY: default msg msg-py msg-make-py msg-sort-py test isort check-isort check-flake8 check-i18n check-doc check-all
 
 default: check-all
 
@@ -25,13 +25,16 @@ test-coverage:
 isort:
 	isort --recursive ${APP}
 
-check-all: check-isort check-flake8 check-i18n
+check-all: check-isort check-flake8 check-i18n check-doc
 
 check-isort:
 	isort --recursive --check-only --diff ${APP}
 
 check-flake8:
 	flake8 --config=.flake8 --format=pylint --show-source ${APP}
+
+check-doc:
+	pydocstyle ${APP}
 
 check-i18n:
 	# Ensure catalog is complete - make C locales to generate POT files and compare it using the msgcmp

@@ -30,6 +30,15 @@ i18n:
         - pip list
     script: "make check-i18n"
 
+pydocstyle:
+    tags:
+        - python2
+    stage: analysis
+    before_script:
+        - pip install pydocstyle
+        - pip list
+    script: "make check-doc"
+
 .test: &test
     image: cznic/ubuntu_python_runner:latest
     stage: test

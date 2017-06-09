@@ -21,7 +21,7 @@ WEBWHOIS_LOGGING = logging.getLogger(__name__)
 
 
 class ContextFormUrlsMixin(BaseContextMixin):
-    "Add context required by forms."
+    """Add context required by forms."""
 
     def get_context_data(self, **kwargs):
         form_url = reverse('webwhois:form_block_object', current_app=self.request.resolver_match.namespace)
@@ -36,14 +36,14 @@ class ContextFormUrlsMixin(BaseContextMixin):
 
 
 class SendPasswordFormView(ContextFormUrlsMixin, PublicRequestFormView):
-    "Send password (AuthInfo) view."
+    """Send password (AuthInfo) view."""
 
     form_class = SendPasswordForm
     template_name = 'webwhois/form_send_password.html'
     form_cleaned_data = None
 
     def _get_logging_request_name_and_properties(self, data):
-        "Returns Request type name and Properties."
+        """Return Request type name and Properties."""
         properties_in = [
             ("handle", data["handle"]),
             ("handleType", data['object_type']),
@@ -103,7 +103,7 @@ class SendPasswordFormView(ContextFormUrlsMixin, PublicRequestFormView):
 
 
 class BlockUnblockFormView(PublicRequestFormView):
-    "Block or Unblock object form view."
+    """Block or Unblock object form view."""
 
     form_class = None
     block_unblock_action_type = None
@@ -114,7 +114,7 @@ class BlockUnblockFormView(PublicRequestFormView):
         raise NotImplementedError
 
     def _get_logging_request_name_and_properties(self, data):
-        "Returns Request type name and Properties."
+        """Return Request type name and Properties."""
         lock_type_key = self.logging_lock_type[data['lock_type']]
         properties_in = [
             ("handle", data["handle"]),
@@ -173,7 +173,7 @@ class BlockUnblockFormView(PublicRequestFormView):
 
 
 class BlockObjectFormView(ContextFormUrlsMixin, BlockUnblockFormView):
-    "Block object form view."
+    """Block object form view."""
 
     form_class = BlockObjectForm
     template_name = 'webwhois/form_block_object.html'
@@ -191,7 +191,7 @@ class BlockObjectFormView(ContextFormUrlsMixin, BlockUnblockFormView):
 
 
 class UnblockObjectFormView(ContextFormUrlsMixin, BlockUnblockFormView):
-    "Unblock object form view."
+    """Unblock object form view."""
 
     form_class = UnblockObjectForm
     template_name = 'webwhois/form_unblock_object.html'
@@ -209,17 +209,17 @@ class UnblockObjectFormView(ContextFormUrlsMixin, BlockUnblockFormView):
 
 
 class ResponseDataKeyMissing(Exception):
-    "Exception for a situation when the response data dict does not have required key."
+    """Exception for a situation when the response data dict does not have required key."""
 
 
 class ResponseNotFoundView(BaseContextMixin, TemplateView):
-    "Response Not found view."
+    """Response Not found view."""
 
     template_name = 'webwhois/public_request_response_not_found.html'
 
 
 class BaseResponseTemplateView(BaseContextMixin, TemplateView):
-    "Base response template view."
+    """Base response template view."""
 
     def get(self, request, *args, **kwargs):
         try:
@@ -245,7 +245,7 @@ class BaseResponseTemplateView(BaseContextMixin, TemplateView):
 
 
 class TextSendPasswordMixin(object):
-    "Texts shared by all Request for password response views."
+    """Texts shared by all Request for password response views."""
 
     text_title = {
         'contact': _('Request for password for transfer contact %(handle)s'),
@@ -256,7 +256,7 @@ class TextSendPasswordMixin(object):
 
 
 class EmailInRegistryView(TextSendPasswordMixin, BaseResponseTemplateView):
-    "Email in registy view."
+    """Email in registy view."""
 
     template_name = 'webwhois/public_request_email_in_registry.html'
 
@@ -285,7 +285,7 @@ class EmailInRegistryView(TextSendPasswordMixin, BaseResponseTemplateView):
 
 
 class TextPasswordAndBlockMixin(TextSendPasswordMixin):
-    "Texts shared by Custom e-mail view and Notarized letter view."
+    """Texts shared by Custom e-mail view and Notarized letter view."""
 
     text_title = {
         'send_password': TextSendPasswordMixin.text_title,
@@ -311,7 +311,7 @@ class TextPasswordAndBlockMixin(TextSendPasswordMixin):
 
 
 class CustomEmailView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
-    "Custom email view."
+    """Custom email view."""
 
     template_name = 'webwhois/public_request_custom_email.html'
 
@@ -475,7 +475,7 @@ class CustomEmailView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
 
 
 class NotarizedLetterView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
-    "Notarized letter view."
+    """Notarized letter view."""
 
     template_name = 'webwhois/public_request_notarized_letter.html'
 
@@ -507,7 +507,7 @@ class NotarizedLetterView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
 
 
 class ServeNotarizedLetterView(PublicRequestLoggerMixin, View):
-    "Serve Notarized letter PDF view."
+    """Serve Notarized letter PDF view."""
 
     def _get_logging_request_name_and_properties(self, data):
         properties = [

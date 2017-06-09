@@ -31,7 +31,7 @@ class ContactDetailMixin(RegistryObjectMixin):
 
     @classmethod
     def load_registry_object(cls, context, handle):
-        "Load contact of the handle and append it into the context."
+        """Load contact of the handle and append it into the context."""
         try:
             contact = WHOIS.get_contact_by_handle(handle)
             birthday = None
@@ -55,7 +55,7 @@ class ContactDetailMixin(RegistryObjectMixin):
             context["server_exception"] = cls.message_invalid_handle(handle)
 
     def load_related_objects(self, context):
-        "Load objects related to the contact and append them into the context."
+        """Load objects related to the contact and append them into the context."""
         descriptions = self._get_status_descriptions("contact", WHOIS.get_contact_status_descriptions)
         data = context[self._registry_objects_key]["contact"]  # detail, type, label, href
         registry_object = data["detail"]

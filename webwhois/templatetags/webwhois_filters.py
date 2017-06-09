@@ -11,9 +11,7 @@ register = template.Library()
 
 @register.filter
 def text_wrap(value, size):
-    """
-    Insert enters (LF) into the text on every position defined by the size. Value must not be None.
-    """
+    """Insert enters (LF) into the text on every position defined by the size. Value must not be None."""
     return "\n".join(textwrap.wrap(value, size))
 
 
@@ -30,18 +28,14 @@ SSN_TYPE = {
 @register.filter
 @stringfilter
 def contact_ssn_type_label(value):
-    """
-    Replace SSN type code by translated description.
-    """
+    """Replace SSN type code by translated description."""
     return SSN_TYPE.get(value, u"%s: %s" % (_('Unspecified type'), value)) if value else ''
 
 
 @register.filter
 @stringfilter
 def idn_decode(value):
-    """
-    Decode handle into IDN.
-    """
+    """Decode handle into IDN."""
     try:
         return idna.decode(value)
     except idna.IDNAError:
@@ -52,9 +46,7 @@ def idn_decode(value):
 @register.filter
 @stringfilter
 def add_scheme(value):
-    """
-    Add scheme (protocol) when missing in url.
-    """
+    """Add scheme (protocol) when missing in url."""
     if not re.match("https?://", value):
         return "http://" + value
     return value
@@ -63,7 +55,5 @@ def add_scheme(value):
 @register.filter
 @stringfilter
 def strip_scheme(value):
-    """
-    Strip scheme (protocol) from url.
-    """
+    """Strip scheme (protocol) from url."""
     return re.sub("^https?://", "", value)

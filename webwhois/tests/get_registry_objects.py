@@ -15,9 +15,8 @@ recoder = WebwhoisCorbaRecoder("utf-8")
 
 
 class GetRegistryObjectMixin(object):
-    """
-    Utilities for Corba struct creations.
-    """
+    """Utilities for Corba struct creations."""
+
     def _get_contact_status(self):
         return [
             REGISTRY_MODULE.Whois.ObjectStatusDesc(

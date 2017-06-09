@@ -8,7 +8,7 @@ from .fields import RemoveWhitespacesField
 
 
 class WhoisForm(forms.Form):
-    "Whois form to enter HANDLE."
+    """Whois form to enter HANDLE."""
 
     handle = RemoveWhitespacesField(
         label=lazy(lambda: mark_safe(_("Domain (without <em>www.</em> prefix) / Handle")), unicode)(),

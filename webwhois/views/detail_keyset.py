@@ -11,7 +11,7 @@ class KeysetDetailMixin(RegistryObjectMixin):
 
     @classmethod
     def append_keyset_related(cls, data):
-        "Load objects related to the nsset and append them into the data context."
+        """Load objects related to the nsset and append them into the data context."""
         descriptions = cls._get_status_descriptions("keyset", WHOIS.get_keyset_status_descriptions)
         registry_object = data["detail"]
         data.update({
@@ -22,7 +22,7 @@ class KeysetDetailMixin(RegistryObjectMixin):
 
     @classmethod
     def load_registry_object(cls, context, handle):
-        "Load keyset of the handle and append it into the context."
+        """Load keyset of the handle and append it into the context."""
         try:
             context[cls._registry_objects_key]["keyset"] = {
                 "detail": WHOIS.get_keyset_by_handle(handle),
@@ -37,5 +37,5 @@ class KeysetDetailMixin(RegistryObjectMixin):
             context["server_exception"] = cls.message_invalid_handle(handle)
 
     def load_related_objects(self, context):
-        "Load objects related to the keyset and append them into the context."
+        """Load objects related to the keyset and append them into the context."""
         self.append_keyset_related(context[self._registry_objects_key]["keyset"])

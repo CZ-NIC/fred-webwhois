@@ -10,14 +10,14 @@ from webwhois.views.base import BaseContextMixin, RegistryObjectMixin
 
 
 class RegistrarDetailMixin(RegistryObjectMixin):
-    "Detail of Registrar."
+    """Detail of Registrar."""
 
     template_name = "webwhois/registrar.html"
     object_type_name = "registrar"
 
     @classmethod
     def load_registry_object(cls, context, handle):
-        "Load registrar of the handle and append it into the context."
+        """Load registrar of the handle and append it into the context."""
         try:
             context[cls._registry_objects_key]["registrar"] = {
                 "detail": WHOIS.get_registrar_by_handle(handle),
@@ -33,12 +33,13 @@ class RegistrarDetailMixin(RegistryObjectMixin):
 
 
 class RegistrarListMixin(BaseContextMixin):
-    "List of Registrars."
+    """List of Registrars."""
+
     template_name = "webwhois/registrar_list.html"
     is_retail = False
 
     def _registrar_row(self, data):
-        "Use for append some extra data into the data row."
+        """Use for append some extra data into the data row."""
         return data
 
     def get_context_data(self, **kwargs):

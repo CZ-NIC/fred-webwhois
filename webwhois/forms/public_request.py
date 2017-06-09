@@ -40,7 +40,8 @@ class PublicRequestBaseForm(forms.Form):
 
 
 class SendPasswordForm(PublicRequestBaseForm):
-    "Send password for transfer."
+    """Send password for transfer."""
+
     SEND_TO = (
         (SEND_TO_IN_REGISTRY, _('email in registry')),
         (SEND_TO_CUSTOM, _('custom email')),
@@ -70,14 +71,16 @@ class SendPasswordForm(PublicRequestBaseForm):
 
 
 class BlockObjectForm(PublicRequestBaseForm):
-    "Block object in registry."
+    """Block object in registry."""
+
     lock_type = forms.ChoiceField(choices=LOCK_TYPE, initial=LOCK_TYPE_TRANSFER, widget=forms.RadioSelect,
                                   label=pgettext_lazy("verb_inf", "Block"))
     field_order = ('lock_type', 'object_type', 'handle', 'confirmation_method')
 
 
 class UnblockObjectForm(PublicRequestBaseForm):
-    "Unblock object in registry."
+    """Unblock object in registry."""
+
     lock_type = forms.ChoiceField(choices=LOCK_TYPE, initial=LOCK_TYPE_TRANSFER, widget=forms.RadioSelect,
                                   label=pgettext_lazy("verb_inf", "Unblock"))
     field_order = ('lock_type', 'object_type', 'handle', 'confirmation_method')

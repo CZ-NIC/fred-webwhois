@@ -7,9 +7,7 @@ from webwhois.settings import WEBWHOIS_DOBRADOMENA_FILE_NAME, WEBWHOIS_DOBRADOME
 
 
 def get_dobradomena_list(language):
-    """
-    Returns dict of dobradomena files for given language.
-    """
+    """Return dict of dobradomena files for given language."""
     if not WEBWHOIS_DOBRADOMENA_ROOT or not os.path.isdir(WEBWHOIS_DOBRADOMENA_ROOT):
         return {}
 

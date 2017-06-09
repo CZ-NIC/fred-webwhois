@@ -7,14 +7,14 @@ from webwhois.views.registrar import RegistrarDetailMixin
 
 
 class ResolveHandleTypeMixin(RegistryObjectMixin):
-    "Find all objects with the handle."
+    """Find all objects with the handle."""
 
     multiple_entries_template = "webwhois/multiple_entries.html"
     object_type_name = "multiple"
 
     @classmethod
     def load_registry_object(cls, context, handle):
-        "Load all registry objects of the handle and append it into the context."
+        """Load all registry objects of the handle and append it into the context."""
         ContactDetailMixin.load_registry_object(context, handle)
         NssetDetailMixin.load_registry_object(context, handle)
         KeysetDetailMixin.load_registry_object(context, handle)
@@ -24,7 +24,7 @@ class ResolveHandleTypeMixin(RegistryObjectMixin):
         DomainDetailMixin.load_registry_object(context, handle, handle_is_domain=False)
 
     def load_related_objects(self, context):
-        "Prepare url for redirect to the registry object type."
+        """Prepare url for redirect to the registry object type."""
         registry_object_type = context[self._registry_objects_key].keys()[0]
         url = reverse("webwhois:detail_%s" % registry_object_type, kwargs={"handle":  self.kwargs["handle"]},
                       current_app=self.request.resolver_match.namespace)
