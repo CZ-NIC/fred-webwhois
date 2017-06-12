@@ -5,6 +5,7 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'webwhois',
 )
+MIDDLEWARE = []
 ROOT_URLCONF = 'webwhois.urls'
 SECRET_KEY = 'SECRET'
 STATIC_URL = '/static/'

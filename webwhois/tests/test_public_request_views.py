@@ -3,7 +3,7 @@ import datetime
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseNotFound
-from django.test import SimpleTestCase, modify_settings, override_settings
+from django.test import SimpleTestCase, override_settings
 from django.utils.html import escape
 from mock import call, patch
 
@@ -68,8 +68,8 @@ class TestForms(WebwhoisAssertMixin, SimpleTestCase):
 
 
 @override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}},
-                   SESSION_ENGINE='django.contrib.sessions.backends.cache', ROOT_URLCONF='webwhois.tests.urls')
-@modify_settings(MIDDLEWARE_CLASSES={'prepend': 'django.contrib.sessions.middleware.SessionMiddleware'})
+                   SESSION_ENGINE='django.contrib.sessions.backends.cache', ROOT_URLCONF='webwhois.tests.urls',
+                   MIDDLEWARE=('django.contrib.sessions.middleware.SessionMiddleware',))
 class SubmittedFormTestCase(SimpleTestCase):
 
     public_key = "1234567890123456789012345678901234567890123456789012345678901234"
