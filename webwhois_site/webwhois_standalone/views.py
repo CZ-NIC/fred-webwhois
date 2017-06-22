@@ -4,7 +4,7 @@ from urllib import urlencode
 from captcha.fields import ReCaptchaField
 from django.conf import settings
 from django.core.cache import cache
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.shortcuts import redirect
 from django.utils.encoding import force_bytes
 from django.utils.translation import get_language

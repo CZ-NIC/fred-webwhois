@@ -1,9 +1,9 @@
 import datetime
 
 from django.core.cache import cache
-from django.core.urlresolvers import reverse
 from django.http import HttpResponseNotFound
 from django.test import SimpleTestCase, override_settings
+from django.urls import reverse
 from django.utils.html import escape
 from mock import call, patch
 

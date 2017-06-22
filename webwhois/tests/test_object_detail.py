@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from django.core.urlresolvers import reverse
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.formats import reset_format_cache
 from mock import call, patch
 

@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 import os
 
-from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseNotFound
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils._os import upath
 from mock import call, patch
 

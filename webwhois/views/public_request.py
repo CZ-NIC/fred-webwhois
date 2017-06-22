@@ -1,8 +1,8 @@
 import logging
 
 from django.core.cache import cache
-from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.urls import reverse
 from django.utils.encoding import force_text
 from django.utils.formats import date_format
 from django.utils.html import format_html

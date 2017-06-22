@@ -1,5 +1,5 @@
-from django.core.urlresolvers import reverse
 from django.test import SimpleTestCase, override_settings
+from django.urls import reverse
 from mock import call, patch
 
 from webwhois.forms import BlockObjectForm, SendPasswordForm, UnblockObjectForm, WhoisForm
