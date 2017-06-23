@@ -1,4 +1,4 @@
-django >=1.9,<1.10.99
+django >=1.10,<1.10.99
 idna
 -e git+git@gitlab.office.nic.cz:utils/pyfco.git#egg=pyfco
 -e git+git@gitlab.office.nic.cz:utils/pylogger.git#egg=fred-pylogger
