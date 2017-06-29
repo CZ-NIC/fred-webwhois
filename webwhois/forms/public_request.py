@@ -4,8 +4,6 @@ from django.utils.functional import lazy
 from django.utils.safestring import mark_safe
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
-from .fields import RemoveWhitespacesField
-
 LOCK_TYPE_TRANSFER = "transfer"
 LOCK_TYPE_ALL = "all"
 LOCK_TYPE_URL_PARAM = "lock_type"
@@ -33,7 +31,7 @@ class PublicRequestBaseForm(forms.Form):
     )
 
     object_type = forms.ChoiceField(label=_("Object type"), choices=REGISTRY_OBJECT_TYPE)
-    handle = RemoveWhitespacesField(
+    handle = forms.CharField(
         label=lazy(lambda: mark_safe(_("Domain (without <em>www.</em> prefix) / Handle")), unicode)(),
         validators=[MaxLengthValidator(255)])
     confirmation_method = forms.ChoiceField(label=_("Confirmation method"), choices=CONFIRMATION_METHOD, required=False)
