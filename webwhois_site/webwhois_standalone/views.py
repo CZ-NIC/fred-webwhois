@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
+from django.utils.encoding import force_bytes
 from django.utils.translation import get_language
 from django.views.generic import TemplateView, View
 from django.views.static import serve
@@ -79,7 +80,7 @@ class CountCaptchaMixin(SiteMenuMixin):
         cache.set(cache_key, used_n_times)
         if used_n_times > settings.CAPTCHA_MAX_REQUESTS:
             return redirect(reverse(self.redirect_to_form, current_app=self.request.resolver_match.namespace) +
-                            "?" + urlencode({"handle": kwargs.get("handle")}))
+                            "?" + urlencode({"handle": force_bytes(kwargs.get("handle"))}))
         return super(CountCaptchaMixin, self).dispatch(request, *args, **kwargs)
 
 
