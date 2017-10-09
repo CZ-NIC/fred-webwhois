@@ -35,7 +35,7 @@ pydocstyle:
         - python2
     stage: analysis
     before_script:
-        - pip install pydocstyle
+        - pip install pydocstyle!=2.1.0
         - pip list
     script: "make check-doc"
 
