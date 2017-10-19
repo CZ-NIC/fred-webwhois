@@ -1,5 +1,5 @@
 variables:
-    DJANGO_VERSION: ">=1.10,<1.10.99"  # Use lowest supported Django
+    DJANGO_VERSION: ">=1.11,<1.11.99"  # Use lowest supported Django
 
 stages:
     - analysis
@@ -76,14 +76,8 @@ pydocstyle:
     variables:
         COVERAGE_FILE: "coverage/.coverage.$CI_BUILD_ID"
 
-test:django1.10:
+test:django:
     <<: *test
-
-test:django1.11:
-    <<: *test
-    variables:
-        COVERAGE_FILE: "coverage/.coverage.$CI_BUILD_ID"
-        DJANGO_VERSION: ">=1.11,<1.11.99"
 
 coverage-report:
     tags:
