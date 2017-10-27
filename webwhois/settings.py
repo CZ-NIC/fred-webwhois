@@ -17,6 +17,7 @@ if WEBWHOIS_CORBA_IDL is None:
                               '/usr/share/idl/fred/PublicRequest.idl',
                               '/usr/share/idl/fred/FileManager.idl',
                               '/usr/share/idl/fred/Logger.idl',
+                              '/usr/share/idl/fred/RecordStatement.idl',
                               ]
     else:
         # Paths in environment are saved in a string separated by a space:

@@ -10,4 +10,6 @@
 
 {% block webwhois_content %}
     {% include "webwhois/nsset_detail.html" with nsset=registry_objects.nsset.detail nsset_admins=registry_objects.nsset.admins nsset_registrar=registry_objects.nsset.registrar nsset_status_descriptions=registry_objects.nsset.status_descriptions %}
+    {% url "webwhois:record_statement_pdf" object_type="nsset" handle=registry_objects.nsset.detail.handle as record_statement_pdf_url %}
+    {% include "webwhois/verified_record_statement_link.html" %}
 {% endblock webwhois_content %}

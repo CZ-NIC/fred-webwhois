@@ -118,6 +118,7 @@
                 {% include "webwhois/keyset_detail.html" with keyset=keyset.detail keyset_admins=keyset.admins keyset_registrar=keyset.registrar keyset_status_descriptions=keyset.status_descriptions %}
             </div>
         {% endif %}
-
+        {% url "webwhois:record_statement_pdf" object_type="domain" handle=domain.handle as record_statement_pdf_url %}
+        {% include "webwhois/verified_record_statement_link.html" %}
     {% endwith %}
 {% endblock webwhois_content %}

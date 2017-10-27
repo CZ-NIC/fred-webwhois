@@ -22,14 +22,17 @@ def _import_idl():
 def _get_registry_module():
     """Return `Registry` module."""
     try:
-        from Registry import Whois, PublicRequest
+        from Registry import Whois, PublicRequest, RecordStatement
         import Registry
     except ImportError:
         _import_idl()
-        from Registry import Whois, PublicRequest
+        from Registry import Whois, PublicRequest, RecordStatement
         import Registry
+
     assert Whois
     assert PublicRequest
+    assert RecordStatement
+
     return Registry
 
 
@@ -55,14 +58,19 @@ class WebwhoisCorbaRecoder(CorbaRecoder):
     Decodes corba structure `ccReg/DateType` into datetime.date.
     Decodes contact identifiers to datetime.date if it is a birthday.
     Decodes IDL:Registry/PublicRequest/Buffer:1.0. into bytes.
+    Decodes IDL:Registry/RecordStatement/PdfBuffer:1.0. into bytes.
     """
 
     def __init__(self, coding='ascii'):
         super(WebwhoisCorbaRecoder, self).__init__(coding)
         self.add_recode_function(REGISTRY_MODULE.PublicRequest.Buffer, self._decode_buffer, self._identity)
+        self.add_recode_function(REGISTRY_MODULE.RecordStatement.PdfBuffer, self._decode_pdf_buffer, self._identity)
 
     def _decode_buffer(self, value):
         return value.value  # IDL:Registry/PublicRequest/Buffer:1.0
+
+    def _decode_pdf_buffer(self, value):
+        return value.data  # IDL:Registry/RecordStatement/PdfBuffer:1.0
 
     def _decode_struct(self, value):
         # Dynamic loading of IDL with includes causes problems with classes. The same class may appear in several
@@ -126,6 +134,10 @@ def load_filemanager_from_idl():
     return _CLIENT.get_object('FileManager', CCREG_MODULE.FileManager)
 
 
+def load_record_statement():
+    return CorbaWrapper(_CLIENT.get_object('RecordStatement', REGISTRY_MODULE.RecordStatement.Server))
+
+
 def load_logger_from_idl():
     service_client = CorbaNameServiceClient(CORBA_ORB, WEBWHOIS_LOGGER_CORBA_IOR, WEBWHOIS_LOGGER_CORBA_CONTEXT)
     return service_client.get_object('Logger', CCREG_MODULE.Logger)
@@ -134,6 +146,8 @@ def load_logger_from_idl():
 WHOIS = SimpleLazyObject(load_whois_from_idl)
 PUBLIC_REQUEST = SimpleLazyObject(load_public_request_from_idl)
 FILEMANAGER = SimpleLazyObject(load_filemanager_from_idl)
+RECORD_STATEMENT = SimpleLazyObject(load_record_statement)
+
 if WEBWHOIS_LOGGER:
     LOGGER = SimpleLazyObject(lambda: create_logger(WEBWHOIS_LOGGER, load_logger_from_idl(), CCREG_MODULE))
 else:

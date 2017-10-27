@@ -138,6 +138,9 @@ msgstr "Prohlížení doménového jména"
 msgid "Domain not found"
 msgstr "Doména nenalezena"
 
+msgid "Download Verified record statement in PDF."
+msgstr "Stáhnout ověřený výpis z registru v PDF."
+
 msgid "ECDSA Curve P-256 with SHA-256"
 msgstr "ECDSA Křivka P-256 se SHA-256"
 
@@ -1026,6 +1029,9 @@ msgstr "DIČ"
 
 msgid "Validation expiration date"
 msgstr "Validováno do"
+
+msgid "Verified record statement"
+msgstr "Ověřený výpis z registru"
 
 #, python-brace-format
 msgid ""

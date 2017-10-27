@@ -182,5 +182,7 @@
                 </tr>
             {% endif %}
         </table>
+        {% url "webwhois:record_statement_pdf" object_type="contact" handle=contact.handle as record_statement_pdf_url %}
+        {% include "webwhois/verified_record_statement_link.html" %}
     {% endwith %}
 {% endblock webwhois_content %}

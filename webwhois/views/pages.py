@@ -7,7 +7,7 @@ from webwhois.utils import WHOIS
 from webwhois.views import BlockObjectFormView, ContactDetailMixin, ContactDetailWithMojeidMixin, CustomEmailView, \
     DomainDetailMixin, DownloadEvalFileView, EmailInRegistryView, KeysetDetailMixin, NotarizedLetterView, \
     NssetDetailMixin, RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, ResponseNotFoundView, \
-    SendPasswordFormView, ServeNotarizedLetterView, UnblockObjectFormView, WhoisFormView
+    SendPasswordFormView, ServeNotarizedLetterView, ServeRecordStatementView, UnblockObjectFormView, WhoisFormView
 
 
 class BaseTemplateMixin(object):
@@ -113,4 +113,8 @@ class WebwhoisNotarizedLetterView(BaseTemplateMixin, NotarizedLetterView):
 
 
 class WebwhoisServeNotarizedLetterView(BaseTemplateMixin, ServeNotarizedLetterView):
+    pass
+
+
+class WebwhoisServeRecordStatementView(BaseTemplateMixin, ServeRecordStatementView):
     pass

@@ -14,7 +14,9 @@ _IDL_DIR = os.environ.get('FRED_IDL_DIR', './idl/idl')
 WEBWHOIS_CORBA_IDL = (os.path.join(_IDL_DIR, 'Whois2.idl'),
                       os.path.join(_IDL_DIR, 'PublicRequest.idl'),
                       os.path.join(_IDL_DIR, 'FileManager.idl'),
-                      os.path.join(_IDL_DIR, 'Logger.idl'))
+                      os.path.join(_IDL_DIR, 'Logger.idl'),
+                      os.path.join(_IDL_DIR, 'RecordStatement.idl'),
+                      )
 WEBWHOIS_CORBA_IOR = 'localhost'
 WEBWHOIS_CORBA_CONTEXT = 'fred'
 WEBWHOIS_CORBA_EXPORT_MODULES = ('Registry', 'ccReg')

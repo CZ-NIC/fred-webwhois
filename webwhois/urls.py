@@ -5,7 +5,7 @@ from webwhois.views.pages import DobradomaneRegistrarListView, WebwhoisBlockObje
     WebwhoisFormView, WebwhoisKeysetDetailView, WebwhoisMojeidContactDetailView, WebwhoisNotarizedLetterView, \
     WebwhoisNssetDetailView, WebwhoisRegistrarDetailView, WebwhoisRegistrarListView, WebwhoisResolveHandleTypeView, \
     WebwhoisResponseNotFoundView, WebwhoisSendPasswordFormView, WebwhoisServeNotarizedLetterView, \
-    WebwhoisUnblockObjectFormView
+    WebwhoisServeRecordStatementView, WebwhoisUnblockObjectFormView
 
 app_name = 'webwhois'
 urlpatterns = [
@@ -36,4 +36,6 @@ urlpatterns = [
         name='notarized_letter_response'),
     url(r'^pdf-notarized-letter/(?P<public_key>\w{64})/$', WebwhoisServeNotarizedLetterView.as_view(),
         name='notarized_letter_serve_pdf'),
+    url(r'^verified-record-statement-pdf/(?P<object_type>(contact|domain|nsset|keyset))/(?P<handle>.{1,255})/$',
+        WebwhoisServeRecordStatementView.as_view(), name='record_statement_pdf'),
 ]

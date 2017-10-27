@@ -10,4 +10,6 @@
 
 {% block webwhois_content %}
     {% include "webwhois/keyset_detail.html" with keyset=registry_objects.keyset.detail keyset_admins=registry_objects.keyset.admins keyset_registrar=registry_objects.keyset.registrar keyset_status_descriptions=registry_objects.keyset.status_descriptions %}
+    {% url "webwhois:record_statement_pdf" object_type="keyset" handle=registry_objects.keyset.detail.handle as record_statement_pdf_url %}
+    {% include "webwhois/verified_record_statement_link.html" %}
 {% endblock webwhois_content %}
