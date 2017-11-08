@@ -12,8 +12,7 @@ from pyfco import CorbaClient, CorbaClientProxy
 from pyfco.corba import CorbaNameServiceClient, init_omniorb_exception_handles
 from pyfco.corbarecoder import CorbaRecoder
 
-from webwhois.settings import WEBWHOIS_CORBA_CONTEXT, WEBWHOIS_CORBA_IOR, WEBWHOIS_LOGGER, \
-    WEBWHOIS_LOGGER_CORBA_CONTEXT, WEBWHOIS_LOGGER_CORBA_IOR
+from webwhois.settings import WEBWHOIS_LOGGER, WEBWHOIS_SETTINGS
 
 from .logger import create_logger
 
@@ -66,7 +65,7 @@ init_omniorb_exception_handles(None)
 
 # http://omniorb.sourceforge.net/omnipy3/omniORBpy/omniORBpy004.html
 CORBA_ORB = omniORB.CORBA.ORB_init(["-ORBnativeCharCodeSet", "UTF-8"], omniORB.CORBA.ORB_ID)
-_CLIENT = CorbaNameServiceClient(CORBA_ORB, WEBWHOIS_CORBA_IOR, WEBWHOIS_CORBA_CONTEXT)
+_CLIENT = CorbaNameServiceClient(CORBA_ORB, WEBWHOIS_SETTINGS.CORBA_NETLOC, WEBWHOIS_SETTINGS.CORBA_CONTEXT)
 
 
 def load_whois_from_idl():
@@ -86,7 +85,8 @@ def load_record_statement():
 
 
 def load_logger_from_idl():
-    service_client = CorbaNameServiceClient(CORBA_ORB, WEBWHOIS_LOGGER_CORBA_IOR, WEBWHOIS_LOGGER_CORBA_CONTEXT)
+    service_client = CorbaNameServiceClient(CORBA_ORB, WEBWHOIS_SETTINGS.LOGGER_CORBA_NETLOC,
+                                            WEBWHOIS_SETTINGS.LOGGER_CORBA_CONTEXT)
     return service_client.get_object('Logger', Logger)
 
 

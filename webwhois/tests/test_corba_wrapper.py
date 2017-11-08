@@ -119,12 +119,12 @@ class TestLoadIdl(SimpleTestCase):
         self.assertEqual(result, sentinel.corba_object)
         self.assertEqual(self.corba_mock.mock_calls, [call.get_object('FileManager', FileManager)])
 
-    @override_settings(WEBWHOIS_LOGGER_CORBA_IOR='localhost', WEBWHOIS_LOGGER_CORBA_CONTEXT='fred')
+    @override_settings(WEBWHOIS_LOGGER_CORBA_NETLOC='example.cz', WEBWHOIS_LOGGER_CORBA_CONTEXT='custom')
     @patch('webwhois.utils.corba_wrapper.CorbaNameServiceClient')
     def test_load_logger_from_idl(self, mock_client):
         result = load_logger_from_idl()
         self.assertEqual(mock_client.mock_calls, [
-            call(CORBA_ORB, 'localhost', 'fred'),
+            call(CORBA_ORB, 'example.cz', 'custom'),
             call().get_object('Logger', Logger),
         ])
         self.assertEqual(result, mock_client().get_object())

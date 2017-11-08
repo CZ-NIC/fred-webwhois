@@ -8,12 +8,8 @@ ROOT_URLCONF = 'webwhois.urls'
 SECRET_KEY = 'SECRET'
 STATIC_URL = '/static/'
 
-WEBWHOIS_CORBA_IOR = 'localhost'
-WEBWHOIS_CORBA_CONTEXT = 'fred'
 WEBWHOIS_CORBA_EXPORT_MODULES = ('Registry', 'ccReg')
 WEBWHOIS_LOGGER = 'pylogger.corbalogger.Logger'
-WEBWHOIS_LOGGER_CORBA_IOR = 'localhost'
-WEBWHOIS_LOGGER_CORBA_CONTEXT = 'fred'
 WEBWHOIS_DNSSEC_URL = "http://www.nic.cz/dnssec/"  # ths can be None
 WEBWHOIS_SEARCH_ENGINES = (
     {"label": "WHOIS.COM Lookup", "href": "http://www.whois.com/whois/"},

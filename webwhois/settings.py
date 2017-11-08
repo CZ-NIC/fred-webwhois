@@ -1,18 +1,33 @@
 import os
+from functools import partial
 
+from appsettings import AppSettings, StringSetting
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
+
+def _get_logger_defalt(setting_name):
+    return getattr(WEBWHOIS_SETTINGS, setting_name)
+
+
+class WebwhoisAppSettings(AppSettings):
+    """Web whois settings."""
+
+    CORBA_NETLOC = StringSetting(default=partial(os.environ.get, 'FRED_WEBWHOIS_NETLOC', 'localhost'))
+    CORBA_CONTEXT = StringSetting(default='fred')
+    LOGGER_CORBA_NETLOC = StringSetting(default=partial(_get_logger_defalt, 'CORBA_NETLOC'))
+    LOGGER_CORBA_CONTEXT = StringSetting(default=partial(_get_logger_defalt, 'CORBA_CONTEXT'))
+
+    class Meta:
+        setting_prefix = 'WEBWHOIS_'
+
+
+WEBWHOIS_SETTINGS = WebwhoisAppSettings()
+
+
 # Webwhois settings
-
-# CORBA CONFIGURATION
-WEBWHOIS_CORBA_IOR = getattr(settings, 'WEBWHOIS_CORBA_IOR', os.environ.get('FRED_WEBWHOIS_IOR', 'localhost'))
-WEBWHOIS_CORBA_CONTEXT = getattr(settings, 'WEBWHOIS_CORBA_CONTEXT', 'fred')
-
 # Logger module. Set "pylogger.corbalogger.LoggerFailSilent" for debug or None for disable the process.
 WEBWHOIS_LOGGER = getattr(settings, 'WEBWHOIS_LOGGER', 'pylogger.corbalogger.Logger')
-WEBWHOIS_LOGGER_CORBA_IOR = WEBWHOIS_CORBA_IOR
-WEBWHOIS_LOGGER_CORBA_CONTEXT = WEBWHOIS_CORBA_CONTEXT
 
 WEBWHOIS_DNSSEC_URL = getattr(settings, 'WEBWHOIS_DNSSEC_URL', None)
 

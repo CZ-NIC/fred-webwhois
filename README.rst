@@ -26,10 +26,10 @@ The easiest way to use it, is to install it with the **fred-manager** script.
 The manager installs the whole *FRED server* including all accessories.
 
 If you want to run ``webwhois`` instantly without installation, you only need to set
-the host name and port of the running CORBA name service (``WEBWHOIS_CORBA_IOR``).
+the host name and port of the running CORBA name service (``WEBWHOIS_CORBA_NETLOC``).
 
 .. Note::
-    To set the host, you can also use the environment variable ``FRED_WEBWHOIS_IOR``.
+    To set the host, you can also use the environment variable ``FRED_WEBWHOIS_NETLOC``.
 
 
 Run the server without installation
@@ -52,7 +52,7 @@ Run site server directly from the project folder:
 
 .. code:: shell
 
-   PYTHONPATH=.:webwhois_site FRED_WEBWHOIS_IOR=my.fred.com:44846 webwhois_site/webwhois_site/manage.py runserver
+   PYTHONPATH=.:webwhois_site FRED_WEBWHOIS_NETLOC=my.fred.com:44846 webwhois_site/webwhois_site/manage.py runserver
 
 
 Installation
@@ -94,7 +94,7 @@ Instructions for custom installation:
 
    .. code:: shell
 
-       PYTHONPATH=$SITE_ROOT/.. FRED_WEBWHOIS_IOR=my.fred.com:44846 python $SITE_ROOT/manage.py runserver
+       PYTHONPATH=$SITE_ROOT/.. FRED_WEBWHOIS_NETLOC=my.fred.com:44846 python $SITE_ROOT/manage.py runserver
 
 
 Configuration
@@ -125,18 +125,16 @@ CORBA settings
 
 CORBA variables are required to establish a connection to the **FRED server** instance.
 
-``WEBWHOIS_CORBA_IOR``
-^^^^^^^^^^^^^^^^^^^^^^
+``WEBWHOIS_CORBA_NETLOC``
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``WEBWHOIS_CORBA_IOR`` variable contains ``IOR`` to the existing **FRED server** instance.
+Network location, i.e. host and port, of the CORBA server.
+Used to construct Interoperable Object Reference (IOR).
+Default value is either ``FRED_WEBWHOIS_NETLOC`` environment variable or ``localhost``.
 
 Example::
 
-    WEBWHOIS_CORBA_IOR = 'localhost:12345'
-
-Default value::
-
-    os.environ.get('FRED_WEBWHOIS_IOR', 'localhost')
+    WEBWHOIS_CORBA_NETLOC= 'localhost:12345'
 
 ``WEBWHOIS_CORBA_CONTEXT``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -164,19 +162,12 @@ Default value::
 
     'pylogger.corbalogger.Logger'
 
-``WEBWHOIS_LOGGER_CORBA_IOR``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``WEBWHOIS_LOGGER_CORBA_NETLOC``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``WEBWHOIS_LOGGER_CORBA_IOR`` variable contains ``IOR`` to the existing **Logger server** instance. This is usually
-same as a **Fred server** instance.
-
-Example::
-
-    WEBWHOIS_LOGGER_CORBA_IOR = WEBWHOIS_CORBA_IOR
-
-Default value::
-
-    WEBWHOIS_CORBA_IOR
+Network location, i.e. host and port, of the CORBA server for logging.
+Used to construct Interoperable Object Reference (IOR).
+By default a ``WEBWHOIS_CORBA_NETLOC`` is used.
 
 ``WEBWHOIS_LOGGER_CORBA_CONTEXT``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
