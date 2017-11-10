@@ -94,28 +94,6 @@ class WebwhoisCorbaRecoder(CorbaRecoder):
             return super(WebwhoisCorbaRecoder, self)._decode_struct(value)
 
 
-class CorbaWrapper(object):
-    """Client for object of CORBA interface."""
-
-    def __init__(self, corba_object):
-        self.corba_object = corba_object
-        self.recoder = WebwhoisCorbaRecoder("utf-8")
-
-    def _call_method(self, method_name, *args):
-        """Actually perform the Corba call."""
-        args = self.recoder.encode(args)
-        result = getattr(self.corba_object, method_name)(*args)
-        return self.recoder.decode(result)
-
-    def __getattr__(self, name):
-        """Call CORBA object methods."""
-        if hasattr(self.corba_object, name):
-            def wrapper(*args):
-                return self._call_method(name, *args)
-            return wrapper
-        raise AttributeError
-
-
 init_omniorb_exception_handles(None)
 
 # http://omniorb.sourceforge.net/omnipy3/omniORBpy/omniORBpy004.html
@@ -136,7 +114,7 @@ def load_filemanager_from_idl():
 
 
 def load_record_statement():
-    return CorbaWrapper(_CLIENT.get_object('RecordStatement', REGISTRY_MODULE.RecordStatement.Server))
+    return _CLIENT.get_object('RecordStatement', REGISTRY_MODULE.RecordStatement.Server)
 
 
 def load_logger_from_idl():
@@ -147,7 +125,7 @@ def load_logger_from_idl():
 _WHOIS = SimpleLazyObject(load_whois_from_idl)
 _PUBLIC_REQUEST = SimpleLazyObject(load_public_request_from_idl)
 _FILE_MANAGER = SimpleLazyObject(load_filemanager_from_idl)
-RECORD_STATEMENT = SimpleLazyObject(load_record_statement)
+_RECORD_STATEMENT = SimpleLazyObject(load_record_statement)
 
 if WEBWHOIS_LOGGER:
     LOGGER = SimpleLazyObject(lambda: create_logger(WEBWHOIS_LOGGER, load_logger_from_idl(), CCREG_MODULE))
@@ -160,3 +138,5 @@ PUBLIC_REQUEST = CorbaClientProxy(CorbaClient(_PUBLIC_REQUEST, WebwhoisCorbaReco
                                               REGISTRY_MODULE.PublicRequest.INTERNAL_SERVER_ERROR))
 FILE_MANAGER = CorbaClientProxy(CorbaClient(_FILE_MANAGER, WebwhoisCorbaRecoder('utf-8'),
                                             CCREG_MODULE.FileManager.InternalError))
+RECORD_STATEMENT = CorbaClientProxy(CorbaClient(_RECORD_STATEMENT, WebwhoisCorbaRecoder('utf-8'),
+                                                REGISTRY_MODULE.RecordStatement.INTERNAL_SERVER_ERROR))

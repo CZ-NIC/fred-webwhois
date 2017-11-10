@@ -4,11 +4,11 @@ from datetime import date, datetime
 
 from django.test import SimpleTestCase, override_settings
 from django.utils import timezone
-from mock import Mock, call, patch, sentinel
+from mock import call, patch, sentinel
 from omniORB import StructBase
 
 from webwhois.utils import CCREG_MODULE, REGISTRY_MODULE
-from webwhois.utils.corba_wrapper import CORBA_ORB, CorbaWrapper, WebwhoisCorbaRecoder, load_filemanager_from_idl, \
+from webwhois.utils.corba_wrapper import CORBA_ORB, WebwhoisCorbaRecoder, load_filemanager_from_idl, \
     load_logger_from_idl, load_whois_from_idl
 
 from .utils import apply_patch
@@ -119,38 +119,3 @@ class TestLoadIdl(SimpleTestCase):
             call().get_object('Logger', CCREG_MODULE.Logger),
         ])
         self.assertEqual(result, mock_client().get_object())
-
-
-class TestCorbaWrapper(SimpleTestCase):
-
-    def setUp(self):
-        self.mock_service = Mock()
-
-    def test_attribute_error(self):
-        class Service(object):
-            pass
-        wrapper = CorbaWrapper(Service())
-        with self.assertRaises(AttributeError):
-            wrapper.foo()
-
-    def test_corba_wrapper(self):
-        self.mock_service.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
-        wrapper = CorbaWrapper(self.mock_service)
-        self.assertEqual(wrapper.get_managed_zone_list(), ['cz', '0.2.4.e164.arpa'])
-        self.assertEqual(self.mock_service.mock_calls, [call.get_managed_zone_list()])
-
-    def test_decode_date(self):
-        self.mock_service.get_date.return_value = CCREG_MODULE.DateType(day=12, month=5, year=2012)
-        self.assertEqual(CorbaWrapper(self.mock_service).get_date(), date(2012, 5, 12))
-        self.assertEqual(self.mock_service.mock_calls, [call.get_date()])
-
-    def test_can_not_be_decoded(self):
-        self.mock_service.get_date.return_value = date(2012, 5, 12)
-        with self.assertRaisesMessage(ValueError, "2012-05-12 can not be decoded."):
-            CorbaWrapper(self.mock_service).get_date()
-        self.assertEqual(self.mock_service.mock_calls, [call.get_date()])
-
-    def test_encode_unicode_to_string(self):
-        self.mock_service.get_name.return_value = 'OK'
-        self.assertEqual(CorbaWrapper(self.mock_service).get_name(u'čížek'), 'OK')
-        self.assertEqual(self.mock_service.mock_calls, [call.get_name('čížek')])
