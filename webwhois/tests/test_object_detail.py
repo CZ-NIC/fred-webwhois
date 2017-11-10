@@ -24,8 +24,6 @@ WEBWHOIS_DNSSEC_URL = "http://www.nic.cz/dnssec/"
                    ROOT_URLCONF='webwhois.tests.urls', STATIC_URL='/static/')
 class ObjectDetailMixin(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
 
-    allow_database_queries = True  # Temporary attr. up to Django 1.10.
-
     @classmethod
     def setUpClass(cls):
         super(ObjectDetailMixin, cls).setUpClass()
