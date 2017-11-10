@@ -5,6 +5,7 @@ import omniORB
 from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import SimpleLazyObject
+from pyfco import CorbaClient, CorbaClientProxy
 from pyfco.corba import CorbaNameServiceClient, init_omniorb_exception_handles
 from pyfco.corbarecoder import CorbaRecoder
 
@@ -123,7 +124,7 @@ _CLIENT = CorbaNameServiceClient(CORBA_ORB, WEBWHOIS_CORBA_IOR, WEBWHOIS_CORBA_C
 
 
 def load_whois_from_idl():
-    return CorbaWrapper(_CLIENT.get_object('Whois2', REGISTRY_MODULE.Whois.WhoisIntf))
+    return _CLIENT.get_object('Whois2', REGISTRY_MODULE.Whois.WhoisIntf)
 
 
 def load_public_request_from_idl():
@@ -143,7 +144,7 @@ def load_logger_from_idl():
     return service_client.get_object('Logger', CCREG_MODULE.Logger)
 
 
-WHOIS = SimpleLazyObject(load_whois_from_idl)
+_WHOIS = SimpleLazyObject(load_whois_from_idl)
 PUBLIC_REQUEST = SimpleLazyObject(load_public_request_from_idl)
 FILEMANAGER = SimpleLazyObject(load_filemanager_from_idl)
 RECORD_STATEMENT = SimpleLazyObject(load_record_statement)
@@ -152,3 +153,6 @@ if WEBWHOIS_LOGGER:
     LOGGER = SimpleLazyObject(lambda: create_logger(WEBWHOIS_LOGGER, load_logger_from_idl(), CCREG_MODULE))
 else:
     LOGGER = None
+
+WHOIS = CorbaClientProxy(CorbaClient(_WHOIS, WebwhoisCorbaRecoder('utf-8'),
+                                     REGISTRY_MODULE.Whois.INTERNAL_SERVER_ERROR))

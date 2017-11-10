@@ -98,10 +98,9 @@ class TestLoadIdl(SimpleTestCase):
         self.corba_mock.get_object.return_value = sentinel.corba_object
 
     def test_load_whois_from_idl(self):
-        wrapper = load_whois_from_idl()
+        result = load_whois_from_idl()
 
-        self.assertIsInstance(wrapper, CorbaWrapper)
-        self.assertEqual(wrapper.corba_object, sentinel.corba_object)
+        self.assertEqual(result, sentinel.corba_object)
         self.assertEqual(self.corba_mock.mock_calls, [call.get_object('Whois2', REGISTRY_MODULE.Whois.WhoisIntf)])
 
     def test_load_filemanager_from_idl(self):
