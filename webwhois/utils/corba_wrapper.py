@@ -128,7 +128,7 @@ def load_whois_from_idl():
 
 
 def load_public_request_from_idl():
-    return CorbaWrapper(_CLIENT.get_object('PublicRequest', REGISTRY_MODULE.PublicRequest.PublicRequestIntf))
+    return _CLIENT.get_object('PublicRequest', REGISTRY_MODULE.PublicRequest.PublicRequestIntf)
 
 
 def load_filemanager_from_idl():
@@ -145,7 +145,7 @@ def load_logger_from_idl():
 
 
 _WHOIS = SimpleLazyObject(load_whois_from_idl)
-PUBLIC_REQUEST = SimpleLazyObject(load_public_request_from_idl)
+_PUBLIC_REQUEST = SimpleLazyObject(load_public_request_from_idl)
 FILEMANAGER = SimpleLazyObject(load_filemanager_from_idl)
 RECORD_STATEMENT = SimpleLazyObject(load_record_statement)
 
@@ -156,3 +156,5 @@ else:
 
 WHOIS = CorbaClientProxy(CorbaClient(_WHOIS, WebwhoisCorbaRecoder('utf-8'),
                                      REGISTRY_MODULE.Whois.INTERNAL_SERVER_ERROR))
+PUBLIC_REQUEST = CorbaClientProxy(CorbaClient(_PUBLIC_REQUEST, WebwhoisCorbaRecoder('utf-8'),
+                                              REGISTRY_MODULE.PublicRequest.INTERNAL_SERVER_ERROR))

@@ -8,7 +8,7 @@ from django.utils.html import escape
 from mock import call, patch
 
 from webwhois.tests.utils import TEMPLATES, WebwhoisAssertMixin, apply_patch
-from webwhois.utils.corba_wrapper import REGISTRY_MODULE
+from webwhois.utils import PUBLIC_REQUEST, REGISTRY_MODULE
 from webwhois.views.public_request import BaseResponseTemplateView, CustomEmailView, NotarizedLetterView, \
     ResponseDataKeyMissing
 
@@ -75,7 +75,9 @@ class SubmittedFormTestCase(SimpleTestCase):
     public_key = "1234567890123456789012345678901234567890123456789012345678901234"
 
     def setUp(self):
-        self.PUBLIC_REQUEST = apply_patch(self, patch("webwhois.views.public_request.PUBLIC_REQUEST"))
+        spec = ('create_authinfo_request_non_registry_email', 'create_authinfo_request_registry_email',
+                'create_block_unblock_request')
+        apply_patch(self, patch.object(PUBLIC_REQUEST, 'client', spec=spec))
         self.LOGGER = apply_patch(self, patch("webwhois.views.logger_mixin.LOGGER"))
         self.LOGGER.create_request.return_value.request_id = 42
         self.LOGGER.create_request.return_value.result = 'Error'
@@ -93,13 +95,13 @@ class SubmittedFormTestCase(SimpleTestCase):
 class TestSendPasswodForm(SubmittedFormTestCase):
 
     def _send_password_email_in_registry(self, post, action_name, properties, object_type, title, message):
-        self.PUBLIC_REQUEST.create_authinfo_request_registry_email.return_value = 24
+        PUBLIC_REQUEST.create_authinfo_request_registry_email.return_value = 24
         response = self.client.post(reverse("webwhois:form_send_password"), post, follow=True)
         path = reverse("webwhois:email_in_registry_response", kwargs={"public_key": self.public_key})
         self.assertRedirects(response, path)
         self.assertContains(response, title)
         self.assertContains(response, message)
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_authinfo_request_registry_email(object_type, post['handle'], 42)
         ])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
@@ -199,7 +201,7 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         self.assertEqual(response.context['form'].errors, {'handle': [form_error_message]})
         self.assertContains(response, form_error_message)
         object_type = REGISTRY_MODULE.PublicRequest.ObjectType_PR.domain
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_authinfo_request_registry_email(object_type, 'foo.cz', 42)
         ])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
@@ -214,20 +216,20 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
 
     def test_send_password_object_not_found(self):
-        self.PUBLIC_REQUEST.create_authinfo_request_registry_email.side_effect = REGISTRY_MODULE.PublicRequest. \
-                                                                                 OBJECT_NOT_FOUND
+        PUBLIC_REQUEST.create_authinfo_request_registry_email.side_effect = \
+            REGISTRY_MODULE.PublicRequest.OBJECT_NOT_FOUND
         self._assert_send_password_exception('OBJECT_NOT_FOUND', 'Object not found. Check that you have correctly '
                                              'entered the Object type and Handle.')
 
     def test_send_password_object_transfer_prohibited(self):
-        self.PUBLIC_REQUEST.create_authinfo_request_registry_email.side_effect = REGISTRY_MODULE.PublicRequest. \
-                                                                                 OBJECT_TRANSFER_PROHIBITED
+        PUBLIC_REQUEST.create_authinfo_request_registry_email.side_effect = \
+            REGISTRY_MODULE.PublicRequest.OBJECT_TRANSFER_PROHIBITED
         self._assert_send_password_exception('OBJECT_TRANSFER_PROHIBITED', 'Transfer of object is prohibited. '
                                              'The request can not be accepted.')
 
     def test_send_password_invalid_email(self):
-        self.PUBLIC_REQUEST.create_authinfo_request_non_registry_email.side_effect = REGISTRY_MODULE.PublicRequest. \
-                                                                                     INVALID_EMAIL
+        PUBLIC_REQUEST.create_authinfo_request_non_registry_email.side_effect = \
+            REGISTRY_MODULE.PublicRequest.INVALID_EMAIL
         post = {
             "object_type": "domain",
             "handle": "foo.cz",
@@ -242,7 +244,7 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         self.assertContains(response, 'The email was not found or the address is not valid.')
         object_type = REGISTRY_MODULE.PublicRequest.ObjectType_PR.domain
         signed_email = REGISTRY_MODULE.PublicRequest.ConfirmedBy.signed_email
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_authinfo_request_non_registry_email(object_type, 'foo.cz', 42, signed_email, 'foo@foo.off')
         ])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
@@ -257,7 +259,7 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
 
     def _send_password_confirm_method(self, confirm_method, post, action_name, properties, object_type, title, message):
-        self.PUBLIC_REQUEST.create_authinfo_request_non_registry_email.return_value = 24
+        PUBLIC_REQUEST.create_authinfo_request_non_registry_email.return_value = 24
         response = self.client.post(reverse("webwhois:form_send_password"), post, follow=True)
         if post['confirmation_method'] == 'signed_email':
             url_name = "webwhois:custom_email_response"
@@ -266,7 +268,7 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         self.assertRedirects(response, reverse(url_name, kwargs={"public_key": self.public_key}))
         self.assertContains(response, title)
         self.assertContains(response, message)
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_authinfo_request_non_registry_email(object_type, post['handle'], 42, confirm_method,
                                                             'foo@foo.off')
         ])
@@ -387,7 +389,7 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         self.assertContains(response, escape(
                             'Letter with officially verified signature can be sent only to the custom email. '
                             'Please select "Send to custom email" and enter it.'))
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [])
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, [])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [])
 
     def _send_password_notarized_letter_registry(self, object_name, object_type, title):
@@ -457,7 +459,7 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
             ('confirmMethod', confirmation_method),
         ]
         self.LOGGER.create_request.return_value.request_type = action_name
-        self.PUBLIC_REQUEST.create_block_unblock_request.return_value = 24
+        PUBLIC_REQUEST.create_block_unblock_request.return_value = 24
         response = self.client.post(reverse(url_name), post, follow=True)
         if confirmation_method == 'signed_email':
             url_name = "webwhois:custom_email_response"
@@ -466,7 +468,7 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
         self.assertRedirects(response, reverse(url_name, kwargs={"public_key": self.public_key}))
         self.assertContains(response, title)
         self.assertContains(response, message)
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_block_unblock_request(object_type, 'FOO', 42, signed_type, block_type)
         ])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
@@ -862,7 +864,7 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
         object_type = REGISTRY_MODULE.PublicRequest.ObjectType_PR.domain
         signed_email = REGISTRY_MODULE.PublicRequest.ConfirmedBy.signed_email
         block_transfer = REGISTRY_MODULE.PublicRequest.LockRequestType.block_transfer
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_block_unblock_request(object_type, 'foo.cz', 42, signed_email, block_transfer)
         ])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
@@ -876,31 +878,27 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
 
     def test_block_object_not_found(self):
-        self.PUBLIC_REQUEST.create_block_unblock_request.side_effect = REGISTRY_MODULE.PublicRequest.OBJECT_NOT_FOUND
+        PUBLIC_REQUEST.create_block_unblock_request.side_effect = REGISTRY_MODULE.PublicRequest.OBJECT_NOT_FOUND
         self._assert_create_block_unblock_exception('OBJECT_NOT_FOUND', 'Object not found. Check that you have'
                                                     ' correctly entered the Object type and Handle.')
 
     def test_block_object_already_blocked(self):
-        self.PUBLIC_REQUEST.create_block_unblock_request.side_effect = REGISTRY_MODULE.PublicRequest. \
-                                                                       OBJECT_ALREADY_BLOCKED
+        PUBLIC_REQUEST.create_block_unblock_request.side_effect = REGISTRY_MODULE.PublicRequest.OBJECT_ALREADY_BLOCKED
         self._assert_create_block_unblock_exception('OBJECT_ALREADY_BLOCKED', 'This object is already blocked. '
                                                     'The request can not be accepted.')
 
     def test_unblock_object_not_blocked(self):
-        self.PUBLIC_REQUEST.create_block_unblock_request.side_effect = REGISTRY_MODULE.PublicRequest. \
-                                                                       OBJECT_NOT_BLOCKED
+        PUBLIC_REQUEST.create_block_unblock_request.side_effect = REGISTRY_MODULE.PublicRequest.OBJECT_NOT_BLOCKED
         self._assert_create_block_unblock_exception('OBJECT_NOT_BLOCKED', 'This object is not blocked. '
                                                     'The request can not be accepted.')
 
     def test_block_object_has_different_block(self):
-        self.PUBLIC_REQUEST.create_block_unblock_request.side_effect = REGISTRY_MODULE.PublicRequest. \
-                                                                       HAS_DIFFERENT_BLOCK
+        PUBLIC_REQUEST.create_block_unblock_request.side_effect = REGISTRY_MODULE.PublicRequest.HAS_DIFFERENT_BLOCK
         self._assert_create_block_unblock_exception('HAS_DIFFERENT_BLOCK', 'This object has another active blocking. '
                                                     'The request can not be accepted.')
 
     def test_block_object_operation_prohibited(self):
-        self.PUBLIC_REQUEST.create_block_unblock_request.side_effect = REGISTRY_MODULE.PublicRequest. \
-                                                                       OPERATION_PROHIBITED
+        PUBLIC_REQUEST.create_block_unblock_request.side_effect = REGISTRY_MODULE.PublicRequest.OPERATION_PROHIBITED
         self._assert_create_block_unblock_exception('OPERATION_PROHIBITED', 'Operation for this object is prohibited. '
                                                     'The request can not be accepted.')
 
@@ -916,7 +914,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
     public_key = "1234567890123456789012345678901234567890123456789012345678901234"
 
     def setUp(self):
-        self.PUBLIC_REQUEST = apply_patch(self, patch("webwhois.views.public_request.PUBLIC_REQUEST"))
+        apply_patch(self, patch.object(PUBLIC_REQUEST, 'client', spec=('create_public_request_pdf', )))
         self.LOGGER = apply_patch(self, patch("webwhois.views.public_request.LOGGER"))
         apply_patch(self, patch("webwhois.views.public_request_mixin.LOGGER", self.LOGGER))
         apply_patch(self, patch("webwhois.views.logger_mixin.LOGGER", self.LOGGER))
@@ -934,14 +932,14 @@ class TestNotarizedLetterPdf(SimpleTestCase):
             'object_type': 'contact',
         }
         cache.set(self.public_key, response_data)
-        self.PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
+        PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['content-type'], 'application/pdf')
         self.assertEqual(response['content-disposition'], 'attachment; filename="notarized-letter-en.pdf"')
         self.assertEqual(response.content, "PDF content...")
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_public_request_pdf(42, REGISTRY_MODULE.PublicRequest.Language.en)
         ])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
@@ -959,7 +957,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
         self.assertIsInstance(response, HttpResponseNotFound)
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [])
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, [])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [])
 
     def test_no_response_id(self):
@@ -972,7 +970,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
         self.assertIsInstance(response, HttpResponseNotFound)
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [])
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, [])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [])
 
     @override_settings(LANGUAGE_CODE='en')
@@ -981,14 +979,14 @@ class TestNotarizedLetterPdf(SimpleTestCase):
             'response_id': 42
         }
         cache.set(self.public_key, response_data)
-        self.PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
+        PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['content-type'], 'application/pdf')
         self.assertEqual(response['content-disposition'], 'attachment; filename="notarized-letter-en.pdf"')
         self.assertEqual(response.content, "PDF content...")
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_public_request_pdf(42, REGISTRY_MODULE.PublicRequest.Language.en)
         ])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
@@ -1011,14 +1009,14 @@ class TestNotarizedLetterPdf(SimpleTestCase):
             'custom_email': 'foo@foo.off'
         }
         cache.set(self.public_key, response_data)
-        self.PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
+        PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['content-type'], 'application/pdf')
         self.assertEqual(response['content-disposition'], 'attachment; filename="notarized-letter-en.pdf"')
         self.assertEqual(response.content, "PDF content...")
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_public_request_pdf(42, REGISTRY_MODULE.PublicRequest.Language.en)
         ])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
@@ -1042,14 +1040,14 @@ class TestNotarizedLetterPdf(SimpleTestCase):
             'object_type': 'contact',
         }
         cache.set(self.public_key, response_data)
-        self.PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
+        PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['content-type'], 'application/pdf')
         self.assertEqual(response['content-disposition'], 'attachment; filename="notarized-letter-en.pdf"')
         self.assertEqual(response.content, "PDF content...")
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_public_request_pdf(42, REGISTRY_MODULE.PublicRequest.Language.en)
         ])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [])
@@ -1062,11 +1060,11 @@ class TestNotarizedLetterPdf(SimpleTestCase):
             'object_type': 'contact',
         }
         cache.set(self.public_key, response_data)
-        self.PUBLIC_REQUEST.create_public_request_pdf.side_effect = REGISTRY_MODULE.PublicRequest.OBJECT_NOT_FOUND
+        PUBLIC_REQUEST.create_public_request_pdf.side_effect = REGISTRY_MODULE.PublicRequest.OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
         self.assertIsInstance(response, HttpResponseNotFound)
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_public_request_pdf(42, REGISTRY_MODULE.PublicRequest.Language.en)
         ])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
@@ -1088,10 +1086,10 @@ class TestNotarizedLetterPdf(SimpleTestCase):
             'object_type': 'contact',
         }
         cache.set(self.public_key, response_data)
-        self.PUBLIC_REQUEST.create_public_request_pdf.side_effect = TestException
+        PUBLIC_REQUEST.create_public_request_pdf.side_effect = TestException
         with self.assertRaises(TestException):
             self.client.get(reverse("webwhois:notarized_letter_serve_pdf", kwargs={"public_key": self.public_key}))
-        self.assertEqual(self.PUBLIC_REQUEST.mock_calls, [
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_public_request_pdf(42, REGISTRY_MODULE.PublicRequest.Language.en)
         ])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
