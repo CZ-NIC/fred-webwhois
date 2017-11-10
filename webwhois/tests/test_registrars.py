@@ -11,7 +11,7 @@ from mock import call, patch
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.tests.utils import TEMPLATES, WebwhoisAssertMixin, apply_patch
-from webwhois.utils import CCREG_MODULE, REGISTRY_MODULE, WHOIS
+from webwhois.utils import CCREG_MODULE, FILE_MANAGER, REGISTRY_MODULE, WHOIS
 
 
 @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', ['certified'])
@@ -357,18 +357,18 @@ class TestDownloadView(GetRegistryObjectMixin, SimpleTestCase):
 
     def setUp(self):
         apply_patch(self, patch.object(WHOIS, 'client', spec=('get_registrar_certification_list', )))
-        self.FILE = apply_patch(self, patch("webwhois.views.registrar.FILEMANAGER"))
+        apply_patch(self, patch.object(FILE_MANAGER, 'client', spec=('info', 'load')))
 
     def test_download_not_found(self):
         WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()
         response = self.client.get(reverse("webwhois:download_evaluation_file", kwargs={"handle": "REG-MISSING"}))
         self.assertIsInstance(response, HttpResponseNotFound)
         self.assertEqual(WHOIS.mock_calls, [call.get_registrar_certification_list()])
-        self.assertEqual(self.FILE.mock_calls, [])
+        self.assertEqual(FILE_MANAGER.mock_calls, [])
 
     def test_download_eval_file(self):
         WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()
-        self.FILE.info.return_value = CCREG_MODULE.FileInfo(
+        FILE_MANAGER.info.return_value = CCREG_MODULE.FileInfo(
             id=2,
             name='test.html',
             path='2015/12/9/1',
@@ -378,13 +378,13 @@ class TestDownloadView(GetRegistryObjectMixin, SimpleTestCase):
             size=5L
         )
         content = "<html><body>The content.</body></html>"
-        self.FILE.load.return_value.download.return_value = content
+        FILE_MANAGER.load.return_value.download.return_value = content
         response = self.client.get(reverse("webwhois:download_evaluation_file", kwargs={"handle": "REG-MOJEID"}))
         self.assertEqual(response.content, content)
         self.assertEqual(response['Content-Type'], 'text/html')
         self.assertEqual(response['Content-Disposition'], 'attachment; filename="test.html"')
         self.assertEqual(WHOIS.mock_calls, [call.get_registrar_certification_list()])
-        self.assertEqual(self.FILE.mock_calls, [
+        self.assertEqual(FILE_MANAGER.mock_calls, [
             call.info(2L),
             call.load(2),
             call.load().download(5L),

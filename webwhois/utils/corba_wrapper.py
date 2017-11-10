@@ -146,7 +146,7 @@ def load_logger_from_idl():
 
 _WHOIS = SimpleLazyObject(load_whois_from_idl)
 _PUBLIC_REQUEST = SimpleLazyObject(load_public_request_from_idl)
-FILEMANAGER = SimpleLazyObject(load_filemanager_from_idl)
+_FILE_MANAGER = SimpleLazyObject(load_filemanager_from_idl)
 RECORD_STATEMENT = SimpleLazyObject(load_record_statement)
 
 if WEBWHOIS_LOGGER:
@@ -158,3 +158,5 @@ WHOIS = CorbaClientProxy(CorbaClient(_WHOIS, WebwhoisCorbaRecoder('utf-8'),
                                      REGISTRY_MODULE.Whois.INTERNAL_SERVER_ERROR))
 PUBLIC_REQUEST = CorbaClientProxy(CorbaClient(_PUBLIC_REQUEST, WebwhoisCorbaRecoder('utf-8'),
                                               REGISTRY_MODULE.PublicRequest.INTERNAL_SERVER_ERROR))
+FILE_MANAGER = CorbaClientProxy(CorbaClient(_FILE_MANAGER, WebwhoisCorbaRecoder('utf-8'),
+                                            CCREG_MODULE.FileManager.InternalError))

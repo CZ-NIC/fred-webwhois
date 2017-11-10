@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
 
 from webwhois.settings import WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED, WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED
-from webwhois.utils import FILEMANAGER, REGISTRY_MODULE, WHOIS
+from webwhois.utils import FILE_MANAGER, REGISTRY_MODULE, WHOIS
 from webwhois.views.base import BaseContextMixin, RegistryObjectMixin
 
 
@@ -87,8 +87,8 @@ class DownloadEvalFileView(View):
     def _serve_file(self, file_id):
         # file_info: ccReg.FileInfo(id=1, name='test.txt', path='2015/12/9/1', mimetype='text/plain', filetype=6,
         #                           crdate='2015-12-09 16:16:28.598757', size=5L)
-        file_info = FILEMANAGER.info(file_id)
-        file_download = FILEMANAGER.load(file_info.id)  # <ccReg._objref_FileDownload instance>
+        file_info = FILE_MANAGER.info(file_id)
+        file_download = FILE_MANAGER.load(file_info.id)  # <ccReg._objref_FileDownload instance>
         try:
             file_data = file_download.download(file_info.size)
         finally:
