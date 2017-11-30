@@ -7,12 +7,13 @@ from django.test import SimpleTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils._os import upath
+from fred_idl.ccReg import FileInfo
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND, Registrar, RegistrarCertification, RegistrarGroup
 from mock import call, patch
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.tests.utils import TEMPLATES, WebwhoisAssertMixin, apply_patch
-from webwhois.utils import CCREG_MODULE, FILE_MANAGER, WHOIS
+from webwhois.utils import FILE_MANAGER, WHOIS
 
 
 @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', ['certified'])
@@ -365,7 +366,7 @@ class TestDownloadView(GetRegistryObjectMixin, SimpleTestCase):
 
     def test_download_eval_file(self):
         WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()
-        FILE_MANAGER.info.return_value = CCREG_MODULE.FileInfo(
+        FILE_MANAGER.info.return_value = FileInfo(
             id=2,
             name='test.html',
             path='2015/12/9/1',

@@ -5,33 +5,17 @@ import omniORB
 from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import SimpleLazyObject
+from fred_idl import ccReg
+from fred_idl.ccReg import FileManager, Logger
 from fred_idl.Registry import PublicRequest, RecordStatement, Whois
 from pyfco import CorbaClient, CorbaClientProxy
 from pyfco.corba import CorbaNameServiceClient, init_omniorb_exception_handles
 from pyfco.corbarecoder import CorbaRecoder
 
-from webwhois.settings import WEBWHOIS_CORBA_CONTEXT, WEBWHOIS_CORBA_IDL, WEBWHOIS_CORBA_IOR, WEBWHOIS_LOGGER, \
+from webwhois.settings import WEBWHOIS_CORBA_CONTEXT, WEBWHOIS_CORBA_IOR, WEBWHOIS_LOGGER, \
     WEBWHOIS_LOGGER_CORBA_CONTEXT, WEBWHOIS_LOGGER_CORBA_IOR
 
 from .logger import create_logger
-
-
-def _import_idl():
-    for idl in WEBWHOIS_CORBA_IDL:
-        omniORB.importIDL(idl)
-
-
-def _get_ccreg_module():
-    """Return `ccReg` module."""
-    try:
-        import ccReg
-    except ImportError:
-        _import_idl()
-        import ccReg
-    return ccReg
-
-
-CCREG_MODULE = SimpleLazyObject(_get_ccreg_module)
 
 
 class WebwhoisCorbaRecoder(CorbaRecoder):
@@ -49,7 +33,7 @@ class WebwhoisCorbaRecoder(CorbaRecoder):
         super(WebwhoisCorbaRecoder, self).__init__(coding)
         self.add_recode_function(PublicRequest.Buffer, self._decode_buffer, self._identity)
         self.add_recode_function(RecordStatement.PdfBuffer, self._decode_pdf_buffer, self._identity)
-        self.add_recode_function(CCREG_MODULE._objref_FileDownload, self._identity, self._identity)
+        self.add_recode_function(ccReg._objref_FileDownload, self._identity, self._identity)
 
     def _decode_buffer(self, value):
         return value.value  # IDL:Registry/PublicRequest/Buffer:1.0
@@ -94,7 +78,7 @@ def load_public_request_from_idl():
 
 
 def load_filemanager_from_idl():
-    return _CLIENT.get_object('FileManager', CCREG_MODULE.FileManager)
+    return _CLIENT.get_object('FileManager', FileManager)
 
 
 def load_record_statement():
@@ -103,7 +87,7 @@ def load_record_statement():
 
 def load_logger_from_idl():
     service_client = CorbaNameServiceClient(CORBA_ORB, WEBWHOIS_LOGGER_CORBA_IOR, WEBWHOIS_LOGGER_CORBA_CONTEXT)
-    return service_client.get_object('Logger', CCREG_MODULE.Logger)
+    return service_client.get_object('Logger', Logger)
 
 
 _WHOIS = SimpleLazyObject(load_whois_from_idl)
@@ -112,14 +96,13 @@ _FILE_MANAGER = SimpleLazyObject(load_filemanager_from_idl)
 _RECORD_STATEMENT = SimpleLazyObject(load_record_statement)
 
 if WEBWHOIS_LOGGER:
-    LOGGER = SimpleLazyObject(lambda: create_logger(WEBWHOIS_LOGGER, load_logger_from_idl(), CCREG_MODULE))
+    LOGGER = SimpleLazyObject(lambda: create_logger(WEBWHOIS_LOGGER, load_logger_from_idl(), ccReg))
 else:
     LOGGER = None
 
 WHOIS = CorbaClientProxy(CorbaClient(_WHOIS, WebwhoisCorbaRecoder('utf-8'), Whois.INTERNAL_SERVER_ERROR))
 PUBLIC_REQUEST = CorbaClientProxy(CorbaClient(_PUBLIC_REQUEST, WebwhoisCorbaRecoder('utf-8'),
                                               PublicRequest.INTERNAL_SERVER_ERROR))
-FILE_MANAGER = CorbaClientProxy(CorbaClient(_FILE_MANAGER, WebwhoisCorbaRecoder('utf-8'),
-                                            CCREG_MODULE.FileManager.InternalError))
+FILE_MANAGER = CorbaClientProxy(CorbaClient(_FILE_MANAGER, WebwhoisCorbaRecoder('utf-8'), FileManager.InternalError))
 RECORD_STATEMENT = CorbaClientProxy(CorbaClient(_RECORD_STATEMENT, WebwhoisCorbaRecoder('utf-8'),
                                                 RecordStatement.INTERNAL_SERVER_ERROR))

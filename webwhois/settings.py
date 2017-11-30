@@ -6,23 +6,8 @@ from django.core.exceptions import ImproperlyConfigured
 # Webwhois settings
 
 # CORBA CONFIGURATION
-WEBWHOIS_CORBA_IDL = getattr(settings, 'WEBWHOIS_CORBA_IDL', None)
 WEBWHOIS_CORBA_IOR = getattr(settings, 'WEBWHOIS_CORBA_IOR', os.environ.get('FRED_WEBWHOIS_IOR', 'localhost'))
 WEBWHOIS_CORBA_CONTEXT = getattr(settings, 'WEBWHOIS_CORBA_CONTEXT', 'fred')
-
-if WEBWHOIS_CORBA_IDL is None:
-    WEBWHOIS_CORBA_IDL = os.environ.get('FRED_WEBWHOIS_IDL_FILE')
-    if WEBWHOIS_CORBA_IDL is None:
-        WEBWHOIS_CORBA_IDL = ['/usr/share/idl/fred/Whois2.idl',
-                              '/usr/share/idl/fred/PublicRequest.idl',
-                              '/usr/share/idl/fred/FileManager.idl',
-                              '/usr/share/idl/fred/Logger.idl',
-                              '/usr/share/idl/fred/RecordStatement.idl',
-                              ]
-    else:
-        # Paths in environment are saved in a string separated by a space:
-        # export FRED_MOJEID_IDL_FILE="path path path"
-        WEBWHOIS_CORBA_IDL = WEBWHOIS_CORBA_IDL.split(" ")
 
 # Logger module. Set "pylogger.corbalogger.LoggerFailSilent" for debug or None for disable the process.
 WEBWHOIS_LOGGER = getattr(settings, 'WEBWHOIS_LOGGER', 'pylogger.corbalogger.Logger')

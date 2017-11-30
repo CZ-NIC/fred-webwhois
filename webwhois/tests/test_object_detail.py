@@ -4,13 +4,14 @@ from django.test import SimpleTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import reset_format_cache
+from fred_idl.ccReg import DateTimeType, DateType
 from fred_idl.Registry.Whois import INVALID_HANDLE, INVALID_LABEL, OBJECT_NOT_FOUND, TOO_MANY_LABELS, UNMANAGED_ZONE, \
     ContactIdentification, DisclosableContactIdentification, DisclosableString
 from mock import call, patch
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.tests.utils import TEMPLATES, WebwhoisAssertMixin, apply_patch
-from webwhois.utils import CCREG_MODULE, WHOIS
+from webwhois.utils import WHOIS
 from webwhois.views.base import RegistryObjectMixin
 from webwhois.views.detail_keyset import KeysetDetailMixin
 from webwhois.views.detail_nsset import NssetDetailMixin
@@ -1162,8 +1163,8 @@ class TestDetailDomain(ObjectDetailMixin):
         ])
 
     def test_domain_with_datetime_zero_values(self):
-        date = CCREG_MODULE.DateType(day=0, month=0, year=0)
-        datetime = CCREG_MODULE.DateTimeType(date=date, hour=0, minute=0, second=0),
+        date = DateType(day=0, month=0, year=0)
+        datetime = DateTimeType(date=date, hour=0, minute=0, second=0),
         WHOIS.get_domain_by_handle.return_value = self._get_domain(
             handle='fred.cz',
             registrant_handle='',

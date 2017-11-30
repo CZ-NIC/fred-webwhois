@@ -26,19 +26,17 @@ The easiest way to use it, is to install it with the **fred-manager** script.
 The manager installs the whole *FRED server* including all accessories.
 
 If you want to run ``webwhois`` instantly without installation, you only need to set
-proper paths to the IDL files (``WEBWHOIS_CORBA_IDL``) and
 the host name and port of the running CORBA name service (``WEBWHOIS_CORBA_IOR``).
 
 .. Note::
-    To set the paths and the host, you can also use the environment variables ``FRED_WEBWHOIS_IDL_FILE``
-    and ``FRED_WEBWHOIS_IOR``.
+    To set the host, you can also use the environment variable ``FRED_WEBWHOIS_IOR``.
 
 
 Run the server without installation
 ===================================
 
-You can launch ``webwhois`` without installation, after you have sorted out all dependencies,
-made IDL files accessible and started the *FRED* server. Tests requires the package ``mock``.
+You can launch ``webwhois`` without installation, after you have sorted out all dependencies
+and started the *FRED* server. Tests requires the package ``mock``.
 
 Run tests:
 
@@ -48,19 +46,13 @@ Run tests:
 
 .. Note::
 
-   You must have already set the paths to the IDL files and the name service host.
-
-Run tests with explicitly defined path to IDL:
-
-.. code:: shell
-
-   PYTHONPATH=.:webwhois_site FRED_WEBWHOIS_IDL_FILE='/usr/share/idl/fred/Whois2.idl /usr/share/idl/fred/FileManager.idl /usr/share/idl/fred/Logger.idl' webwhois_site/webwhois_site/manage.py test
+   You must have already set the name service host.
 
 Run site server directly from the project folder:
 
 .. code:: shell
 
-   PYTHONPATH=.:webwhois_site FRED_WEBWHOIS_IOR=my.fred.com:44846 FRED_WEBWHOIS_IDL_FILE='/usr/share/idl/fred/Whois2.idl /usr/share/idl/fred/FileManager.idl /usr/share/idl/fred/Logger.idl' webwhois_site/webwhois_site/manage.py runserver
+   PYTHONPATH=.:webwhois_site FRED_WEBWHOIS_IOR=my.fred.com:44846 webwhois_site/webwhois_site/manage.py runserver
 
 
 Installation
@@ -98,11 +90,11 @@ Instructions for custom installation:
        STATIC_ROOT=$(find $DEST -name static)
        sed -i "s|^STATIC_URL|STATICFILES_DIRS=['$STATIC_ROOT']\nSTATIC_URL|1" $SITE_ROOT/settings.py
 
-5. Launch website with the **runserver** command in ``DEBUG`` mode (with paths to the IDL files and the nameservice host).
+5. Launch website with the **runserver** command in ``DEBUG`` mode (with the nameservice host).
 
    .. code:: shell
 
-       PYTHONPATH=$SITE_ROOT/.. FRED_WEBWHOIS_IDL_FILE='/usr/share/idl/fred/Whois2.idl /usr/share/idl/fred/FileManager.idl /usr/share/idl/fred/Logger.idl' FRED_WEBWHOIS_IOR=my.fred.com:44846 python $SITE_ROOT/manage.py runserver
+       PYTHONPATH=$SITE_ROOT/.. FRED_WEBWHOIS_IOR=my.fred.com:44846 python $SITE_ROOT/manage.py runserver
 
 
 Configuration
@@ -132,32 +124,6 @@ CORBA settings
 --------------
 
 CORBA variables are required to establish a connection to the **FRED server** instance.
-
-``WEBWHOIS_CORBA_IDL``
-^^^^^^^^^^^^^^^^^^^^^^
-
-The ``WEBWHOIS_CORBA_IDL`` variable contains paths to the files ``Whois2.idl``, ``FileManager.idl`` and ``Logger.idl``.
-
-Example::
-
-    WEBWHOIS_CORBA_IDL = ['/usr/share/idl/fred/Whois2.idl', '/usr/share/idl/fred/FileManager.idl', '/usr/share/idl/fred/Logger.idl']
-
-.. Note::
-
-   In case of example with an environment variable you can export the paths as a string
-   where paths are separated with a space.
-
-   ::
-
-      export FRED_WEBWHOIS_IDL_FILE="path/Whois2.idl path/FileManager.idl path/Logger.idl"
-
-Default value::
-
-    os.environ.get('FRED_WEBWHOIS_IDL_FILE', [
-        '/usr/share/idl/fred/Whois2.idl',
-        '/usr/share/idl/fred/FileManager.idl',
-        '/usr/share/idl/fred/Logger.idl',
-    ])
 
 ``WEBWHOIS_CORBA_IOR``
 ^^^^^^^^^^^^^^^^^^^^^^

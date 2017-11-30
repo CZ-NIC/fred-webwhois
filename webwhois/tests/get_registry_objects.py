@@ -1,9 +1,9 @@
 from django.utils.decorators import method_decorator
+from fred_idl.ccReg import DateTimeType, DateType
 from fred_idl.Registry.Whois import Contact, ContactIdentification, DisclosableContactIdentification, \
     DisclosablePlaceAddress, DisclosableString, DNSKey, Domain, IPAddress, IPv4, KeySet, NameServer, NSSet, \
     ObjectStatusDesc, PlaceAddress, Registrar, RegistrarCertification, RegistrarGroup
 
-from webwhois.utils import CCREG_MODULE
 from webwhois.utils.corba_wrapper import WebwhoisCorbaRecoder
 
 
@@ -97,12 +97,9 @@ class GetRegistryObjectMixin(object):
             ),
             creating_registrar_handle='REG-FRED_A',
             sponsoring_registrar_handle='REG-FRED_A',
-            created=CCREG_MODULE.DateTimeType(date=CCREG_MODULE.DateType(day=15, month=12, year=2015),
-                                              hour=7, minute=56, second=24),
-            changed=CCREG_MODULE.DateTimeType(date=CCREG_MODULE.DateType(day=16, month=12, year=2015),
-                                              hour=8, minute=32, second=12),
-            last_transfer=CCREG_MODULE.DateTimeType(date=CCREG_MODULE.DateType(day=17, month=12, year=2015),
-                                                    hour=9, minute=48, second=25),
+            created=DateTimeType(date=DateType(day=15, month=12, year=2015), hour=7, minute=56, second=24),
+            changed=DateTimeType(date=DateType(day=16, month=12, year=2015), hour=8, minute=32, second=12),
+            last_transfer=DateTimeType(date=DateType(day=17, month=12, year=2015), hour=9, minute=48, second=25),
             statuses=['linked']
         )
         field_names = obj.__dict__.keys()
@@ -144,12 +141,9 @@ class GetRegistryObjectMixin(object):
             ],
             tech_contact_handles=['KONTAKT'],
             registrar_handle='REG-FRED_A',
-            created=CCREG_MODULE.DateTimeType(date=CCREG_MODULE.DateType(day=9, month=12, year=2015),
-                                              hour=16, minute=16, second=30),
-            changed=CCREG_MODULE.DateTimeType(date=CCREG_MODULE.DateType(day=10, month=12, year=2015),
-                                              hour=17, minute=17, second=31),
-            last_transfer=CCREG_MODULE.DateTimeType(date=CCREG_MODULE.DateType(day=11, month=12, year=2015),
-                                                    hour=18, minute=18, second=32),
+            created=DateTimeType(date=DateType(day=9, month=12, year=2015), hour=16, minute=16, second=30),
+            changed=DateTimeType(date=DateType(day=10, month=12, year=2015), hour=17, minute=17, second=31),
+            last_transfer=DateTimeType(date=DateType(day=11, month=12, year=2015), hour=18, minute=18, second=32),
             statuses=['linked']
         )
         field_names = obj.__dict__.keys()
@@ -168,12 +162,9 @@ class GetRegistryObjectMixin(object):
             ],
             tech_contact_handles=['KONTAKT'],
             registrar_handle='REG-FRED_A',
-            created=CCREG_MODULE.DateTimeType(date=CCREG_MODULE.DateType(day=9, month=12, year=2015),
-                                              hour=16, minute=16, second=30),
-            changed=CCREG_MODULE.DateTimeType(date=CCREG_MODULE.DateType(day=10, month=12, year=2015),
-                                              hour=17, minute=17, second=31),
-            last_transfer=CCREG_MODULE.DateTimeType(date=CCREG_MODULE.DateType(day=11, month=12, year=2015),
-                                                    hour=18, minute=18, second=32),
+            created=DateTimeType(date=DateType(day=9, month=12, year=2015), hour=16, minute=16, second=30),
+            changed=DateTimeType(date=DateType(day=10, month=12, year=2015), hour=17, minute=17, second=31),
+            last_transfer=DateTimeType(date=DateType(day=11, month=12, year=2015), hour=18, minute=18, second=32),
             statuses=['linked']
         )
         field_names = obj.__dict__.keys()
@@ -192,14 +183,11 @@ class GetRegistryObjectMixin(object):
             keyset_handle='KEYSID-1',
             registrar_handle='REG-FRED_A',
             statuses=['serverDeleteProhibited', 'serverUpdateProhibited'],
-            registered=CCREG_MODULE.DateTimeType(date=CCREG_MODULE.DateType(day=9, month=12, year=2015),
-                                                 hour=16, minute=16, second=30),
-            changed=CCREG_MODULE.DateTimeType(date=CCREG_MODULE.DateType(day=10, month=12, year=2015),
-                                              hour=17, minute=17, second=31),
-            last_transfer=CCREG_MODULE.DateTimeType(date=CCREG_MODULE.DateType(day=11, month=12, year=2015),
-                                                    hour=18, minute=18, second=32),
-            expire=CCREG_MODULE.DateType(day=9, month=12, year=2018),
-            expire_time_estimate=CCREG_MODULE.DateType(day=9, month=12, year=2018),
+            registered=DateTimeType(date=DateType(day=9, month=12, year=2015), hour=16, minute=16, second=30),
+            changed=DateTimeType(date=DateType(day=10, month=12, year=2015), hour=17, minute=17, second=31),
+            last_transfer=DateTimeType(date=DateType(day=11, month=12, year=2015), hour=18, minute=18, second=32),
+            expire=DateType(day=9, month=12, year=2018),
+            expire_time_estimate=DateType(day=9, month=12, year=2018),
             expire_time_actual=None,
             validated_to=None,
             validated_to_time_estimate=None,
