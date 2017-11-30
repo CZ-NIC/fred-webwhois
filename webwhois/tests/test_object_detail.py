@@ -4,11 +4,13 @@ from django.test import SimpleTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import reset_format_cache
+from fred_idl.Registry.Whois import INVALID_HANDLE, INVALID_LABEL, OBJECT_NOT_FOUND, TOO_MANY_LABELS, UNMANAGED_ZONE, \
+    ContactIdentification, DisclosableContactIdentification, DisclosableString
 from mock import call, patch
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.tests.utils import TEMPLATES, WebwhoisAssertMixin, apply_patch
-from webwhois.utils import CCREG_MODULE, REGISTRY_MODULE, WHOIS
+from webwhois.utils import CCREG_MODULE, WHOIS
 from webwhois.views.base import RegistryObjectMixin
 from webwhois.views.detail_keyset import KeysetDetailMixin
 from webwhois.views.detail_nsset import NssetDetailMixin
@@ -42,12 +44,12 @@ class ObjectDetailMixin(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestC
 class TestResolveHandleType(ObjectDetailMixin):
 
     def test_handle_not_found(self):
-        WHOIS.get_contact_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
-        WHOIS.get_nsset_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
-        WHOIS.get_keyset_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
-        WHOIS.get_registrar_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
+        WHOIS.get_contact_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_nsset_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_keyset_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_registrar_by_handle.side_effect = OBJECT_NOT_FOUND
         # Handle 'testhandle' for domain raises UNMANAGED_ZONE instead of OBJECT_NOT_FOUND.
-        WHOIS.get_domain_by_handle.side_effect = REGISTRY_MODULE.Whois.UNMANAGED_ZONE
+        WHOIS.get_domain_by_handle.side_effect = UNMANAGED_ZONE
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "testhandle"}))
         self.assertContains(response, "Handle not found")
         self.assertContains(response,
@@ -69,12 +71,12 @@ class TestResolveHandleType(ObjectDetailMixin):
         ])
 
     def test_handle_with_dash_not_found(self):
-        WHOIS.get_contact_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
-        WHOIS.get_nsset_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
-        WHOIS.get_keyset_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
-        WHOIS.get_registrar_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
+        WHOIS.get_contact_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_nsset_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_keyset_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_registrar_by_handle.side_effect = OBJECT_NOT_FOUND
         # Handle 'testhandle' for domain raises UNMANAGED_ZONE instead of OBJECT_NOT_FOUND.
-        WHOIS.get_domain_by_handle.side_effect = REGISTRY_MODULE.Whois.UNMANAGED_ZONE
+        WHOIS.get_domain_by_handle.side_effect = UNMANAGED_ZONE
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "-abc"}))
         self.assertContains(response, "Handle not found")
         self.assertContains(response, "No domain, contact or name server set matches <strong>-abc</strong> query.")
@@ -94,12 +96,12 @@ class TestResolveHandleType(ObjectDetailMixin):
         ])
 
     def test_handle_in_zone_not_found(self):
-        WHOIS.get_contact_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
-        WHOIS.get_nsset_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
-        WHOIS.get_keyset_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
-        WHOIS.get_registrar_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
+        WHOIS.get_contact_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_nsset_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_keyset_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_registrar_by_handle.side_effect = OBJECT_NOT_FOUND
         # Only valid domain name in zone raises OBJECT_NOT_FOUND.
-        WHOIS.get_domain_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
+        WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "fred.cz"}))
         self.assertContains(response, "Handle not found")
         self.assertContains(response, "No domain, contact or name server set matches <strong>fred.cz</strong> query.")
@@ -120,7 +122,7 @@ class TestResolveHandleType(ObjectDetailMixin):
         ])
 
     def test_contact_not_found(self):
-        WHOIS.get_contact_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
+        WHOIS.get_contact_by_handle.side_effect = OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "testhandle"}))
         self.assertContains(response, 'Contact not found')
         self.assertContains(response, 'No contact matches <strong>testhandle</strong> handle.')
@@ -135,7 +137,7 @@ class TestResolveHandleType(ObjectDetailMixin):
         self.assertEqual(WHOIS.mock_calls, [call.get_contact_by_handle('testhandle')])
 
     def test_contact_invalid_handle(self):
-        WHOIS.get_contact_by_handle.side_effect = REGISTRY_MODULE.Whois.INVALID_HANDLE
+        WHOIS.get_contact_by_handle.side_effect = INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "testhandle"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>testhandle</strong> is not a valid handle.")
@@ -149,7 +151,7 @@ class TestResolveHandleType(ObjectDetailMixin):
         self.assertEqual(WHOIS.mock_calls, [call.get_contact_by_handle('testhandle')])
 
     def test_contact_invalid_handle_escaped(self):
-        WHOIS.get_contact_by_handle.side_effect = REGISTRY_MODULE.Whois.INVALID_HANDLE
+        WHOIS.get_contact_by_handle.side_effect = INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "test<handle"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>test&lt;handle</strong> is not a valid handle.")
@@ -204,10 +206,10 @@ class TestResolveHandleType(ObjectDetailMixin):
 
     def test_one_entry(self):
         WHOIS.get_contact_by_handle.return_value = self._get_contact()
-        WHOIS.get_nsset_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
-        WHOIS.get_keyset_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
-        WHOIS.get_registrar_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
-        WHOIS.get_domain_by_handle.side_effect = REGISTRY_MODULE.Whois.UNMANAGED_ZONE
+        WHOIS.get_nsset_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_keyset_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_registrar_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_domain_by_handle.side_effect = UNMANAGED_ZONE
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "testhandle"}))
         WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
@@ -219,20 +221,20 @@ class TestResolveHandleType(ObjectDetailMixin):
 class TestDetailContact(ObjectDetailMixin):
 
     def test_contact_not_found(self):
-        WHOIS.get_contact_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
+        WHOIS.get_contact_by_handle.side_effect = OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "testhandle"}))
         self.assertContains(response, 'Contact not found')
         self.assertContains(response, 'No contact matches <strong>testhandle</strong> handle.')
         self.assertNotContains(response, 'Register this domain name?')
 
     def test_contact_invalid_handle(self):
-        WHOIS.get_contact_by_handle.side_effect = REGISTRY_MODULE.Whois.INVALID_HANDLE
+        WHOIS.get_contact_by_handle.side_effect = INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "testhandle"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>testhandle</strong> is not a valid handle.")
 
     def test_contact_invalid_handle_escaped(self):
-        WHOIS.get_contact_by_handle.side_effect = REGISTRY_MODULE.Whois.INVALID_HANDLE
+        WHOIS.get_contact_by_handle.side_effect = INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "test<handle"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>test&lt;handle</strong> is not a valid handle.")
@@ -382,9 +384,8 @@ class TestDetailContact(ObjectDetailMixin):
 
     def test_contact_with_ssn_type_birthday(self):
         WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        ident = REGISTRY_MODULE.Whois.DisclosableContactIdentification(
-            value=REGISTRY_MODULE.Whois.ContactIdentification(identification_type='BIRTHDAY',
-                                                              identification_data='2000-06-28'),
+        ident = DisclosableContactIdentification(
+            value=ContactIdentification(identification_type='BIRTHDAY', identification_data='2000-06-28'),
             disclose=True,
         )
         WHOIS.get_contact_by_handle.return_value = self._get_contact(identification=ident)
@@ -428,9 +429,9 @@ class TestDetailContact(ObjectDetailMixin):
     def test_contact_with_invalid_birthday_value(self):
         WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         WHOIS.get_contact_by_handle.return_value = self._get_contact(
-            identification=REGISTRY_MODULE.Whois.DisclosableContactIdentification(
-                value=REGISTRY_MODULE.Whois.ContactIdentification(identification_type='BIRTHDAY',
-                                                                  identification_data='FOO'), disclose=True))
+            identification=DisclosableContactIdentification(
+                value=ContactIdentification(identification_type='BIRTHDAY', identification_data='FOO'),
+                disclose=True))
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertCssSelectEqual(response, ".contact .ident-value", ['FOO'], transform=self.transform_to_text)
@@ -527,7 +528,7 @@ class TestDetailContact(ObjectDetailMixin):
 class TestDetailNsset(ObjectDetailMixin):
 
     def test_nsset_not_found(self):
-        WHOIS.get_nsset_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
+        WHOIS.get_nsset_by_handle.side_effect = OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
         self.assertContains(response, 'Name server set not found')
         self.assertContains(response, 'No name server set matches <strong>mynssid</strong> handle.')
@@ -542,7 +543,7 @@ class TestDetailNsset(ObjectDetailMixin):
         self.assertEqual(WHOIS.mock_calls, [call.get_nsset_by_handle('mynssid')])
 
     def test_nsset_invalid_handle(self):
-        WHOIS.get_nsset_by_handle.side_effect = REGISTRY_MODULE.Whois.INVALID_HANDLE
+        WHOIS.get_nsset_by_handle.side_effect = INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>mynssid</strong> is not a valid handle.")
@@ -670,7 +671,7 @@ class TestDetailNsset(ObjectDetailMixin):
         "Test for set disclose of organization to True."
         WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         WHOIS.get_contact_by_handle.return_value = self._get_contact(
-            organization=REGISTRY_MODULE.Whois.DisclosableString(value='', disclose=True))
+            organization=DisclosableString(value='', disclose=True))
         WHOIS.get_nsset_status_descriptions.return_value = self._get_nsset_status()
         WHOIS.get_nsset_by_handle.return_value = self._get_nsset()
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
@@ -704,7 +705,7 @@ class TestDetailNsset(ObjectDetailMixin):
 class TestDetailKeyset(ObjectDetailMixin):
 
     def test_keyset_not_found(self):
-        WHOIS.get_keyset_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
+        WHOIS.get_keyset_by_handle.side_effect = OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:detail_keyset", kwargs={"handle": "mykeysid"}))
         self.assertContains(response, 'Key server set not found')
         self.assertContains(response, 'No key set matches <strong>mykeysid</strong> handle.')
@@ -719,7 +720,7 @@ class TestDetailKeyset(ObjectDetailMixin):
         self.assertEqual(WHOIS.mock_calls, [call.get_keyset_by_handle(u'mykeysid')])
 
     def test_keyset_invalid_handle(self):
-        WHOIS.get_keyset_by_handle.side_effect = REGISTRY_MODULE.Whois.INVALID_HANDLE
+        WHOIS.get_keyset_by_handle.side_effect = INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_keyset", kwargs={"handle": "mykeysid"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>mykeysid</strong> is not a valid handle.")
@@ -785,7 +786,7 @@ class TestDetailKeyset(ObjectDetailMixin):
         "Test for set disclose of organization to True."
         WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         WHOIS.get_contact_by_handle.return_value = self._get_contact(
-            organization=REGISTRY_MODULE.Whois.DisclosableString(value='', disclose=True))
+            organization=DisclosableString(value='', disclose=True))
         WHOIS.get_keyset_status_descriptions.return_value = self._get_keyset_status()
         WHOIS.get_keyset_by_handle.return_value = self._get_keyset()
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
@@ -820,7 +821,7 @@ class TestDetailKeyset(ObjectDetailMixin):
 class TestDetailDomain(ObjectDetailMixin):
 
     def test_domain_not_found(self):
-        WHOIS.get_domain_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
+        WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND
         WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
         self.assertContains(response, 'Domain not found')
@@ -836,7 +837,7 @@ class TestDetailDomain(ObjectDetailMixin):
         self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('fred.cz')])
 
     def test_domain_not_found_idna_formated(self):
-        WHOIS.get_domain_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
+        WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND
         WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "...fred.cz"}))
         self.assertContains(response, 'Invalid handle')
@@ -920,7 +921,7 @@ class TestDetailDomain(ObjectDetailMixin):
         "Test for set disclose of organization to True."
         WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         WHOIS.get_contact_by_handle.return_value = self._get_contact(
-            organization=REGISTRY_MODULE.Whois.DisclosableString(value='', disclose=True))
+            organization=DisclosableString(value='', disclose=True))
         WHOIS.get_nsset_status_descriptions.return_value = self._get_nsset_status()
         WHOIS.get_nsset_by_handle.return_value = self._get_nsset()
         WHOIS.get_keyset_status_descriptions.return_value = self._get_keyset_status()
@@ -1014,7 +1015,7 @@ class TestDetailDomain(ObjectDetailMixin):
         ])
 
     def test_domain_unmanaged_zone(self):
-        WHOIS.get_domain_by_handle.side_effect = REGISTRY_MODULE.Whois.UNMANAGED_ZONE
+        WHOIS.get_domain_by_handle.side_effect = UNMANAGED_ZONE
         WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.com"}))
         self.assertContains(response, 'Unmanaged zone')
@@ -1047,14 +1048,14 @@ class TestDetailDomain(ObjectDetailMixin):
         self.assertEqual(WHOIS.mock_calls, [])
 
     def test_domain_invalid_label(self):
-        WHOIS.get_domain_by_handle.side_effect = REGISTRY_MODULE.Whois.INVALID_LABEL
+        WHOIS.get_domain_by_handle.side_effect = INVALID_LABEL
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.com"}))
         self.assertContains(response, 'Invalid handle')
         self.assertContains(response, '<strong>fred.com</strong> is not a valid handle.')
         self.assertNotContains(response, 'Register this domain name?')
 
     def test_domain_invalid_label_with_dash(self):
-        WHOIS.get_domain_by_handle.side_effect = REGISTRY_MODULE.Whois.INVALID_LABEL
+        WHOIS.get_domain_by_handle.side_effect = INVALID_LABEL
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "-abc"}))
         self.assertContains(response, 'Invalid handle')
         self.assertContains(response, '<strong>-abc</strong> is not a valid handle.')
@@ -1069,7 +1070,7 @@ class TestDetailDomain(ObjectDetailMixin):
         self.assertEqual(WHOIS.mock_calls, [])
 
     def test_domain_too_many_labels(self):
-        WHOIS.get_domain_by_handle.side_effect = REGISTRY_MODULE.Whois.TOO_MANY_LABELS
+        WHOIS.get_domain_by_handle.side_effect = TOO_MANY_LABELS
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "www.fred.cz"}))
         self.assertContains(response, "Incorrect input")
         self.assertContains(response, "Too many parts in the domain name <strong>www.fred.cz</strong>.")
@@ -1086,7 +1087,7 @@ class TestDetailDomain(ObjectDetailMixin):
         self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('www.fred.cz')])
 
     def test_domain_too_many_labels_with_dot_at_the_end(self):
-        WHOIS.get_domain_by_handle.side_effect = REGISTRY_MODULE.Whois.TOO_MANY_LABELS
+        WHOIS.get_domain_by_handle.side_effect = TOO_MANY_LABELS
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "www.fred.cz."}))
         self.assertContains(response, "Incorrect input")
         self.assertContains(response, "Too many parts in the domain name <strong>www.fred.cz.</strong>.")

@@ -2,10 +2,11 @@ import datetime
 import re
 
 from django.utils.translation import ugettext_lazy as _
+from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND
 
 from webwhois.settings import WEBWHOIS_MOJEID_LINK_WHY, WEBWHOIS_MOJEID_REGISTRY_ENDPOINT, \
     WEBWHOIS_MOJEID_TRANSFER_ENDPOINT
-from webwhois.utils import REGISTRY_MODULE, WHOIS
+from webwhois.utils import WHOIS
 from webwhois.views.base import RegistryObjectMixin
 
 
@@ -46,12 +47,12 @@ class ContactDetailMixin(RegistryObjectMixin):
                 "birthday": birthday,
                 "label": _("Contact"),
             }
-        except REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND:
+        except OBJECT_NOT_FOUND:
             context["server_exception"] = {
                 "title": _("Contact not found"),
                 "message": cls.message_with_handle_in_html(_("No contact matches %s handle."), handle),
             }
-        except REGISTRY_MODULE.Whois.INVALID_HANDLE:
+        except INVALID_HANDLE:
             context["server_exception"] = cls.message_invalid_handle(handle)
 
     def load_related_objects(self, context):

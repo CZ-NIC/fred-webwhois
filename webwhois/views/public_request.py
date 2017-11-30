@@ -8,11 +8,13 @@ from django.utils.formats import date_format
 from django.utils.html import format_html
 from django.utils.translation import get_language, ugettext_lazy as _
 from django.views.generic import TemplateView, View
+from fred_idl.Registry.PublicRequest import HAS_DIFFERENT_BLOCK, INVALID_EMAIL, OBJECT_ALREADY_BLOCKED, \
+    OBJECT_NOT_BLOCKED, OBJECT_NOT_FOUND, OBJECT_TRANSFER_PROHIBITED, OPERATION_PROHIBITED, Language, LockRequestType
 
 from webwhois.forms import BlockObjectForm, SendPasswordForm, UnblockObjectForm
 from webwhois.forms.public_request import LOCK_TYPE_ALL, LOCK_TYPE_TRANSFER, LOCK_TYPE_URL_PARAM, SEND_TO_CUSTOM, \
     SEND_TO_IN_REGISTRY
-from webwhois.utils.corba_wrapper import LOGGER, PUBLIC_REQUEST, REGISTRY_MODULE
+from webwhois.utils.corba_wrapper import LOGGER, PUBLIC_REQUEST
 from webwhois.views.base import BaseContextMixin
 from webwhois.views.public_request_mixin import PublicRequestFormView, PublicRequestKnownException, \
     PublicRequestLoggerMixin
@@ -66,14 +68,14 @@ class SendPasswordFormView(ContextFormUrlsMixin, PublicRequestFormView):
                 # confirm_type_name is 'signed_email'
                 response_id = PUBLIC_REQUEST.create_authinfo_request_registry_email(
                     self._get_object_type(data['object_type']), data['handle'], log_request_id)
-        except REGISTRY_MODULE.PublicRequest.OBJECT_NOT_FOUND as err:
+        except OBJECT_NOT_FOUND as err:
             form.add_error('handle',
                            _('Object not found. Check that you have correctly entered the Object type and Handle.'))
             raise PublicRequestKnownException(type(err).__name__)
-        except REGISTRY_MODULE.PublicRequest.OBJECT_TRANSFER_PROHIBITED as err:
+        except OBJECT_TRANSFER_PROHIBITED as err:
             form.add_error('handle', _('Transfer of object is prohibited. The request can not be accepted.'))
             raise PublicRequestKnownException(type(err).__name__)
-        except REGISTRY_MODULE.PublicRequest.INVALID_EMAIL as err:
+        except INVALID_EMAIL as err:
             form.add_error('custom_email', _('The email was not found or the address is not valid.'))
             raise PublicRequestKnownException(type(err).__name__)
         return response_id
@@ -130,20 +132,20 @@ class BlockUnblockFormView(PublicRequestFormView):
                 self._get_object_type(form.cleaned_data['object_type']), form.cleaned_data['handle'], log_request_id,
                 self._get_confirmed_by_type(form.cleaned_data['confirmation_method']),
                 self._get_lock_type(form.cleaned_data['lock_type']))
-        except REGISTRY_MODULE.PublicRequest.OBJECT_NOT_FOUND as err:
+        except OBJECT_NOT_FOUND as err:
             form.add_error('handle', _('Object not found. Check that you have correctly entered the Object type and '
                                        'Handle.'))
             raise PublicRequestKnownException(type(err).__name__)
-        except REGISTRY_MODULE.PublicRequest.OBJECT_ALREADY_BLOCKED as err:
+        except OBJECT_ALREADY_BLOCKED as err:
             form.add_error('handle', _('This object is already blocked. The request can not be accepted.'))
             raise PublicRequestKnownException(type(err).__name__)
-        except REGISTRY_MODULE.PublicRequest.OBJECT_NOT_BLOCKED as err:
+        except OBJECT_NOT_BLOCKED as err:
             form.add_error('handle', _('This object is not blocked. The request can not be accepted.'))
             raise PublicRequestKnownException(type(err).__name__)
-        except REGISTRY_MODULE.PublicRequest.HAS_DIFFERENT_BLOCK as err:
+        except HAS_DIFFERENT_BLOCK as err:
             form.add_error('handle', _('This object has another active blocking. The request can not be accepted.'))
             raise PublicRequestKnownException(type(err).__name__)
-        except REGISTRY_MODULE.PublicRequest.OPERATION_PROHIBITED as err:
+        except OPERATION_PROHIBITED as err:
             form.add_error('handle', _('Operation for this object is prohibited. The request can not be accepted.'))
             raise PublicRequestKnownException(type(err).__name__)
         return response_id
@@ -185,8 +187,8 @@ class BlockObjectFormView(ContextFormUrlsMixin, BlockUnblockFormView):
 
     def _get_lock_type(self, key):
         return {
-            LOCK_TYPE_TRANSFER: REGISTRY_MODULE.PublicRequest.LockRequestType.block_transfer,
-            LOCK_TYPE_ALL: REGISTRY_MODULE.PublicRequest.LockRequestType.block_transfer_and_update,
+            LOCK_TYPE_TRANSFER: LockRequestType.block_transfer,
+            LOCK_TYPE_ALL: LockRequestType.block_transfer_and_update,
         }[key]
 
 
@@ -203,8 +205,8 @@ class UnblockObjectFormView(ContextFormUrlsMixin, BlockUnblockFormView):
 
     def _get_lock_type(self, key):
         return {
-            LOCK_TYPE_TRANSFER: REGISTRY_MODULE.PublicRequest.LockRequestType.unblock_transfer,
-            LOCK_TYPE_ALL: REGISTRY_MODULE.PublicRequest.LockRequestType.unblock_transfer_and_update,
+            LOCK_TYPE_TRANSFER: LockRequestType.unblock_transfer,
+            LOCK_TYPE_ALL: LockRequestType.unblock_transfer_and_update,
         }[key]
 
 
@@ -529,8 +531,8 @@ class ServeNotarizedLetterView(PublicRequestLoggerMixin, View):
             raise Http404
 
         registry_lang_codes = {
-            'en': REGISTRY_MODULE.PublicRequest.Language.en,
-            'cs': REGISTRY_MODULE.PublicRequest.Language.cs,
+            'en': Language.en,
+            'cs': Language.cs,
         }
         lang_code = get_language()
         if lang_code not in registry_lang_codes:
@@ -553,7 +555,7 @@ class ServeNotarizedLetterView(PublicRequestLoggerMixin, View):
         error_object = None
         try:
             pdf_content = PUBLIC_REQUEST.create_public_request_pdf(response_data['response_id'], language_code)
-        except REGISTRY_MODULE.PublicRequest.OBJECT_NOT_FOUND as err:
+        except OBJECT_NOT_FOUND as err:
             WEBWHOIS_LOGGING.error('Exception OBJECT_NOT_FOUND risen for public request id %s.' % log_request_id)
             error_object = PublicRequestKnownException(type(err).__name__)
             raise Http404

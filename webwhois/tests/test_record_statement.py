@@ -1,9 +1,10 @@
 from django.core.urlresolvers import reverse
 from django.test import SimpleTestCase, override_settings
+from fred_idl.Registry.PublicRequest import INTERNAL_SERVER_ERROR, OBJECT_NOT_FOUND
 from mock import call, patch
 
 from webwhois.tests.utils import apply_patch
-from webwhois.utils import RECORD_STATEMENT, REGISTRY_MODULE
+from webwhois.utils import RECORD_STATEMENT
 
 
 @override_settings(ROOT_URLCONF='webwhois.tests.urls')
@@ -68,7 +69,7 @@ class TestRecordStatementPdf(SimpleTestCase):
 
     def test_download_domain_object_not_found(self):
         self.LOGGER.create_request.return_value.request_id = 42
-        RECORD_STATEMENT.domain_printout.side_effect = REGISTRY_MODULE.PublicRequest.OBJECT_NOT_FOUND
+        RECORD_STATEMENT.domain_printout.side_effect = OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:record_statement_pdf", kwargs={
             "object_type": "domain", "handle": "foo.cz"}))
         self.assertEqual(response.status_code, 404)
@@ -85,8 +86,8 @@ class TestRecordStatementPdf(SimpleTestCase):
 
     def test_download_domain_internal_server_error(self):
         self.LOGGER.create_request.return_value.request_id = 42
-        RECORD_STATEMENT.domain_printout.side_effect = REGISTRY_MODULE.PublicRequest.INTERNAL_SERVER_ERROR
-        with self.assertRaises(REGISTRY_MODULE.PublicRequest.INTERNAL_SERVER_ERROR):
+        RECORD_STATEMENT.domain_printout.side_effect = INTERNAL_SERVER_ERROR
+        with self.assertRaises(INTERNAL_SERVER_ERROR):
             self.client.get(reverse("webwhois:record_statement_pdf", kwargs={
                 "object_type": "domain", "handle": "foo.cz"}))
         self.assertEqual(RECORD_STATEMENT.mock_calls, [call.domain_printout('foo.cz', False)])

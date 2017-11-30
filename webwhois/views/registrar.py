@@ -3,9 +3,10 @@ import random
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
+from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND
 
 from webwhois.settings import WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED, WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED
-from webwhois.utils import FILE_MANAGER, REGISTRY_MODULE, WHOIS
+from webwhois.utils import FILE_MANAGER, WHOIS
 from webwhois.views.base import BaseContextMixin, RegistryObjectMixin
 
 
@@ -23,12 +24,12 @@ class RegistrarDetailMixin(RegistryObjectMixin):
                 "detail": WHOIS.get_registrar_by_handle(handle),
                 "label": _("Registrar"),
             }
-        except REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND:
+        except OBJECT_NOT_FOUND:
             context["server_exception"] = {
                 "title": _("Registrar not found"),
                 "message": cls.message_with_handle_in_html(_("No registrar matches %s handle."), handle),
             }
-        except REGISTRY_MODULE.Whois.INVALID_HANDLE:
+        except INVALID_HANDLE:
             context["server_exception"] = cls.message_invalid_handle(handle)
 
 

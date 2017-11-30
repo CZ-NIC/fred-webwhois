@@ -1,10 +1,11 @@
 from django.test import SimpleTestCase, override_settings
 from django.urls import reverse
+from fred_idl.Registry.Whois import OBJECT_NOT_FOUND
 from mock import call, patch
 
 from webwhois.forms import BlockObjectForm, SendPasswordForm, UnblockObjectForm, WhoisForm
 from webwhois.tests.utils import TEMPLATES, WebwhoisAssertMixin, apply_patch
-from webwhois.utils import REGISTRY_MODULE, WHOIS
+from webwhois.utils import WHOIS
 
 
 @override_settings(TEMPLATES=TEMPLATES)
@@ -65,11 +66,11 @@ class TestWhoisFormView(WebwhoisAssertMixin, SimpleTestCase):
         self.assertEqual(WHOIS.mock_calls, [])
 
     def test_valid_handle(self):
-        WHOIS.get_contact_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
-        WHOIS.get_nsset_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
-        WHOIS.get_keyset_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
-        WHOIS.get_registrar_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
-        WHOIS.get_domain_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
+        WHOIS.get_contact_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_nsset_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_keyset_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_registrar_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND
         response = self.client.post(reverse("webwhois:form_whois"), {"handle": " mycontact "})
         self.assertRedirects(response, reverse("webwhois:registry_object_type", kwargs={"handle": "mycontact"}),
                              fetch_redirect_response=False)

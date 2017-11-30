@@ -4,10 +4,12 @@ from datetime import date, datetime
 
 from django.test import SimpleTestCase, override_settings
 from django.utils import timezone
+from fred_idl.Registry.PublicRequest import Buffer
+from fred_idl.Registry.Whois import WhoisIntf
 from mock import call, patch, sentinel
 from omniORB import StructBase
 
-from webwhois.utils import CCREG_MODULE, REGISTRY_MODULE
+from webwhois.utils import CCREG_MODULE
 from webwhois.utils.corba_wrapper import CORBA_ORB, WebwhoisCorbaRecoder, load_filemanager_from_idl, \
     load_logger_from_idl, load_whois_from_idl
 
@@ -86,7 +88,7 @@ class TestWebwhoisCorbaRecoder(SimpleTestCase):
         self.assertEqual(WebwhoisCorbaRecoder().decode(raw), None)
 
     def test_decode_buffer(self):
-        buffer_obj = REGISTRY_MODULE.PublicRequest.Buffer('foo')
+        buffer_obj = Buffer('foo')
         self.assertEqual(WebwhoisCorbaRecoder().decode(buffer_obj), 'foo')
 
     def test_decode_file_download(self):
@@ -109,7 +111,7 @@ class TestLoadIdl(SimpleTestCase):
         result = load_whois_from_idl()
 
         self.assertEqual(result, sentinel.corba_object)
-        self.assertEqual(self.corba_mock.mock_calls, [call.get_object('Whois2', REGISTRY_MODULE.Whois.WhoisIntf)])
+        self.assertEqual(self.corba_mock.mock_calls, [call.get_object('Whois2', WhoisIntf)])
 
     def test_load_filemanager_from_idl(self):
         result = load_filemanager_from_idl()

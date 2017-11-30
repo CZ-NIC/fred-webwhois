@@ -2,8 +2,9 @@ from django.core.cache import cache
 from django.utils.crypto import get_random_string
 from django.utils.timezone import now as timezone_now
 from django.views.generic import FormView
+from fred_idl.Registry.PublicRequest import ConfirmedBy, ObjectType_PR
 
-from webwhois.utils.corba_wrapper import LOGGER, REGISTRY_MODULE
+from webwhois.utils.corba_wrapper import LOGGER
 from webwhois.views.logger_mixin import LoggerMixin
 
 
@@ -53,16 +54,16 @@ class PublicRequestFormView(PublicRequestLoggerMixin, FormView):
 
     def _get_object_type(self, name):
         return {
-            'domain': REGISTRY_MODULE.PublicRequest.ObjectType_PR.domain,
-            'contact': REGISTRY_MODULE.PublicRequest.ObjectType_PR.contact,
-            'nsset': REGISTRY_MODULE.PublicRequest.ObjectType_PR.nsset,
-            'keyset': REGISTRY_MODULE.PublicRequest.ObjectType_PR.keyset
+            'domain': ObjectType_PR.domain,
+            'contact': ObjectType_PR.contact,
+            'nsset': ObjectType_PR.nsset,
+            'keyset': ObjectType_PR.keyset
         }[name]
 
     def _get_confirmed_by_type(self, name):
         return {
-            'signed_email': REGISTRY_MODULE.PublicRequest.ConfirmedBy.signed_email,
-            'notarized_letter': REGISTRY_MODULE.PublicRequest.ConfirmedBy.notarized_letter,
+            'signed_email': ConfirmedBy.signed_email,
+            'notarized_letter': ConfirmedBy.notarized_letter,
         }[name]
 
     def _call_registry_command(self, form, log_request_id):

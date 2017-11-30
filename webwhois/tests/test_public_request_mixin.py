@@ -2,11 +2,11 @@ from datetime import datetime
 
 from django.test import SimpleTestCase, override_settings
 from django.test.client import RequestFactory
+from fred_idl.Registry.PublicRequest import OBJECT_NOT_FOUND
 from mock import call, patch
 
 from webwhois.forms import SendPasswordForm
 from webwhois.tests.utils import apply_patch
-from webwhois.utils.corba_wrapper import REGISTRY_MODULE
 from webwhois.views.public_request_mixin import PublicRequestFormView, PublicRequestKnownException, cache
 
 
@@ -31,7 +31,7 @@ class DebugPublicRequest(PublicRequestFormView):
 class DebugPublicRequestKnownException(DebugPublicRequest):
 
     def _call_registry_command(self, data, log_request_id):
-        raise PublicRequestKnownException(type(REGISTRY_MODULE.PublicRequest.OBJECT_NOT_FOUND()).__name__)
+        raise PublicRequestKnownException(type(OBJECT_NOT_FOUND()).__name__)
 
 
 class DebugPublicRequestRaiseException(DebugPublicRequest):
@@ -84,7 +84,7 @@ class TestPublicRequestFormView(SimpleTestCase):
         self.LOGGER.result = 'Error'
         pubreq = DebugPublicRequest()
         pubreq.finish_logging_request(self.LOGGER, None, PublicRequestKnownException(
-            type(REGISTRY_MODULE.PublicRequest.OBJECT_NOT_FOUND()).__name__))
+            type(OBJECT_NOT_FOUND()).__name__))
         self.assertEqual(self.LOGGER.mock_calls, [call.close(properties=[('reason', 'OBJECT_NOT_FOUND')],
                                                              references=[])])
         self.assertEqual(self.LOGGER.result, 'Fail')

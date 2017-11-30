@@ -7,11 +7,12 @@ from django.test import SimpleTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils._os import upath
+from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND, Registrar, RegistrarCertification, RegistrarGroup
 from mock import call, patch
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.tests.utils import TEMPLATES, WebwhoisAssertMixin, apply_patch
-from webwhois.utils import CCREG_MODULE, FILE_MANAGER, REGISTRY_MODULE, WHOIS
+from webwhois.utils import CCREG_MODULE, FILE_MANAGER, WHOIS
 
 
 @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', ['certified'])
@@ -25,7 +26,7 @@ class TestRegistrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTest
         self.LOGGER = apply_patch(self, patch("webwhois.views.base.LOGGER"))
 
     def test_registrar_not_found(self):
-        WHOIS.get_registrar_by_handle.side_effect = REGISTRY_MODULE.Whois.OBJECT_NOT_FOUND
+        WHOIS.get_registrar_by_handle.side_effect = OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:detail_registrar", kwargs={"handle": "REG_FRED_A"}))
         self.assertContains(response, 'Registrar not found')
         self.assertContains(response, 'No registrar matches <strong>REG_FRED_A</strong> handle.')
@@ -39,7 +40,7 @@ class TestRegistrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTest
         self.assertEqual(WHOIS.mock_calls, [call.get_registrar_by_handle('REG_FRED_A')])
 
     def test_registrar_invalid_handle(self):
-        WHOIS.get_registrar_by_handle.side_effect = REGISTRY_MODULE.Whois.INVALID_HANDLE
+        WHOIS.get_registrar_by_handle.side_effect = INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_registrar", kwargs={"handle": "REG_FRED_A"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>REG_FRED_A</strong> is not a valid handle.")
@@ -211,26 +212,22 @@ class TestRegistrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTest
         WHOIS.get_registrar_groups.return_value[0].members.extend(("REG-ACTIVE", "REG-DEACTIVE", "REG-FRED_X",
                                                                    "REG-FRED_Y"))
         WHOIS.get_registrar_certification_list.return_value.extend((
-            REGISTRY_MODULE.Whois.RegistrarCertification(registrar_handle='REG-ACTIVE', score=8,
-                                                         evaluation_file_id=None),
-            REGISTRY_MODULE.Whois.RegistrarCertification(registrar_handle='REG-DEACTIVE', score=8,
-                                                         evaluation_file_id=None),
-            REGISTRY_MODULE.Whois.RegistrarCertification(registrar_handle='REG-FRED_X', score=2,
-                                                         evaluation_file_id=None),
-            REGISTRY_MODULE.Whois.RegistrarCertification(registrar_handle='REG-FRED_Y', score=2,
-                                                         evaluation_file_id=None),
+            RegistrarCertification(registrar_handle='REG-ACTIVE', score=8, evaluation_file_id=None),
+            RegistrarCertification(registrar_handle='REG-DEACTIVE', score=8, evaluation_file_id=None),
+            RegistrarCertification(registrar_handle='REG-FRED_X', score=2, evaluation_file_id=None),
+            RegistrarCertification(registrar_handle='REG-FRED_Y', score=2, evaluation_file_id=None),
         ))
         WHOIS.get_registrars.return_value.extend((
-            REGISTRY_MODULE.Whois.Registrar(
+            Registrar(
                 handle='REG-FRED_X', name="Company X L.t.d.", organization='Testing registrar X', url='www.fred-x.cz',
                 phone='', fax='', address=self._get_place_address()),
-            REGISTRY_MODULE.Whois.Registrar(
+            Registrar(
                 handle='REG-FRED_Y', name="Company Y L.t.d.", organization='Testing registrar Y', url='www.fred-y.cz',
                 phone='', fax='', address=self._get_place_address()),
-            REGISTRY_MODULE.Whois.Registrar(
+            Registrar(
                 handle='REG-ACTIVE', name="Active L.t.d.", organization='Active registrar', url='www.active.cz',
                 phone='', fax='', address=self._get_place_address()),
-            REGISTRY_MODULE.Whois.Registrar(
+            Registrar(
                 handle='REG-DEACTIVE', name="Deactive L.t.d.", organization='Deactive registrar', url='www.deactive.cz',
                 phone='', fax='', address=self._get_place_address()),
         ))
@@ -277,11 +274,11 @@ class SetMocksMixin(object):
         spec = ('get_registrar_certification_list', 'get_registrar_groups', 'get_registrars')
         apply_patch(self, patch.object(WHOIS, 'client', spec=spec))
         WHOIS.get_registrar_groups.return_value = self._get_registrar_groups() + [
-            REGISTRY_MODULE.Whois.RegistrarGroup(name='foo', members=['REG-FOO'])
+            RegistrarGroup(name='foo', members=['REG-FOO'])
         ]
         WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()
         WHOIS.get_registrars.return_value = self._get_registrars() + [
-            REGISTRY_MODULE.Whois.Registrar(
+            Registrar(
                 handle='REG-FOO', name="Foo s.r.o.", organization='Foo registrar', url='www.foo.foo', phone='', fax='',
                 address=self._get_place_address()),
         ]

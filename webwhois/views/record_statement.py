@@ -1,7 +1,8 @@
 from django.http import Http404, HttpResponse
 from django.views.generic import View
+from fred_idl.Registry.PublicRequest import OBJECT_NOT_FOUND
 
-from webwhois.utils.corba_wrapper import LOGGER, RECORD_STATEMENT, REGISTRY_MODULE
+from webwhois.utils.corba_wrapper import LOGGER, RECORD_STATEMENT
 from webwhois.views.public_request_mixin import LoggerMixin
 
 
@@ -29,7 +30,7 @@ class ServeRecordStatementView(LoggerMixin, View):
             return
         properties_out, references = [], []
         if error_object:
-            if isinstance(error_object, REGISTRY_MODULE.PublicRequest.OBJECT_NOT_FOUND):
+            if isinstance(error_object, OBJECT_NOT_FOUND):
                 properties_out.append(("reason", "OBJECT_NOT_FOUND"))
                 log_request.result = "Fail"
             else:
@@ -57,7 +58,7 @@ class ServeRecordStatementView(LoggerMixin, View):
                 pdf_content = RECORD_STATEMENT.keyset_printout(handle)
             else:
                 raise ValueError("Unknown object_type.")
-        except REGISTRY_MODULE.PublicRequest.OBJECT_NOT_FOUND as error_object:
+        except OBJECT_NOT_FOUND as error_object:
             raise Http404
         except BaseException as error_object:
             raise
