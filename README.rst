@@ -460,6 +460,6 @@ The schema of integration into a project
 
 The schema is shown on the main page of the standalone site.
 
-.. image:: webwhois_site/webwhois_standalone/static/webwhois_standalone/img/webwhois-integration-schema.svg
+.. image:: docs/webwhois-integration-schema.svg
 
 .. _FRED: https://fred.nic.cz/
