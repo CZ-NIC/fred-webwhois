@@ -1,36 +1,28 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import os
-
-from freddist.core import setup
-from freddist.util import find_packages, findall
-
-PROJECT_NAME = 'fred-webwhois'
+from distutils.command.build import build
+from setuptools import find_packages, setup
 
 
-def main():
-    srcdir = os.path.dirname(os.path.abspath(__file__))
-    packages = find_packages(srcdir)
+class custom_build(build):
 
-    templates = [os.path.join('templates', name) for name in findall(os.path.join(srcdir, 'webwhois/templates'))]
-    static = [os.path.join('static', name) for name in findall(os.path.join(srcdir, 'webwhois/static'))]
-    package_data = {
-        'webwhois': templates + static,
-        'webwhois.tests': ['templates/*'],
-    }
+    def has_i18n_files(self):
+        return bool(self.distribution.i18n_files)
 
-    setup(name=PROJECT_NAME,
-          description='NIC.CZ Fred Web Whois',
-          author='Zdeněk Böhm, CZ.NIC',
-          author_email='zdenek.bohm@nic.cz',
-          url='http://fred.nic.cz/',
-          license='GNU GPL',
-          platforms=['posix'],
-          long_description='CZ.NIC Fred Web Whois',
-          packages=packages,
-          package_data=package_data,
-          i18n_files=['webwhois/locale/cs/LC_MESSAGES/django.po'])
+    sub_commands = [('build_i18n', has_i18n_files)] + build.sub_commands
 
 
-if __name__ == '__main__':
-    main()
+setup(name='fred-webwhois',
+      description='NIC.CZ Fred Web Whois',
+      author='Zdeněk Böhm, CZ.NIC',
+      author_email='zdenek.bohm@nic.cz',
+      url='http://fred.nic.cz/',
+      license='GNU GPL',
+      platforms=['posix'],
+      long_description='CZ.NIC Fred Web Whois',
+      packages=find_packages(),
+      include_package_data=True,
+      setup_requires='setuptools_i18n',
+      install_requires=['django', 'idna', 'fred-pylogger', 'pyfco', 'django-app-settings>=0.3'],
+      i18n_files=['webwhois/locale/cs/LC_MESSAGES/django.po'],
+      cmdclass={'build': custom_build})
