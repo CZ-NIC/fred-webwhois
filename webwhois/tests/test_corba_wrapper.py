@@ -89,6 +89,14 @@ class TestWebwhoisCorbaRecoder(SimpleTestCase):
         buffer_obj = REGISTRY_MODULE.PublicRequest.Buffer('foo')
         self.assertEqual(WebwhoisCorbaRecoder().decode(buffer_obj), 'foo')
 
+    def test_decode_file_download(self):
+        file_download = CCREG_MODULE._objref_FileDownload()
+        self.assertEqual(WebwhoisCorbaRecoder().decode(file_download), file_download)
+
+    def test_encode_file_download(self):
+        file_download = CCREG_MODULE._objref_FileDownload()
+        self.assertEqual(WebwhoisCorbaRecoder().encode(file_download), file_download)
+
 
 class TestLoadIdl(SimpleTestCase):
 

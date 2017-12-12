@@ -66,6 +66,7 @@ class WebwhoisCorbaRecoder(CorbaRecoder):
         super(WebwhoisCorbaRecoder, self).__init__(coding)
         self.add_recode_function(REGISTRY_MODULE.PublicRequest.Buffer, self._decode_buffer, self._identity)
         self.add_recode_function(REGISTRY_MODULE.RecordStatement.PdfBuffer, self._decode_pdf_buffer, self._identity)
+        self.add_recode_function(CCREG_MODULE._objref_FileDownload, self._identity, self._identity)
 
     def _decode_buffer(self, value):
         return value.value  # IDL:Registry/PublicRequest/Buffer:1.0
