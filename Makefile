@@ -11,7 +11,7 @@ msg: msg-py
 msg-py: msg-make-py msg-sort-py
 
 msg-make-py:
-	cd ${APP} && django-admin makemessages -l cs
+	unset -v DJANGO_SETTINGS_MODULE; cd ${APP} && django-admin makemessages -l cs
 
 msg-sort-py:
 	msgattrib --sort-output --no-location --no-obsolete -o ${TRANSLATIONS} ${TRANSLATIONS}
@@ -38,6 +38,6 @@ check-doc:
 
 check-i18n:
 	# Ensure catalog is complete - make C locales to generate POT files and compare it using the msgcmp
-	cd ${APP} && django-admin makemessages --locale C --no-obsolete --no-location --keep-pot
+	unset -v DJANGO_SETTINGS_MODULE; cd ${APP} && django-admin makemessages --locale C --no-obsolete --no-location --keep-pot
 	msgcmp ${TRANSLATIONS} ${APP}/locale/django.pot
 	-rm -r ${APP}/locale/django.pot ${APP}/locale/C
