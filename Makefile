@@ -37,6 +37,7 @@ check-doc:
 	pydocstyle ${APP}
 
 check-i18n:
+	polint --show-msg ${TRANSLATIONS}
 	# Ensure catalog is complete - make C locales to generate POT files and compare it using the msgcmp
 	unset -v DJANGO_SETTINGS_MODULE; cd ${APP} && django-admin makemessages --locale C --no-obsolete --no-location --keep-pot
 	msgcmp ${TRANSLATIONS} ${APP}/locale/django.pot

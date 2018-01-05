@@ -77,6 +77,7 @@ i18n:
     stage: analysis
     before_script:
         - pip install django$DJANGO_VERSION
+        - pip install polint
         - pip list
     script: "make check-i18n"
 
