@@ -1,6 +1,6 @@
 from django.http import Http404, HttpResponse
 from django.views.generic import View
-from fred_idl.Registry.PublicRequest import OBJECT_NOT_FOUND
+from fred_idl.Registry.RecordStatement import OBJECT_NOT_FOUND
 
 from webwhois.utils.corba_wrapper import LOGGER, RECORD_STATEMENT
 from webwhois.views.public_request_mixin import LoggerMixin

@@ -1,6 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.test import SimpleTestCase, override_settings
-from fred_idl.Registry.PublicRequest import INTERNAL_SERVER_ERROR, OBJECT_NOT_FOUND
+from fred_idl.Registry.RecordStatement import INTERNAL_SERVER_ERROR, OBJECT_NOT_FOUND
 from mock import call, patch
 
 from webwhois.tests.utils import apply_patch
