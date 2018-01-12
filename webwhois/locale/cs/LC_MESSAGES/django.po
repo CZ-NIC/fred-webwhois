@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-25 13:03+0200\n"
+"POT-Creation-Date: 2018-01-12 11:50+0100\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -54,6 +54,9 @@ msgstr "Kontakt"
 
 msgid "Contact details"
 msgstr "Prohlížení kontaktu"
+
+msgid "Contact is registered but not linked to other registry object"
+msgstr "Kontakt je registrován, ale není navázán na jiný objekt v registru"
 
 msgid "Contact not found"
 msgstr "Kontakt nenalezen"

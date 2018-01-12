@@ -247,10 +247,6 @@ class TestDetailContact(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertContains(response, "Contact details")
         self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
-        self.assertCssSelectEqual(response, "table.result tr", [
-            'Handle KONTAKT',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d.'
-        ], transform=self.transform_to_text)
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(

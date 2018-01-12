@@ -144,43 +144,38 @@
                         {% endif %}
                     </td>
                 </tr>
+            {% endif %}
+            <tr>
+                <th>{% trans "Sponsoring registrar" %}</th>
+                <td class="sponsoring-registrar">
+                    {% if contact.sponsoring_registrar_handle %}
+                        <a href="{% url "webwhois:detail_registrar" handle=contact.sponsoring_registrar_handle %}">{{ contact.sponsoring_registrar_handle }}</a> {{ registry_objects.contact.sponsoring_registrar.name }}
+                    {% endif %}
+                </td>
+            </tr>
+            {% if registry_objects.contact.is_linked and registry_objects.contact.verification_status %}
                 <tr>
-                    <th>{% trans "Sponsoring registrar" %}</th>
-                    <td class="sponsoring-registrar">
-                        {% if contact.sponsoring_registrar_handle %}
-                            <a href="{% url "webwhois:detail_registrar" handle=contact.sponsoring_registrar_handle %}">{{ contact.sponsoring_registrar_handle }}</a> {{ registry_objects.contact.sponsoring_registrar.name }}
-                        {% endif %}
-                    </td>
-                </tr>
-                {% if registry_objects.contact.verification_status %}
-                    <tr>
-                        <th>{% trans "Contact verification status" %}</th>
-                        <td class="verification-status">{% for status in registry_objects.contact.verification_status %}
-                             <div>
-                                <img src="{% static status.icon %}" alt="{{ status.code }}" /> <span>{{ status.label }}</span>
-                             </div>
-                            {% endfor %}
-                        </td>
-                    </tr>
-                {% endif %}
-                <tr>
-                    <th>{% trans "Status" %}</th>
-                    <td class="status" data-codes="{{ contact.statuses|join:"," }}">
-                        {% for description in registry_objects.contact.status_descriptions %}
-                            <div>{{ description }}</div>
+                    <th>{% trans "Contact verification status" %}</th>
+                    <td class="verification-status">{% for status in registry_objects.contact.verification_status %}
+                         <div>
+                            <img src="{% static status.icon %}" alt="{{ status.code }}" /> <span>{{ status.label }}</span>
+                         </div>
                         {% endfor %}
                     </td>
                 </tr>
-            {% else %}
-                <tr>
-                    <th>{% trans "Sponsoring registrar" %}</th>
-                    <td class="sponsoring-registrar">
-                        {% if contact.sponsoring_registrar_handle %}
-                            <a href="{% url "webwhois:detail_registrar" handle=contact.sponsoring_registrar_handle %}">{{ contact.sponsoring_registrar_handle }}</a> {{ registry_objects.contact.sponsoring_registrar.name }}
-                        {% endif %}
-                    </td>
-                </tr>
             {% endif %}
+            <tr>
+                <th>{% trans "Status" %}</th>
+                <td class="status" data-codes="{{ contact.statuses|join:"," }}">
+                    {% if registry_objects.contact.is_linked %}
+                        {% for description in registry_objects.contact.status_descriptions %}
+                            <div>{{ description }}</div>
+                        {% endfor %}
+                    {% else %}
+                        <div>{% trans "Contact is registered but not linked to other registry object" %}</div>
+                    {% endif %}
+                </td>
+            </tr>
         </table>
         {% url "webwhois:record_statement_pdf" object_type="contact" handle=contact.handle as record_statement_pdf_url %}
         {% include "webwhois/verified_record_statement_link.html" %}
