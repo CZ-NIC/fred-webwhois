@@ -32,7 +32,7 @@ class ServeRecordStatementView(LoggerMixin, View):
         if error_object:
             if isinstance(error_object, OBJECT_NOT_FOUND):
                 properties_out.append(("reason", "OBJECT_NOT_FOUND"))
-                log_request.result = "Fail"
+                log_request.result = "NotFound"
             else:
                 # Default result is "Error"
                 properties_out.append(("exception", error_object.__class__.__name__))

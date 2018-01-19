@@ -82,7 +82,7 @@ class TestRecordStatementPdf(SimpleTestCase):
             ]),
             call().close(properties=[('reason', 'OBJECT_NOT_FOUND')], references=[])
         ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
+        self.assertEqual(self.LOGGER.create_request.return_value.result, 'NotFound')
 
     def test_download_domain_internal_server_error(self):
         self.LOGGER.create_request.return_value.request_id = 42
