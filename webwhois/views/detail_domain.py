@@ -4,6 +4,7 @@ import idna
 from django.utils.translation import ugettext_lazy as _
 from fred_idl.Registry.Whois import INVALID_LABEL, OBJECT_NOT_FOUND, TOO_MANY_LABELS, UNMANAGED_ZONE
 
+from webwhois.constants import STATUS_DELETE_CANDIDATE
 from webwhois.settings import WEBWHOIS_DNSSEC_URL, WEBWHOIS_HOW_TO_REGISTER_LINK, WEBWHOIS_SEARCH_ENGINES
 from webwhois.utils import WHOIS
 from webwhois.views import KeysetDetailMixin, NssetDetailMixin
@@ -100,7 +101,7 @@ class DomainDetailMixin(RegistryObjectMixin):
         registry_object = data["detail"]
         data["status_descriptions"] = [descriptions[key] for key in registry_object.statuses]
         data["show_details"] = True
-        if "deleteCandidate" in registry_object.statuses:
+        if STATUS_DELETE_CANDIDATE in registry_object.statuses:
             data["show_details"] = False
             return
         data.update({

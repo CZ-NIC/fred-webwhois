@@ -52,7 +52,6 @@ class RegistryObjectMixin(BaseContextMixin):
         cache_key = "webwhois_descr_%s_%s" % (lang, type_name)
         descripts = cache.get(cache_key)
         if not descripts:
-            # Registry.Whois.ObjectStatusDesc(handle='serverDeleteProhibited', name='Deletion forbidden')
             descripts = {object_status_desc.handle: object_status_desc.name
                          for object_status_desc in fnc_get_descriptions(force_bytes(lang))}
             cache.set(cache_key, descripts)
