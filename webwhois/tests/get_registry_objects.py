@@ -109,27 +109,20 @@ class GetRegistryObjectMixin(object):
             street1='The street 123', street2='', street3='', city='Prague', stateorprovince='', postalcode='13200',
             country_code='CZ')
 
-    def _get_registrar(self, **kwargs):
+    def _get_registrar(self):
         address = PlaceAddress(
             street1='The street 123', street2='', street3='', city='Prague', stateorprovince='', postalcode='12300',
             country_code='CZ')
-        obj = Registrar(
+        return Registrar(
             handle='REG-FRED_A', name="Company A L.t.d.", organization='Testing registrar A', url='www.nic.cz',
             phone='+420.72645123', fax='+420.72645124', address=address,
         )
-        field_names = obj.__dict__.keys()
-        for key, value in kwargs.items():
-            assert key in field_names, "Unknown arg '%s' in _get_registrar." % key
-            setattr(obj, key, value)
-        return obj
 
     @corba_wrapper_m
-    def _get_nsset(self, **kwargs):
-        fqdn1 = kwargs.pop('fqdn1', 'a.ns.nic.cz')
-        fqdn2 = kwargs.pop('fqdn2', 'b.ns.nic.cz')
+    def _get_nsset(self, fqdn1='a.ns.nic.cz', fqdn2='b.ns.nic.cz'):
         ip1 = IPAddress(address='194.0.12.1', version=IPv4)
         ip2 = IPAddress(address='194.0.13.1', version=IPv4)
-        obj = NSSet(
+        return NSSet(
             handle='NSSET-1',
             nservers=[
                 NameServer(fqdn=fqdn1, ip_addresses=[ip1]),
@@ -142,15 +135,10 @@ class GetRegistryObjectMixin(object):
             last_transfer=DateTimeType(date=DateType(day=11, month=12, year=2015), hour=18, minute=18, second=32),
             statuses=[STATUS_LINKED]
         )
-        field_names = obj.__dict__.keys()
-        for key, value in kwargs.items():
-            assert key in field_names, "Unknown arg '%s' in _get_nsset." % key
-            setattr(obj, key, value)
-        return obj
 
     @corba_wrapper_m
-    def _get_keyset(self, **kwargs):
-        obj = KeySet(
+    def _get_keyset(self):
+        return KeySet(
             handle='KEYSID-1',
             dns_keys=[
                 DNSKey(flags=257, protocol=3, alg=5,
@@ -163,11 +151,6 @@ class GetRegistryObjectMixin(object):
             last_transfer=DateTimeType(date=DateType(day=11, month=12, year=2015), hour=18, minute=18, second=32),
             statuses=[STATUS_LINKED]
         )
-        field_names = obj.__dict__.keys()
-        for key, value in kwargs.items():
-            assert key in field_names, "Unknown arg '%s' in _get_keyset." % key
-            setattr(obj, key, value)
-        return obj
 
     @corba_wrapper_m
     def _get_domain(self, **kwargs):
