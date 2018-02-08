@@ -4,19 +4,21 @@ from django.test import SimpleTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import reset_format_cache
+from django.views import View
 from fred_idl.ccReg import DateTimeType, DateType
 from fred_idl.Registry.Whois import INVALID_HANDLE, INVALID_LABEL, OBJECT_NOT_FOUND, TOO_MANY_LABELS, UNMANAGED_ZONE, \
     ContactIdentification, DisclosableContactIdentification, DisclosableString
-from mock import call, patch
+from mock import call, patch, sentinel
 
 from webwhois.constants import STATUS_DELETE_CANDIDATE, STATUS_DELETE_PROHIBITED, STATUS_LINKED, \
     STATUS_MOJEID_CONTACT, STATUS_SERVER_BLOCKED, STATUS_TRANSFER_PROHIBITED, STATUS_UPDATE_PROHIBITED
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
-from webwhois.tests.utils import TEMPLATES, WebwhoisAssertMixin, apply_patch
 from webwhois.utils import WHOIS
 from webwhois.views.base import RegistryObjectMixin
 from webwhois.views.detail_keyset import KeysetDetailMixin
 from webwhois.views.detail_nsset import NssetDetailMixin
+
+from .utils import TEMPLATES, WebwhoisAssertMixin, apply_patch, make_keyset
 
 WEBWHOIS_MOJEID_TRANSFER_ENDPOINT = "https://mojeid.cz/endpoint/"
 WEBWHOIS_MOJEID_REGISTRY_ENDPOINT = "https://mojeid.cz/mogrify/preface/"
@@ -1500,9 +1502,37 @@ class TestDetailCss(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase)
                                   transform=lambda node: node.attrib["data-codes"])
 
 
+class FakeRegistryObjectView(RegistryObjectMixin, View):
+    """Test view for RegistryObjectMixin."""
+
+    _registry_objects_key = 'bollox'
+    object_type_name = sentinel.type_name
+
+    def __init__(self, object_mock):
+        self.object_mock = object_mock
+
+    def load_registry_object(self, context, handle):
+        context[self._registry_objects_key] = {self.object_type_name: {'detail': self.object_mock}}
+
+
 class TestRegistryObjectMixin(SimpleTestCase):
+    """Test RegistryObjectMixin class."""
 
     def test_logging_request(self):
         view = RegistryObjectMixin()
         with self.assertRaises(NotImplementedError):
             view.prepare_logging_request()
+
+    def test_context_is_not_delete_candidate(self):
+        view = FakeRegistryObjectView(make_keyset(statuses=[]))
+        view.kwargs = {'handle': sentinel.handle}
+        with patch("webwhois.views.base.LOGGER", None):
+            context = view.get_context_data(handle=sentinel.handle)
+        self.assertFalse(context['object_delete_candidate'])
+
+    def test_context_is_delete_candidate(self):
+        view = FakeRegistryObjectView(make_keyset(statuses=[STATUS_DELETE_CANDIDATE]))
+        view.kwargs = {'handle': sentinel.handle}
+        with patch("webwhois.views.base.LOGGER", None):
+            context = view.get_context_data(handle=sentinel.handle)
+        self.assertTrue(context['object_delete_candidate'])

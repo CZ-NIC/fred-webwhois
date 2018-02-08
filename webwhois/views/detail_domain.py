@@ -100,9 +100,7 @@ class DomainDetailMixin(RegistryObjectMixin):
         data = context[self._registry_objects_key]["domain"]  # detail, type, label, href
         registry_object = data["detail"]
         data["status_descriptions"] = [descriptions[key] for key in registry_object.statuses]
-        data["show_details"] = True
         if STATUS_DELETE_CANDIDATE in registry_object.statuses:
-            data["show_details"] = False
             return
         data.update({
             "registrant": WHOIS.get_contact_by_handle(registry_object.registrant_handle),

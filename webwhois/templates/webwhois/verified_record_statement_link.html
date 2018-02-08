@@ -1,5 +1,5 @@
 {% load i18n static %}
-{% if record_statement_pdf_url %}
+{% if record_statement_pdf_url and not object_delete_candidate %}
     <p>
         <a href="{{ record_statement_pdf_url }}" title="{% trans "Download Verified record statement in PDF." %}">
             <img src="{% static "webwhois/img/mimetypes/ico_pdf.gif" %}" width="16" height="16" alt="PDF" />
