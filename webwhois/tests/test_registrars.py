@@ -237,9 +237,9 @@ class TestRegistrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTest
         response = self.client.get(reverse("webwhois:registrar_list_retail"))
 
         self.assertXpathEqual(response, "//table[contains(@class, 'registrars')]//tr[position()>1]", [
-            ('Active L.t.d.',    '********'),
-            ('Deactive L.t.d.',  '********'),
-            ('MojeID s.r.o.',    '********'),
+            ('Active L.t.d.', '********'),
+            ('Deactive L.t.d.', '********'),
+            ('MojeID s.r.o.', '********'),
             ('Company A L.t.d.', '**'),
             ('Company X L.t.d.', '**'),
             ('Company Y L.t.d.', '**'),
@@ -249,9 +249,9 @@ class TestRegistrarsView(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTest
         mock_shuffle.side_effect = lambda regs: regs.sort(key=lambda row: row['registrar'].name, reverse=True)
         response = self.client.get(reverse("webwhois:registrar_list_retail"))
         self.assertXpathEqual(response, "//table[contains(@class, 'registrars')]//tr[position()>1]", [
-            ('MojeID s.r.o.',    '********'),
-            ('Deactive L.t.d.',  '********'),
-            ('Active L.t.d.',    '********'),
+            ('MojeID s.r.o.', '********'),
+            ('Deactive L.t.d.', '********'),
+            ('Active L.t.d.', '********'),
             ('Company Y L.t.d.', '**'),
             ('Company X L.t.d.', '**'),
             ('Company A L.t.d.', '**'),
@@ -373,7 +373,7 @@ class TestDownloadView(GetRegistryObjectMixin, SimpleTestCase):
             mimetype='text/html',
             filetype=6,
             crdate='2015-12-09 16:16:28.598757',
-            size=5L
+            size=5
         )
         content = "<html><body>The content.</body></html>"
         FILE_MANAGER.load.return_value.download.return_value = content
@@ -383,8 +383,8 @@ class TestDownloadView(GetRegistryObjectMixin, SimpleTestCase):
         self.assertEqual(response['Content-Disposition'], 'attachment; filename="test.html"')
         self.assertEqual(WHOIS.mock_calls, [call.get_registrar_certification_list()])
         self.assertEqual(FILE_MANAGER.mock_calls, [
-            call.info(2L),
+            call.info(2),
             call.load(2),
-            call.load().download(5L),
+            call.load().download(5),
             call.load().finalize_download()
         ])

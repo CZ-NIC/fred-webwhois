@@ -189,8 +189,8 @@ class GetRegistryObjectMixin(object):
 
     def _get_registrar_certs(self):
         return [
-            RegistrarCertification(registrar_handle='REG-FRED_A', score=2, evaluation_file_id=1L),
-            RegistrarCertification(registrar_handle='REG-MOJEID', score=8, evaluation_file_id=2L),
+            RegistrarCertification(registrar_handle='REG-FRED_A', score=2, evaluation_file_id=1),
+            RegistrarCertification(registrar_handle='REG-MOJEID', score=8, evaluation_file_id=2),
         ]
 
     def _get_registrars(self):
