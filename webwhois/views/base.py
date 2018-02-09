@@ -7,6 +7,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import get_language, ugettext_lazy as _
 from django.views.generic.base import ContextMixin
 
+from webwhois.constants import STATUS_DELETE_CANDIDATE
 from webwhois.utils import LOGGER
 
 mark_safe_lazy = lazy(mark_safe, six.text_type)
@@ -52,7 +53,6 @@ class RegistryObjectMixin(BaseContextMixin):
         cache_key = "webwhois_descr_%s_%s" % (lang, type_name)
         descripts = cache.get(cache_key)
         if not descripts:
-            # Registry.Whois.ObjectStatusDesc(handle='serverDeleteProhibited', name='Deletion forbidden')
             descripts = {object_status_desc.handle: object_status_desc.name
                          for object_status_desc in fnc_get_descriptions(force_bytes(lang))}
             cache.set(cache_key, descripts)
@@ -129,7 +129,12 @@ class RegistryObjectMixin(BaseContextMixin):
 
     def get_context_data(self, handle, **kwargs):
         kwargs.setdefault("handle", handle)
-        kwargs.update(self._get_registry_objects())
+        objects = self._get_registry_objects()
+        kwargs.update(objects)
+        if self.object_type_name in objects[self._registry_objects_key]:
+            obj = objects[self._registry_objects_key][self.object_type_name]
+            # Registrars don't have statuses
+            kwargs['object_delete_candidate'] = STATUS_DELETE_CANDIDATE in getattr(obj['detail'], 'statuses', ())
         return super(RegistryObjectMixin, self).get_context_data(**kwargs)
 
     def get_template_names(self):

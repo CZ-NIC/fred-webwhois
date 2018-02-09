@@ -4,17 +4,21 @@ from django.test import SimpleTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import reset_format_cache
+from django.views import View
 from fred_idl.ccReg import DateTimeType, DateType
 from fred_idl.Registry.Whois import INVALID_HANDLE, INVALID_LABEL, OBJECT_NOT_FOUND, TOO_MANY_LABELS, UNMANAGED_ZONE, \
     ContactIdentification, DisclosableContactIdentification, DisclosableString
-from mock import call, patch
+from mock import call, patch, sentinel
 
+from webwhois.constants import STATUS_DELETE_CANDIDATE, STATUS_DELETE_PROHIBITED, STATUS_LINKED, \
+    STATUS_MOJEID_CONTACT, STATUS_SERVER_BLOCKED, STATUS_TRANSFER_PROHIBITED, STATUS_UPDATE_PROHIBITED
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
-from webwhois.tests.utils import TEMPLATES, WebwhoisAssertMixin, apply_patch
 from webwhois.utils import WHOIS
 from webwhois.views.base import RegistryObjectMixin
 from webwhois.views.detail_keyset import KeysetDetailMixin
 from webwhois.views.detail_nsset import NssetDetailMixin
+
+from .utils import TEMPLATES, WebwhoisAssertMixin, apply_patch, make_keyset
 
 WEBWHOIS_MOJEID_TRANSFER_ENDPOINT = "https://mojeid.cz/endpoint/"
 WEBWHOIS_MOJEID_REGISTRY_ENDPOINT = "https://mojeid.cz/mogrify/preface/"
@@ -449,7 +453,7 @@ class TestDetailContact(ObjectDetailMixin):
     def test_contact_verification_failed(self):
         WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         WHOIS.get_contact_by_handle.return_value = self._get_contact(
-            statuses=["linked", "contactFailedManualVerification"],
+            statuses=[STATUS_LINKED, "contactFailedManualVerification"],
         )
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
@@ -474,7 +478,8 @@ class TestDetailContact(ObjectDetailMixin):
 
     def test_contact_verification_in_manual(self):
         WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=["linked", "contactInManualVerification"])
+        WHOIS.get_contact_by_handle.return_value = self._get_contact(
+            statuses=[STATUS_LINKED, "contactInManualVerification"])
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertXpathEqual(response, "//th[text()='Contact verification status']/../td", [
@@ -498,7 +503,7 @@ class TestDetailContact(ObjectDetailMixin):
 
     def test_contact_verification_ok(self):
         WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=["linked", "validatedContact"])
+        WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=[STATUS_LINKED, "validatedContact"])
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertXpathEqual(response, "//th[text()='Contact verification status']/../td", [
@@ -1168,7 +1173,7 @@ class TestDetailDomain(ObjectDetailMixin):
             nsset_handle=None,
             keyset_handle=None,
             registrar_handle='',
-            statuses=['deleteCandidate'],
+            statuses=[STATUS_DELETE_CANDIDATE],
             registered=datetime,
             changed=None,
             last_transfer=None,
@@ -1331,22 +1336,22 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, [])
 
     def test_status_mojeid_contact(self):
-        self._do_test_statuses(["linked", "mojeidContact"])
+        self._do_test_statuses([STATUS_LINKED, STATUS_MOJEID_CONTACT])
 
     def test_status_server_transfer_prohibited(self):
-        self._do_test_statuses(["linked", "serverTransferProhibited"])
+        self._do_test_statuses([STATUS_LINKED, STATUS_TRANSFER_PROHIBITED])
 
     def test_status_server_update_prohibited(self):
-        self._do_test_statuses(["linked", "serverUpdateProhibited"])
+        self._do_test_statuses([STATUS_LINKED, STATUS_UPDATE_PROHIBITED])
 
     def test_status_server_delete_prohibited(self):
-        self._do_test_statuses(["linked", "serverDeleteProhibited"])
+        self._do_test_statuses([STATUS_LINKED, STATUS_DELETE_PROHIBITED])
 
     def test_status_delete_candidate(self):
-        self._do_test_statuses(["linked", "deleteCandidate"])
+        self._do_test_statuses([STATUS_LINKED, STATUS_DELETE_CANDIDATE])
 
     def test_status_server_blocked(self):
-        self._do_test_statuses(["linked", "serverBlocked"])
+        self._do_test_statuses([STATUS_LINKED, STATUS_SERVER_BLOCKED])
 
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None, LANGUAGE_CODE='en',
@@ -1497,9 +1502,37 @@ class TestDetailCss(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase)
                                   transform=lambda node: node.attrib["data-codes"])
 
 
+class FakeRegistryObjectView(RegistryObjectMixin, View):
+    """Test view for RegistryObjectMixin."""
+
+    _registry_objects_key = 'bollox'
+    object_type_name = sentinel.type_name
+
+    def __init__(self, object_mock):
+        self.object_mock = object_mock
+
+    def load_registry_object(self, context, handle):
+        context[self._registry_objects_key] = {self.object_type_name: {'detail': self.object_mock}}
+
+
 class TestRegistryObjectMixin(SimpleTestCase):
+    """Test RegistryObjectMixin class."""
 
     def test_logging_request(self):
         view = RegistryObjectMixin()
         with self.assertRaises(NotImplementedError):
             view.prepare_logging_request()
+
+    def test_context_is_not_delete_candidate(self):
+        view = FakeRegistryObjectView(make_keyset(statuses=[]))
+        view.kwargs = {'handle': sentinel.handle}
+        with patch("webwhois.views.base.LOGGER", None):
+            context = view.get_context_data(handle=sentinel.handle)
+        self.assertFalse(context['object_delete_candidate'])
+
+    def test_context_is_delete_candidate(self):
+        view = FakeRegistryObjectView(make_keyset(statuses=[STATUS_DELETE_CANDIDATE]))
+        view.kwargs = {'handle': sentinel.handle}
+        with patch("webwhois.views.base.LOGGER", None):
+            context = view.get_context_data(handle=sentinel.handle)
+        self.assertTrue(context['object_delete_candidate'])

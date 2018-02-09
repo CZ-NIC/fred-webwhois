@@ -3,7 +3,10 @@ from shutil import rmtree
 from tempfile import mkdtemp
 
 from django.utils.encoding import smart_text
+from fred_idl.Registry import Date, DateTime
+from fred_idl.Registry.Whois import KeySet
 from lxml import etree, html
+from mock import sentinel
 
 TEMPLATES = [
     {
@@ -166,3 +169,10 @@ class WebwhoisAssertMixin(object):
         http://www.w3schools.com/xpath/xpath_functions.asp
         """
         return re.sub("\s+", " ", value).strip()
+
+
+def make_keyset(statuses=None):
+    """Return a key set object."""
+    return KeySet(handle=sentinel.handle, dns_keys=[], tech_contact_handles=[], registrar_handle=sentinel.registrar,
+                  created=DateTime(Date(1, 1, 1970), 0, 0, 0), changed=None, last_transfer=None,
+                  statuses=(statuses or []))

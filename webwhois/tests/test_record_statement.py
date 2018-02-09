@@ -1,6 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.test import SimpleTestCase, override_settings
-from fred_idl.Registry.RecordStatement import INTERNAL_SERVER_ERROR, OBJECT_NOT_FOUND
+from fred_idl.Registry.RecordStatement import INTERNAL_SERVER_ERROR, OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND
 from mock import call, patch
 
 from webwhois.tests.utils import apply_patch
@@ -67,22 +67,27 @@ class TestRecordStatementPdf(SimpleTestCase):
         RECORD_STATEMENT.keyset_printout.return_value = "PDF content..."
         self._assert_download("keyset", call.keyset_printout('FOO'))
 
-    def test_download_domain_object_not_found(self):
+    def _test_no_record_found(self, exception, exception_name):
+        # Test for cases which result in page not found.
         self.LOGGER.create_request.return_value.request_id = 42
-        RECORD_STATEMENT.domain_printout.side_effect = OBJECT_NOT_FOUND
-        response = self.client.get(reverse("webwhois:record_statement_pdf", kwargs={
-            "object_type": "domain", "handle": "foo.cz"}))
-        self.assertEqual(response.status_code, 404)
+        RECORD_STATEMENT.domain_printout.side_effect = exception
+
+        response = self.client.get(
+            reverse("webwhois:record_statement_pdf", kwargs={"object_type": "domain", "handle": "foo.cz"}))
+
+        self.assertContains(response, 'Not Found', status_code=404)
         self.assertEqual(RECORD_STATEMENT.mock_calls, [call.domain_printout('foo.cz', False)])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Web whois', 'RecordStatement', properties=[
-                ('handle', 'foo.cz'),
-                ('objectType', 'domain'),
-                ('documentType', 'public')
-            ]),
-            call().close(properties=[('reason', 'OBJECT_NOT_FOUND')], references=[])
-        ])
+        calls = [call('127.0.0.1', 'Web whois', 'RecordStatement',
+                      properties=[('handle', 'foo.cz'), ('objectType', 'domain'), ('documentType', 'public')]),
+                 call().close(properties=[('reason', exception_name)], references=[])]
+        self.assertEqual(self.LOGGER.create_request.mock_calls, calls)
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'NotFound')
+
+    def test_object_not_found(self):
+        self._test_no_record_found(OBJECT_NOT_FOUND, 'OBJECT_NOT_FOUND')
+
+    def test_object_delete_candidate(self):
+        self._test_no_record_found(OBJECT_DELETE_CANDIDATE, 'OBJECT_DELETE_CANDIDATE')
 
     def test_download_domain_internal_server_error(self):
         self.LOGGER.create_request.return_value.request_id = 42

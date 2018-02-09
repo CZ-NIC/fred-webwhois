@@ -4,6 +4,10 @@ import re
 from django.utils.translation import ugettext_lazy as _
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND
 
+from webwhois.constants import STATUS_CONDITIONALLY_IDENTIFIED, STATUS_DELETE_CANDIDATE, STATUS_DELETE_PROHIBITED, \
+    STATUS_IDENTIFIED, STATUS_LINKED, STATUS_MOJEID_CONTACT, STATUS_SERVER_BLOCKED, STATUS_TRANSFER_PROHIBITED, \
+    STATUS_UPDATE_PROHIBITED, STATUS_VALIDATED, STATUS_VERIFICATION_FAILED, STATUS_VERIFICATION_IN_PROCESS, \
+    STATUS_VERIFICATION_PASSED
 from webwhois.settings import WEBWHOIS_MOJEID_LINK_WHY, WEBWHOIS_MOJEID_REGISTRY_ENDPOINT, \
     WEBWHOIS_MOJEID_TRANSFER_ENDPOINT
 from webwhois.utils import WHOIS
@@ -15,18 +19,13 @@ class ContactDetailMixin(RegistryObjectMixin):
     template_name = "webwhois/contact.html"
     object_type_name = "contact"
 
-    CONTACT_VERIFICATION_STATUS = (
-        'conditionallyIdentifiedContact',
-        'contactFailedManualVerification',
-        'contactInManualVerification',
-        'contactPassedManualVerification',
-        'identifiedContact',
-        'validatedContact',
-    )
+    CONTACT_VERIFICATION_STATUS = (STATUS_VERIFICATION_IN_PROCESS, STATUS_VERIFICATION_PASSED,
+                                   STATUS_VERIFICATION_FAILED, STATUS_CONDITIONALLY_IDENTIFIED, STATUS_IDENTIFIED,
+                                   STATUS_VALIDATED)
     ICON_PATH = "webwhois/img/"
     VERIFICATION_STATUS_ICON = {
-        "contactInManualVerification": ICON_PATH + "icon-orange-cross.gif",
-        "contactFailedManualVerification": ICON_PATH + "icon-red-cross.gif",
+        STATUS_VERIFICATION_IN_PROCESS: ICON_PATH + "icon-orange-cross.gif",
+        STATUS_VERIFICATION_FAILED: ICON_PATH + "icon-red-cross.gif",
         "DEFAULT": ICON_PATH + "icon-yes.gif",
     }
 
@@ -68,7 +67,7 @@ class ContactDetailMixin(RegistryObjectMixin):
             "status_descriptions": [descriptions[key] for key in registry_object.statuses
                                     if key not in self.CONTACT_VERIFICATION_STATUS],
             "verification_status": ver_status,
-            "is_linked": "linked" in registry_object.statuses
+            "is_linked": STATUS_LINKED in registry_object.statuses
         })
         if registry_object.creating_registrar_handle:
             data["creating_registrar"] = WHOIS.get_registrar_by_handle(registry_object.creating_registrar_handle)
@@ -92,11 +91,6 @@ class ContactDetailWithMojeidMixin(ContactDetailMixin):
         data = context[self._registry_objects_key]["contact"]
         registry_object = data["detail"]
         data["show_button_mojeid"] = bool(self.valid_mojeid_handle_format.match(registry_object.handle)) \
-            and not set(registry_object.statuses) & set((
-                "mojeidContact",
-                "serverTransferProhibited",
-                "serverUpdateProhibited",
-                "serverDeleteProhibited",
-                "deleteCandidate",
-                "serverBlocked",
-            ))
+            and not set(registry_object.statuses) & set((STATUS_MOJEID_CONTACT, STATUS_DELETE_PROHIBITED,
+                                                         STATUS_TRANSFER_PROHIBITED, STATUS_UPDATE_PROHIBITED,
+                                                         STATUS_SERVER_BLOCKED, STATUS_DELETE_CANDIDATE))

@@ -23,7 +23,7 @@
                         {% endif %}
                     </td>
                 </tr>
-                {% if registry_objects.domain.show_details %}
+                {% if not object_delete_candidate %}
                     <tr>
                         <th>{% trans "Registered since" %}</th>
                         <td class="registered-since">{{ domain.registered|date:"SHORT_DATE_FORMAT" }}</td>
