@@ -11,7 +11,8 @@ from fred_idl.Registry.Whois import INVALID_HANDLE, INVALID_LABEL, OBJECT_NOT_FO
 from mock import call, patch, sentinel
 
 from webwhois.constants import STATUS_DELETE_CANDIDATE, STATUS_DELETE_PROHIBITED, STATUS_LINKED, \
-    STATUS_MOJEID_CONTACT, STATUS_SERVER_BLOCKED, STATUS_TRANSFER_PROHIBITED, STATUS_UPDATE_PROHIBITED
+    STATUS_MOJEID_CONTACT, STATUS_SERVER_BLOCKED, STATUS_TRANSFER_PROHIBITED, STATUS_UPDATE_PROHIBITED, \
+    STATUS_VALIDATED, STATUS_VERIFICATION_FAILED, STATUS_VERIFICATION_IN_PROCESS
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.utils import WHOIS
 from webwhois.views.base import RegistryObjectMixin
@@ -453,15 +454,18 @@ class TestDetailContact(ObjectDetailMixin):
     def test_contact_verification_failed(self):
         WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         WHOIS.get_contact_by_handle.return_value = self._get_contact(
-            statuses=[STATUS_LINKED, "contactFailedManualVerification"],
+            statuses=[STATUS_LINKED, STATUS_VERIFICATION_FAILED],
         )
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
+
+        self.assertContains(response, "Contact details")
         self.assertXpathEqual(response, "//th[text()='Contact verification status']/../td", [
             'Contact has failed the verification by CZ.NIC customer support'
         ], transform=self.transform_to_text)
-        self.assertXpathEqual(response, "//img[@alt='contactFailedManualVerification']/@src", [
-            '/static/webwhois/img/icon-red-cross.gif'])
+        verification_status = response.context["registry_objects"]['contact']['verification_status']
+        self.assertEqual(verification_status[0]['code'], STATUS_VERIFICATION_FAILED)
+        self.assertEqual(verification_status[0]['icon'], 'webwhois/img/icon-red-cross.gif')
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -479,14 +483,17 @@ class TestDetailContact(ObjectDetailMixin):
     def test_contact_verification_in_manual(self):
         WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         WHOIS.get_contact_by_handle.return_value = self._get_contact(
-            statuses=[STATUS_LINKED, "contactInManualVerification"])
+            statuses=[STATUS_LINKED, STATUS_VERIFICATION_IN_PROCESS])
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
+
+        self.assertContains(response, "Contact details")
         self.assertXpathEqual(response, "//th[text()='Contact verification status']/../td", [
             'Contact is being verified by CZ.NIC customer support'
         ], transform=self.transform_to_text)
-        self.assertXpathEqual(response, "//img[@alt='contactInManualVerification']/@src", [
-            '/static/webwhois/img/icon-orange-cross.gif'])
+        verification_status = response.context["registry_objects"]['contact']['verification_status']
+        self.assertEqual(verification_status[0]['code'], STATUS_VERIFICATION_IN_PROCESS)
+        self.assertEqual(verification_status[0]['icon'], 'webwhois/img/icon-orange-cross.gif')
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -503,14 +510,17 @@ class TestDetailContact(ObjectDetailMixin):
 
     def test_contact_verification_ok(self):
         WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=[STATUS_LINKED, "validatedContact"])
+        WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=[STATUS_LINKED, STATUS_VALIDATED])
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
+
+        self.assertContains(response, "Contact details")
         self.assertXpathEqual(response, "//th[text()='Contact verification status']/../td", [
             'Contact is validated'
         ], transform=self.transform_to_text)
-        self.assertXpathEqual(response, "//img[@alt='validatedContact']/@src", [
-            '/static/webwhois/img/icon-yes.gif'])
+        verification_status = response.context["registry_objects"]['contact']['verification_status']
+        self.assertEqual(verification_status[0]['code'], STATUS_VALIDATED)
+        self.assertEqual(verification_status[0]['icon'], 'webwhois/img/icon-yes.gif')
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
