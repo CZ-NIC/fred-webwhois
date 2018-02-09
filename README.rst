@@ -2,20 +2,15 @@
 Webwhois
 ========
 
-The **Webwhois** is a Django-based application of the Whois service.
-It is used for browsing objects in the **FRED** registry system.
+The **Webwhois** is a Django application with the Whois service for the FRED registry system.
 The application searches domain names, contacts, nameserver sets and key sets.
 
 
 Dependencies
 ============
 
-- python (2.7)
-- python-django (1.7)
-- python-omniorb
-- python-lxml
-- python-freddist (archive.nic.cz) - used only for installation
-- python-pyfco (archive.nic.cz)
+- python 2.7
+- Other dependencies are listed in `<requirements.txt>`_.
 
 
 A part of the FRED system
@@ -25,100 +20,33 @@ The ``webwhois`` is a part of the FRED_ system for managing domain names.
 The easiest way to use it, is to install it with the **fred-manager** script.
 The manager installs the whole *FRED server* including all accessories.
 
-If you want to run ``webwhois`` instantly without installation, you only need to set
-the host name and port of the running CORBA name service (``WEBWHOIS_CORBA_NETLOC``).
-
-.. Note::
-    To set the host, you can also use the environment variable ``FRED_WEBWHOIS_NETLOC``.
-
-
-Run the server without installation
-===================================
-
-You can launch ``webwhois`` without installation, after you have sorted out all dependencies
-and started the *FRED* server. Tests requires the package ``mock``.
-
-Run tests:
-
-.. code:: shell
-
-	PYTHONPATH=.:webwhois_site webwhois_site/webwhois_site/manage.py test
-
-.. Note::
-
-   You must have already set the name service host.
-
-Run site server directly from the project folder:
-
-.. code:: shell
-
-   PYTHONPATH=.:webwhois_site FRED_WEBWHOIS_NETLOC=my.fred.com:44846 webwhois_site/webwhois_site/manage.py runserver
-
-
 Installation
 ============
 
-If you do not use the *fred-manager* script for installation, you can install the project separately as you like.
-There are two parts of the project: The ``webwhois`` application itself and the project ``webwhois_standalone``
-as an example of a web site, which integrates the ``webwhois`` application.
+Webwhois can be installed and run separately as any other Django application.
 
 Instructions for custom installation:
 
-1. Choose a folder for your installation:
+1. Install ``webwhois``
 
    .. code:: shell
 
-       DEST=/tmp/mywebwhois
+       python setup.py install
 
-2. Install the "webwhois" application:
+2. Add ``webwhois`` to the ``INSTALLED_APPS`` in your ``settings.py``.
 
-   .. code:: shell
+3. Link ``webwhois`` URLs into your ``urls.py``:
 
-       python ~/cznic/fred/webwhois/setup.py install --root=$DEST
+   .. code:: python
 
-3. Install the standalone project:
+       urlpatterns += [
+           url(r'^whois', include('webwhois.urls')),
+       ]
 
-   .. code:: shell
+Settings
+========
 
-       python ~/cznic/fred/webwhois/webwhois_site/setup.py install --root=$DEST
-
-4. Modify the path to static files in *settings.py* to ensure a correct display of images and CSS in runserver and ``DEBUG`` mode.
-
-   .. code:: shell
-
-       SITE_ROOT=`dirname $(find $DEST -name manage.py)`
-       STATIC_ROOT=$(find $DEST -name static)
-       sed -i "s|^STATIC_URL|STATICFILES_DIRS=['$STATIC_ROOT']\nSTATIC_URL|1" $SITE_ROOT/settings.py
-
-5. Launch website with the **runserver** command in ``DEBUG`` mode (with the nameservice host).
-
-   .. code:: shell
-
-       PYTHONPATH=$SITE_ROOT/.. FRED_WEBWHOIS_NETLOC=my.fred.com:44846 python $SITE_ROOT/manage.py runserver
-
-
-Configuration
-=============
-
-The following variables should be added to the project's ``settings.py``.
-Check an example in webwhois/webwhois_site/webwhois_site/settings.py.
-Only ``'webwhois'`` in ``INSTALLED_APPS`` is obligatory.
-
-
-Integration
------------
-
-``INSTALLED_APPS``
-^^^^^^^^^^^^^^^^^^
-
-Make sure that the ``webwhois`` is listed in your ``INSTALLED_APPS`` variable::
-
-    INSTALLED_APPS = (
-        ...
-        'webwhois',
-        ....
-    )
-
+The following settings can be defined in your ``settings.py``.
 
 CORBA settings
 --------------
@@ -460,6 +388,6 @@ The schema of integration into a project
 
 The schema is shown on the main page of the standalone site.
 
-.. image:: webwhois_site/webwhois_standalone/static/webwhois_standalone/img/webwhois-integration-schema.svg
+.. image:: docs/webwhois-integration-schema.svg
 
 .. _FRED: https://fred.nic.cz/
