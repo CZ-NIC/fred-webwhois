@@ -13,6 +13,7 @@ class custom_build(build):
 
 
 setup(name='fred-webwhois',
+      version='1.11.0',
       description='NIC.CZ Fred Web Whois',
       author='Zdeněk Böhm, CZ.NIC',
       author_email='zdenek.bohm@nic.cz',
