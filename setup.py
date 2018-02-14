@@ -24,6 +24,6 @@ setup(name='fred-webwhois',
       packages=find_packages(),
       include_package_data=True,
       setup_requires='setuptools_i18n',
-      install_requires=['django', 'idna', 'fred-pylogger', 'pyfco', 'django-app-settings>=0.3'],
+      install_requires=['django', 'idna', 'fred-pylogger', 'fred-pyfco', 'django-app-settings>=0.3'],
       i18n_files=['webwhois/locale/cs/LC_MESSAGES/django.po'],
       cmdclass={'build': custom_build})
