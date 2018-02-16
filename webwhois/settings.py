@@ -39,11 +39,6 @@ for dct in WEBWHOIS_SEARCH_ENGINES:
     if not (dct.get("href") and dct.get("label")):
         raise ImproperlyConfigured("WEBWHOIS_SEARCH_ENGINES value %s does not have required keys." % dct)
 
-# Mojeid urls configuration
-WEBWHOIS_MOJEID_REGISTRY_ENDPOINT = getattr(settings, 'WEBWHOIS_MOJEID_REGISTRY_ENDPOINT', None)
-WEBWHOIS_MOJEID_TRANSFER_ENDPOINT = getattr(settings, 'WEBWHOIS_MOJEID_TRANSFER_ENDPOINT', None)
-WEBWHOIS_MOJEID_LINK_WHY = getattr(settings, 'WEBWHOIS_MOJEID_LINK_WHY', None)
-
 # WebWhois - List of Registrars:
 WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL = getattr(settings, 'WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL', None)
 WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL = getattr(settings, 'WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL', None)

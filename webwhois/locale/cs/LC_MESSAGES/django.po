@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-12 11:50+0100\n"
+"POT-Creation-Date: 2018-02-16 16:32+0100\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -80,16 +80,6 @@ msgid ""
 msgstr ""
 "Následující text prosím zkopírujte a vložte do těla e-mailu, e-mail "
 "podepište Vaším digitálním podpisem a zašlete na e-mail naší společnosti."
-
-msgctxt "button"
-msgid "Create mojeID"
-msgstr "Založit mojeID"
-
-msgid "Create mojeID and change the personal data"
-msgstr "Založit mojeID se změnou údajů"
-
-msgid "Create mojeID from the domain registry"
-msgstr "Založit mojeID z registru domén"
 
 msgid "Created by registrar"
 msgstr "Vytvořeno registrátorem"
@@ -946,13 +936,6 @@ msgid "The email was not found or the address is not valid."
 msgstr "E-mail nebyl nalezen nebo je neplatný."
 
 msgid ""
-"The form with prefilled contacts values. It is possible to change them "
-"before submit."
-msgstr ""
-"Formulář s předvyplněnými údaji kontaktu. Před odesláním lze tyto údaje "
-"změnit."
-
-msgid ""
 "There are multiple records having the given handle. Continue with selection "
 "of a required type."
 msgstr ""
@@ -998,9 +981,6 @@ msgstr ""
 
 msgid "Transfer of object is prohibited. The request can not be accepted."
 msgstr "Převod objektu není povolen. Žádost nelze přijmout."
-
-msgid "Transfer of the contact under mojeID registrar."
-msgstr "Převod kontaktu pod registrátora mojeID."
 
 msgid "Transfer password request"
 msgstr "Žádost o heslo pro převod"
@@ -1080,9 +1060,6 @@ msgstr ""
 msgid "Website"
 msgstr "Webové stránky"
 
-msgid "What are the benefits of mojeID?"
-msgstr "Jaké jsou výhody mojeID?"
-
 msgid ""
 "Whois searches in domain names, contacts and name server sets. Enter domain "
 "names without <span>www.</span> prefix and followed by the zone (i.e. "
@@ -1093,9 +1070,6 @@ msgstr ""
 "Doménová jména vkládejte ve tvaru <span>domenovejmeno.cz</span> s <span>.cz</"
 "span> na konci a bez úvodního <span>www</span> (např. <span>nic.cz</span>).\n"
 "Identifikátory kontaktu nebo sady jmenných serverů vkládejte jako běžný text."
-
-msgid "Why mojeID?"
-msgstr "Proč mojeID?"
 
 #, python-format
 msgid ""

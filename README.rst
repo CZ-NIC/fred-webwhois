@@ -334,55 +334,6 @@ Default value::
     None
 
 
-MojeID settings
----------------
-
-Optional variables for links to MojeID service. This is an extra content that extends the basic webwhois application.
-
-
-``WEBWHOIS_MOJEID_REGISTRY_ENDPOINT``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The ``WEBWHOIS_MOJEID_REGISTRY_ENDPOINT`` variable contains a path to the MojeID registration form endpoint.
-It can be ``None``.
-
-Example::
-
-    WEBWHOIS_MOJEID_REGISTRY_ENDPOINT = "%s/mogrify/preface/" % WEBWHOIS_MOJEID_HOST
-
-Default value::
-
-    None
-
-``WEBWHOIS_MOJEID_TRANSFER_ENDPOINT``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The ``WEBWHOIS_MOJEID_TRANSFER_ENDPOINT`` variable contains a path to the MojeID form for contact transfer
-from the registry. It can be ``None``.
-
-Example::
-
-    WEBWHOIS_MOJEID_TRANSFER_ENDPOINT = "%s/transfer/endpoint/" % WEBWHOIS_MOJEID_HOST
-
-Default value::
-
-    None
-
-``WEBWHOIS_MOJEID_LINK_WHY``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The ``WEBWHOIS_MOJEID_LINK_WHY`` variable contains a path to the page about service benefits on the MojeID site.
-It can be ``None``.
-
-Example::
-
-    WEBWHOIS_MOJEID_LINK_WHY = "%s/vyhody/" % WEBWHOIS_MOJEID_HOST
-
-Default value::
-
-    None
-
-
 The schema of integration into a project
 ========================================
 

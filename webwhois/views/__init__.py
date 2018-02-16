@@ -1,5 +1,5 @@
 from .form_whois import WhoisFormView
-from .detail_contact import ContactDetailMixin, ContactDetailWithMojeidMixin
+from .detail_contact import ContactDetailMixin
 from .detail_nsset import NssetDetailMixin
 from .detail_keyset import KeysetDetailMixin
 from .detail_domain import DomainDetailMixin
@@ -10,7 +10,7 @@ from .public_request import BlockObjectFormView, CustomEmailView, EmailInRegistr
     ResponseNotFoundView, SendPasswordFormView, ServeNotarizedLetterView, UnblockObjectFormView
 
 
-__all__ = ['BlockObjectFormView', 'ContactDetailMixin', 'ContactDetailWithMojeidMixin', 'CustomEmailView',
+__all__ = ['BlockObjectFormView', 'ContactDetailMixin', 'CustomEmailView',
            'DomainDetailMixin', 'DownloadEvalFileView', 'EmailInRegistryView', 'KeysetDetailMixin',
            'NotarizedLetterView', 'NssetDetailMixin', 'RegistrarDetailMixin', 'RegistrarListMixin',
            'ResolveHandleTypeMixin', 'ResponseNotFoundView', 'SendPasswordFormView', 'ServeNotarizedLetterView',
