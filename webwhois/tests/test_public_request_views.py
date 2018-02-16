@@ -10,14 +10,14 @@ from fred_idl.Registry.PublicRequest import HAS_DIFFERENT_BLOCK, INVALID_EMAIL, 
     LockRequestType, ObjectType_PR
 from mock import call, patch
 
-from webwhois.tests.utils import TEMPLATES, WebwhoisAssertMixin, apply_patch
+from webwhois.tests.utils import TEMPLATES, apply_patch
 from webwhois.utils import PUBLIC_REQUEST
 from webwhois.views.public_request import BaseResponseTemplateView, CustomEmailView, NotarizedLetterView, \
     ResponseDataKeyMissing
 
 
 @override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
-class TestForms(WebwhoisAssertMixin, SimpleTestCase):
+class TestForms(SimpleTestCase):
 
     def _assert_form_urls(self, context):
         self.assertEqual(context['form_block_object_url'], '/whois/block-object/')
@@ -27,47 +27,32 @@ class TestForms(WebwhoisAssertMixin, SimpleTestCase):
 
     def test_send_password(self):
         response = self.client.get(reverse("webwhois:form_send_password"))
-        self.assertXpathEqual(response, "//table/caption/text()", ["Send password for transfer"])
-        self.assertXpathEqual(response, "(//input[@type!='hidden']/@name|//select/@name)", [
-            'object_type', 'handle', 'send_to', 'send_to', 'custom_email', 'confirmation_method'
-        ])
+        self.assertContains(response, "Send password for transfer")
         self._assert_form_urls(response.context)
 
     def test_block_object(self):
         response = self.client.get(reverse("webwhois:form_block_object"))
-        self.assertXpathEqual(response, "//table/caption/text()", ["Block"])
-        self.assertXpathEqual(response, "(//input[@type!='hidden']/@name|//select/@name)", [
-            'lock_type', 'lock_type', 'object_type', 'handle', 'confirmation_method'
-        ])
+        self.assertContains(response, "Block")
         self._assert_form_urls(response.context)
 
     def test_unblock_object(self):
         response = self.client.get(reverse("webwhois:form_unblock_object"))
-        self.assertXpathEqual(response, "//table/caption/text()", ["Unblock"])
-        self.assertXpathEqual(response, "(//input[@type!='hidden']/@name|//select/@name)", [
-            'lock_type', 'lock_type', 'object_type', 'handle', 'confirmation_method'
-        ])
+        self.assertContains(response, "Unblock")
         self._assert_form_urls(response.context)
 
     def test_form_param_send_to(self):
         params = "?handle=foo&object_type=nsset&send_to=custom_email"
         response = self.client.get(reverse("webwhois:form_send_password") + params)
+        self.assertContains(response, "Send password for transfer")
         self.assertEqual(response.context['form'].initial, {'object_type': 'nsset', 'handle': 'foo',
                                                             'send_to': 'custom_email'})
-        self.assertXpathEqual(response, "//table/caption/text()", ["Send password for transfer"])
-        self.assertXpathEqual(response, "//input[@name='handle']/@value", ['foo'])
-        self.assertXpathEqual(response, "//select[@name='object_type']/option[@selected='selected']/@value", ['nsset'])
-        self.assertXpathEqual(response, "//input[@name='send_to'][@checked='checked']/@value", ['custom_email'])
 
     def test_form_param_block_unblock(self):
         params = "?handle=foo&object_type=nsset&lock_type=all"
         response = self.client.get(reverse("webwhois:form_block_object") + params)
+        self.assertContains(response, "Block")
         self.assertEqual(response.context['form'].initial, {'handle': 'foo', 'lock_type': 'all',
                                                             'object_type': 'nsset'})
-        self.assertXpathEqual(response, "//table/caption/text()", ["Block"])
-        self.assertXpathEqual(response, "//input[@name='handle']/@value", ['foo'])
-        self.assertXpathEqual(response, "//select[@name='object_type']/option[@selected='selected']/@value", ['nsset'])
-        self.assertXpathEqual(response, "//input[@name='lock_type'][@checked='checked']/@value", ['all'])
 
 
 @override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}},
