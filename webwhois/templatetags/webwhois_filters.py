@@ -16,11 +16,11 @@ def text_wrap(value, size):
 
 
 SSN_TYPE = {
-    'RC':       _('Birth date'),
-    'OP':       _('Personal ID'),
-    'PASS':     _('Passport number'),
-    'ICO':      _('VAT ID number'),
-    'MPSV':     _('MPSV ID'),
+    'RC': _('Birth date'),
+    'OP': _('Personal ID'),
+    'PASS': _('Passport number'),
+    'ICO': _('VAT ID number'),
+    'MPSV': _('MPSV ID'),
     'BIRTHDAY': _('Birth day'),
 }
 

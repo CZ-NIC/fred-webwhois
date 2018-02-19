@@ -17,15 +17,15 @@ class TestTemplateTags(SimpleTestCase):
 
     def test_contact_ssn_type_label(self):
         for code, label in (
-                            ('RC', 'Birth date'),
-                            ('OP', 'Personal ID'),
-                            ('PASS', 'Passport number'),
-                            ('ICO', 'VAT ID number'),
-                            ('MPSV', 'MPSV ID'),
-                            ('BIRTHDAY', 'Birth day'),
-                            ('foo', 'Unspecified type: foo'),
-                            ('', ''),
-                           ):
+            ('RC', 'Birth date'),
+            ('OP', 'Personal ID'),
+            ('PASS', 'Passport number'),
+            ('ICO', 'VAT ID number'),
+            ('MPSV', 'MPSV ID'),
+            ('BIRTHDAY', 'Birth day'),
+            ('foo', 'Unspecified type: foo'),
+            ('', ''),
+        ):
             self.assertEqual(contact_ssn_type_label(code), label)
 
     def test_idn_decode(self):

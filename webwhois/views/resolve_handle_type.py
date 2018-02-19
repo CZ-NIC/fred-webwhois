@@ -26,7 +26,7 @@ class ResolveHandleTypeMixin(RegistryObjectMixin):
     def load_related_objects(self, context):
         """Prepare url for redirect to the registry object type."""
         registry_object_type = context[self._registry_objects_key].keys()[0]
-        url = reverse("webwhois:detail_%s" % registry_object_type, kwargs={"handle":  self.kwargs["handle"]},
+        url = reverse("webwhois:detail_%s" % registry_object_type, kwargs={"handle": self.kwargs["handle"]},
                       current_app=self.request.resolver_match.namespace)
         context.setdefault("redirect_to_type", url)
 
