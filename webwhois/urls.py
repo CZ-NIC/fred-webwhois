@@ -9,7 +9,7 @@ from webwhois.views.pages import DobradomaneRegistrarListView, WebwhoisBlockObje
 
 app_name = 'webwhois'
 urlpatterns = [
-    url(r'^form/$', WebwhoisFormView.as_view(), name='form_whois'),
+    url(r'^$', WebwhoisFormView.as_view(), name='form_whois'),
     url(r'^object/(?P<handle>.{1,255})/$', WebwhoisResolveHandleTypeView.as_view(), name='registry_object_type'),
     url(r'^contact/(?P<handle>.{1,255})/$', WebwhoisContactDetailView.as_view(), name='detail_contact'),
     url(r'^mojeid-contact/(?P<handle>.{1,255})/$', WebwhoisMojeidContactDetailView.as_view(),
