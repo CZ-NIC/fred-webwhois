@@ -3,11 +3,12 @@ from django.test import SimpleTestCase, override_settings
 from fred_idl.Registry.RecordStatement import INTERNAL_SERVER_ERROR, OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND
 from mock import call, patch
 
-from webwhois.tests.utils import apply_patch
 from webwhois.utils import RECORD_STATEMENT
 
+from .utils import TEMPLATES, apply_patch
 
-@override_settings(ROOT_URLCONF='webwhois.tests.urls')
+
+@override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
 class TestRecordStatementPdf(SimpleTestCase):
 
     def setUp(self):
