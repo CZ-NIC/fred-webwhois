@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.test import SimpleTestCase, override_settings
 from django.urls import reverse
 from fred_idl.Registry.Whois import OBJECT_NOT_FOUND

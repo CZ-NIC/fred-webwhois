@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.http import Http404, HttpResponse
 from django.views.generic import View
 from fred_idl.Registry.RecordStatement import OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND

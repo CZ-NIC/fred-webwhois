@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import random
 
 from django.http import Http404, HttpResponse

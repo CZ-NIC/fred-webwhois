@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.core.cache import cache
 from django.utils import six  # Python 3 compatibility
 from django.utils.encoding import force_bytes

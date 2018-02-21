@@ -1,4 +1,6 @@
 """Templatetags for keyset values."""
+from __future__ import unicode_literals
+
 from django import template
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _

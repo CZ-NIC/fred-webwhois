@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django import forms
 from django.core.validators import MaxLengthValidator
 from django.utils.functional import lazy

@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import re
 import textwrap
 
@@ -29,7 +31,7 @@ SSN_TYPE = {
 @stringfilter
 def contact_ssn_type_label(value):
     """Replace SSN type code by translated description."""
-    return SSN_TYPE.get(value, u"%s: %s" % (_('Unspecified type'), value)) if value else ''
+    return SSN_TYPE.get(value, "%s: %s" % (_('Unspecified type'), value)) if value else ''
 
 
 @register.filter

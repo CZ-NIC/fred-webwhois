@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from django.test import SimpleTestCase
 
 from webwhois.templatetags.keyset_filters import dnskey_alg_label, dnskey_flag_labels
@@ -30,7 +32,7 @@ class TestTemplateTags(SimpleTestCase):
 
     def test_idn_decode(self):
         self.assertEqual(idn_decode("fred.cz"), "fred.cz")
-        self.assertEqual(idn_decode("xn--hkyrky-ptac70bc.cz"), u"háčkyčárky.cz")
+        self.assertEqual(idn_decode("xn--hkyrky-ptac70bc.cz"), "háčkyčárky.cz")
         self.assertEqual(idn_decode("."), ".")
 
     def test_add_scheme(self):

@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.views.generic import TemplateView
 
 from webwhois.settings import WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL, WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL, \

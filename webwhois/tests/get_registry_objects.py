@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.utils.decorators import method_decorator
 from fred_idl.ccReg import DateTimeType, DateType
 from fred_idl.Registry.Whois import Contact, ContactIdentification, DisclosableContactIdentification, \

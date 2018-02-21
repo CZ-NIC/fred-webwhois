@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.utils.translation import ugettext_lazy as _
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND
 

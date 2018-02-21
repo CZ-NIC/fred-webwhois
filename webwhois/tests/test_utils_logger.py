@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.test import SimpleTestCase
 from mock import MagicMock, Mock, call
 from pylogger.corbalogger import Logger
