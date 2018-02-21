@@ -1,5 +1,3 @@
 graft docs
 graft examples
-graft webwhois/static
-graft webwhois/templates
-graft webwhois/tests/templates
+graft webwhois
