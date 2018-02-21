@@ -36,7 +36,7 @@ MIDDLEWARE = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'webwhois.urls'
+ROOT_URLCONF = 'webwhois_urls'
 
 STATIC_URL = '/static/'
 
