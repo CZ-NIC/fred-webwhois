@@ -1,6 +1,12 @@
-RELEASE-VERSION
+/RELEASE-VERSION
 *.pyc
 *.mo
 /webwhois/locale/*.pot
 /webwhois/locale/C
 *~
+/dist/
+/build/
+/fred-webwhois*/
+/*.egg-info
+/.eggs/
+/install.log
