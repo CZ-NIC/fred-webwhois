@@ -7,8 +7,7 @@ from datetime import date, datetime
 from django.test import SimpleTestCase, override_settings
 from django.utils import timezone
 from fred_idl.ccReg import DateTimeType, DateType, FileManager, Logger, _objref_FileDownload
-from fred_idl.Registry import IsoDateTime
-from fred_idl.Registry.PublicRequest import Buffer
+from fred_idl.Registry import Buffer, IsoDateTime
 from fred_idl.Registry.Whois import WhoisIntf
 from mock import call, patch, sentinel
 from omniORB import StructBase
