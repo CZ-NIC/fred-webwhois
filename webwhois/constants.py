@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 STATUS_LINKED = 'linked'
 STATUS_DELETE_CANDIDATE = 'deleteCandidate'
 

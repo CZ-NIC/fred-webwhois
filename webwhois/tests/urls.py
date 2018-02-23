@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.conf.urls import include, url
 
 from webwhois.views.pages import WebwhoisFormView, WebwhoisServeRecordStatementView

@@ -1,4 +1,6 @@
 """LoggerMixin for views."""
+from __future__ import unicode_literals
+
 from webwhois.utils.corba_wrapper import LOGGER
 
 

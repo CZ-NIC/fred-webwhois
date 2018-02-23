@@ -1,4 +1,6 @@
 """Utilities for Corba."""
+from __future__ import unicode_literals
+
 import datetime
 
 import omniORB
@@ -64,7 +66,7 @@ class WebwhoisCorbaRecoder(CorbaRecoder):
 init_omniorb_exception_handles(None)
 
 # http://omniorb.sourceforge.net/omnipy3/omniORBpy/omniORBpy004.html
-CORBA_ORB = omniORB.CORBA.ORB_init(["-ORBnativeCharCodeSet", "UTF-8"], omniORB.CORBA.ORB_ID)
+CORBA_ORB = omniORB.CORBA.ORB_init([b"-ORBnativeCharCodeSet", b"UTF-8"], omniORB.CORBA.ORB_ID)
 _CLIENT = CorbaNameServiceClient(CORBA_ORB, WEBWHOIS_SETTINGS.CORBA_NETLOC, WEBWHOIS_SETTINGS.CORBA_CONTEXT)
 
 

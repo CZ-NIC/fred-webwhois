@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.urls import reverse
 from django.views.generic import FormView
 

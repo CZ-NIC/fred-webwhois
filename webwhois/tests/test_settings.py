@@ -1,4 +1,6 @@
 """Tests of`webwhois.settings` module."""
+from __future__ import unicode_literals
+
 from django.conf import settings
 from django.test import SimpleTestCase
 from mock import patch, sentinel

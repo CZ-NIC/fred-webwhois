@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from datetime import date
 
 from django.test import SimpleTestCase
@@ -93,10 +95,10 @@ class TestResolveHandleType(ObjectDetailMixin):
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
         self.assertEqual(WHOIS.mock_calls, [
-            call.get_contact_by_handle(u'-abc'),
-            call.get_nsset_by_handle(u'-abc'),
-            call.get_keyset_by_handle(u'-abc'),
-            call.get_registrar_by_handle(u'-abc')
+            call.get_contact_by_handle('-abc'),
+            call.get_nsset_by_handle('-abc'),
+            call.get_keyset_by_handle('-abc'),
+            call.get_registrar_by_handle('-abc')
         ])
 
     def test_handle_in_zone_not_found(self):
@@ -537,7 +539,7 @@ class TestDetailKeyset(ObjectDetailMixin):
             call.create_request().close(properties=[])
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
-        self.assertEqual(WHOIS.mock_calls, [call.get_keyset_by_handle(u'mykeysid')])
+        self.assertEqual(WHOIS.mock_calls, [call.get_keyset_by_handle('mykeysid')])
 
     def test_keyset_invalid_handle(self):
         WHOIS.get_keyset_by_handle.side_effect = INVALID_HANDLE
@@ -552,7 +554,7 @@ class TestDetailKeyset(ObjectDetailMixin):
             call.create_request().close(properties=[('reason', 'INVALID_HANDLE')])
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
-        self.assertEqual(WHOIS.mock_calls, [call.get_keyset_by_handle(u'mykeysid')])
+        self.assertEqual(WHOIS.mock_calls, [call.get_keyset_by_handle('mykeysid')])
 
     def test_keyset(self):
         WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
@@ -780,12 +782,12 @@ class TestDetailDomain(ObjectDetailMixin):
 
     def test_idn_domain(self):
         self._mocks_for_domain_detail(handle="xn--frd-cma.cz")
-        response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": u"fréd.cz"}))
-        self.assertContains(response, u"Search results for handle <strong>fréd.cz</strong>:")
+        response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fréd.cz"}))
+        self.assertContains(response, "Search results for handle <strong>fréd.cz</strong>:")
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
-                ('handle', u'fréd.cz'), ('handleType', 'domain'))),
+                ('handle', 'fréd.cz'), ('handleType', 'domain'))),
             call.create_request().close(properties=[('foundType', 'domain')])
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')

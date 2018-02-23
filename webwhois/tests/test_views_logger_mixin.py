@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.test import RequestFactory, SimpleTestCase
 from django.views.generic import View
 from mock import call, patch, sentinel
