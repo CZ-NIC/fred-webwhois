@@ -15,9 +15,6 @@ WEBWHOIS_SEARCH_ENGINES = (
     {"label": "WHOIS.COM Lookup", "href": "http://www.whois.com/whois/"},
     {"label": "IANA WHOIS Service", "href": "http://www.iana.org/whois"},
 )
-WEBWHOIS_MOJEID_REGISTRY_ENDPOINT = "http://example.cz/mogrify/preface/"
-WEBWHOIS_MOJEID_TRANSFER_ENDPOINT = "http://example.cz/transfer/endpoint/"
-WEBWHOIS_MOJEID_LINK_WHY = "http://example.cz/vyhody/"
 WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL = "https://www.nic.cz/page/309/how-to-become-a-registrar-/"
 WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL = "https://www.nic.cz/page/928/"
 WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC = "https://www.nic.cz/page/928/#dnssec"

@@ -2,8 +2,8 @@ from django.conf.urls import url
 
 from webwhois.views.pages import DobradomaneRegistrarListView, WebwhoisBlockObjectFormView, WebwhoisContactDetailView, \
     WebwhoisCustomEmailView, WebwhoisDomainDetailView, WebwhoisDownloadEvalFileView, WebwhoisEmailInRegistryView, \
-    WebwhoisFormView, WebwhoisKeysetDetailView, WebwhoisMojeidContactDetailView, WebwhoisNotarizedLetterView, \
-    WebwhoisNssetDetailView, WebwhoisRegistrarDetailView, WebwhoisRegistrarListView, WebwhoisResolveHandleTypeView, \
+    WebwhoisFormView, WebwhoisKeysetDetailView, WebwhoisNotarizedLetterView, WebwhoisNssetDetailView, \
+    WebwhoisRegistrarDetailView, WebwhoisRegistrarListView, WebwhoisResolveHandleTypeView, \
     WebwhoisResponseNotFoundView, WebwhoisSendPasswordFormView, WebwhoisServeNotarizedLetterView, \
     WebwhoisServeRecordStatementView, WebwhoisUnblockObjectFormView
 
@@ -12,8 +12,6 @@ urlpatterns = [
     url(r'^$', WebwhoisFormView.as_view(), name='form_whois'),
     url(r'^object/(?P<handle>.{1,255})/$', WebwhoisResolveHandleTypeView.as_view(), name='registry_object_type'),
     url(r'^contact/(?P<handle>.{1,255})/$', WebwhoisContactDetailView.as_view(), name='detail_contact'),
-    url(r'^mojeid-contact/(?P<handle>.{1,255})/$', WebwhoisMojeidContactDetailView.as_view(),
-        name='detail_mojeid_contact'),
     url(r'^nsset/(?P<handle>.{1,255})/$', WebwhoisNssetDetailView.as_view(), name='detail_nsset'),
     url(r'^keyset/(?P<handle>.{1,255})/$', WebwhoisKeysetDetailView.as_view(), name='detail_keyset'),
     url(r'^domain/(?P<handle>.{1,255})/$', WebwhoisDomainDetailView.as_view(), name='detail_domain'),

@@ -4,9 +4,8 @@ from fred_idl.Registry.Whois import Contact, ContactIdentification, DisclosableC
     DisclosablePlaceAddress, DisclosableString, DNSKey, Domain, IPAddress, IPv4, KeySet, NameServer, NSSet, \
     ObjectStatusDesc, PlaceAddress, Registrar, RegistrarCertification, RegistrarGroup
 
-from webwhois.constants import STATUS_CONDITIONALLY_IDENTIFIED, STATUS_DELETE_CANDIDATE, STATUS_DELETE_PROHIBITED, \
-    STATUS_IDENTIFIED, STATUS_LINKED, STATUS_MOJEID_CONTACT, STATUS_SERVER_BLOCKED, STATUS_TRANSFER_PROHIBITED, \
-    STATUS_UPDATE_PROHIBITED, STATUS_VALIDATED, STATUS_VERIFICATION_FAILED, STATUS_VERIFICATION_IN_PROCESS, \
+from webwhois.constants import STATUS_CONDITIONALLY_IDENTIFIED, STATUS_DELETE_CANDIDATE, STATUS_IDENTIFIED, \
+    STATUS_LINKED, STATUS_VALIDATED, STATUS_VERIFICATION_FAILED, STATUS_VERIFICATION_IN_PROCESS, \
     STATUS_VERIFICATION_PASSED
 from webwhois.utils.corba_wrapper import WebwhoisCorbaRecoder
 
@@ -26,48 +25,35 @@ class GetRegistryObjectMixin(object):
 
     def _get_contact_status(self):
         return [
-            ObjectStatusDesc(handle=STATUS_DELETE_PROHIBITED, name='Deletion forbidden'),
-            ObjectStatusDesc(handle=STATUS_TRANSFER_PROHIBITED, name='Sponsoring registrar change forbidden'),
-            ObjectStatusDesc(handle=STATUS_UPDATE_PROHIBITED, name='Update forbidden'),
-            ObjectStatusDesc(handle=STATUS_SERVER_BLOCKED, name='Domain blocked'),
             ObjectStatusDesc(handle=STATUS_LINKED, name='Has relation to other records in the registry'),
             ObjectStatusDesc(handle=STATUS_DELETE_CANDIDATE, name='To be deleted'),
             ObjectStatusDesc(handle=STATUS_CONDITIONALLY_IDENTIFIED, name='Contact is conditionally identified'),
             ObjectStatusDesc(handle=STATUS_IDENTIFIED, name='Contact is identified'),
             ObjectStatusDesc(handle=STATUS_VALIDATED, name='Contact is validated'),
-            ObjectStatusDesc(handle=STATUS_MOJEID_CONTACT, name='MojeID contact'),
             ObjectStatusDesc(handle=STATUS_VERIFICATION_IN_PROCESS,
                              name='Contact is being verified by CZ.NIC customer support'),
             ObjectStatusDesc(handle=STATUS_VERIFICATION_PASSED,
                              name='Contact has been verified by CZ.NIC customer support'),
             ObjectStatusDesc(handle=STATUS_VERIFICATION_FAILED,
                              name='Contact has failed the verification by CZ.NIC customer support'),
+            # This is sort of deprecation.
+            ObjectStatusDesc(handle='mojeidContact', name='MojeID contact'),
         ]
 
     def _get_nsset_status(self):
         return [
-            ObjectStatusDesc(handle=STATUS_DELETE_PROHIBITED, name='Deletion forbidden'),
-            ObjectStatusDesc(handle=STATUS_TRANSFER_PROHIBITED, name='Sponsoring registrar change forbidden'),
-            ObjectStatusDesc(handle=STATUS_UPDATE_PROHIBITED, name='Update forbidden'),
             ObjectStatusDesc(handle=STATUS_LINKED, name='Has relation to other records in the registry'),
             ObjectStatusDesc(handle=STATUS_DELETE_CANDIDATE, name='To be deleted')
         ]
 
     def _get_keyset_status(self):
         return [
-            ObjectStatusDesc(handle=STATUS_DELETE_PROHIBITED, name='Deletion forbidden'),
-            ObjectStatusDesc(handle=STATUS_TRANSFER_PROHIBITED, name='Sponsoring registrar change forbidden'),
-            ObjectStatusDesc(handle=STATUS_UPDATE_PROHIBITED, name='Update forbidden'),
             ObjectStatusDesc(handle=STATUS_LINKED, name='Has relation to other records in the registry'),
             ObjectStatusDesc(handle=STATUS_DELETE_CANDIDATE, name='To be deleted')
         ]
 
     def _get_domain_status(self):
         return [
-            ObjectStatusDesc(handle=STATUS_DELETE_PROHIBITED, name='Deletion forbidden'),
-            ObjectStatusDesc(handle=STATUS_TRANSFER_PROHIBITED, name='Sponsoring registrar change forbidden'),
-            ObjectStatusDesc(handle=STATUS_UPDATE_PROHIBITED, name='Update forbidden'),
-            ObjectStatusDesc(handle=STATUS_SERVER_BLOCKED, name='Domain blocked'),
             ObjectStatusDesc(handle=STATUS_DELETE_CANDIDATE, name='To be deleted'),
         ]
 
@@ -161,7 +147,7 @@ class GetRegistryObjectMixin(object):
             nsset_handle='NSSET-1',
             keyset_handle='KEYSID-1',
             registrar_handle='REG-FRED_A',
-            statuses=[STATUS_DELETE_PROHIBITED, STATUS_UPDATE_PROHIBITED],
+            statuses=[],
             registered=DateTimeType(date=DateType(day=9, month=12, year=2015), hour=16, minute=16, second=30),
             changed=DateTimeType(date=DateType(day=10, month=12, year=2015), hour=17, minute=17, second=31),
             last_transfer=DateTimeType(date=DateType(day=11, month=12, year=2015), hour=18, minute=18, second=32),

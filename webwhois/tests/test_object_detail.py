@@ -12,9 +12,8 @@ from fred_idl.Registry.Whois import INVALID_HANDLE, INVALID_LABEL, OBJECT_NOT_FO
     ContactIdentification, DisclosableContactIdentification
 from mock import call, patch, sentinel
 
-from webwhois.constants import STATUS_DELETE_CANDIDATE, STATUS_DELETE_PROHIBITED, STATUS_LINKED, \
-    STATUS_MOJEID_CONTACT, STATUS_SERVER_BLOCKED, STATUS_TRANSFER_PROHIBITED, STATUS_UPDATE_PROHIBITED, \
-    STATUS_VALIDATED, STATUS_VERIFICATION_FAILED, STATUS_VERIFICATION_IN_PROCESS
+from webwhois.constants import STATUS_DELETE_CANDIDATE, STATUS_LINKED, STATUS_VALIDATED, STATUS_VERIFICATION_FAILED, \
+    STATUS_VERIFICATION_IN_PROCESS
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.utils import WHOIS
 from webwhois.views.base import RegistryObjectMixin
@@ -23,9 +22,6 @@ from webwhois.views.detail_nsset import NssetDetailMixin
 
 from .utils import TEMPLATES, apply_patch, make_keyset
 
-WEBWHOIS_MOJEID_TRANSFER_ENDPOINT = "https://mojeid.cz/endpoint/"
-WEBWHOIS_MOJEID_REGISTRY_ENDPOINT = "https://mojeid.cz/mogrify/preface/"
-WEBWHOIS_MOJEID_LINK_WHY = "https://mojeid.cz/why/"
 WEBWHOIS_DNSSEC_URL = "http://www.nic.cz/dnssec/"
 
 
@@ -886,120 +882,6 @@ class TestDetailDomain(ObjectDetailMixin):
             call.create_request().close(properties=[('exception', 'TestException')])
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'Error')
-
-
-@override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None, LANGUAGE_CODE='en',
-                   CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}},
-                   ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
-class TestContactDetailWithMojeid(GetRegistryObjectMixin, SimpleTestCase):
-
-    def setUp(self):
-        spec = ('get_contact_by_handle', 'get_contact_status_descriptions', 'get_registrar_by_handle')
-        apply_patch(self, patch.object(WHOIS, 'client', spec=spec))
-        self.LOGGER = apply_patch(self, patch("webwhois.views.base.LOGGER"))
-        self.LOGGER.__nonzero__.return_value = False
-
-    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_TRANSFER_ENDPOINT", WEBWHOIS_MOJEID_TRANSFER_ENDPOINT)
-    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT", WEBWHOIS_MOJEID_REGISTRY_ENDPOINT)
-    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_LINK_WHY", WEBWHOIS_MOJEID_LINK_WHY)
-    def test_button_mojeid(self):
-        WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        WHOIS.get_contact_by_handle.return_value = self._get_contact()
-        WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
-        response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "mycontact"}))
-        self.assertContains(response, 'Create mojeID from the domain registry')
-        self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
-        self.assertEqual(WHOIS.mock_calls, [
-            call.get_contact_by_handle('mycontact'),
-            call.get_contact_status_descriptions('en'),
-            call.get_registrar_by_handle('REG-FRED_A'),
-            call.get_registrar_by_handle('REG-FRED_A')
-        ])
-
-    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_TRANSFER_ENDPOINT", None)
-    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT", None)
-    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_LINK_WHY", None)
-    def test_no_button_mojeid(self):
-        WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        WHOIS.get_contact_by_handle.return_value = self._get_contact()
-        WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
-        response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "mycontact"}))
-        self.assertContains(response, 'Contact details')
-        # TODO: LOGGER, WHOIS
-
-    def test_improper_handle_format(self):
-        WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        WHOIS.get_contact_by_handle.return_value = self._get_contact(handle="MY.HANDLE")
-        WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
-        response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "MY.HANDLE"}))
-        self.assertContains(response, 'Contact details')
-        self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
-        self.assertEqual(WHOIS.mock_calls, [
-            call.get_contact_by_handle('MY.HANDLE'),
-            call.get_contact_status_descriptions('en'),
-            call.get_registrar_by_handle('REG-FRED_A'),
-            call.get_registrar_by_handle('REG-FRED_A')
-        ])
-
-    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_TRANSFER_ENDPOINT", WEBWHOIS_MOJEID_TRANSFER_ENDPOINT)
-    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT", WEBWHOIS_MOJEID_REGISTRY_ENDPOINT)
-    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_LINK_WHY", WEBWHOIS_MOJEID_LINK_WHY)
-    def test_status_not_linked(self):
-        WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=[])
-        WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
-        response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "mycontact"}))
-        self.assertContains(response, 'Contact details')
-        self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
-        self.assertEqual(WHOIS.mock_calls, [
-            call.get_contact_by_handle('mycontact'),
-            call.get_contact_status_descriptions('en'),
-            call.get_registrar_by_handle('REG-FRED_A'),
-            call.get_registrar_by_handle('REG-FRED_A')
-        ])
-
-    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_TRANSFER_ENDPOINT", None)
-    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT", None)
-    @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_LINK_WHY", None)
-    def test_status_not_linked_without_mojeid_form(self):
-        WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=[])
-        WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
-        response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "mycontact"}))
-        self.assertContains(response, 'Contact details')
-        # TODO: LOGGER, WHOIS
-
-    def _do_test_statuses(self, statuses):
-        WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=statuses)
-        WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
-        response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "mycontact"}))
-        self.assertContains(response, 'Contact details')
-        self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
-        self.assertEqual(WHOIS.mock_calls, [
-            call.get_contact_by_handle('mycontact'),
-            call.get_contact_status_descriptions('en'),
-            call.get_registrar_by_handle('REG-FRED_A'),
-            call.get_registrar_by_handle('REG-FRED_A')
-        ])
-
-    def test_status_mojeid_contact(self):
-        self._do_test_statuses([STATUS_LINKED, STATUS_MOJEID_CONTACT])
-
-    def test_status_server_transfer_prohibited(self):
-        self._do_test_statuses([STATUS_LINKED, STATUS_TRANSFER_PROHIBITED])
-
-    def test_status_server_update_prohibited(self):
-        self._do_test_statuses([STATUS_LINKED, STATUS_UPDATE_PROHIBITED])
-
-    def test_status_server_delete_prohibited(self):
-        self._do_test_statuses([STATUS_LINKED, STATUS_DELETE_PROHIBITED])
-
-    def test_status_delete_candidate(self):
-        self._do_test_statuses([STATUS_LINKED, STATUS_DELETE_CANDIDATE])
-
-    def test_status_server_blocked(self):
-        self._do_test_statuses([STATUS_LINKED, STATUS_SERVER_BLOCKED])
 
 
 class FakeRegistryObjectView(RegistryObjectMixin, View):

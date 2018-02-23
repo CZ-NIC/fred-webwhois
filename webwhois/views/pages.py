@@ -4,10 +4,10 @@ from webwhois.settings import WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL, WEBWHOIS_R
     WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC, WEBWHOIS_REGISTRAR_SUPPORTS_IPV6, WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID, \
     WEBWHOIS_SEARCH_ENGINES
 from webwhois.utils import WHOIS
-from webwhois.views import BlockObjectFormView, ContactDetailMixin, ContactDetailWithMojeidMixin, CustomEmailView, \
-    DomainDetailMixin, DownloadEvalFileView, EmailInRegistryView, KeysetDetailMixin, NotarizedLetterView, \
-    NssetDetailMixin, RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, ResponseNotFoundView, \
-    SendPasswordFormView, ServeNotarizedLetterView, ServeRecordStatementView, UnblockObjectFormView, WhoisFormView
+from webwhois.views import BlockObjectFormView, ContactDetailMixin, CustomEmailView, DomainDetailMixin, \
+    DownloadEvalFileView, EmailInRegistryView, KeysetDetailMixin, NotarizedLetterView, NssetDetailMixin, \
+    RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, ResponseNotFoundView, SendPasswordFormView, \
+    ServeNotarizedLetterView, ServeRecordStatementView, UnblockObjectFormView, WhoisFormView
 
 
 class BaseTemplateMixin(object):
@@ -33,10 +33,6 @@ class WebwhoisResolveHandleTypeView(BaseTemplateMixin, ResolveHandleTypeMixin, T
 
 
 class WebwhoisContactDetailView(BaseTemplateMixin, ContactDetailMixin, TemplateView):
-    pass
-
-
-class WebwhoisMojeidContactDetailView(BaseTemplateMixin, ContactDetailWithMojeidMixin, TemplateView):
     pass
 
 

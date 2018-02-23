@@ -1,15 +1,10 @@
 import datetime
-import re
 
 from django.utils.translation import ugettext_lazy as _
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND
 
-from webwhois.constants import STATUS_CONDITIONALLY_IDENTIFIED, STATUS_DELETE_CANDIDATE, STATUS_DELETE_PROHIBITED, \
-    STATUS_IDENTIFIED, STATUS_LINKED, STATUS_MOJEID_CONTACT, STATUS_SERVER_BLOCKED, STATUS_TRANSFER_PROHIBITED, \
-    STATUS_UPDATE_PROHIBITED, STATUS_VALIDATED, STATUS_VERIFICATION_FAILED, STATUS_VERIFICATION_IN_PROCESS, \
-    STATUS_VERIFICATION_PASSED
-from webwhois.settings import WEBWHOIS_MOJEID_LINK_WHY, WEBWHOIS_MOJEID_REGISTRY_ENDPOINT, \
-    WEBWHOIS_MOJEID_TRANSFER_ENDPOINT
+from webwhois.constants import STATUS_CONDITIONALLY_IDENTIFIED, STATUS_IDENTIFIED, STATUS_LINKED, STATUS_VALIDATED, \
+    STATUS_VERIFICATION_FAILED, STATUS_VERIFICATION_IN_PROCESS, STATUS_VERIFICATION_PASSED
 from webwhois.utils import WHOIS
 from webwhois.views.base import RegistryObjectMixin
 
@@ -73,24 +68,3 @@ class ContactDetailMixin(RegistryObjectMixin):
             data["creating_registrar"] = WHOIS.get_registrar_by_handle(registry_object.creating_registrar_handle)
         if registry_object.sponsoring_registrar_handle:
             data["sponsoring_registrar"] = WHOIS.get_registrar_by_handle(registry_object.sponsoring_registrar_handle)
-
-
-class ContactDetailWithMojeidMixin(ContactDetailMixin):
-
-    template_name = "webwhois_in_cms/contact_with_mojeid.html"
-    valid_mojeid_handle_format = re.compile('^[A-Z0-9](-?[A-Z0-9])*$', re.IGNORECASE)
-
-    def get_context_data(self, **kwargs):
-        kwargs.setdefault("mojeid_registry_endpoint", WEBWHOIS_MOJEID_REGISTRY_ENDPOINT)
-        kwargs.setdefault("mojeid_transfer_endpoint", WEBWHOIS_MOJEID_TRANSFER_ENDPOINT)
-        kwargs.setdefault("mojeid_link_why", WEBWHOIS_MOJEID_LINK_WHY)
-        return super(ContactDetailWithMojeidMixin, self).get_context_data(**kwargs)
-
-    def load_related_objects(self, context):
-        super(ContactDetailWithMojeidMixin, self).load_related_objects(context)
-        data = context[self._registry_objects_key]["contact"]
-        registry_object = data["detail"]
-        data["show_button_mojeid"] = bool(self.valid_mojeid_handle_format.match(registry_object.handle)) \
-            and not set(registry_object.statuses) & set((STATUS_MOJEID_CONTACT, STATUS_DELETE_PROHIBITED,
-                                                         STATUS_TRANSFER_PROHIBITED, STATUS_UPDATE_PROHIBITED,
-                                                         STATUS_SERVER_BLOCKED, STATUS_DELETE_CANDIDATE))
