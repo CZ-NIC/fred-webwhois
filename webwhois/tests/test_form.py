@@ -4,7 +4,7 @@ from fred_idl.Registry.Whois import OBJECT_NOT_FOUND
 from mock import call, patch
 
 from webwhois.forms import BlockObjectForm, SendPasswordForm, UnblockObjectForm, WhoisForm
-from webwhois.tests.utils import TEMPLATES, WebwhoisAssertMixin, apply_patch
+from webwhois.tests.utils import TEMPLATES, apply_patch
 from webwhois.utils import WHOIS
 
 
@@ -32,7 +32,7 @@ class TestWhoisForm(SimpleTestCase):
 
 
 @override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
-class TestWhoisFormView(WebwhoisAssertMixin, SimpleTestCase):
+class TestWhoisFormView(SimpleTestCase):
 
     managed_zone_list = ("cz", "0.2.4.e164.arpa")
 
@@ -80,11 +80,6 @@ class TestWhoisFormView(WebwhoisAssertMixin, SimpleTestCase):
     def test_get_form(self):
         WHOIS.get_managed_zone_list.return_value = self.managed_zone_list
         response = self.client.get(reverse("webwhois:form_whois"), {"handle": " mycontact "})
-        self.assertXpathEqual(response, "//ul[@class='managed-zones']/li", self.managed_zone_list,
-                              transform=self.transform_to_text)
-        self.assertXpathEqual(response, "//span[@class='whois-search-engines']/a", [
-            'WHOIS.COM Lookup', 'IANA WHOIS Service'
-        ], transform=self.transform_to_text)
         self.assertContains(response, '<label for="id_handle">Domain (without <em>www.</em> prefix)'
                             ' / Handle:</label>', html=True)
         self.assertEqual(self.LOGGER.mock_calls, [])

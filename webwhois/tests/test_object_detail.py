@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from datetime import date
+
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -7,7 +9,7 @@ from django.utils.formats import reset_format_cache
 from django.views import View
 from fred_idl.ccReg import DateTimeType, DateType
 from fred_idl.Registry.Whois import INVALID_HANDLE, INVALID_LABEL, OBJECT_NOT_FOUND, TOO_MANY_LABELS, UNMANAGED_ZONE, \
-    ContactIdentification, DisclosableContactIdentification, DisclosableString
+    ContactIdentification, DisclosableContactIdentification
 from mock import call, patch, sentinel
 
 from webwhois.constants import STATUS_DELETE_CANDIDATE, STATUS_DELETE_PROHIBITED, STATUS_LINKED, \
@@ -19,7 +21,7 @@ from webwhois.views.base import RegistryObjectMixin
 from webwhois.views.detail_keyset import KeysetDetailMixin
 from webwhois.views.detail_nsset import NssetDetailMixin
 
-from .utils import TEMPLATES, WebwhoisAssertMixin, apply_patch, make_keyset
+from .utils import TEMPLATES, apply_patch, make_keyset
 
 WEBWHOIS_MOJEID_TRANSFER_ENDPOINT = "https://mojeid.cz/endpoint/"
 WEBWHOIS_MOJEID_REGISTRY_ENDPOINT = "https://mojeid.cz/mogrify/preface/"
@@ -30,7 +32,7 @@ WEBWHOIS_DNSSEC_URL = "http://www.nic.cz/dnssec/"
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None, LANGUAGE_CODE='en',
                    CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}},
                    ROOT_URLCONF='webwhois.tests.urls', STATIC_URL='/static/')
-class ObjectDetailMixin(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
+class ObjectDetailMixin(GetRegistryObjectMixin, SimpleTestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -182,13 +184,6 @@ class TestResolveHandleType(ObjectDetailMixin):
         WHOIS.get_domain_by_handle.return_value = self._get_domain()
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "testhandle.cz"}))
         self.assertContains(response, "Multiple entries found")
-        self.assertCssSelectEqual(response, "#whois ul li", [
-            'Keyset: testhandle.cz /whois/keyset/testhandle.cz/',
-            'Domain: testhandle.cz /whois/domain/testhandle.cz/',
-            'Contact: testhandle.cz /whois/contact/testhandle.cz/',
-            'Registrar: testhandle.cz /whois/registrar/testhandle.cz/',
-            'Nsset: testhandle.cz /whois/nsset/testhandle.cz/',
-        ], transform=lambda node: "%s %s" % ("".join(node.xpath(".//text()")), ",".join(node.xpath("a/@href"))))
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -252,6 +247,7 @@ class TestDetailContact(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertContains(response, "Contact details")
         self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
+        self.assertFalse(response.context['registry_objects']['contact']['is_linked'])
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -273,65 +269,7 @@ class TestDetailContact(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertContains(response, "Contact details")
         self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
-        self.assertCssSelectEqual(response, "table.result tr", [
-            'Handle KONTAKT',
-            'Organization Company L.t.d.',
-            'Name Arnold Rimmer',
-            'VAT number CZ456123789',
-            'Identification type Personal ID',
-            'Identification data 333777000',
-            'Email rimmer@foo.foo',
-            'Notify e-mail notify-rimmer@foo.foo',
-            'Phone +420.728012345',
-            'Fax +420.728023456',
-            'Registered since 12/15/2015',
-            'Created by registrar REG-FRED_A Company A L.t.d.',
-            'Last update 12/16/2015',
-            'Last transfer 12/17/2015',
-            'Address Street 756/48, 12300 Prague, CZ',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d.',
-            'Status Has relation to other records in the registry',
-        ], transform=self.transform_to_text)
-        self.assertEqual(self.LOGGER.mock_calls, [
-            call.__nonzero__(),
-            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
-                ('handle', 'mycontact'), ('handleType', 'contact'))),
-            call.create_request().close(properties=[('foundType', 'contact')])
-        ])
-        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
-        self.assertEqual(WHOIS.mock_calls, [
-            call.get_contact_by_handle('mycontact'),
-            call.get_contact_status_descriptions('en'),
-            call.get_registrar_by_handle('REG-FRED_A'),
-            call.get_registrar_by_handle('REG-FRED_A')
-        ])
-
-    def test_contact_with_not_disclosed(self):
-        WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        WHOIS.get_contact_by_handle.return_value = self._get_contact(disclose=False)
-        WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
-        response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
-        self.assertContains(response, "Contact details")
-        self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
-        self.assertCssSelectEqual(response, "table.result tr", [
-            'Handle KONTAKT',
-            'Organization Not disclosed',
-            'Name Not disclosed',
-            'VAT number Not disclosed',
-            'Identification type Not disclosed',
-            'Identification data Not disclosed',
-            'Email Not disclosed',
-            'Notify e-mail Not disclosed',
-            'Phone Not disclosed',
-            'Fax Not disclosed',
-            'Registered since 12/15/2015',
-            'Created by registrar REG-FRED_A Company A L.t.d.',
-            'Last update 12/16/2015',
-            'Last transfer 12/17/2015',
-            'Address Not disclosed',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d.',
-            'Status Has relation to other records in the registry'
-        ], transform=self.transform_to_text)
+        self.assertTrue(response.context['registry_objects']['contact']['is_linked'])
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -353,25 +291,6 @@ class TestDetailContact(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertContains(response, "Contact details")
         self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
-        self.assertCssSelectEqual(response, "table.result tr", [
-            'Handle KONTAKT',
-            'Organization Company L.t.d.',
-            'Name Arnold Rimmer',
-            'VAT number CZ456123789',
-            'Identification type Personal ID',
-            'Identification data 333777000',
-            'Email rimmer@foo.foo',
-            'Notify e-mail notify-rimmer@foo.foo',
-            'Phone +420.728012345',
-            'Fax +420.728023456',
-            'Registered since 12/15/2015',
-            'Created by registrar',
-            'Last update 12/16/2015',
-            'Last transfer 12/17/2015',
-            'Address Street 756/48, 12300 Prague, CZ',
-            'Sponsoring registrar',
-            'Status Has relation to other records in the registry',
-        ], transform=self.transform_to_text)
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -395,25 +314,7 @@ class TestDetailContact(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertContains(response, "Contact details")
         self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
-        self.assertCssSelectEqual(response, "table.result tr", [
-            'Handle KONTAKT',
-            'Organization Company L.t.d.',
-            'Name Arnold Rimmer',
-            'VAT number CZ456123789',
-            'Identification type Birth day',
-            'Identification data June 28, 2000',
-            'Email rimmer@foo.foo',
-            'Notify e-mail notify-rimmer@foo.foo',
-            'Phone +420.728012345',
-            'Fax +420.728023456',
-            'Registered since 12/15/2015',
-            'Created by registrar REG-FRED_A Company A L.t.d.',
-            'Last update 12/16/2015',
-            'Last transfer 12/17/2015',
-            'Address Street 756/48, 12300 Prague, CZ',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d.',
-            'Status Has relation to other records in the registry',
-        ], transform=self.transform_to_text)
+        self.assertEqual(response.context['registry_objects']['contact']['birthday'], date(2000, 6, 28))
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -436,7 +337,8 @@ class TestDetailContact(ObjectDetailMixin):
                 disclose=True))
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
-        self.assertCssSelectEqual(response, ".contact .ident-value", ['FOO'], transform=self.transform_to_text)
+        self.assertContains(response, "Contact details")
+        self.assertEqual(response.context['registry_objects']['contact']['birthday'], 'FOO')
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -460,9 +362,6 @@ class TestDetailContact(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
 
         self.assertContains(response, "Contact details")
-        self.assertXpathEqual(response, "//th[text()='Contact verification status']/../td", [
-            'Contact has failed the verification by CZ.NIC customer support'
-        ], transform=self.transform_to_text)
         verification_status = response.context["registry_objects"]['contact']['verification_status']
         self.assertEqual(verification_status[0]['code'], STATUS_VERIFICATION_FAILED)
         self.assertEqual(verification_status[0]['icon'], 'webwhois/img/icon-red-cross.gif')
@@ -488,9 +387,6 @@ class TestDetailContact(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
 
         self.assertContains(response, "Contact details")
-        self.assertXpathEqual(response, "//th[text()='Contact verification status']/../td", [
-            'Contact is being verified by CZ.NIC customer support'
-        ], transform=self.transform_to_text)
         verification_status = response.context["registry_objects"]['contact']['verification_status']
         self.assertEqual(verification_status[0]['code'], STATUS_VERIFICATION_IN_PROCESS)
         self.assertEqual(verification_status[0]['icon'], 'webwhois/img/icon-orange-cross.gif')
@@ -515,9 +411,6 @@ class TestDetailContact(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
 
         self.assertContains(response, "Contact details")
-        self.assertXpathEqual(response, "//th[text()='Contact verification status']/../td", [
-            'Contact is validated'
-        ], transform=self.transform_to_text)
         verification_status = response.context["registry_objects"]['contact']['verification_status']
         self.assertEqual(verification_status[0]['code'], STATUS_VALIDATED)
         self.assertEqual(verification_status[0]['icon'], 'webwhois/img/icon-yes.gif')
@@ -578,14 +471,6 @@ class TestDetailNsset(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
         self.assertContains(response, "Name server set (DNS) details")
         self.assertContains(response, "Search results for handle <strong>mynssid</strong>:")
-        self.assertCssSelectEqual(response, "table.result tr", [
-            'Name server set NSSET-1',
-            'Name server a.ns.nic.cz 194.0.12.1',
-            'Name server b.ns.nic.cz 194.0.13.1',
-            'Technical contact KONTAKT Company L.t.d.',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
-            'Status Has relation to other records in the registry'
-        ], transform=self.transform_to_text)
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -625,79 +510,6 @@ class TestDetailNsset(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
         self.assertContains(response, "Name server set (DNS) details")
         self.assertContains(response, "Search results for handle <strong>mynssid</strong>:")
-        self.assertCssSelectEqual(response, "table.result tr", [
-            'Name server set NSSET-1',
-            u'Name server háčkyčárky.cz 194.0.12.1',
-            u'Name server fréd.cz 194.0.13.1',
-            'Technical contact KONTAKT Company L.t.d.',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
-            'Status Has relation to other records in the registry'
-        ], transform=self.transform_to_text)
-        self.assertEqual(self.LOGGER.mock_calls, [
-            call.__nonzero__(),
-            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
-                ('handle', 'mynssid'), ('handleType', 'nsset'))),
-            call.create_request().close(properties=[('foundType', 'nsset')])
-        ])
-        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
-        self.assertEqual(WHOIS.mock_calls, [
-            call.get_nsset_by_handle('mynssid'),
-            call.get_nsset_status_descriptions('en'),
-            call.get_contact_by_handle('KONTAKT'),
-            call.get_registrar_by_handle('REG-FRED_A')
-        ])
-
-    @override_settings(USE_TZ=False, TIME_ZONE='UTC')
-    def test_nsset_witout_zone(self):
-        WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        WHOIS.get_contact_by_handle.return_value = self._get_contact()
-        WHOIS.get_nsset_status_descriptions.return_value = self._get_nsset_status()
-        WHOIS.get_nsset_by_handle.return_value = self._get_nsset()
-        WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
-        response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
-        self.assertContains(response, "Name server set (DNS) details")
-        self.assertContains(response, "Search results for handle <strong>mynssid</strong>:")
-        self.assertCssSelectEqual(response, "table.result tr", [
-            'Name server set NSSET-1',
-            'Name server a.ns.nic.cz 194.0.12.1',
-            'Name server b.ns.nic.cz 194.0.13.1',
-            'Technical contact KONTAKT Company L.t.d.',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 6:18 p.m.',
-            'Status Has relation to other records in the registry'
-        ], transform=self.transform_to_text)
-        self.assertEqual(self.LOGGER.mock_calls, [
-            call.__nonzero__(),
-            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
-                ('handle', 'mynssid'), ('handleType', 'nsset'))),
-            call.create_request().close(properties=[('foundType', 'nsset')])
-        ])
-        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
-        self.assertEqual(WHOIS.mock_calls, [
-            call.get_nsset_by_handle('mynssid'),
-            call.get_nsset_status_descriptions('en'),
-            call.get_contact_by_handle('KONTAKT'),
-            call.get_registrar_by_handle('REG-FRED_A')
-        ])
-
-    def test_nsset_with_contact_no_organization(self):
-        "Test for set disclose of organization to True."
-        WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        WHOIS.get_contact_by_handle.return_value = self._get_contact(
-            organization=DisclosableString(value='', disclose=True))
-        WHOIS.get_nsset_status_descriptions.return_value = self._get_nsset_status()
-        WHOIS.get_nsset_by_handle.return_value = self._get_nsset()
-        WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
-        response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
-        self.assertContains(response, "Name server set (DNS) details")
-        self.assertContains(response, "Search results for handle <strong>mynssid</strong>:")
-        self.assertCssSelectEqual(response, "table.result tr", [
-            'Name server set NSSET-1',
-            'Name server a.ns.nic.cz 194.0.12.1',
-            'Name server b.ns.nic.cz 194.0.13.1',
-            'Technical contact KONTAKT Arnold Rimmer',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
-            'Status Has relation to other records in the registry'
-        ], transform=self.transform_to_text)
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -755,15 +567,6 @@ class TestDetailKeyset(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_keyset", kwargs={"handle": "mykeysid"}))
         self.assertContains(response, "Key set details")
         self.assertContains(response, "Search results for handle <strong>mykeysid</strong>:")
-        dns_key = 'DNS Key Flags: 257 (ZONE, Secure Entry Point (SEP)) Protocol: 3 (DNSSEC) Algorithm: 5 (RSA/SHA-1) ' \
-                  'Key: AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8'
-        self.assertCssSelectEqual(response, "table.result tr", [
-            'Key set KEYSID-1',
-            dns_key,
-            'Technical contact KONTAKT Company L.t.d.',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
-            'Status Has relation to other records in the registry'
-        ], transform=self.transform_to_text)
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -793,40 +596,6 @@ class TestDetailKeyset(ObjectDetailMixin):
             "registrar": registrar,
             "status_descriptions": ['Has relation to other records in the registry'],
         })
-
-    def test_keyset_with_contact_no_organization(self):
-        "Test for set disclose of organization to True."
-        WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        WHOIS.get_contact_by_handle.return_value = self._get_contact(
-            organization=DisclosableString(value='', disclose=True))
-        WHOIS.get_keyset_status_descriptions.return_value = self._get_keyset_status()
-        WHOIS.get_keyset_by_handle.return_value = self._get_keyset()
-        WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
-        response = self.client.get(reverse("webwhois:detail_keyset", kwargs={"handle": "mykeysid"}))
-        self.assertContains(response, "Key set details")
-        self.assertContains(response, "Search results for handle <strong>mykeysid</strong>:")
-        dns_key = 'DNS Key Flags: 257 (ZONE, Secure Entry Point (SEP)) Protocol: 3 (DNSSEC) Algorithm: 5 (RSA/SHA-1) ' \
-                  'Key: AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8'
-        self.assertCssSelectEqual(response, "table.result tr", [
-            'Key set KEYSID-1',
-            dns_key,
-            'Technical contact KONTAKT Arnold Rimmer',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
-            'Status Has relation to other records in the registry'
-        ], transform=self.transform_to_text)
-        self.assertEqual(self.LOGGER.mock_calls, [
-            call.__nonzero__(),
-            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
-                ('handle', 'mykeysid'), ('handleType', 'keyset'))),
-            call.create_request().close(properties=[('foundType', 'keyset')])
-        ])
-        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
-        self.assertEqual(WHOIS.mock_calls, [
-            call.get_keyset_by_handle('mykeysid'),
-            call.get_keyset_status_descriptions('en'),
-            call.get_contact_by_handle('KONTAKT'),
-            call.get_registrar_by_handle('REG-FRED_A')
-        ])
 
 
 @override_settings(TEMPLATES=TEMPLATES)
@@ -881,30 +650,6 @@ class TestDetailDomain(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
         self.assertContains(response, "Domain name details")
         self.assertContains(response, "Search results for handle <strong>fred.cz</strong>:")
-        dns_key = 'DNS Key Flags: 257 (ZONE, Secure Entry Point (SEP)) Protocol: 3 (DNSSEC) Algorithm: 5 (RSA/SHA-1) ' \
-                  'Key: AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8'
-        self.assertCssSelectEqual(response, "table.result tr", [
-            'Domain name fred.cz',
-            'Registered since 12/09/2015',
-            'Last update date 12/10/2015',
-            'Expiration date 12/09/2018',
-            'Holder KONTAKT Company L.t.d.',
-            'Administrative contact KONTAKT Company L.t.d.',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
-            'Secured by DNSSEC',
-            'Status Deletion forbidden Update forbidden',
-            'Name server set NSSET-1',
-            'Name server a.ns.nic.cz 194.0.12.1',
-            'Name server b.ns.nic.cz 194.0.13.1',
-            'Technical contact KONTAKT Company L.t.d.',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
-            'Status Has relation to other records in the registry',
-            'Key set KEYSID-1',
-            dns_key,
-            'Technical contact KONTAKT Company L.t.d.',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
-            'Status Has relation to other records in the registry'
-        ], transform=self.transform_to_text)
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -929,68 +674,6 @@ class TestDetailDomain(ObjectDetailMixin):
         ])
         self.assertContains(response, '<a href="%s">DNSSEC</a>' % WEBWHOIS_DNSSEC_URL, html=True)
 
-    def test_domain_with_contact_no_organization(self):
-        "Test for set disclose of organization to True."
-        WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
-        WHOIS.get_contact_by_handle.return_value = self._get_contact(
-            organization=DisclosableString(value='', disclose=True))
-        WHOIS.get_nsset_status_descriptions.return_value = self._get_nsset_status()
-        WHOIS.get_nsset_by_handle.return_value = self._get_nsset()
-        WHOIS.get_keyset_status_descriptions.return_value = self._get_keyset_status()
-        WHOIS.get_keyset_by_handle.return_value = self._get_keyset()
-        WHOIS.get_domain_status_descriptions.return_value = self._get_domain_status()
-        WHOIS.get_domain_by_handle.return_value = self._get_domain()
-        WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
-        response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
-        self.assertContains(response, "Domain name details")
-        self.assertContains(response, "Search results for handle <strong>fred.cz</strong>:")
-        dns_key = 'DNS Key Flags: 257 (ZONE, Secure Entry Point (SEP)) Protocol: 3 (DNSSEC) Algorithm: 5 (RSA/SHA-1) ' \
-                  'Key: AwEAAddt2AkLfYGKgiEZB5SmIF8EvrjxNMH6HtxW EA4RJ9Ao6LCWheg8'
-        self.assertCssSelectEqual(response, "table.result tr", [
-            'Domain name fred.cz',
-            'Registered since 12/09/2015',
-            'Last update date 12/10/2015',
-            'Expiration date 12/09/2018',
-            'Holder KONTAKT Arnold Rimmer',
-            'Administrative contact KONTAKT Arnold Rimmer',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
-            'Secured by DNSSEC',
-            'Status Deletion forbidden Update forbidden',
-            'Name server set NSSET-1',
-            'Name server a.ns.nic.cz 194.0.12.1',
-            'Name server b.ns.nic.cz 194.0.13.1',
-            'Technical contact KONTAKT Arnold Rimmer',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
-            'Status Has relation to other records in the registry',
-            'Key set KEYSID-1',
-            dns_key,
-            'Technical contact KONTAKT Arnold Rimmer',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
-            'Status Has relation to other records in the registry'
-        ], transform=self.transform_to_text)
-        self.assertEqual(self.LOGGER.mock_calls, [
-            call.__nonzero__(),
-            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
-                ('handle', 'fred.cz'), ('handleType', 'domain'))),
-            call.create_request().close(properties=[('foundType', 'domain')])
-        ])
-        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
-        self.assertEqual(WHOIS.mock_calls, [
-            call.get_domain_by_handle('fred.cz'),
-            call.get_domain_status_descriptions('en'),
-            call.get_contact_by_handle('KONTAKT'),
-            call.get_registrar_by_handle('REG-FRED_A'),
-            call.get_contact_by_handle('KONTAKT'),
-            call.get_nsset_by_handle('NSSET-1'),
-            call.get_nsset_status_descriptions('en'),
-            call.get_contact_by_handle('KONTAKT'),
-            call.get_registrar_by_handle('REG-FRED_A'),
-            call.get_keyset_by_handle('KEYSID-1'),
-            call.get_keyset_status_descriptions('en'),
-            call.get_contact_by_handle('KONTAKT'),
-            call.get_registrar_by_handle('REG-FRED_A')
-        ])
-
     def test_domain_without_nsset_and_keyset(self):
         WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()
         WHOIS.get_contact_by_handle.return_value = self._get_contact()
@@ -1000,17 +683,6 @@ class TestDetailDomain(ObjectDetailMixin):
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
         self.assertContains(response, "Domain name details")
         self.assertContains(response, "Search results for handle <strong>fred.cz</strong>:")
-        self.assertCssSelectEqual(response, "table.result tr", [
-            'Domain name fred.cz',
-            'Registered since 12/09/2015',
-            'Last update date 12/10/2015',
-            'Expiration date 12/09/2018',
-            'Holder KONTAKT Company L.t.d.',
-            'Administrative contact KONTAKT Company L.t.d.',
-            'Sponsoring registrar REG-FRED_A Company A L.t.d. since Dec. 11, 2015, 7:18 p.m.',
-            'Secured by DNSSEC',
-            'Status Deletion forbidden Update forbidden',
-        ], transform=self.transform_to_text)
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -1035,7 +707,6 @@ class TestDetailDomain(ObjectDetailMixin):
               'You can search for domains in the these zones only:'
         self.assertContains(response, msg)
         self.assertNotContains(response, 'Register this domain name?')
-        self.assertCssSelectEqual(response, "ul li", ['cz', '0.2.4.e164.arpa'], transform=self.transform_to_text)
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -1087,8 +758,6 @@ class TestDetailDomain(ObjectDetailMixin):
         self.assertContains(response, "Incorrect input")
         self.assertContains(response, "Too many parts in the domain name <strong>www.fred.cz</strong>.")
         self.assertContains(response, "Enter only the name and the zone:")
-        self.assertXpathEqual(response, "//a[text()='fred.cz']/@href",
-                              [reverse("webwhois:form_whois") + "?handle=fred.cz"])
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -1104,8 +773,6 @@ class TestDetailDomain(ObjectDetailMixin):
         self.assertContains(response, "Incorrect input")
         self.assertContains(response, "Too many parts in the domain name <strong>www.fred.cz.</strong>.")
         self.assertContains(response, "Enter only the name and the zone:")
-        self.assertXpathEqual(response, "//a[text()='fred.cz']/@href",
-                              [reverse("webwhois:form_whois") + "?handle=fred.cz"])
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -1119,8 +786,6 @@ class TestDetailDomain(ObjectDetailMixin):
         self._mocks_for_domain_detail(handle="xn--frd-cma.cz")
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": u"fréd.cz"}))
         self.assertContains(response, u"Search results for handle <strong>fréd.cz</strong>:")
-        self.assertCssSelectEqual(response, ".domain .handle", ["xn--frd-cma.cz"], transform=self.transform_to_text)
-        self.assertCssSelectEqual(response, ".domain .idn-handle", [u"fréd.cz"], transform=self.transform_to_text)
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -1148,8 +813,6 @@ class TestDetailDomain(ObjectDetailMixin):
         self._mocks_for_domain_detail(handle="xn--frd-cma.cz")
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "xn--frd-cma.cz"}))
         self.assertContains(response, "Search results for handle <strong>xn--frd-cma.cz</strong>:")
-        self.assertCssSelectEqual(response, ".domain .handle", ["xn--frd-cma.cz"], transform=self.transform_to_text)
-        self.assertCssSelectEqual(response, ".domain .idn-handle", [u"fréd.cz"], transform=self.transform_to_text)
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -1196,8 +859,7 @@ class TestDetailDomain(ObjectDetailMixin):
         )
         WHOIS.get_domain_status_descriptions.return_value = self._get_domain_status()
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
-        self.assertCssSelectEqual(response, ".domain tr td", ["fred.cz", "To be deleted"],
-                                  transform=self.transform_to_text)
+        self.assertContains(response, "Domain name details")
         self.assertEqual(WHOIS.mock_calls, [
             call.get_domain_by_handle('fred.cz'),
             call.get_domain_status_descriptions('en')
@@ -1210,7 +872,7 @@ class TestDetailDomain(ObjectDetailMixin):
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
-    def test_unexpected_exeption(self):
+    def test_unexpected_exception(self):
         class TestException(Exception):
             pass
         WHOIS.get_domain_by_handle.side_effect = TestException("Unexpected exception.")
@@ -1229,7 +891,7 @@ class TestDetailDomain(ObjectDetailMixin):
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None, LANGUAGE_CODE='en',
                    CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}},
                    ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
-class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, SimpleTestCase):
+class TestContactDetailWithMojeid(GetRegistryObjectMixin, SimpleTestCase):
 
     def setUp(self):
         spec = ('get_contact_by_handle', 'get_contact_status_descriptions', 'get_registrar_by_handle')
@@ -1245,13 +907,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         WHOIS.get_contact_by_handle.return_value = self._get_contact()
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "mycontact"}))
-        self.assertXpathEqual(response, "//form[@action='%s']/input" % WEBWHOIS_MOJEID_TRANSFER_ENDPOINT, [
-            ('hidden', 'username', 'kontakt'),
-            ('submit', None, 'Create mojeID from the domain registry')
-        ], transform=lambda node: (node.attrib["type"], node.attrib.get("name"), node.attrib["value"]), normalize=False)
-        self.assertXpathEqual(response, "count(//a[@href='%s?username=kontakt'])=1" % (
-            WEBWHOIS_MOJEID_REGISTRY_ENDPOINT), True)
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID?"])
+        self.assertContains(response, 'Create mojeID from the domain registry')
         self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
         self.assertEqual(WHOIS.mock_calls, [
             call.get_contact_by_handle('mycontact'),
@@ -1259,7 +915,6 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID?"])
 
     @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_TRANSFER_ENDPOINT", None)
     @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT", None)
@@ -1269,10 +924,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         WHOIS.get_contact_by_handle.return_value = self._get_contact()
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "mycontact"}))
-        self.assertXpathEqual(response, "//form[@action='%s']/input" % WEBWHOIS_MOJEID_TRANSFER_ENDPOINT, [])
-        self.assertXpathEqual(response, "count(//a[@href='%s?username=kontakt'])=1" % (
-            WEBWHOIS_MOJEID_REGISTRY_ENDPOINT), False)
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, [])
+        self.assertContains(response, 'Contact details')
         # TODO: LOGGER, WHOIS
 
     def test_improper_handle_format(self):
@@ -1280,8 +932,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         WHOIS.get_contact_by_handle.return_value = self._get_contact(handle="MY.HANDLE")
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "MY.HANDLE"}))
-        self.assertXpathEqual(response, "count(//form)=0", True)
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, [])
+        self.assertContains(response, 'Contact details')
         self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
         self.assertEqual(WHOIS.mock_calls, [
             call.get_contact_by_handle('MY.HANDLE'),
@@ -1289,7 +940,6 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, [])
 
     @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_TRANSFER_ENDPOINT", WEBWHOIS_MOJEID_TRANSFER_ENDPOINT)
     @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT", WEBWHOIS_MOJEID_REGISTRY_ENDPOINT)
@@ -1299,13 +949,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=[])
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "mycontact"}))
-        self.assertXpathEqual(response, "//form[@action='%s']/input" % WEBWHOIS_MOJEID_TRANSFER_ENDPOINT, [
-            ('hidden', 'username', 'kontakt'),
-            ('submit', None, 'Create mojeID from the domain registry')
-        ], transform=lambda node: (node.attrib["type"], node.attrib.get("name"), node.attrib["value"]), normalize=False)
-        self.assertXpathEqual(response, "count(//a[@href='%s?username=kontakt'])=1" % (
-            WEBWHOIS_MOJEID_REGISTRY_ENDPOINT), True)
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID?"])
+        self.assertContains(response, 'Contact details')
         self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
         self.assertEqual(WHOIS.mock_calls, [
             call.get_contact_by_handle('mycontact'),
@@ -1313,7 +957,6 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, ["Why mojeID?"])
 
     @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_TRANSFER_ENDPOINT", None)
     @patch("webwhois.views.detail_contact.WEBWHOIS_MOJEID_REGISTRY_ENDPOINT", None)
@@ -1323,10 +966,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=[])
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "mycontact"}))
-        self.assertXpathEqual(response, "//form[@action='%s']/input" % WEBWHOIS_MOJEID_TRANSFER_ENDPOINT, [])
-        self.assertXpathEqual(response, "count(//a[@href='%s?username=kontakt'])=1" % (
-            WEBWHOIS_MOJEID_REGISTRY_ENDPOINT), False)
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, [])
+        self.assertContains(response, 'Contact details')
         # TODO: LOGGER, WHOIS
 
     def _do_test_statuses(self, statuses):
@@ -1334,8 +974,7 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
         WHOIS.get_contact_by_handle.return_value = self._get_contact(statuses=statuses)
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_mojeid_contact", kwargs={"handle": "mycontact"}))
-        self.assertXpathEqual(response, "count(//form)=0", True)
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, [])
+        self.assertContains(response, 'Contact details')
         self.assertEqual(self.LOGGER.mock_calls, [call.__nonzero__()])
         self.assertEqual(WHOIS.mock_calls, [
             call.get_contact_by_handle('mycontact'),
@@ -1343,7 +982,6 @@ class TestContactDetailWithMojeid(WebwhoisAssertMixin, GetRegistryObjectMixin, S
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
-        self.assertXpathEqual(response, "//a[@href='%s']/text()" % WEBWHOIS_MOJEID_LINK_WHY, [])
 
     def test_status_mojeid_contact(self):
         self._do_test_statuses([STATUS_LINKED, STATUS_MOJEID_CONTACT])
