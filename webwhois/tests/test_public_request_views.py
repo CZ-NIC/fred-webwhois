@@ -1122,7 +1122,7 @@ class TestCheckResponseData(SimpleTestCase):
     def _assert_response_data(self, view):
         with self.assertRaisesMessage(ResponseDataKeyMissing, 'response_data'):
             view.check_response_data({})
-        with self.assertRaisesMessage(ResponseDataKeyMissing, 'object_type, response_id, created_date'):
+        with self.assertRaisesMessage(ResponseDataKeyMissing, 'object_type'):
             view.check_response_data({'handle': 'foo'})
 
     def test_base_response_template_view(self):
