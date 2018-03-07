@@ -187,11 +187,11 @@ class TestResolveHandleType(ObjectDetailMixin):
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
                 ('handle', 'testhandle.cz'), ('handleType', 'multiple'))),
             call.create_request().close(properties=[
-                ('foundType', 'keyset'),
-                ('foundType', 'domain'),
                 ('foundType', 'contact'),
-                ('foundType', 'registrar'),
+                ('foundType', 'domain'),
+                ('foundType', 'keyset'),
                 ('foundType', 'nsset'),
+                ('foundType', 'registrar'),
             ])
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')

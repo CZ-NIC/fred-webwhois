@@ -100,7 +100,7 @@ class RegistryObjectMixin(BaseContextMixin):
             log_request.result = "Error"
             properties_out.append(("exception", exception_type_name))
         else:
-            found_types = [("foundType", name) for name in context.get(self._registry_objects_key, {}).keys()]
+            found_types = [("foundType", name) for name in sorted(context.get(self._registry_objects_key, {}).keys())]
             if len(found_types):
                 log_request.result = "Ok"
                 properties_out.extend(found_types)
