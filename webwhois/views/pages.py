@@ -2,9 +2,7 @@ from __future__ import unicode_literals
 
 from django.views.generic import TemplateView
 
-from webwhois.settings import WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL, WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL, \
-    WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC, WEBWHOIS_REGISTRAR_SUPPORTS_IPV6, WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID, \
-    WEBWHOIS_SEARCH_ENGINES
+from webwhois.settings import WEBWHOIS_SEARCH_ENGINES
 from webwhois.utils import WHOIS
 from webwhois.views import BlockObjectFormView, ContactDetailMixin, CustomEmailView, DomainDetailMixin, \
     DownloadEvalFileView, EmailInRegistryView, KeysetDetailMixin, NotarizedLetterView, NssetDetailMixin, \
@@ -56,26 +54,6 @@ class WebwhoisRegistrarDetailView(BaseTemplateMixin, RegistrarDetailMixin, Templ
 
 class WebwhoisRegistrarListView(BaseTemplateMixin, RegistrarListMixin, TemplateView):
     pass
-
-
-class DobradomaneRegistrarListView(BaseTemplateMixin, RegistrarListMixin, TemplateView):
-    template_name = "webwhois_in_cms/registrar_list_with_dobradomena.html"
-
-    def _registrar_row(self, data):
-        data["dobradomena"] = self._dobradomena_dict.get(data['registrar'].handle)
-        return data
-
-    def get_context_data(self, **kwargs):
-        kwargs.setdefault("HOW_TO_BECOME_A_REGISTRAR_URL", WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL)
-        kwargs.setdefault("REGISTRAR_CERTIFIED_FOR_RETAIL_URL", WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL)
-        kwargs.setdefault("REGISTRAR_SUPPORTS_DNSSEC", WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC)
-        kwargs.setdefault("REGISTRAR_SUPPORTS_MOJEID", WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID)
-        kwargs.setdefault("REGISTRAR_SUPPORTS_IPV6", WEBWHOIS_REGISTRAR_SUPPORTS_IPV6)
-        self._dobradomena_dict = {
-            'REG-FRED_A': 'http://fred-a.dobradomena.cz/manual.pdf',
-            'REG-FRED_B': 'http://fred-b.dobradomena.cz/manual.pdf',
-        }
-        return super(DobradomaneRegistrarListView, self).get_context_data(**kwargs)
 
 
 class WebwhoisDownloadEvalFileView(BaseTemplateMixin, DownloadEvalFileView):

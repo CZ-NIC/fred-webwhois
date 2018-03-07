@@ -1,8 +1,5 @@
 from __future__ import unicode_literals
 
-from shutil import rmtree
-from tempfile import mkdtemp
-
 from fred_idl.Registry import IsoDateTime
 from fred_idl.Registry.Whois import KeySet
 from mock import sentinel
@@ -41,13 +38,6 @@ def apply_patch(case, patcher):
     start, stop = patcher.start, patcher.stop
     case.addCleanup(stop)
     return start()
-
-
-def prepare_mkdtemp(case):
-    """Create temporary directory and returns its name."""
-    dirname = mkdtemp()
-    case.addCleanup(rmtree, dirname)
-    return dirname
 
 
 def make_keyset(statuses=None):
