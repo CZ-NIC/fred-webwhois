@@ -41,13 +41,6 @@ for dct in WEBWHOIS_SEARCH_ENGINES:
     if not (dct.get("href") and dct.get("label")):
         raise ImproperlyConfigured("WEBWHOIS_SEARCH_ENGINES value %s does not have required keys." % dct)
 
-# WebWhois - List of Registrars:
-WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL = getattr(settings, 'WEBWHOIS_HOW_TO_BECOME_A_REGISTRAR_URL', None)
-WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL = getattr(settings, 'WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL', None)
-WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC = getattr(settings, 'WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC', None)
-WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID = getattr(settings, 'WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID', None)
-WEBWHOIS_REGISTRAR_SUPPORTS_IPV6 = getattr(settings, 'WEBWHOIS_REGISTRAR_SUPPORTS_IPV6', None)
-
 WEBWHOIS_HOW_TO_REGISTER_LINK = dct = getattr(settings, 'WEBWHOIS_HOW_TO_REGISTER_LINK', None)
 if dct and not (dct.get("href") and dct.get("label")):
     raise ImproperlyConfigured("WEBWHOIS_HOW_TO_REGISTER_LINK value %s does not have required keys." % dct)

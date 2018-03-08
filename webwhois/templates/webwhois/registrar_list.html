@@ -61,13 +61,3 @@
         {% endfor %}
     </table>
 {% endblock webwhois_content %}
-
-{% block webwhois_footer %}
-    {% if HOW_TO_BECOME_A_REGISTRAR_URL %}
-        <p>
-            {% blocktrans with link=HOW_TO_BECOME_A_REGISTRAR_URL trimmed %}
-                Follow the <a href="{{ link }}">instructions</a> to become a .cz domains registrar.
-            {% endblocktrans %}
-        </p>
-    {% endif %}
-{% endblock webwhois_footer %}
