@@ -7,7 +7,7 @@ from datetime import date, datetime
 from django.test import SimpleTestCase, override_settings
 from django.utils import timezone
 from fred_idl.ccReg import DateTimeType, DateType, FileManager, Logger, _objref_FileDownload
-from fred_idl.Registry.PublicRequest import Buffer
+from fred_idl.Registry import Buffer, IsoDateTime
 from fred_idl.Registry.Whois import WhoisIntf
 from mock import call, patch, sentinel
 from omniORB import StructBase
@@ -100,6 +100,18 @@ class TestWebwhoisCorbaRecoder(SimpleTestCase):
     def test_encode_file_download(self):
         file_download = _objref_FileDownload()
         self.assertEqual(WebwhoisCorbaRecoder().encode(file_download), file_download)
+
+    def test_decode_isodatetime_aware(self):
+        recoder = WebwhoisCorbaRecoder()
+        with self.settings(USE_TZ=True):
+            self.assertEqual(recoder.decode(IsoDateTime('2001-02-03T12:13:14Z')),
+                             datetime(2001, 2, 3, 12, 13, 14, tzinfo=timezone.utc))
+
+    def test_decode_isodatetime_naive(self):
+        recoder = WebwhoisCorbaRecoder()
+        with self.settings(USE_TZ=False, TIME_ZONE='Europe/Prague'):
+            self.assertEqual(recoder.decode(IsoDateTime('2001-02-03T12:13:14Z')),
+                             datetime(2001, 2, 3, 13, 13, 14))
 
 
 class TestLoadIdl(SimpleTestCase):

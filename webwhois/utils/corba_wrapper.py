@@ -9,10 +9,11 @@ from django.utils import timezone
 from django.utils.functional import SimpleLazyObject
 from fred_idl import ccReg
 from fred_idl.ccReg import FileManager, Logger
-from fred_idl.Registry import PublicRequest, RecordStatement, Whois
+from fred_idl.Registry import Buffer, IsoDate, IsoDateTime, PublicRequest, RecordStatement, Whois
 from pyfco import CorbaClient, CorbaClientProxy
 from pyfco.corba import CorbaNameServiceClient, init_omniorb_exception_handles
 from pyfco.corbarecoder import CorbaRecoder
+from pyfco.recoder import decode_iso_date, decode_iso_datetime
 
 from webwhois.settings import WEBWHOIS_LOGGER, WEBWHOIS_SETTINGS
 
@@ -32,15 +33,14 @@ class WebwhoisCorbaRecoder(CorbaRecoder):
 
     def __init__(self, coding='ascii'):
         super(WebwhoisCorbaRecoder, self).__init__(coding)
-        self.add_recode_function(PublicRequest.Buffer, self._decode_buffer, self._identity)
-        self.add_recode_function(RecordStatement.PdfBuffer, self._decode_pdf_buffer, self._identity)
+        self.add_recode_function(Buffer, self._decode_buffer, self._identity)
         self.add_recode_function(ccReg._objref_FileDownload, self._identity, self._identity)
+        self.add_recode_function(IsoDate, decode_iso_date, self._identity)
+        self.add_recode_function(IsoDateTime, self._decode_iso_datetime, self._identity)
 
     def _decode_buffer(self, value):
-        return value.value  # IDL:Registry/PublicRequest/Buffer:1.0
-
-    def _decode_pdf_buffer(self, value):
-        return value.data  # IDL:Registry/RecordStatement/PdfBuffer:1.0
+        """Decode `Registry.Buffer` struct into bytes."""
+        return value.data
 
     def _decode_struct(self, value):
         # Dynamic loading of IDL with includes causes problems with classes. The same class may appear in several
@@ -61,6 +61,13 @@ class WebwhoisCorbaRecoder(CorbaRecoder):
             return datetime.date(value.year, value.month, value.day)
         else:
             return super(WebwhoisCorbaRecoder, self)._decode_struct(value)
+
+    def _decode_iso_datetime(self, value):
+        """Decode `IsoDateTime` struct to datetime object with respect to the timezone settings."""
+        result = decode_iso_datetime(value)
+        if not settings.USE_TZ:
+            result = timezone.make_naive(result, timezone.get_default_timezone())
+        return result
 
 
 init_omniorb_exception_handles(None)

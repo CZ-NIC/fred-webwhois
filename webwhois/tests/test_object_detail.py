@@ -10,8 +10,8 @@ from django.urls import reverse
 from django.utils.formats import reset_format_cache
 from django.views import View
 from fred_idl.ccReg import DateTimeType, DateType
-from fred_idl.Registry.Whois import INVALID_HANDLE, INVALID_LABEL, OBJECT_NOT_FOUND, TOO_MANY_LABELS, UNMANAGED_ZONE, \
-    ContactIdentification, DisclosableContactIdentification
+from fred_idl.Registry.Whois import INVALID_HANDLE, INVALID_LABEL, OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND, \
+    TOO_MANY_LABELS, UNMANAGED_ZONE, ContactIdentification, DisclosableContactIdentification
 from mock import call, patch, sentinel
 
 from webwhois.constants import STATUS_DELETE_CANDIDATE, STATUS_LINKED, STATUS_VALIDATED, STATUS_VERIFICATION_FAILED, \
@@ -599,8 +599,8 @@ class TestDetailKeyset(ObjectDetailMixin):
 @override_settings(TEMPLATES=TEMPLATES)
 class TestDetailDomain(ObjectDetailMixin):
 
-    def test_domain_not_found(self):
-        WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND
+    def _test_domain_not_exist(self):
+        # Test cases which ends up in domain not existing.
         WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
         self.assertContains(response, 'Domain not found')
@@ -614,6 +614,14 @@ class TestDetailDomain(ObjectDetailMixin):
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
         self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('fred.cz')])
+
+    def test_domain_not_found(self):
+        WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND
+        self._test_domain_not_exist()
+
+    def test_domain_delete_candidate(self):
+        WHOIS.get_domain_by_handle.side_effect = OBJECT_DELETE_CANDIDATE
+        self._test_domain_not_exist()
 
     def test_domain_not_found_idna_formated(self):
         WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND
