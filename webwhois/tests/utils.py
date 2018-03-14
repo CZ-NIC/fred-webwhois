@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from shutil import rmtree
 from tempfile import mkdtemp
 
-from fred_idl.Registry import Date, DateTime
+from fred_idl.Registry import IsoDateTime
 from fred_idl.Registry.Whois import KeySet
 from mock import sentinel
 
@@ -53,5 +53,5 @@ def prepare_mkdtemp(case):
 def make_keyset(statuses=None):
     """Return a key set object."""
     return KeySet(handle=sentinel.handle, dns_keys=[], tech_contact_handles=[], registrar_handle=sentinel.registrar,
-                  created=DateTime(Date(1, 1, 1970), 0, 0, 0), changed=None, last_transfer=None,
+                  created=IsoDateTime('1970-01-01T00:00:00Z'), changed=None, last_transfer=None,
                   statuses=(statuses or []))
