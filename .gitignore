@@ -10,3 +10,5 @@
 /*.egg-info
 /.eggs/
 /install.log
+/.tox
+/.coverage*
