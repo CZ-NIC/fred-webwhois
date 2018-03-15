@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from django.utils.decorators import method_decorator
-from fred_idl.ccReg import DateTimeType, DateType
+from fred_idl.Registry import IsoDate, IsoDateTime
 from fred_idl.Registry.Whois import Contact, ContactIdentification, DisclosableContactIdentification, \
     DisclosablePlaceAddress, DisclosableString, DNSKey, Domain, IPAddress, IPv4, KeySet, NameServer, NSSet, \
     ObjectStatusDesc, PlaceAddress, Registrar, RegistrarCertification, RegistrarGroup
@@ -81,9 +81,9 @@ class GetRegistryObjectMixin(object):
             ),
             creating_registrar_handle='REG-FRED_A',
             sponsoring_registrar_handle='REG-FRED_A',
-            created=DateTimeType(date=DateType(day=15, month=12, year=2015), hour=7, minute=56, second=24),
-            changed=DateTimeType(date=DateType(day=16, month=12, year=2015), hour=8, minute=32, second=12),
-            last_transfer=DateTimeType(date=DateType(day=17, month=12, year=2015), hour=9, minute=48, second=25),
+            created=IsoDateTime('2015-12-15T07:56:24Z'),
+            changed=IsoDateTime('2015-12-16T08:32:12Z'),
+            last_transfer=IsoDateTime('2015-12-17T09:48:25Z'),
             statuses=[STATUS_LINKED]
         )
         field_names = obj.__dict__.keys()
@@ -118,9 +118,9 @@ class GetRegistryObjectMixin(object):
             ],
             tech_contact_handles=['KONTAKT'],
             registrar_handle='REG-FRED_A',
-            created=DateTimeType(date=DateType(day=9, month=12, year=2015), hour=16, minute=16, second=30),
-            changed=DateTimeType(date=DateType(day=10, month=12, year=2015), hour=17, minute=17, second=31),
-            last_transfer=DateTimeType(date=DateType(day=11, month=12, year=2015), hour=18, minute=18, second=32),
+            created=IsoDateTime('2015-12-09T16:16:30Z'),
+            changed=IsoDateTime('2015-12-10T17:17:31Z'),
+            last_transfer=IsoDateTime('2015-12-11T18:18:32Z'),
             statuses=[STATUS_LINKED]
         )
 
@@ -134,9 +134,9 @@ class GetRegistryObjectMixin(object):
             ],
             tech_contact_handles=['KONTAKT'],
             registrar_handle='REG-FRED_A',
-            created=DateTimeType(date=DateType(day=9, month=12, year=2015), hour=16, minute=16, second=30),
-            changed=DateTimeType(date=DateType(day=10, month=12, year=2015), hour=17, minute=17, second=31),
-            last_transfer=DateTimeType(date=DateType(day=11, month=12, year=2015), hour=18, minute=18, second=32),
+            created=IsoDateTime('2015-12-09T16:16:30Z'),
+            changed=IsoDateTime('2015-12-10T17:17:31Z'),
+            last_transfer=IsoDateTime('2015-12-11T18:18:32Z'),
             statuses=[STATUS_LINKED]
         )
 
@@ -150,11 +150,11 @@ class GetRegistryObjectMixin(object):
             keyset_handle='KEYSID-1',
             registrar_handle='REG-FRED_A',
             statuses=[],
-            registered=DateTimeType(date=DateType(day=9, month=12, year=2015), hour=16, minute=16, second=30),
-            changed=DateTimeType(date=DateType(day=10, month=12, year=2015), hour=17, minute=17, second=31),
-            last_transfer=DateTimeType(date=DateType(day=11, month=12, year=2015), hour=18, minute=18, second=32),
-            expire=DateType(day=9, month=12, year=2018),
-            expire_time_estimate=DateType(day=9, month=12, year=2018),
+            registered=IsoDateTime('2015-12-09T16:16:30Z'),
+            changed=IsoDateTime('2015-12-10T17:17:31Z'),
+            last_transfer=IsoDateTime('2015-12-11T18:18:32Z'),
+            expire=IsoDate('2018-12-09'),
+            expire_time_estimate=IsoDate('2018-12-09'),
             expire_time_actual=None,
             validated_to=None,
             validated_to_time_estimate=None,

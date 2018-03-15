@@ -9,7 +9,6 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import reset_format_cache
 from django.views import View
-from fred_idl.ccReg import DateTimeType, DateType
 from fred_idl.Registry.Whois import INVALID_HANDLE, INVALID_LABEL, OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND, \
     TOO_MANY_LABELS, UNMANAGED_ZONE, ContactIdentification, DisclosableContactIdentification
 from mock import call, patch, sentinel
@@ -841,42 +840,6 @@ class TestDetailDomain(ObjectDetailMixin):
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
-
-    def test_domain_with_datetime_zero_values(self):
-        date = DateType(day=0, month=0, year=0)
-        datetime = DateTimeType(date=date, hour=0, minute=0, second=0),
-        WHOIS.get_domain_by_handle.return_value = self._get_domain(
-            handle='fred.cz',
-            registrant_handle='',
-            admin_contact_handles=[],
-            nsset_handle=None,
-            keyset_handle=None,
-            registrar_handle='',
-            statuses=[STATUS_DELETE_CANDIDATE],
-            registered=datetime,
-            changed=None,
-            last_transfer=None,
-            expire=date,
-            expire_time_estimate=datetime,
-            expire_time_actual=None,
-            validated_to=None,
-            validated_to_time_estimate=None,
-            validated_to_time_actual=None
-        )
-        WHOIS.get_domain_status_descriptions.return_value = self._get_domain_status()
-        response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
-        self.assertContains(response, "Domain name details")
-        self.assertEqual(WHOIS.mock_calls, [
-            call.get_domain_by_handle('fred.cz'),
-            call.get_domain_status_descriptions('en')
-        ])
-        self.assertEqual(self.LOGGER.mock_calls, [
-            call.__nonzero__(),
-            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
-                ('handle', 'fred.cz'), ('handleType', 'domain'))),
-            call.create_request().close(properties=[('foundType', 'domain')])
-        ])
-        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_unexpected_exception(self):
         class TestException(Exception):
