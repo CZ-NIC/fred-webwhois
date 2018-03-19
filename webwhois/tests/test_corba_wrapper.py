@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
+import omniORB
 from django.test import SimpleTestCase, override_settings
 from django.utils import timezone
 from fred_idl.ccReg import FileManager, Logger, _objref_FileDownload
@@ -27,11 +28,17 @@ class TestWebwhoisCorbaRecoder(SimpleTestCase):
         self.assertEqual(WebwhoisCorbaRecoder().decode(buffer_obj), 'foo')
 
     def test_decode_file_download(self):
-        file_download = _objref_FileDownload()
+        if omniORB.__version__ < '4':  # pragma: no cover
+            file_download = _objref_FileDownload()
+        else:  # pragma: no cover
+            file_download = _objref_FileDownload(sentinel.object)
         self.assertEqual(WebwhoisCorbaRecoder().decode(file_download), file_download)
 
     def test_encode_file_download(self):
-        file_download = _objref_FileDownload()
+        if omniORB.__version__ < '4':  # pragma: no cover
+            file_download = _objref_FileDownload()
+        else:  # pragma: no cover
+            file_download = _objref_FileDownload(sentinel.object)
         self.assertEqual(WebwhoisCorbaRecoder().encode(file_download), file_download)
 
     def test_decode_isodatetime_aware(self):
