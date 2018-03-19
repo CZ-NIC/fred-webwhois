@@ -96,7 +96,8 @@ def load_record_statement():
 def load_logger_from_idl():
     service_client = CorbaNameServiceClient(CORBA_ORB, WEBWHOIS_SETTINGS.LOGGER_CORBA_NETLOC,
                                             WEBWHOIS_SETTINGS.LOGGER_CORBA_CONTEXT)
-    return service_client.get_object('Logger', Logger)
+    return CorbaClient(service_client.get_object('Logger', Logger), CorbaRecoder('utf-8'),
+                       ccReg.Logger.INTERNAL_SERVER_ERROR)
 
 
 _WHOIS = SimpleLazyObject(load_whois_from_idl)
