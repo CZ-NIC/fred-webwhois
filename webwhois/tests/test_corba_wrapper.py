@@ -74,4 +74,4 @@ class TestLoadIdl(SimpleTestCase):
             call(CORBA_ORB, 'example.cz', 'custom'),
             call().get_object('Logger', Logger),
         ])
-        self.assertEqual(result, mock_client().get_object())
+        self.assertEqual(result.corba_object, mock_client().get_object())
