@@ -1,16 +1,13 @@
 """Utilities for Corba."""
 from __future__ import unicode_literals
 
-import omniORB
 from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import SimpleLazyObject
 from fred_idl import ccReg
 from fred_idl.ccReg import FileManager, Logger
 from fred_idl.Registry import Buffer, IsoDate, IsoDateTime, PublicRequest, RecordStatement, Whois
-from pyfco import CorbaClient, CorbaClientProxy
-from pyfco.corba import CorbaNameServiceClient, init_omniorb_exception_handles
-from pyfco.corbarecoder import CorbaRecoder
+from pyfco import CorbaClient, CorbaClientProxy, CorbaNameServiceClient, CorbaRecoder
 from pyfco.recoder import decode_iso_date, decode_iso_datetime
 
 from webwhois.settings import WEBWHOIS_LOGGER, WEBWHOIS_SETTINGS
@@ -45,11 +42,7 @@ class WebwhoisCorbaRecoder(CorbaRecoder):
         return result
 
 
-init_omniorb_exception_handles(None)
-
-# http://omniorb.sourceforge.net/omnipy3/omniORBpy/omniORBpy004.html
-CORBA_ORB = omniORB.CORBA.ORB_init([b"-ORBnativeCharCodeSet", b"UTF-8"], omniORB.CORBA.ORB_ID)
-_CLIENT = CorbaNameServiceClient(CORBA_ORB, WEBWHOIS_SETTINGS.CORBA_NETLOC, WEBWHOIS_SETTINGS.CORBA_CONTEXT)
+_CLIENT = CorbaNameServiceClient(host_port=WEBWHOIS_SETTINGS.CORBA_NETLOC, context_name=WEBWHOIS_SETTINGS.CORBA_CONTEXT)
 
 
 def load_whois_from_idl():
@@ -69,8 +62,8 @@ def load_record_statement():
 
 
 def load_logger_from_idl():
-    service_client = CorbaNameServiceClient(CORBA_ORB, WEBWHOIS_SETTINGS.LOGGER_CORBA_NETLOC,
-                                            WEBWHOIS_SETTINGS.LOGGER_CORBA_CONTEXT)
+    service_client = CorbaNameServiceClient(host_port=WEBWHOIS_SETTINGS.LOGGER_CORBA_NETLOC,
+                                            context_name=WEBWHOIS_SETTINGS.LOGGER_CORBA_CONTEXT)
     return CorbaClient(service_client.get_object('Logger', Logger), CorbaRecoder('utf-8'),
                        ccReg.Logger.INTERNAL_SERVER_ERROR)
 
