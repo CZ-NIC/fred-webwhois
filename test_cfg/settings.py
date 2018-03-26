@@ -20,9 +20,6 @@ WEBWHOIS_REGISTRAR_CERTIFIED_FOR_RETAIL_URL = "https://www.nic.cz/page/928/"
 WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC = "https://www.nic.cz/page/928/#dnssec"
 WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID = "https://www.nic.cz/page/928/#mojeid"
 WEBWHOIS_REGISTRAR_SUPPORTS_IPV6 = "https://www.nic.cz/page/928/#ipv6"
-WEBWHOIS_DOBRADOMENA_ROOT = '/tmp/dobradomena/'
-WEBWHOIS_DOBRADOMENA_FILE_NAME = "manual.pdf"
-WEBWHOIS_DOBRADOMENA_MANUAL_URL_PATTERN = '/dobradomena/%(handle)s/%(lang)s/'
 WEBWHOIS_HOW_TO_REGISTER_LINK = {
     "href": "http://www.dobradomena.cz/",
     "label": "www.dobradomena.cz"

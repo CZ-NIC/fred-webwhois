@@ -48,13 +48,6 @@ WEBWHOIS_REGISTRAR_SUPPORTS_DNSSEC = getattr(settings, 'WEBWHOIS_REGISTRAR_SUPPO
 WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID = getattr(settings, 'WEBWHOIS_REGISTRAR_SUPPORTS_MOJEID', None)
 WEBWHOIS_REGISTRAR_SUPPORTS_IPV6 = getattr(settings, 'WEBWHOIS_REGISTRAR_SUPPORTS_IPV6', None)
 
-# Storage for files of dobradomena.
-
-# /tmp/dobradomena/fred_a/en/manual.pdf
-WEBWHOIS_DOBRADOMENA_ROOT = getattr(settings, 'WEBWHOIS_DOBRADOMENA_ROOT', None)
-WEBWHOIS_DOBRADOMENA_FILE_NAME = getattr(settings, 'WEBWHOIS_DOBRADOMENA_FILE_NAME', None)
-# http://%(handle)s.dobradomena.cz/dobradomena/
-WEBWHOIS_DOBRADOMENA_MANUAL_URL_PATTERN = getattr(settings, 'WEBWHOIS_DOBRADOMENA_MANUAL_URL_PATTERN', None)
 WEBWHOIS_HOW_TO_REGISTER_LINK = dct = getattr(settings, 'WEBWHOIS_HOW_TO_REGISTER_LINK', None)
 if dct and not (dct.get("href") and dct.get("label")):
     raise ImproperlyConfigured("WEBWHOIS_HOW_TO_REGISTER_LINK value %s does not have required keys." % dct)

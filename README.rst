@@ -263,58 +263,6 @@ Default value::
     None
 
 
-Dobradomena settings
---------------------
-
-Information about the site *Dobradomena*. There is a link displayed on the page above the list of registrars.
-
-``WEBWHOIS_DOBRADOMENA_ROOT``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The ``WEBWHOIS_DOBRADOMENA_ROOT`` variable contains a path to the folder with the PDF-manual files that the site serves.
-
-Example::
-
-    WEBWHOIS_DOBRADOMENA_ROOT = '/tmp/dobradomena/'
-
-.. note::
-    Files are stored in the path with the pattern
-    ``WEBWHOIS_DOBRADOMENA_ROOT`` / registrar-name / language-code / ``WEBWHOIS_DOBRADOMENA_FILE_NAME``.
-    For example ``/tmp/dobradomena/fred_a/en/manual.pdf``.
-
-Default value::
-
-    None
-
-``WEBWHOIS_DOBRADOMENA_FILE_NAME``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The ``WEBWHOIS_DOBRADOMENA_FILE_NAME`` variable contains a PDF-manual file name.
-
-Example::
-
-    WEBWHOIS_DOBRADOMENA_FILE_NAME = "manual.pdf"
-
-Default value::
-
-    None
-
-``WEBWHOIS_DOBRADOMENA_MANUAL_URL_PATTERN``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The ``WEBWHOIS_DOBRADOMENA_MANUAL_URL_PATTERN`` variable contains the pattern for the file name mapping.
-
-Example::
-
-    WEBWHOIS_DOBRADOMENA_MANUAL_URL_PATTERN = '/dobradomena/%(handle)s/%(lang)s/'
-
-.. note::
-    Example of using a 3rd-level domain: ``http://%(handle)s.dobradomena.cz/dobradomena/``.
-
-Default value::
-
-    None
-
 ``WEBWHOIS_HOW_TO_REGISTER_LINK``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

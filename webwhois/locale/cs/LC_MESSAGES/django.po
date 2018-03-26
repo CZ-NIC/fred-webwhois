@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-16 16:32+0100\n"
+"POT-Creation-Date: 2018-03-07 15:24+0100\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -194,14 +194,6 @@ msgstr "Záznam nenalezen"
 
 msgid "Holder"
 msgstr "Držitel"
-
-#, python-format
-msgid ""
-"How to register a <a href=\"%(link)s\" title=\"How to register a Dobrá doména"
-"\">Dobrá doména</a>."
-msgstr ""
-"Jak registrovat <a href=\"%(link)s\" title=\"Jak registrovat Dobrá doména"
-"\">Dobrá doména</a>."
 
 #, python-format
 msgid ""
@@ -709,10 +701,6 @@ msgstr "Registrace od"
 msgid "Registrar"
 msgstr "Registrátor"
 
-#, python-format
-msgid "Registrar <a href=\"%(link)s\">Certified</a> for Retail"
-msgstr "Registrátor <a href=\"%(link)s\">certifikovaný</a> pro maloobchod"
-
 msgid "Registrar details"
 msgstr "Prohlížení registrátora"
 
@@ -721,18 +709,6 @@ msgstr "Seznam registrátorů"
 
 msgid "Registrar not found"
 msgstr "Registrátor nenalezen"
-
-#, python-format
-msgid "Registrar supports <a href=\"%(link)s\">IPv6</a>"
-msgstr "Registrátor podporuje <a href=\"%(link)s\">IPv6</a>"
-
-#, python-format
-msgid "Registrar supports <a href=\"%(link)s\">mojeID</a>"
-msgstr "Registrátor podporuje <a href=\"%(link)s\">mojeID</a>"
-
-#, python-format
-msgid "Registrar supports secured domains <a href=\"%(link)s\">DNSSEC</a>"
-msgstr "Registrátor podporuje bezpečné domény <a href=\"%(link)s\">DNSSEC</a>"
 
 msgid "Registrars offering also retail services"
 msgstr "Registrátoři poskytující také služby koncovým držitelům"

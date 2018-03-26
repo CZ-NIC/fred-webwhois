@@ -101,19 +101,6 @@ class TestRegistrarsView(GetRegistryObjectMixin, SimpleTestCase):
             call.get_registrars()
         ])
 
-    def test_dobradomena_list_retail(self):
-        WHOIS.get_registrar_groups.return_value = self._get_registrar_groups()
-        WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()
-        WHOIS.get_registrars.return_value = self._get_registrars()
-        response = self.client.get(reverse("webwhois:dobradomena_list_retail"))
-        self.assertContains(response, "Registrars offering also retail services")
-        self.assertEqual(self.LOGGER.mock_calls, [])
-        self.assertEqual(WHOIS.mock_calls, [
-            call.get_registrar_groups(),
-            call.get_registrar_certification_list(),
-            call.get_registrars()
-        ])
-
     @patch("webwhois.views.registrar.random.SystemRandom.shuffle")
     def test_shuffle_and_sorted_registrars(self, mock_shuffle):
         WHOIS.get_registrar_groups.return_value = self._get_registrar_groups()

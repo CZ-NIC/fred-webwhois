@@ -2,12 +2,12 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
-from webwhois.views.pages import DobradomaneRegistrarListView, WebwhoisBlockObjectFormView, WebwhoisContactDetailView, \
-    WebwhoisCustomEmailView, WebwhoisDomainDetailView, WebwhoisDownloadEvalFileView, WebwhoisEmailInRegistryView, \
-    WebwhoisFormView, WebwhoisKeysetDetailView, WebwhoisNotarizedLetterView, WebwhoisNssetDetailView, \
-    WebwhoisRegistrarDetailView, WebwhoisRegistrarListView, WebwhoisResolveHandleTypeView, \
-    WebwhoisResponseNotFoundView, WebwhoisSendPasswordFormView, WebwhoisServeNotarizedLetterView, \
-    WebwhoisServeRecordStatementView, WebwhoisUnblockObjectFormView
+from webwhois.views.pages import WebwhoisBlockObjectFormView, WebwhoisContactDetailView, WebwhoisCustomEmailView, \
+    WebwhoisDomainDetailView, WebwhoisDownloadEvalFileView, WebwhoisEmailInRegistryView, WebwhoisFormView, \
+    WebwhoisKeysetDetailView, WebwhoisNotarizedLetterView, WebwhoisNssetDetailView, WebwhoisRegistrarDetailView, \
+    WebwhoisRegistrarListView, WebwhoisResolveHandleTypeView, WebwhoisResponseNotFoundView, \
+    WebwhoisSendPasswordFormView, WebwhoisServeNotarizedLetterView, WebwhoisServeRecordStatementView, \
+    WebwhoisUnblockObjectFormView
 
 app_name = 'webwhois'
 urlpatterns = [
@@ -22,7 +22,6 @@ urlpatterns = [
     url(r'^registrars/wholesale/$', WebwhoisRegistrarListView.as_view(), name='registrar_list_wholesale'),
     url(r'^registrar-download-evaluation-file/(?P<handle>.{1,255})/$', WebwhoisDownloadEvalFileView.as_view(),
         name='download_evaluation_file'),
-    url(r'^dobradomena/$', DobradomaneRegistrarListView.as_view(is_retail=True), name='dobradomena_list_retail'),
     url(r'^send-password/$', WebwhoisSendPasswordFormView.as_view(), name='form_send_password'),
     url(r'^block-object/$', WebwhoisBlockObjectFormView.as_view(), name='form_block_object'),
     url(r'^unblock-object/$', WebwhoisUnblockObjectFormView.as_view(), name='form_unblock_object'),
