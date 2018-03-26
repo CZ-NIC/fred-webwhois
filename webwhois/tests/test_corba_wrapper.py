@@ -12,8 +12,8 @@ from fred_idl.Registry import Buffer, IsoDateTime
 from fred_idl.Registry.Whois import WhoisIntf
 from mock import call, patch, sentinel
 
-from webwhois.utils.corba_wrapper import CORBA_ORB, WebwhoisCorbaRecoder, load_filemanager_from_idl, \
-    load_logger_from_idl, load_whois_from_idl
+from webwhois.utils.corba_wrapper import WebwhoisCorbaRecoder, load_filemanager_from_idl, load_logger_from_idl, \
+    load_whois_from_idl
 
 from .utils import apply_patch
 
@@ -78,7 +78,7 @@ class TestLoadIdl(SimpleTestCase):
     def test_load_logger_from_idl(self, mock_client):
         result = load_logger_from_idl()
         self.assertEqual(mock_client.mock_calls, [
-            call(CORBA_ORB, 'example.cz', 'custom'),
+            call(host_port='example.cz', context_name='custom'),
             call().get_object('Logger', Logger),
         ])
         self.assertEqual(result.corba_object, mock_client().get_object())
