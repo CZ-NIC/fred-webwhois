@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-07 15:24+0100\n"
+"POT-Creation-Date: 2018-03-08 18:00+0100\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -163,14 +163,6 @@ msgstr "Fax"
 
 msgid "Flags"
 msgstr "Příznaky"
-
-#, python-format
-msgid ""
-"Follow the <a href=\"%(link)s\">instructions</a> to become a .cz domains "
-"registrar."
-msgstr ""
-"Chcete-li se stát registrátorem domén .cz, postupujte dle <a href=\"%(link)s"
-"\">návodu</a>."
 
 #, python-format
 msgid ""
