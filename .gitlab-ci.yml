@@ -15,7 +15,7 @@ stages:
         - python
 
 .python2-xenial: &python2-xenial
-    image: cznic/ubuntu_xenial_python2:latest
+    image: cznic/ubuntu_xenial_python2:v01
 
 .install-dependencies: &install-dependencies
     before_script:
