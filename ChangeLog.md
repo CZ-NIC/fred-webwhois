@@ -7,6 +7,7 @@
  * Remove mojeid contact view.
  * Move whois form to webwhois index.
  * Fix up tests.
+ * Fix RPM builds.
 
 ## 1.11 (2018-02-12) ##
 

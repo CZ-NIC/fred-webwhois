@@ -17,6 +17,11 @@ Vendor: CZ.NIC <fred@nic.cz>
 Url: https://fred.nic.cz/
 BuildRequires: python-setuptools gettext
 Requires: python python2-django >= 1.10 python2-django-app-settings python-idna fred-idl fred-pyfco fred-pylogger uwsgi-plugin-python httpd mod_proxy_uwsgi
+%if 0%{?centos}
+BuildRequires: policycoreutils-python
+%else
+BuildRequires: policycoreutils-python-utils
+%endif
 
 %description
 Web WHOIS server for FRED registry system
@@ -37,27 +42,60 @@ mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/fred/
 install -m 644 contrib/fedora/webwhois_cfg.py $RPM_BUILD_ROOT/%{_sysconfdir}/fred/
 install -m 644 examples/webwhois_urls.py $RPM_BUILD_ROOT/%{_sysconfdir}/fred/
 
+install -d $RPM_BUILD_ROOT/var/run/webwhois/
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post
-# Allow to write to config file in SELINUX environment
-test -f /var/log/fred-webwhois.log || touch /var/log/fred-webwhois.log;
-chown uwsgi.uwsgi /var/log/fred-webwhois.log
-chcon -t httpd_log_t /var/log/fred-webwhois.log
-# Allow to write to uwsgi socket in SELINUX environment
-test -d /run/uwsgi || install -o uwsgi -g uwsgi -d /run/uwsgi/
-chcon -Rt httpd_sys_content_rw_t /run/uwsgi/
-# Generate SECRET_KEY
-KEY=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w50 | head -n1)
-sed -i "s/SECRET_KEY = .*/SECRET_KEY = '$KEY'/g" %{_sysconfdir}/fred/webwhois_cfg.py
-# Fill ALLOWED_HOSTS
+if [[ $1 -eq 1 ]]
+then
+
+export webwhois_log_file=/var/log/fred-webwhois.log
+[[ -f $webwhois_log_file ]] || install -o uwsgi -g uwsgi /dev/null $webwhois_log_file
+semanage fcontext -a -t httpd_log_t $webwhois_log_file
+restorecon $webwhois_log_file
+
+export webwhois_socket_dir=/var/run/webwhois/
+[[ -f $webwhois_socket_dir ]] || install -o uwsgi -g uwsgi -d $webwhois_socket_dir
+semanage fcontext -a -t httpd_sys_rw_content_t $webwhois_socket_dir
+restorecon -R $webwhois_socket_dir
+
+# This is necessary because sometimes SIGPIPE is being blocked when the scriptlet
+# executes and reading from /dev/urandom never ends even though the process on the
+# other end of the pipe has been long dead.
+create_random_string_made_of_50_characters()
+{
+    local ret=''
+    for ((;;))
+        do
+            local str=$(head -c512 </dev/urandom | tr -cd '[:alnum:]')
+            [[ -n $str ]] && ret=${ret}${str}
+            [[ ${#ret} -ge 50 ]] && break
+        done
+    printf "%s" ${ret:0:50}
+}
+
+# Fill SECRET_KEY and ALLOWED_HOSTS
+sed -i "s/SECRET_KEY = .*/SECRET_KEY = '$(create_random_string_made_of_50_characters)'/g" %{_sysconfdir}/fred/webwhois_cfg.py
 sed -i "s/ALLOWED_HOSTS = \[\]/ALLOWED_HOSTS = \['localhost', '$(hostname)'\]/g" %{_sysconfdir}/fred/webwhois_cfg.py
+
+fi
+exit 0
+
+%postun
+if [[ $1 -eq 0 ]]
+then
+    semanage fcontext -d -t httpd_log_t /var/log/fred-webwhois.log
+    semanage fcontext -d -t httpd_sys_rw_content_t /var/run/webwhois/
+fi
+exit 0
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root)
-%{_sysconfdir}/httpd/conf.d/fred-webwhois-apache.conf
-%{_sysconfdir}/fred/webwhois_cfg.py
-%{_sysconfdir}/fred/webwhois_urls.py
+%config %{_sysconfdir}/httpd/conf.d/fred-webwhois-apache.conf
+%config %{_sysconfdir}/fred/webwhois_cfg.py
+%config %{_sysconfdir}/fred/webwhois_urls.py
 %{python_sitelib}/webwhois/locale/cs/LC_MESSAGES/django.mo
-%attr(-,uwsgi,uwsgi) %{_sysconfdir}/uwsgi.d/webwhois.ini
+%config %attr(-,uwsgi,uwsgi) %{_sysconfdir}/uwsgi.d/webwhois.ini
+%ghost %attr(-,uwsgi,uwsgi) /var/run/webwhois/
