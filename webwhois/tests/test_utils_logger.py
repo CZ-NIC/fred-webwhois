@@ -12,7 +12,7 @@ class TestLogger(SimpleTestCase):
     def test_create_logger(self):
         with self.assertRaisesRegexp(ImportError, "foo doesn't look like a module path"):
             create_logger("foo", None, None)
-        with self.assertRaisesRegexp(ImportError, "No module named foo"):
+        with self.assertRaisesRegexp(ImportError, "No module named '?foo'?"):
             create_logger("foo.off", None, None)
         with self.assertRaisesRegexp(ImportError, 'does not define a "foo" attribute/class'):
             create_logger("pylogger.foo", None, None)

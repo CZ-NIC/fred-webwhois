@@ -1,5 +1,6 @@
 django >=1.11,<1.11.99
 idna
 django-app-settings
+six
 fred-pylogger
 fred-pyfco

@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import six
 from django import forms
 from django.core.validators import MaxLengthValidator
 from django.utils.functional import lazy
@@ -34,7 +35,7 @@ class PublicRequestBaseForm(forms.Form):
 
     object_type = forms.ChoiceField(label=_("Object type"), choices=REGISTRY_OBJECT_TYPE)
     handle = forms.CharField(
-        label=lazy(lambda: mark_safe(_("Domain (without <em>www.</em> prefix) / Handle")), unicode)(),
+        label=lazy(lambda: mark_safe(_("Domain (without <em>www.</em> prefix) / Handle")), six.text_type)(),
         validators=[MaxLengthValidator(255)])
     confirmation_method = forms.ChoiceField(label=_("Confirmation method"), choices=CONFIRMATION_METHOD, required=False)
 

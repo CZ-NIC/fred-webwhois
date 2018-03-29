@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from datetime import date
 
+import six
 from django.core.cache import cache
 from django.http import HttpResponseNotFound
 from django.test import SimpleTestCase, override_settings
@@ -998,7 +999,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['content-type'], 'application/pdf')
         self.assertEqual(response['content-disposition'], 'attachment; filename="notarized-letter-en.pdf"')
-        self.assertEqual(response.content, "PDF content...")
+        self.assertEqual(response.content, "PDF content...".encode())
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_public_request_pdf(42, Language.en)
         ])
@@ -1028,7 +1029,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['content-type'], 'application/pdf')
         self.assertEqual(response['content-disposition'], 'attachment; filename="notarized-letter-en.pdf"')
-        self.assertEqual(response.content, "PDF content...")
+        self.assertEqual(response.content, "PDF content...".encode())
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_public_request_pdf(42, Language.en)
         ])
@@ -1045,7 +1046,10 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
 
     def test_download_without_logger(self):
-        self.LOGGER.__nonzero__.return_value = False
+        if six.PY2:
+            self.LOGGER.__nonzero__.return_value = False
+        else:
+            self.LOGGER.__bool__.return_value = False
         cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None))
         PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
@@ -1053,7 +1057,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['content-type'], 'application/pdf')
         self.assertEqual(response['content-disposition'], 'attachment; filename="notarized-letter-en.pdf"')
-        self.assertEqual(response.content, "PDF content...")
+        self.assertEqual(response.content, "PDF content...".encode())
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_public_request_pdf(42, Language.en)
         ])

@@ -7,7 +7,7 @@ from mock import call, patch
 
 from webwhois.utils import RECORD_STATEMENT
 
-from .utils import TEMPLATES, apply_patch
+from .utils import CALL_BOOL, TEMPLATES, apply_patch
 
 
 @override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
@@ -27,7 +27,7 @@ class TestRecordStatementPdf(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['content-type'], 'application/pdf')
         self.assertEqual(response['content-disposition'], 'attachment; filename="record-statement-domain-foo.cz.pdf"')
-        self.assertEqual(response.content, "PDF content...")
+        self.assertEqual(response.content, "PDF content...".encode())
         self.assertEqual(RECORD_STATEMENT.mock_calls, [call.domain_printout('foo.cz', False)])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
             call('127.0.0.1', 'Web whois', 'RecordStatement', properties=[
@@ -46,7 +46,7 @@ class TestRecordStatementPdf(SimpleTestCase):
         self.assertEqual(response['content-type'], 'application/pdf')
         self.assertEqual(response['content-disposition'],
                          'attachment; filename="record-statement-%s-FOO.pdf"' % object_name)
-        self.assertEqual(response.content, "PDF content...")
+        self.assertEqual(response.content, "PDF content...".encode())
         self.assertEqual(RECORD_STATEMENT.mock_calls, [call_record_statement])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
             call('127.0.0.1', 'Web whois', 'RecordStatement', properties=[
@@ -100,7 +100,7 @@ class TestRecordStatementPdf(SimpleTestCase):
                 "object_type": "domain", "handle": "foo.cz"}))
         self.assertEqual(RECORD_STATEMENT.mock_calls, [call.domain_printout('foo.cz', False)])
         self.assertEqual(self.LOGGER.mock_calls, [
-            call.__nonzero__(),
+            CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'RecordStatement', properties=[
                 ('handle', 'foo.cz'),
                 ('objectType', 'domain'),
@@ -132,5 +132,5 @@ class TestRecordStatementNoLogger(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['content-type'], 'application/pdf')
         self.assertEqual(response['content-disposition'], 'attachment; filename="record-statement-domain-foo.cz.pdf"')
-        self.assertEqual(response.content, "PDF content...")
+        self.assertEqual(response.content, "PDF content...".encode())
         self.assertEqual(RECORD_STATEMENT.mock_calls, [call.domain_printout('foo.cz', False)])

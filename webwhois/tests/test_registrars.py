@@ -14,7 +14,7 @@ from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND, Registrar,
 from mock import call, patch
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
-from webwhois.tests.utils import TEMPLATES, apply_patch
+from webwhois.tests.utils import CALL_BOOL, TEMPLATES, apply_patch
 from webwhois.utils import FILE_MANAGER, WHOIS
 
 
@@ -34,7 +34,7 @@ class TestRegistrarsView(GetRegistryObjectMixin, SimpleTestCase):
         self.assertContains(response, 'Registrar not found')
         self.assertContains(response, 'No registrar matches <strong>REG_FRED_A</strong> handle.')
         self.assertEqual(self.LOGGER.mock_calls, [
-            call.__nonzero__(),
+            CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
                 ('handle', 'REG_FRED_A'), ('handleType', 'registrar'))),
             call.create_request().close(properties=[])
@@ -48,7 +48,7 @@ class TestRegistrarsView(GetRegistryObjectMixin, SimpleTestCase):
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>REG_FRED_A</strong> is not a valid handle.")
         self.assertEqual(self.LOGGER.mock_calls, [
-            call.__nonzero__(),
+            CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
                 ('handle', 'REG_FRED_A'), ('handleType', 'registrar'))),
             call.create_request().close(properties=[('reason', 'INVALID_HANDLE')])
@@ -62,7 +62,7 @@ class TestRegistrarsView(GetRegistryObjectMixin, SimpleTestCase):
         self.assertContains(response, "Registrar details")
         self.assertContains(response, "Search results for handle <strong>REG_FRED_A</strong>:")
         self.assertEqual(self.LOGGER.mock_calls, [
-            call.__nonzero__(),
+            CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
                 ('handle', 'REG_FRED_A'), ('handleType', 'registrar'))),
             call.create_request().close(properties=[('foundType', 'registrar')])
@@ -244,7 +244,7 @@ class TestDownloadView(GetRegistryObjectMixin, SimpleTestCase):
         content = "<html><body>The content.</body></html>"
         FILE_MANAGER.load.return_value.download.return_value = content
         response = self.client.get(reverse("webwhois:download_evaluation_file", kwargs={"handle": "REG-MOJEID"}))
-        self.assertEqual(response.content, content)
+        self.assertEqual(response.content, content.encode())
         self.assertEqual(response['Content-Type'], 'text/html')
         self.assertEqual(response['Content-Disposition'], 'attachment; filename="test.html"')
         self.assertEqual(WHOIS.mock_calls, [call.get_registrar_certification_list()])
