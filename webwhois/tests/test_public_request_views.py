@@ -20,26 +20,17 @@ from webwhois.utils.public_response import BlockResponse, SendPasswordResponse
 @override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
 class TestForms(SimpleTestCase):
 
-    def _assert_form_urls(self, context):
-        self.assertEqual(context['form_block_object_url'], '/whois/block-object/')
-        self.assertEqual(context['form_block_object_url_lock_type_all'], '/whois/block-object/?lock_type=all')
-        self.assertEqual(context['form_unblock_object_url'], '/whois/unblock-object/')
-        self.assertEqual(context['form_unblock_object_url_lock_type_all'], '/whois/unblock-object/?lock_type=all')
-
     def test_send_password(self):
         response = self.client.get(reverse("webwhois:form_send_password"))
         self.assertContains(response, "Send password for transfer")
-        self._assert_form_urls(response.context)
 
     def test_block_object(self):
         response = self.client.get(reverse("webwhois:form_block_object"))
         self.assertContains(response, "Block")
-        self._assert_form_urls(response.context)
 
     def test_unblock_object(self):
         response = self.client.get(reverse("webwhois:form_unblock_object"))
         self.assertContains(response, "Unblock")
-        self._assert_form_urls(response.context)
 
     def test_form_param_send_to(self):
         params = "?handle=foo&object_type=nsset&send_to=custom_email"
