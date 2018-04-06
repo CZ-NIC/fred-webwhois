@@ -29,6 +29,9 @@ class DebugPublicRequest(PublicRequestFormView):
     def _call_registry_command(self, data, log_request_id):
         return 42
 
+    def get_public_response(self, form, public_request_id):
+        return {'cleaned_data': form.cleaned_data, 'public_request_id': public_request_id}
+
 
 class DebugPublicRequestKnownException(DebugPublicRequest):
 
@@ -99,9 +102,9 @@ class TestPublicRequestFormView(SimpleTestCase):
         self.assertEqual(self.LOGGER.result, 'Fail')
 
     @patch("webwhois.views.public_request_mixin.LOGGER", None)
-    @patch("webwhois.views.public_request_mixin.timezone_now")
-    def test_logged_call_to_registry_no_logger(self, mock_timezone_now):
-        mock_timezone_now.return_value = datetime(2017, 3, 8)
+    @patch("webwhois.utils.public_response.localdate")
+    def test_logged_call_to_registry_no_logger(self, mock_localdate):
+        mock_localdate.return_value = datetime(2017, 3, 8)
         pubreq = DebugPublicRequest()
         form = SendPasswordForm({
             "object_type": "domain",
@@ -111,15 +114,14 @@ class TestPublicRequestFormView(SimpleTestCase):
         })
         self.assertTrue(form.is_valid())
         pubreq.logged_call_to_registry(form)
-        self.assertEqual(cache.get(pubreq.public_key), {
+        cleaned_data = {
             'handle': 'foo.cz',
             'object_type': 'domain',
             'custom_email': '',
             'confirmation_method': 'signed_email',
             'send_to': 'email_in_registry',
-            'response_id': 42,
-            'created_date': datetime(2017, 3, 8).date(),
-        })
+        }
+        self.assertEqual(cache.get(pubreq.public_key), {'cleaned_data': cleaned_data, 'public_request_id': 42})
         self.assertEqual(self.LOGGER.mock_calls, [])
 
     def _init_logger(self):
@@ -137,9 +139,9 @@ class TestPublicRequestFormView(SimpleTestCase):
         self.assertTrue(form.is_valid())
         return form
 
-    @patch("webwhois.views.public_request_mixin.timezone_now")
-    def test_logged_call_to_registry(self, mock_timezone_now):
-        mock_timezone_now.return_value = datetime(2017, 3, 8)
+    @patch("webwhois.utils.public_response.localdate")
+    def test_logged_call_to_registry(self, mock_localdate):
+        mock_localdate.return_value = datetime(2017, 3, 8)
         self._init_logger()
         pubreq = DebugPublicRequest()
         form = self._get_send_password_form(pubreq)
@@ -149,16 +151,14 @@ class TestPublicRequestFormView(SimpleTestCase):
             call().close(properties=[], references=[('publicrequest', 42)]),
         ])
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
-        self.assertEqual(cache.get(pubreq.public_key), {
+        cleaned_data = {
             'handle': 'foo.cz',
             'object_type': 'domain',
-            'request_name': 'fooActionName',
             'custom_email': '',
             'confirmation_method': 'signed_email',
             'send_to': 'email_in_registry',
-            'response_id': 42,
-            'created_date': datetime(2017, 3, 8).date(),
-        })
+        }
+        self.assertEqual(cache.get(pubreq.public_key), {'cleaned_data': cleaned_data, 'public_request_id': 42})
 
     def test_logged_call_with_known_exception(self):
         self._init_logger()
