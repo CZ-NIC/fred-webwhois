@@ -4,10 +4,10 @@ from django.conf.urls import url
 
 from webwhois.views.pages import WebwhoisBlockObjectFormView, WebwhoisContactDetailView, WebwhoisCustomEmailView, \
     WebwhoisDomainDetailView, WebwhoisDownloadEvalFileView, WebwhoisEmailInRegistryView, WebwhoisFormView, \
-    WebwhoisKeysetDetailView, WebwhoisNotarizedLetterView, WebwhoisNssetDetailView, WebwhoisRegistrarDetailView, \
-    WebwhoisRegistrarListView, WebwhoisResolveHandleTypeView, WebwhoisResponseNotFoundView, \
-    WebwhoisSendPasswordFormView, WebwhoisServeNotarizedLetterView, WebwhoisServeRecordStatementView, \
-    WebwhoisUnblockObjectFormView
+    WebwhoisKeysetDetailView, WebwhoisNotarizedLetterView, WebwhoisNssetDetailView, \
+    WebwhoisPublicResponseNotFoundView, WebwhoisRegistrarDetailView, WebwhoisRegistrarListView, \
+    WebwhoisResolveHandleTypeView, WebwhoisSendPasswordFormView, WebwhoisServeNotarizedLetterView, \
+    WebwhoisServeRecordStatementView, WebwhoisUnblockObjectFormView
 
 app_name = 'webwhois'
 urlpatterns = [
@@ -25,7 +25,7 @@ urlpatterns = [
     url(r'^send-password/$', WebwhoisSendPasswordFormView.as_view(), name='form_send_password'),
     url(r'^block-object/$', WebwhoisBlockObjectFormView.as_view(), name='form_block_object'),
     url(r'^unblock-object/$', WebwhoisUnblockObjectFormView.as_view(), name='form_unblock_object'),
-    url(r'^response-not-found/(?P<public_key>\w{64})/$', WebwhoisResponseNotFoundView.as_view(),
+    url(r'^response-not-found/(?P<public_key>\w{64})/$', WebwhoisPublicResponseNotFoundView.as_view(),
         name='response_not_found'),
     url(r'^email-in-registry/(?P<public_key>\w{64})/$', WebwhoisEmailInRegistryView.as_view(),
         name='email_in_registry_response'),

@@ -237,10 +237,19 @@ class ResponseDataKeyMissing(PublicResponseNotFound):
         super(ResponseDataKeyMissing, self).__init__(*args, **kwargs)
 
 
-class ResponseNotFoundView(BaseContextMixin, TemplateView):
+class PublicResponseNotFoundView(BaseContextMixin, TemplateView):
     """Response Not found view."""
 
     template_name = 'webwhois/public_request_response_not_found.html'
+
+
+class ResponseNotFoundView(PublicResponseNotFoundView):
+    """Backwards compatible view for PublicResponseNotFoundView."""
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn("ResponseNotFoundView is deprecated in favor of PublicResponseNotFoundView.",
+                      DeprecationWarning)
+        super(ResponseNotFoundView, self).__init__(*args, **kwargs)
 
 
 class BaseResponseTemplateView(BaseContextMixin, TemplateView):
