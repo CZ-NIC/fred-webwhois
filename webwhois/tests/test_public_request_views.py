@@ -14,7 +14,7 @@ from mock import call, patch
 
 from webwhois.tests.utils import TEMPLATES, apply_patch
 from webwhois.utils import PUBLIC_REQUEST
-from webwhois.utils.public_response import BlockResponse, SendPasswordResponse
+from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, SendPasswordResponse
 
 
 @override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
@@ -56,7 +56,8 @@ class SubmittedFormTestCase(SimpleTestCase):
 
     def setUp(self):
         spec = ('create_authinfo_request_non_registry_email', 'create_authinfo_request_registry_email',
-                'create_block_unblock_request')
+                'create_block_unblock_request', 'create_personal_info_request_registry_email',
+                'create_personal_info_request_non_registry_email')
         apply_patch(self, patch.object(PUBLIC_REQUEST, 'client', spec=spec))
         self.LOGGER = apply_patch(self, patch("webwhois.views.logger_mixin.LOGGER"))
         self.LOGGER.create_request.return_value.request_id = 42
@@ -411,6 +412,108 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         title = "Request for password for transfer keyset FOO"
         object_type = ObjectType_PR.keyset
         self._send_password_notarized_letter_registry('keyset', object_type, title)
+
+
+@override_settings(TEMPLATES=TEMPLATES, USE_TZ=True)
+class TestPersonalInfoFormView(SubmittedFormTestCase):
+    """Test `PersonalInfoFormView` class."""
+
+    def test_personal_info_email_in_registry(self):
+        post = {"object_type": "contact", "handle": "CONTACT", "send_to": "email_in_registry"}
+        PUBLIC_REQUEST.create_personal_info_request_registry_email.return_value = 24
+
+        response = self.client.post(reverse("webwhois:form_personal_info"), post)
+
+        path = reverse("webwhois:email_in_registry_response", kwargs={"public_key": self.public_key})
+        self.assertRedirects(response, path)
+        public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', None)
+        public_response.create_date = date(2017, 3, 8)
+        self.assertEqual(cache.get(self.public_key), public_response)
+        self.assertEqual(PUBLIC_REQUEST.mock_calls,
+                         [call.create_personal_info_request_registry_email(post['handle'], 42)])
+        properties = [('handle', 'CONTACT'), ('handleType', 'contact'), (u'confirmMethod', u''),
+                      ('sendTo', 'email_in_registry')]
+        self.assertEqual(self.LOGGER.create_request.mock_calls, [
+            call('127.0.0.1', 'Public Request', 'PersonalInfo', properties=properties),
+            call().close(properties=[], references=[('publicrequest', 24)])
+        ])
+        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
+
+    def test_personal_info_custom_email(self):
+        post = {"object_type": "contact", "handle": "CONTACT", "confirmation_method": "signed_email",
+                "send_to": "custom_email", "custom_email": "kryten@example.cz"}
+        PUBLIC_REQUEST.create_personal_info_request_non_registry_email.return_value = 24
+
+        response = self.client.post(reverse("webwhois:form_personal_info"), post)
+
+        path = reverse("webwhois:custom_email_response", kwargs={"public_key": self.public_key})
+        self.assertRedirects(response, path)
+        public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', 'kryten@example.cz')
+        public_response.create_date = date(2017, 3, 8)
+        self.assertEqual(cache.get(self.public_key), public_response)
+        calls = [call.create_personal_info_request_non_registry_email(post['handle'], 42, ConfirmedBy.signed_email,
+                                                                      'kryten@example.cz')]
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, calls)
+        properties = [('handle', 'CONTACT'), ('handleType', 'contact'), ('confirmMethod', 'signed_email'),
+                      ('sendTo', 'custom_email'), ('customEmail', 'kryten@example.cz')]
+        self.assertEqual(self.LOGGER.create_request.mock_calls, [
+            call('127.0.0.1', 'Public Request', 'PersonalInfo', properties=properties),
+            call().close(properties=[], references=[('publicrequest', 24)])
+        ])
+        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
+
+    def test_personal_info_notarized_letter(self):
+        post = {"object_type": "contact", "handle": "CONTACT", "confirmation_method": "notarized_letter",
+                "send_to": "custom_email", "custom_email": "kryten@example.cz"}
+        PUBLIC_REQUEST.create_personal_info_request_non_registry_email.return_value = 24
+
+        response = self.client.post(reverse("webwhois:form_personal_info"), post)
+
+        path = reverse("webwhois:notarized_letter_response", kwargs={"public_key": self.public_key})
+        self.assertRedirects(response, path)
+        public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', 'kryten@example.cz')
+        public_response.create_date = date(2017, 3, 8)
+        self.assertEqual(cache.get(self.public_key), public_response)
+
+        calls = [call.create_personal_info_request_non_registry_email(post['handle'], 42, ConfirmedBy.notarized_letter,
+                                                                      'kryten@example.cz')]
+        self.assertEqual(PUBLIC_REQUEST.mock_calls, calls)
+        properties = [('handle', 'CONTACT'), ('handleType', 'contact'), ('confirmMethod', 'notarized_letter'),
+                      ('sendTo', 'custom_email'), ('customEmail', 'kryten@example.cz')]
+        self.assertEqual(self.LOGGER.create_request.mock_calls, [
+            call('127.0.0.1', 'Public Request', 'PersonalInfo', properties=properties),
+            call().close(properties=[], references=[('publicrequest', 24)])
+        ])
+        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
+
+    def _test_personal_info_error(self, exception_code, form_errors):
+        post = {"object_type": "domain", "handle": "foo.cz", "send_to": "email_in_registry"}
+
+        response = self.client.post(reverse("webwhois:form_personal_info"), post)
+
+        self.assertContains(response, 'Request for personal data')
+        self.assertEqual(response.context['form'].errors, form_errors)
+        self.assertEqual(PUBLIC_REQUEST.mock_calls,
+                         [call.create_personal_info_request_registry_email('foo.cz', 42)])
+        properties = [('handle', 'foo.cz'), ('handleType', 'contact'), ('confirmMethod', ''),
+                      ('sendTo', 'email_in_registry')]
+        self.assertEqual(self.LOGGER.create_request.mock_calls, [
+            call('127.0.0.1', 'Public Request', 'PersonalInfo', properties=properties),
+            call().close(properties=[('reason', exception_code)], references=[])
+        ])
+        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
+
+    def test_personal_info_object_not_found(self):
+        PUBLIC_REQUEST.create_personal_info_request_registry_email.side_effect = OBJECT_NOT_FOUND
+        self._test_personal_info_error(
+            'OBJECT_NOT_FOUND',
+            {'handle': ['Object not found. Check that you have correctly entered the Object type and Handle.']})
+
+    def test_personal_info_invalid_email(self):
+        PUBLIC_REQUEST.create_personal_info_request_registry_email.side_effect = INVALID_EMAIL
+        self._test_personal_info_error(
+            'INVALID_EMAIL',
+            {'custom_email': ['The email was not found or the address is not valid.']})
 
 
 @override_settings(TEMPLATES=TEMPLATES, USE_TZ=True)

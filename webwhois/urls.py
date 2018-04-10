@@ -4,7 +4,7 @@ from django.conf.urls import url
 
 from webwhois.views.pages import WebwhoisBlockObjectFormView, WebwhoisContactDetailView, WebwhoisCustomEmailView, \
     WebwhoisDomainDetailView, WebwhoisDownloadEvalFileView, WebwhoisEmailInRegistryView, WebwhoisFormView, \
-    WebwhoisKeysetDetailView, WebwhoisNotarizedLetterView, WebwhoisNssetDetailView, \
+    WebwhoisKeysetDetailView, WebwhoisNotarizedLetterView, WebwhoisNssetDetailView, WebwhoisPersonalInfoFormView, \
     WebwhoisPublicResponseNotFoundView, WebwhoisRegistrarDetailView, WebwhoisRegistrarListView, \
     WebwhoisResolveHandleTypeView, WebwhoisSendPasswordFormView, WebwhoisServeNotarizedLetterView, \
     WebwhoisServeRecordStatementView, WebwhoisUnblockObjectFormView
@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^registrar-download-evaluation-file/(?P<handle>.{1,255})/$', WebwhoisDownloadEvalFileView.as_view(),
         name='download_evaluation_file'),
     url(r'^send-password/$', WebwhoisSendPasswordFormView.as_view(), name='form_send_password'),
+    url(r'^personal-info/$', WebwhoisPersonalInfoFormView.as_view(), name='form_personal_info'),
     url(r'^block-object/$', WebwhoisBlockObjectFormView.as_view(), name='form_block_object'),
     url(r'^unblock-object/$', WebwhoisUnblockObjectFormView.as_view(), name='form_unblock_object'),
     url(r'^response-not-found/(?P<public_key>\w{64})/$', WebwhoisPublicResponseNotFoundView.as_view(),

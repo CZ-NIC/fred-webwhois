@@ -55,6 +55,9 @@ msgstr "Kontakt"
 msgid "Contact details"
 msgstr "Prohlížení kontaktu"
 
+msgid "Contact handle"
+msgstr "Identifikátor kontaktu"
+
 msgid "Contact is registered but not linked to other registry object"
 msgstr "Kontakt je registrován, ale není navázán na jiný objekt v registru"
 
@@ -183,6 +186,17 @@ msgstr "Záznam nenalezen"
 
 msgid "Holder"
 msgstr "Držitel"
+
+#, python-format
+msgid ""
+"I hereby confirm my request for personal data of the contact %(handle)s, "
+"submitted through the web form on %(form_url)s on %(created_date)s, assigned "
+"the id number %(response_id)s. Please send the data to %(custom_email)s."
+msgstr ""
+"Potvrzuji tímto žádost o zaslání osobních údajů ke kontaktu %(handle)s, "
+"která byla podána prostřednictvím webového formuláře na stránce %(form_url)s "
+"dne %(created_date)s, s přiděleným identifikačním číslem %(response_id)s a "
+"žádám o poskytnutí osobních údajů na adresu %(custom_email)s."
 
 #, python-format
 msgid ""
@@ -613,6 +627,9 @@ msgstr "Číslo pasu"
 msgid "Personal ID"
 msgstr "Číslo OP"
 
+msgid "Personal data"
+msgstr "Poskytnutí údajů"
+
 msgid "Phone"
 msgstr "Telefon"
 
@@ -727,6 +744,17 @@ msgstr "Žádost o zaslání hesla pro převod sady klíčů %(handle)s"
 #, python-format
 msgid "Request for password for transfer nameserver set %(handle)s"
 msgstr "Žádost o zaslání hesla pro převod sady jmenných serverů %(handle)s"
+
+msgid "Request for personal data"
+msgstr "Žádost o zaslání osobních údajů"
+
+#, python-format
+msgid "Request for personal data of contact %(handle)s"
+msgstr "Žádost o zaslání osobních údajů ke kontaktu %(handle)s"
+
+#, python-format
+msgid "Request for personal data of contact %(handle)s:"
+msgstr "Žádost o zaslání osobních údajů pro kontakt %(handle)s:"
 
 msgid "Request for unblocking an object"
 msgstr "Žádost o odblokování objektu"
@@ -979,6 +1007,16 @@ msgstr ""
 "Žádost o zaslání hesla pro změnu určeného registrátora sady jmenných serverů "
 "<strong>{handle}</strong> byla úspěšně přijata. E-mail s tímto heslem bude "
 "odeslán na e-mailové adresy technických kontaktů sady."
+
+#, python-brace-format
+msgid ""
+"We received your request for personal data of the contact <strong>{handle}</"
+"strong> successfully. An email with the personal data will be sent to the "
+"email address from the registry."
+msgstr ""
+"Žádost o zaslání osobních údajů ke kontaktu <strong>{handle}</strong> byla "
+"úspěšně přijata. E-mail s osobními údaji bude odeslán na e-mailovou adresu "
+"uvedenou v registru."
 
 msgid "Website"
 msgstr "Webové stránky"

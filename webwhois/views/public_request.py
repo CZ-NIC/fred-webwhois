@@ -14,11 +14,11 @@ from django.views.generic import TemplateView, View
 from fred_idl.Registry.PublicRequest import HAS_DIFFERENT_BLOCK, INVALID_EMAIL, OBJECT_ALREADY_BLOCKED, \
     OBJECT_NOT_BLOCKED, OBJECT_NOT_FOUND, OBJECT_TRANSFER_PROHIBITED, OPERATION_PROHIBITED, Language, LockRequestType
 
-from webwhois.forms import BlockObjectForm, SendPasswordForm, UnblockObjectForm
+from webwhois.forms import BlockObjectForm, PersonalInfoForm, SendPasswordForm, UnblockObjectForm
 from webwhois.forms.public_request import LOCK_TYPE_ALL, LOCK_TYPE_TRANSFER, LOCK_TYPE_URL_PARAM, SEND_TO_CUSTOM, \
     SEND_TO_IN_REGISTRY
 from webwhois.utils.corba_wrapper import LOGGER, PUBLIC_REQUEST
-from webwhois.utils.public_response import BlockResponse, SendPasswordResponse
+from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, SendPasswordResponse
 from webwhois.views.base import BaseContextMixin
 from webwhois.views.public_request_mixin import PublicRequestFormView, PublicRequestKnownException, \
     PublicRequestLoggerMixin
@@ -91,6 +91,68 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
         if self.success_url:
             return force_text(self.success_url)
         url_name = "webwhois:response_not_found"
+        if self.form_cleaned_data['confirmation_method'] == 'notarized_letter':
+            url_name = 'webwhois:notarized_letter_response'
+        else:
+            if self.form_cleaned_data['send_to'] == 'email_in_registry':
+                url_name = 'webwhois:email_in_registry_response'
+            else:
+                url_name = 'webwhois:custom_email_response'
+        return reverse(url_name, kwargs={'public_key': self.public_key},
+                       current_app=self.request.resolver_match.namespace)
+
+
+class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
+    """View to create public request for personal info."""
+
+    form_class = PersonalInfoForm
+    template_name = 'webwhois/form_personal_info.html'
+    form_cleaned_data = None
+
+    def _get_logging_request_name_and_properties(self, data):
+        """Return Request type name and Properties."""
+        properties_in = [
+            ("handle", data["handle"]),
+            ("handleType", 'contact'),
+            ("confirmMethod", data['confirmation_method']),
+            ("sendTo", data['send_to']),
+        ]
+        custom_email = data.get("custom_email")
+        if custom_email:
+            properties_in.append(("customEmail", custom_email))
+        return "PersonalInfo", properties_in
+
+    def _call_registry_command(self, form, log_request_id):
+        data = form.cleaned_data
+        try:
+            if data['send_to'] == SEND_TO_CUSTOM:
+                response_id = PUBLIC_REQUEST.create_personal_info_request_non_registry_email(
+                    data['handle'], log_request_id, self._get_confirmed_by_type(data['confirmation_method']),
+                    data['custom_email'])
+            else:
+                assert data['send_to'] == SEND_TO_IN_REGISTRY
+                response_id = PUBLIC_REQUEST.create_personal_info_request_registry_email(data['handle'], log_request_id)
+        except OBJECT_NOT_FOUND as err:
+            form.add_error('handle',
+                           _('Object not found. Check that you have correctly entered the Object type and Handle.'))
+            raise PublicRequestKnownException(type(err).__name__)
+        except INVALID_EMAIL as err:
+            form.add_error('custom_email', _('The email was not found or the address is not valid.'))
+            raise PublicRequestKnownException(type(err).__name__)
+        return response_id
+
+    def get_public_response(self, form, public_request_id):
+        request_type = self._get_logging_request_name_and_properties(form.cleaned_data)[0]
+        if form.cleaned_data['send_to'] == 'custom_email':
+            custom_email = form.cleaned_data['custom_email']
+        else:
+            custom_email = None
+        return PersonalInfoResponse('contact', public_request_id, request_type, form.cleaned_data['handle'],
+                                    custom_email)
+
+    def get_success_url(self):
+        if self.success_url:
+            return force_text(self.success_url)
         if self.form_cleaned_data['confirmation_method'] == 'notarized_letter':
             url_name = 'webwhois:notarized_letter_response'
         else:
@@ -309,14 +371,24 @@ class EmailInRegistryView(TextSendPasswordMixin, BaseResponseTemplateView):
                     '<strong>{handle}</strong> sponsoring registrar. An email with the password will be sent '
                     'to the email addresses of the keyset\'s technical contacts.'),
     }
+    personal_info_title = _('Request for personal data of contact %(handle)s')
+    personal_info_content = _(
+        'We received your request for personal data of the contact <strong>{handle}</strong> successfully. An email '
+        'with the personal data will be sent to the email address from the registry.')
 
     def get_context_data(self, **kwargs):
         context = super(EmailInRegistryView, self).get_context_data(**kwargs)
         public_response = self.get_public_response()
-        title = self.text_title[public_response.object_type] % {'handle': public_response.handle}
-        context['text_title'] = context['text_header'] = title
-        context['text_content'] = format_html(self.text_content[public_response.object_type],
-                                              handle=public_response.handle)
+        if isinstance(public_response, SendPasswordResponse):
+            title = self.text_title[public_response.object_type] % {'handle': public_response.handle}
+            context['text_title'] = context['text_header'] = title
+            context['text_content'] = format_html(self.text_content[public_response.object_type],
+                                                  handle=public_response.handle)
+        else:
+            assert isinstance(public_response, PersonalInfoResponse)
+            title = self.personal_info_title % {'handle': public_response.handle}
+            context['text_title'] = context['text_header'] = title
+            context['text_content'] = format_html(self.personal_info_content, handle=public_response.handle)
         return context
 
 
@@ -325,6 +397,7 @@ class TextPasswordAndBlockMixin(TextSendPasswordMixin):
 
     text_title = {
         'send_password': TextSendPasswordMixin.text_title,
+        'personal_info': _('Request for personal data of contact %(handle)s'),
         'block_transfer': {
             'contact': _('Request for blocking of contact %(handle)s'),
             'domain': _('Request for blocking of domain name %(handle)s'),
@@ -358,6 +431,7 @@ class CustomEmailView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
             'nsset': _('Subject: Request for password for transfer nameserver set %(handle)s:'),
             'keyset': _('Subject: Request for password for transfer keyset %(handle)s:'),
         },
+        'personal_info': _('Request for personal data of contact %(handle)s:'),
         'block': {
             'contact': _('Subject: Confirmation of the request to block of contact %(handle)s:'),
             'domain': _('Subject: Confirmation of the request to block of domain name %(handle)s:'),
@@ -386,6 +460,9 @@ class CustomEmailView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
                         'submitted through the web form at %(form_url)s on %(created_date)s, assigned id number '
                         '%(response_id)s. Please send the password to %(custom_email)s.'),
         },
+        'personal_info': _('I hereby confirm my request for personal data of the contact %(handle)s, '
+                           'submitted through the web form on %(form_url)s on %(created_date)s, assigned the id number '
+                           '%(response_id)s. Please send the data to %(custom_email)s.'),
         'block_transfer': {
             'contact': _('I hereby confirm the request to block any change of the sponsoring registrar for the contact '
                          '%(handle)s submitted through the web form on the web site %(form_url)s on %(created_date)s '
@@ -474,8 +551,7 @@ class CustomEmailView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
         public_response = self.get_public_response()
         text_context = {'handle': public_response.handle, 'response_id': public_response.public_request_id,
                         'created_date': date_format(public_response.create_date)}
-        if getattr(public_response, 'custom_email', None) is not None:
-            # Response is a SendPasswordResponse.
+        if isinstance(public_response, SendPasswordResponse):
             text_context['custom_email'] = public_response.custom_email
             text_context['form_url'] = self.request.build_absolute_uri(reverse('webwhois:form_send_password'))
 
@@ -483,9 +559,15 @@ class CustomEmailView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
             context['text_title'] = context['text_header'] = title
             context['text_subject'] = self.text_subject['send_password'][public_response.object_type] % text_context
             context['text_content'] = self.text_content['send_password'][public_response.object_type] % text_context
+        elif isinstance(public_response, PersonalInfoResponse):
+            text_context['custom_email'] = public_response.custom_email
+            text_context['form_url'] = self.request.build_absolute_uri(reverse('webwhois:form_personal_info'))
+
+            context['text_title'] = context['text_header'] = self.text_title['personal_info'] % text_context
+            context['text_subject'] = self.text_subject['personal_info'] % text_context
+            context['text_content'] = self.text_content['personal_info'] % text_context
         else:
-            # Response is a BlockResponse.
-            assert getattr(public_response, 'lock_type', None)
+            assert isinstance(public_response, BlockResponse)
             if public_response.action == 'block':
                 url_name = 'webwhois:form_block_object'
             else:
@@ -515,15 +597,16 @@ class NotarizedLetterView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
 
         public_response = self.get_public_response()
         text_context = {'handle': public_response.handle}
-        if getattr(public_response, 'custom_email', None) is not None:
-            # Response is a SendPasswordResponse.
+        if isinstance(public_response, SendPasswordResponse):
             title = self.text_title['send_password'][public_response.object_type] % text_context
             context['text_title'] = context['text_header'] = title
             context['pdf_name'] = _("Transfer password request")
+        elif isinstance(public_response, PersonalInfoResponse):
+            title = self.text_title['personal_info'] % text_context
+            context['text_title'] = context['text_header'] = title
+            context['pdf_name'] = _("Request for personal data")
         else:
-            # Response is a BlockResponse.
-            assert getattr(public_response, 'lock_type', None)
-
+            assert isinstance(public_response, BlockResponse)
             if public_response.action == 'block':
                 title = self.text_title['block'][public_response.object_type] % text_context
                 context['text_title'] = context['text_header'] = title

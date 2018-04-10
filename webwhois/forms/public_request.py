@@ -70,6 +70,13 @@ class SendPasswordForm(PublicRequestBaseForm):
                                         code='custom_email_required')
 
 
+class PersonalInfoForm(SendPasswordForm):
+    """Form for public request for personal info."""
+
+    object_type = None
+    handle = forms.CharField(label=_("Contact handle"), validators=[MaxLengthValidator(255)])
+
+
 class BlockObjectForm(PublicRequestBaseForm):
     """Block object in registry."""
 

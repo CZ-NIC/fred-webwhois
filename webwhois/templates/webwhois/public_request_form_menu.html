@@ -18,4 +18,13 @@
     {% else %}
         <li><a href="{% url "webwhois:form_unblock_object" %}">{% trans "Unblock" context "verb_inf" %}</a></li>
     {% endif %}
+
+    {% url "webwhois:form_personal_info" as personal_info_url %}
+    {% if personal_info_url %}
+        {% if pubreq_selected_menu == "personal_info" %}
+            <li class="selected">{% trans "Personal data" %}</li>
+        {% else %}
+            <li><a href="{{ personal_info_url }}">{% trans "Personal data" %}</a></li>
+        {% endif %}
+    {% endif %}
 </ul>
