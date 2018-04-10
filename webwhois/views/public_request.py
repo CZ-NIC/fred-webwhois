@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import logging
+import warnings
 
 from django.core.cache import cache
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -17,6 +18,7 @@ from webwhois.forms import BlockObjectForm, SendPasswordForm, UnblockObjectForm
 from webwhois.forms.public_request import LOCK_TYPE_ALL, LOCK_TYPE_TRANSFER, LOCK_TYPE_URL_PARAM, SEND_TO_CUSTOM, \
     SEND_TO_IN_REGISTRY
 from webwhois.utils.corba_wrapper import LOGGER, PUBLIC_REQUEST
+from webwhois.utils.public_response import BlockResponse, SendPasswordResponse
 from webwhois.views.base import BaseContextMixin
 from webwhois.views.public_request_mixin import PublicRequestFormView, PublicRequestKnownException, \
     PublicRequestLoggerMixin
@@ -82,6 +84,15 @@ class SendPasswordFormView(ContextFormUrlsMixin, PublicRequestFormView):
             raise PublicRequestKnownException(type(err).__name__)
         return response_id
 
+    def get_public_response(self, form, public_request_id):
+        request_type = self._get_logging_request_name_and_properties(form.cleaned_data)[0]
+        if form.cleaned_data['send_to'] == 'custom_email':
+            custom_email = form.cleaned_data['custom_email']
+        else:
+            custom_email = None
+        return SendPasswordResponse(form.cleaned_data['object_type'], public_request_id, request_type,
+                                    form.cleaned_data['handle'], custom_email)
+
     def get_initial(self):
         data = super(SendPasswordFormView, self).get_initial()
         data["handle"] = self.request.GET.get("handle")
@@ -110,7 +121,7 @@ class BlockUnblockFormView(PublicRequestFormView):
     """Block or Unblock object form view."""
 
     form_class = None
-    block_unblock_action_type = None
+    block_action = None
     logging_lock_type = None
     form_cleaned_data = None
 
@@ -152,6 +163,11 @@ class BlockUnblockFormView(PublicRequestFormView):
             raise PublicRequestKnownException(type(err).__name__)
         return response_id
 
+    def get_public_response(self, form, public_request_id):
+        request_type = self._get_logging_request_name_and_properties(form.cleaned_data)[0]
+        return BlockResponse(form.cleaned_data['object_type'], public_request_id, request_type,
+                             form.cleaned_data['handle'], self.block_action, form.cleaned_data['lock_type'])
+
     def get_initial(self):
         data = super(BlockUnblockFormView, self).get_initial()
         data["handle"] = self.request.GET.get("handle")
@@ -171,17 +187,13 @@ class BlockUnblockFormView(PublicRequestFormView):
         return reverse(url_name, kwargs={'public_key': self.public_key},
                        current_app=self.request.resolver_match.namespace)
 
-    def set_to_cache(self, data):
-        data['block_unblock_action_type'] = self.block_unblock_action_type
-        super(BlockUnblockFormView, self).set_to_cache(data)
-
 
 class BlockObjectFormView(ContextFormUrlsMixin, BlockUnblockFormView):
     """Block object form view."""
 
     form_class = BlockObjectForm
     template_name = 'webwhois/form_block_object.html'
-    block_unblock_action_type = 'block'
+    block_action = 'block'
     logging_lock_type = {
         LOCK_TYPE_TRANSFER: "BlockTransfer",
         LOCK_TYPE_ALL: "BlockChanges",
@@ -199,7 +211,7 @@ class UnblockObjectFormView(ContextFormUrlsMixin, BlockUnblockFormView):
 
     form_class = UnblockObjectForm
     template_name = 'webwhois/form_unblock_object.html'
-    block_unblock_action_type = 'unblock'
+    block_action = 'unblock'
     logging_lock_type = {
         LOCK_TYPE_TRANSFER: "UnblockTransfer",
         LOCK_TYPE_ALL: "UnblockChanges",
@@ -212,40 +224,74 @@ class UnblockObjectFormView(ContextFormUrlsMixin, BlockUnblockFormView):
         }[key]
 
 
-class ResponseDataKeyMissing(Exception):
+class PublicResponseNotFound(Exception):
+    """Public response was not found in the cache."""
+
+
+class ResponseDataKeyMissing(PublicResponseNotFound):
     """Exception for a situation when the response data dict does not have required key."""
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn("ResponseDataKeyMissing is deprecated in favor of PublicResponseNotFound.",
+                      DeprecationWarning)
+        super(ResponseDataKeyMissing, self).__init__(*args, **kwargs)
 
-class ResponseNotFoundView(BaseContextMixin, TemplateView):
+
+class PublicResponseNotFoundView(BaseContextMixin, TemplateView):
     """Response Not found view."""
 
     template_name = 'webwhois/public_request_response_not_found.html'
 
 
+class ResponseNotFoundView(PublicResponseNotFoundView):
+    """Backwards compatible view for PublicResponseNotFoundView."""
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn("ResponseNotFoundView is deprecated in favor of PublicResponseNotFoundView.",
+                      DeprecationWarning)
+        super(ResponseNotFoundView, self).__init__(*args, **kwargs)
+
+
 class BaseResponseTemplateView(BaseContextMixin, TemplateView):
-    """Base response template view."""
+    """Base view for public request responses."""
+
+    def __init__(self, *args, **kwargs):
+        super(BaseResponseTemplateView, self).__init__(*args, **kwargs)
+        self._public_response = None
 
     def get(self, request, *args, **kwargs):
         try:
-            self.check_response_data(cache.get(kwargs['public_key']))
-        except ResponseDataKeyMissing:
+            self.get_public_response()
+        except PublicResponseNotFound:
             return HttpResponseRedirect(reverse("webwhois:response_not_found",
                                                 kwargs={"public_key": kwargs['public_key']},
                                                 current_app=self.request.resolver_match.namespace))
         return super(BaseResponseTemplateView, self).get(request, *args, **kwargs)
 
-    def check_response_data(self, response_data):
-        if response_data:
-            missing = ", ".join({'handle', 'object_type', 'response_id', 'created_date'} - set(response_data.keys()))
-            if not missing:
-                return
-        else:
-            missing = 'response_data'
-        raise ResponseDataKeyMissing(missing)
-
-    def get_context_data(self, **kwargs):
-        kwargs.setdefault('response', cache.get(kwargs['public_key']))
-        return super(BaseResponseTemplateView, self).get_context_data(**kwargs)
+    def get_public_response(self):
+        """Return relevant public response."""
+        # Cache the result for case the cache gets deleted while handling the request.
+        if self._public_response is None:
+            public_key = self.kwargs['public_key']
+            public_response = cache.get(public_key)
+            if public_response is None:
+                raise PublicResponseNotFound(public_key)
+            if isinstance(public_response, dict):
+                warnings.warn(
+                    "Storing responses to public requests as dicts is deprecated, use PublicResponse instead.",
+                    DeprecationWarning)
+                data = public_response
+                if 'send_to' in data:
+                    public_response = SendPasswordResponse(data['object_type'], data['response_id'],
+                                                           data.get('request_name'), data['handle'],
+                                                           data['custom_email'])
+                else:
+                    public_response = BlockResponse(data['object_type'], data['response_id'], data.get('request_name'),
+                                                    data['handle'], data['block_unblock_action_type'],
+                                                    data['lock_type'])
+                public_response.create_date = data['created_date']
+            self._public_response = public_response
+        return self._public_response
 
 
 class TextSendPasswordMixin(object):
@@ -281,10 +327,11 @@ class EmailInRegistryView(TextSendPasswordMixin, BaseResponseTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(EmailInRegistryView, self).get_context_data(**kwargs)
-        context['text_title'] = context['text_header'] = \
-            self.text_title[context['response']['object_type']] % context['response']
-        context['text_content'] = format_html(self.text_content[context['response']['object_type']],
-                                              handle=context['response']['handle'])
+        public_response = self.get_public_response()
+        title = self.text_title[public_response.object_type] % {'handle': public_response.handle}
+        context['text_title'] = context['text_header'] = title
+        context['text_content'] = format_html(self.text_content[public_response.object_type],
+                                              handle=public_response.handle)
         return context
 
 
@@ -436,45 +483,37 @@ class CustomEmailView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
         },
     }
 
-    def check_response_data(self, response_data):
-        super(CustomEmailView, self).check_response_data(response_data)
-        if 'send_to' in response_data and response_data['send_to'] == 'custom_email':
-            if 'custom_email' not in response_data:
-                raise ResponseDataKeyMissing('custom_email')
-        elif 'lock_type' not in response_data:
-            raise ResponseDataKeyMissing("lock_type")
-
     def get_context_data(self, **kwargs):
         kwargs.setdefault('company_website', _('the company website'))
         context = super(CustomEmailView, self).get_context_data(**kwargs)
-        response_data = context['response']
-        if 'send_to' in response_data and response_data['send_to'] == 'custom_email':
-            context['text_title'] = context['text_header'] = \
-                self.text_title['send_password'][response_data['object_type']] % response_data
-            context['text_subject'] = \
-                self.text_subject['send_password'][response_data['object_type']] % response_data
-            data = {'form_url': self.request.build_absolute_uri(reverse('webwhois:form_send_password'))}
-            data.update(response_data)
-            data['created_date'] = date_format(data['created_date'], 'DATE_FORMAT')
-            context['text_content'] = self.text_content['send_password'][response_data['object_type']] % data
+        public_response = self.get_public_response()
+        text_context = {'handle': public_response.handle, 'response_id': public_response.public_request_id,
+                        'created_date': date_format(public_response.create_date)}
+        if getattr(public_response, 'custom_email', None) is not None:
+            # Response is a SendPasswordResponse.
+            text_context['custom_email'] = public_response.custom_email
+            text_context['form_url'] = self.request.build_absolute_uri(reverse('webwhois:form_send_password'))
+
+            title = self.text_title['send_password'][public_response.object_type] % text_context
+            context['text_title'] = context['text_header'] = title
+            context['text_subject'] = self.text_subject['send_password'][public_response.object_type] % text_context
+            context['text_content'] = self.text_content['send_password'][public_response.object_type] % text_context
         else:
-            action = response_data['block_unblock_action_type']
-            context['text_title'] = context['text_header'] = \
-                self.text_title[action][response_data['object_type']] % response_data
-            context['text_subject'] = \
-                self.text_subject[action][response_data['object_type']] % response_data
-            if response_data['block_unblock_action_type'] == "block":
+            # Response is a BlockResponse.
+            assert getattr(public_response, 'lock_type', None)
+            if public_response.action == 'block':
                 url_name = 'webwhois:form_block_object'
             else:
                 url_name = 'webwhois:form_unblock_object'
-            data = {
-                'form_url': self.request.build_absolute_uri(reverse(url_name)),
-                'company_website': context['company_website'],
-            }
-            data.update(response_data)
-            data['created_date'] = date_format(data['created_date'], 'DATE_FORMAT')
-            key = '%s_%s' % (action, response_data['lock_type'])
-            context['text_content'] = self.text_content[key][response_data['object_type']] % data
+            text_context['form_url'] = self.request.build_absolute_uri(reverse(url_name))
+            text_context['company_website'] = context['company_website']
+
+            action = public_response.action
+            title = self.text_title[action][public_response.object_type] % text_context
+            context['text_title'] = context['text_header'] = title
+            context['text_subject'] = self.text_subject[action][public_response.object_type] % text_context
+            key = '%s_%s' % (action, public_response.lock_type)
+            context['text_content'] = self.text_content[key][public_response.object_type] % text_context
         return context
 
 
@@ -483,29 +522,30 @@ class NotarizedLetterView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
 
     template_name = 'webwhois/public_request_notarized_letter.html'
 
-    def check_response_data(self, response_data):
-        super(NotarizedLetterView, self).check_response_data(response_data)
-        if not ('send_to' in response_data or 'block_unblock_action_type' in response_data):
-            raise ResponseDataKeyMissing("send_to, block_unblock_action_type")
-
     def get_context_data(self, **kwargs):
         context = super(NotarizedLetterView, self).get_context_data(**kwargs)
-        response_data = context['response']
         context['notarized_letter_pdf_url'] = reverse("webwhois:notarized_letter_serve_pdf",
                                                       kwargs={"public_key": kwargs['public_key']},
                                                       current_app=self.request.resolver_match.namespace)
-        if 'send_to' in response_data:
-            context['text_title'] = context['text_header'] = \
-                self.text_title['send_password'][response_data['object_type']] % response_data
+
+        public_response = self.get_public_response()
+        text_context = {'handle': public_response.handle}
+        if getattr(public_response, 'custom_email', None) is not None:
+            # Response is a SendPasswordResponse.
+            title = self.text_title['send_password'][public_response.object_type] % text_context
+            context['text_title'] = context['text_header'] = title
             context['pdf_name'] = _("Transfer password request")
         else:
-            if response_data['block_unblock_action_type'] == 'block':
-                context['text_title'] = context['text_header'] = \
-                    self.text_title['block'][response_data['object_type']] % response_data
+            # Response is a BlockResponse.
+            assert getattr(public_response, 'lock_type', None)
+
+            if public_response.action == 'block':
+                title = self.text_title['block'][public_response.object_type] % text_context
+                context['text_title'] = context['text_header'] = title
                 context["pdf_name"] = _("Blocking Request")
             else:
-                context['text_title'] = context['text_header'] = \
-                    self.text_title['unblock'][response_data['object_type']] % response_data
+                title = self.text_title['unblock'][public_response.object_type] % text_context
+                context['text_title'] = context['text_header'] = title
                 context["pdf_name"] = _("Unblocking Request")
         return context
 
@@ -525,11 +565,8 @@ class ServeNotarizedLetterView(PublicRequestLoggerMixin, View):
         return 'NotarizedLetterPdf', properties
 
     def get(self, request, public_key):
-        response_data = cache.get(public_key)
-        if response_data is None:
-            raise Http404
-
-        if not response_data.get('response_id'):
+        public_response = cache.get(public_key)
+        if public_response is None:
             raise Http404
 
         registry_lang_codes = {
@@ -543,12 +580,12 @@ class ServeNotarizedLetterView(PublicRequestLoggerMixin, View):
 
         data = {
             'lang_code': lang_code,
-            'document_type': response_data.get('request_name', 'missing'),
-            'handle': response_data.get('handle', 'missing'),
-            'object_type': response_data.get('object_type', 'missing'),
+            'document_type': public_response.request_type,
+            'handle': public_response.handle,
+            'object_type': public_response.object_type,
         }
-        if 'custom_email' in response_data:
-            data['custom_email'] = response_data['custom_email']
+        if getattr(public_response, 'custom_email', None):
+            data['custom_email'] = public_response.custom_email
         if LOGGER:
             log_request = self.prepare_logging_request(data)
             log_request_id = log_request.request_id
@@ -556,7 +593,7 @@ class ServeNotarizedLetterView(PublicRequestLoggerMixin, View):
             log_request, log_request_id = None, None
         error_object = None
         try:
-            pdf_content = PUBLIC_REQUEST.create_public_request_pdf(response_data['response_id'], language_code)
+            pdf_content = PUBLIC_REQUEST.create_public_request_pdf(public_response.public_request_id, language_code)
         except OBJECT_NOT_FOUND as err:
             WEBWHOIS_LOGGING.error('Exception OBJECT_NOT_FOUND risen for public request id %s.' % log_request_id)
             error_object = PublicRequestKnownException(type(err).__name__)
@@ -564,7 +601,7 @@ class ServeNotarizedLetterView(PublicRequestLoggerMixin, View):
         except BaseException as error_object:
             raise
         finally:
-            self.finish_logging_request(log_request, response_data['response_id'], error_object)
+            self.finish_logging_request(log_request, public_response.public_request_id, error_object)
 
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="notarized-letter-{0}.pdf"'.format(lang_code)

@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-import datetime
+from datetime import date
 
 from django.core.cache import cache
 from django.http import HttpResponseNotFound
@@ -14,8 +14,7 @@ from mock import call, patch
 
 from webwhois.tests.utils import TEMPLATES, apply_patch
 from webwhois.utils import PUBLIC_REQUEST
-from webwhois.views.public_request import BaseResponseTemplateView, CustomEmailView, NotarizedLetterView, \
-    ResponseDataKeyMissing
+from webwhois.utils.public_response import BlockResponse, SendPasswordResponse
 
 
 @override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
@@ -73,15 +72,15 @@ class SubmittedFormTestCase(SimpleTestCase):
         self.LOGGER.create_request.return_value.result = 'Error'
         self.LOGGER.create_request.return_value.request_type = 'AuthInfo'
         apply_patch(self, patch("webwhois.views.public_request_mixin.LOGGER", self.LOGGER))
-        mock_timezone_now = apply_patch(self, patch("webwhois.views.public_request_mixin.timezone_now"))
-        mock_timezone_now.return_value.date.return_value = datetime.date(2017, 3, 8)
+        localdate_patcher = patch("webwhois.utils.public_response.localdate", return_value=date(2017, 3, 8))
+        apply_patch(self, localdate_patcher)
         apply_patch(self, patch("webwhois.views.public_request_mixin.get_random_string", lambda n: self.public_key))
 
     def tearDown(self):
         cache.clear()
 
 
-@override_settings(TEMPLATES=TEMPLATES)
+@override_settings(TEMPLATES=TEMPLATES, USE_TZ=True)
 class TestSendPasswodForm(SubmittedFormTestCase):
 
     def _send_password_email_in_registry(self, post, action_name, properties, object_type, title, message):
@@ -398,16 +397,9 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Transfer password request</a> ' \
                   '(PDF)' % self.public_key
         self._send_password_notarized_letter(post, 'AuthInfo', properties, object_type, title, message)
-        self.assertEqual(cache.get(self.public_key), {
-            'response_id': 24,
-            'object_type': object_name,
-            'handle': 'FOO',
-            'custom_email': 'foo@foo.off',
-            'request_name': 'AuthInfo',
-            'confirmation_method': 'notarized_letter',
-            'send_to': 'custom_email',
-            'created_date': datetime.datetime(2017, 3, 8).date(),
-        })
+        public_response = SendPasswordResponse(object_name, 24, 'AuthInfo', 'FOO', 'foo@foo.off')
+        public_response.create_date = date(2017, 3, 8)
+        self.assertEqual(cache.get(self.public_key), public_response)
 
     def test_send_password_notarized_letter_domain(self):
         title = "Request for password for transfer domain name FOO"
@@ -430,10 +422,10 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         self._send_password_notarized_letter_registry('keyset', object_type, title)
 
 
-@override_settings(TEMPLATES=TEMPLATES)
+@override_settings(TEMPLATES=TEMPLATES, USE_TZ=True)
 class TestBlockUnblockForm(SubmittedFormTestCase):
 
-    def _block_unblock(self, block_unblock_action_type, url_name, object_name, confirmation_method, lock_type,
+    def _block_unblock(self, block_action, url_name, object_name, confirmation_method, lock_type,
                        action_name, object_type, signed_type, block_type, title, message):
         post = {
             "handle": "FOO",
@@ -464,16 +456,8 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
             call().close(properties=[], references=[('publicrequest', 24)])
         ])
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
-        self.assertEqual(cache.get(self.public_key), {
-            'response_id': 24,
-            'handle': 'FOO',
-            'object_type': object_name,
-            'request_name': action_name,
-            'lock_type': lock_type,
-            'block_unblock_action_type': block_unblock_action_type,
-            'confirmation_method': confirmation_method,
-            'created_date': datetime.datetime(2017, 3, 8).date(),
-        })
+        public_response = BlockResponse(object_name, 24, action_name, 'FOO', block_action, lock_type)
+        self.assertEqual(cache.get(self.public_key), public_response)
 
     def _block_transfer_signed_email(self, object_name, object_type, title, message):
         lock_type = "transfer"
@@ -913,13 +897,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         cache.clear()
 
     def test_download(self):
-        response_data = {
-            'response_id': 42,
-            'request_name': 'AuthInfo',
-            'handle': 'FOO',
-            'object_type': 'contact',
-        }
-        cache.set(self.public_key, response_data)
+        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None))
         PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
@@ -948,55 +926,8 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [])
         self.assertEqual(self.LOGGER.create_request.mock_calls, [])
 
-    def test_no_response_id(self):
-        response_data = {
-            'request_name': 'AuthInfo',
-            'handle': 'FOO',
-            'object_type': 'contact',
-        }
-        cache.set(self.public_key, response_data)
-        response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
-                                           kwargs={"public_key": self.public_key}))
-        self.assertIsInstance(response, HttpResponseNotFound)
-        self.assertEqual(PUBLIC_REQUEST.mock_calls, [])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [])
-
-    @override_settings(LANGUAGE_CODE='en')
-    def test_missing_values(self):
-        response_data = {
-            'response_id': 42
-        }
-        cache.set(self.public_key, response_data)
-        PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
-        response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
-                                           kwargs={"public_key": self.public_key}))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['content-type'], 'application/pdf')
-        self.assertEqual(response['content-disposition'], 'attachment; filename="notarized-letter-en.pdf"')
-        self.assertEqual(response.content, "PDF content...")
-        self.assertEqual(PUBLIC_REQUEST.mock_calls, [
-            call.create_public_request_pdf(42, Language.en)
-        ])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'NotarizedLetterPdf', properties=[
-                ('handle', 'missing'),
-                ('objectType', 'missing'),
-                ('pdfLangCode', 'en'),
-                ('documentType', 'missing')
-            ]),
-            call().close(properties=[], references=[('publicrequest', 42)])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
-
     def test_download_custom_email(self):
-        response_data = {
-            'response_id': 42,
-            'request_name': 'AuthInfo',
-            'handle': 'FOO',
-            'object_type': 'contact',
-            'custom_email': 'foo@foo.off'
-        }
-        cache.set(self.public_key, response_data)
+        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', 'foo@foo.off'))
         PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
@@ -1021,13 +952,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
 
     def test_download_without_logger(self):
         self.LOGGER.__nonzero__.return_value = False
-        response_data = {
-            'response_id': 42,
-            'request_name': 'AuthInfo',
-            'handle': 'FOO',
-            'object_type': 'contact',
-        }
-        cache.set(self.public_key, response_data)
+        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None))
         PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
@@ -1041,13 +966,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(self.LOGGER.create_request.mock_calls, [])
 
     def test_object_not_found(self):
-        response_data = {
-            'response_id': 42,
-            'request_name': 'AuthInfo',
-            'handle': 'FOO',
-            'object_type': 'contact',
-        }
-        cache.set(self.public_key, response_data)
+        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None))
         PUBLIC_REQUEST.create_public_request_pdf.side_effect = OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
@@ -1067,13 +986,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
 
     def test_unexpected_exception(self):
-        response_data = {
-            'response_id': 42,
-            'request_name': 'AuthInfo',
-            'handle': 'FOO',
-            'object_type': 'contact',
-        }
-        cache.set(self.public_key, response_data)
+        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None))
         PUBLIC_REQUEST.create_public_request_pdf.side_effect = TestException
         with self.assertRaises(TestException):
             self.client.get(reverse("webwhois:notarized_letter_serve_pdf", kwargs={"public_key": self.public_key}))
@@ -1113,48 +1026,3 @@ class TestResponseErrorMessage(SimpleTestCase):
 
     def test_notarized_letter_response(self):
         self._assert_response(reverse("webwhois:notarized_letter_response", kwargs={"public_key": self.public_key}))
-
-
-class TestCheckResponseData(SimpleTestCase):
-
-    response_data = {'handle': 'foo', 'response_id': 1, 'object_type': 'contact', 'created_date': '2017-04-24'}
-
-    def _assert_response_data(self, view):
-        with self.assertRaisesMessage(ResponseDataKeyMissing, 'response_data'):
-            view.check_response_data({})
-        with self.assertRaisesMessage(ResponseDataKeyMissing, 'object_type'):
-            view.check_response_data({'handle': 'foo'})
-
-    def test_base_response_template_view(self):
-        view = BaseResponseTemplateView()
-        self._assert_response_data(view)
-        view.check_response_data(self.response_data)
-
-    def test_custom_email_view(self):
-        view = CustomEmailView()
-        self._assert_response_data(view)
-        data = {'send_to': 'custom_email'}
-        data.update(self.response_data)
-        with self.assertRaisesMessage(ResponseDataKeyMissing, 'custom_email'):
-            view.check_response_data(data)
-        data['custom_email'] = 'foo@foo'
-        view.check_response_data(data)
-        data = {'lock_type': 'transfer'}
-        data.update(self.response_data)
-        view.check_response_data(data)
-        data = {'send_to': 'email_in_registry'}
-        data.update(self.response_data)
-        with self.assertRaisesMessage(ResponseDataKeyMissing, 'lock_type'):
-            view.check_response_data(data)
-
-    def test_notarized_letter_view(self):
-        view = NotarizedLetterView()
-        self._assert_response_data(view)
-        with self.assertRaisesMessage(ResponseDataKeyMissing, 'send_to, block_unblock_action_type'):
-            view.check_response_data(self.response_data)
-        data = {'send_to': 'custom_email'}
-        data.update(self.response_data)
-        view.check_response_data(data)
-        data = {'block_unblock_action_type': 'block'}
-        data.update(self.response_data)
-        view.check_response_data(data)

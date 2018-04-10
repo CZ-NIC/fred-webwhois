@@ -33,6 +33,6 @@ setup(name='fred-webwhois',
       setup_requires=['Babel >=2.3'],
       install_requires=open('requirements.txt').read().splitlines(),
       extras_require={'quality': ['isort', 'flake8', 'pydocstyle', 'polint'],
-                      'testing': ['mock']},
+                      'testing': ['mock', 'testfixtures']},
       dependency_links=open('dependency_links.txt').read().splitlines(),
       cmdclass={'build': custom_build, 'sdist': custom_sdist})

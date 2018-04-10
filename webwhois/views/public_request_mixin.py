@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 from django.core.cache import cache
 from django.utils.crypto import get_random_string
-from django.utils.timezone import now as timezone_now
 from django.views.generic import FormView
 from fred_idl.Registry.PublicRequest import ConfirmedBy, ObjectType_PR
 
@@ -69,12 +68,12 @@ class PublicRequestFormView(PublicRequestLoggerMixin, FormView):
         }[name]
 
     def _call_registry_command(self, form, log_request_id):
-        """Call a registry command. Return response_id or raise exception if the call failed."""
+        """Call a registry command. Return public_request_id or raise exception if the call failed."""
         raise NotImplementedError
 
-    def set_to_cache(self, data):
-        """Set values into the cache."""
-        cache.set(self.public_key, data, 60 * 60 * 24)
+    def get_public_response(self, form, public_request_id):
+        """Return a public response object."""
+        raise NotImplementedError
 
     def logged_call_to_registry(self, form):
         """
@@ -84,23 +83,20 @@ class PublicRequestFormView(PublicRequestLoggerMixin, FormView):
         @return: Response ID.
         """
         self.public_key = get_random_string(64)
-        cached_data = {}
-        cached_data.update(form.cleaned_data)
         if LOGGER:
             log_request = self.prepare_logging_request(form.cleaned_data)
             log_request_id = log_request.request_id
-            cached_data['request_name'] = log_request.request_type
         else:
             log_request = log_request_id = None
-        response_id = err = None
+        public_request_id = err = None
         try:
-            cached_data['response_id'] = response_id = self._call_registry_command(form, log_request_id)
-            cached_data['created_date'] = timezone_now().date()
-            self.set_to_cache(cached_data)
+            public_request_id = self._call_registry_command(form, log_request_id)
+            public_response = self.get_public_response(form, public_request_id)
+            cache.set(self.public_key, public_response, 60 * 60 * 24)
         except BaseException as err:
             raise
         finally:
-            self.finish_logging_request(log_request, response_id, err)
+            self.finish_logging_request(log_request, public_request_id, err)
 
     def form_valid(self, form):
         try:
