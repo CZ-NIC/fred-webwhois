@@ -26,22 +26,7 @@ from webwhois.views.public_request_mixin import PublicRequestFormView, PublicReq
 WEBWHOIS_LOGGING = logging.getLogger(__name__)
 
 
-class ContextFormUrlsMixin(BaseContextMixin):
-    """Add context required by forms."""
-
-    def get_context_data(self, **kwargs):
-        form_url = reverse('webwhois:form_block_object', current_app=self.request.resolver_match.namespace)
-        kwargs.setdefault("form_block_object_url", form_url)
-        kwargs.setdefault("form_block_object_url_lock_type_all", "%s?%s=%s" % (form_url, LOCK_TYPE_URL_PARAM,
-                                                                               LOCK_TYPE_ALL))
-        form_url = reverse('webwhois:form_unblock_object', current_app=self.request.resolver_match.namespace)
-        kwargs.setdefault("form_unblock_object_url", form_url)
-        kwargs.setdefault("form_unblock_object_url_lock_type_all", "%s?%s=%s" % (form_url, LOCK_TYPE_URL_PARAM,
-                                                                                 LOCK_TYPE_ALL))
-        return super(ContextFormUrlsMixin, self).get_context_data(**kwargs)
-
-
-class SendPasswordFormView(ContextFormUrlsMixin, PublicRequestFormView):
+class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
     """Send password (AuthInfo) view."""
 
     form_class = SendPasswordForm
@@ -188,7 +173,7 @@ class BlockUnblockFormView(PublicRequestFormView):
                        current_app=self.request.resolver_match.namespace)
 
 
-class BlockObjectFormView(ContextFormUrlsMixin, BlockUnblockFormView):
+class BlockObjectFormView(BaseContextMixin, BlockUnblockFormView):
     """Block object form view."""
 
     form_class = BlockObjectForm
@@ -206,7 +191,7 @@ class BlockObjectFormView(ContextFormUrlsMixin, BlockUnblockFormView):
         }[key]
 
 
-class UnblockObjectFormView(ContextFormUrlsMixin, BlockUnblockFormView):
+class UnblockObjectFormView(BaseContextMixin, BlockUnblockFormView):
     """Unblock object form view."""
 
     form_class = UnblockObjectForm
