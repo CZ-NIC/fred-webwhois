@@ -63,7 +63,9 @@ class DomainDetailMixin(RegistryObjectMixin):
                 "detail": WHOIS.get_domain_by_handle(idna_handle),
                 "label": _("Domain"),
             }
-        except (OBJECT_NOT_FOUND, OBJECT_DELETE_CANDIDATE):
+        except OBJECT_DELETE_CANDIDATE:
+            context['object_delete_candidate'] = True
+        except OBJECT_NOT_FOUND:
             # Only handle with format of valid domain name and in managed zone raises OBJECT_NOT_FOUND.
             context["server_exception"] = cls.make_message_not_found(handle, handle_is_domain)
             context["server_exception"]["handle_is_in_zone"] = True

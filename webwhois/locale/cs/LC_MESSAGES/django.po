@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-06 16:47+0200\n"
+"POT-Creation-Date: 2018-04-17 13:37+0200\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -885,6 +885,9 @@ msgstr "Objekt je již blokován. Žádost nelze přijmout."
 
 msgid "This object is not blocked. The request can not be accepted."
 msgstr "Objekt není blokován. Žádost nelze přijmout."
+
+msgid "To be deleted"
+msgstr "Určeno ke zrušení"
 
 msgid "To search for a domain in another zone use the search engine:"
 msgstr "Pro vyhledání domény v jiné zóně použijte vyhledávač:"
