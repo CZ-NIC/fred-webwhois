@@ -599,8 +599,8 @@ class TestDetailKeyset(ObjectDetailMixin):
 @override_settings(TEMPLATES=TEMPLATES)
 class TestDetailDomain(ObjectDetailMixin):
 
-    def _test_domain_not_exist(self):
-        # Test cases which ends up in domain not existing.
+    def test_domain_not_found(self):
+        WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND
         WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
         self.assertContains(response, 'Domain not found')
@@ -615,13 +615,24 @@ class TestDetailDomain(ObjectDetailMixin):
         self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
         self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('fred.cz')])
 
-    def test_domain_not_found(self):
-        WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND
-        self._test_domain_not_exist()
-
     def test_domain_delete_candidate(self):
         WHOIS.get_domain_by_handle.side_effect = OBJECT_DELETE_CANDIDATE
-        self._test_domain_not_exist()
+        WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
+
+        response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
+
+        self.assertContains(response, 'Domain name details')
+        self.assertEqual(response.context['handle'], 'fred.cz')
+        self.assertTrue(response.context['object_delete_candidate'])
+
+        self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('fred.cz')])
+        self.assertEqual(self.LOGGER.mock_calls, [
+            call.__nonzero__(),
+            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
+                ('handle', 'fred.cz'), ('handleType', 'domain'))),
+            call.create_request().close(properties=[])
+        ])
+        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
 
     def test_domain_not_found_idna_formated(self):
         WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND
