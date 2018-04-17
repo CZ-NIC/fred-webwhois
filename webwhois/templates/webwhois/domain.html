@@ -15,11 +15,11 @@
                 <tr>
                     <th>{% trans "Domain name" context "fullname" %}</th>
                     <td>
-                        {% if domain.handle|idn_decode == domain.handle %}
-                            <span class="handle">{{ domain.handle }}</span>
+                        {% if handle|idn_decode == handle %}
+                            <span class="handle">{{ handle }}</span>
                         {% else %}
-                            <span class="idn-handle">{{ domain.handle|idn_decode }}</span>
-                            (<span class="handle">{{ domain.handle }}</span>)
+                            <span class="idn-handle">{{ handle|idn_decode }}</span>
+                            (<span class="handle">{{ handle }}</span>)
                         {% endif %}
                     </td>
                 </tr>
@@ -101,10 +101,16 @@
                 {% endif %}
                 <tr>
                     <th>{% trans "Status" %}</th>
-                    <td class="status" data-codes="{{ domain.statuses|join:"," }}">{% for description in domain_status_descriptions %}
-                         <div>{{ description }}</div>
-                        {% endfor %}
-                    </td>
+                    {% if object_delete_candidate %}
+                        <td class="status">
+                            <div>{% trans "To be deleted" %}</div>
+                        </td>
+                    {% else %}
+                        <td class="status" data-codes="{{ domain.statuses|join:"," }}">{% for description in domain_status_descriptions %}
+                             <div>{{ description }}</div>
+                            {% endfor %}
+                        </td>
+                    {% endif %}
                 </tr>
             </table>
         </div>
