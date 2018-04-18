@@ -616,6 +616,7 @@ class TestDetailDomain(ObjectDetailMixin):
         self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('fred.cz')])
 
     def test_domain_delete_candidate(self):
+        WHOIS.get_domain_status_descriptions.return_value = self._get_domain_status()
         WHOIS.get_domain_by_handle.side_effect = OBJECT_DELETE_CANDIDATE
         WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
 
@@ -625,14 +626,15 @@ class TestDetailDomain(ObjectDetailMixin):
         self.assertEqual(response.context['handle'], 'fred.cz')
         self.assertTrue(response.context['object_delete_candidate'])
 
-        self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('fred.cz')])
+        self.assertEqual(WHOIS.mock_calls,
+                         [call.get_domain_by_handle('fred.cz'), call.get_domain_status_descriptions('en')])
         self.assertEqual(self.LOGGER.mock_calls, [
             call.__nonzero__(),
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
                 ('handle', 'fred.cz'), ('handleType', 'domain'))),
-            call.create_request().close(properties=[])
+            call.create_request().close(properties=[('foundType', 'domain')])
         ])
-        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
+        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
 
     def test_domain_not_found_idna_formated(self):
         WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND

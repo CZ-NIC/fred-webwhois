@@ -65,6 +65,8 @@ class DomainDetailMixin(RegistryObjectMixin):
             }
         except OBJECT_DELETE_CANDIDATE:
             context['object_delete_candidate'] = True
+            # Add fake domain into context for ResolveHandleTypeMixin.
+            context[cls._registry_objects_key]['domain'] = None
         except OBJECT_NOT_FOUND:
             # Only handle with format of valid domain name and in managed zone raises OBJECT_NOT_FOUND.
             context["server_exception"] = cls.make_message_not_found(handle, handle_is_domain)
@@ -103,6 +105,9 @@ class DomainDetailMixin(RegistryObjectMixin):
         """Load objects related to the domain and append them into the context."""
         descriptions = self._get_status_descriptions("domain", WHOIS.get_domain_status_descriptions)
         data = context[self._registry_objects_key]["domain"]  # detail, type, label, href
+        if data is None:
+            # Domain is a delete candidate
+            return
         registry_object = data["detail"]
         data["status_descriptions"] = [descriptions[key] for key in registry_object.statuses]
         if STATUS_DELETE_CANDIDATE in registry_object.statuses:

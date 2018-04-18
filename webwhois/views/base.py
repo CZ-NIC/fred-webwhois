@@ -135,8 +135,10 @@ class RegistryObjectMixin(BaseContextMixin):
         kwargs.update(objects)
         if self.object_type_name in objects[self._registry_objects_key]:
             obj = objects[self._registry_objects_key][self.object_type_name]
-            # Registrars don't have statuses
-            kwargs['object_delete_candidate'] = STATUS_DELETE_CANDIDATE in getattr(obj['detail'], 'statuses', ())
+            # `obj` may be None, if domain is a delete candidate.
+            if obj is not None:
+                # Registrars don't have statuses
+                kwargs['object_delete_candidate'] = STATUS_DELETE_CANDIDATE in getattr(obj['detail'], 'statuses', ())
         return super(RegistryObjectMixin, self).get_context_data(**kwargs)
 
     def get_template_names(self):
