@@ -8,7 +8,7 @@ from django.test import SimpleTestCase
 from mock import patch, sentinel
 from testfixtures import Replace, test_date
 
-from webwhois.utils.public_response import BlockResponse, PublicResponse, SendPasswordResponse
+from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, PublicResponse, SendPasswordResponse
 
 
 class TestPublicResponse(SimpleTestCase):
@@ -62,6 +62,19 @@ class TestSendPasswordResponse(SimpleTestCase):
         pr_rimmer = SendPasswordResponse('smeg_head', 'H', sentinel.request_type, 'rimmer', sentinel.custom_email)
         pr_clone = SendPasswordResponse('smeg_head', 'H', sentinel.request_type, 'rimmer', sentinel.custom_email)
         pr_kryten = SendPasswordResponse('android', 'K', sentinel.request_type, 'kryten', sentinel.other_email)
+
+        self.assertTrue(pr_rimmer == pr_rimmer)
+        self.assertTrue(pr_rimmer == pr_clone)
+        self.assertFalse(pr_rimmer == pr_kryten)
+
+
+class TestPersonalInfoResponse(SimpleTestCase):
+    """Test `PersonalInfoResponse` class."""
+
+    def test_equality(self):
+        pr_rimmer = PersonalInfoResponse('smeg_head', 'H', sentinel.request_type, 'rimmer', sentinel.custom_email)
+        pr_clone = PersonalInfoResponse('smeg_head', 'H', sentinel.request_type, 'rimmer', sentinel.custom_email)
+        pr_kryten = PersonalInfoResponse('android', 'K', sentinel.request_type, 'kryten', sentinel.other_email)
 
         self.assertTrue(pr_rimmer == pr_rimmer)
         self.assertTrue(pr_rimmer == pr_clone)

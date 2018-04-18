@@ -50,6 +50,17 @@ class SendPasswordResponse(PublicResponse):
         return super(SendPasswordResponse, self).__eq__(other) and self.custom_email == other.custom_email
 
 
+class PersonalInfoResponse(PublicResponse):
+    """Public response for personal info public request."""
+
+    def __init__(self, object_type, public_request_id, request_type, handle, custom_email):
+        super(PersonalInfoResponse, self).__init__(object_type, public_request_id, request_type, handle)
+        self.custom_email = custom_email
+
+    def __eq__(self, other):
+        return super(PersonalInfoResponse, self).__eq__(other) and self.custom_email == other.custom_email
+
+
 class BlockResponse(PublicResponse):
     """Public response for block public requests."""
 

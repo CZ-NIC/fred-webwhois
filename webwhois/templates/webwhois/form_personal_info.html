@@ -1,0 +1,22 @@
+{% extends "webwhois/form_public_request.html" %}
+{% load i18n %}
+
+{% block webwhois_header %}
+    <h1>{% trans "Request for personal data" %}</h1>
+{% endblock webwhois_header %}
+
+{% block webwhois_content %}
+    <div id="public_request_forms">
+        {% include "webwhois/public_request_form_menu.html" with pubreq_selected_menu="personal_info" %}
+        <form action="{% url "webwhois:form_personal_info" %}" method="post" class="webwhois-personal-info">
+            {% csrf_token %}
+            <table>
+                <caption>{% trans "Personal data" %}</caption>
+                {{ form.as_table }}
+                <tr>
+                    <th></th><td><button id="submit_button" type="submit">{% trans "Send" %}</button></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+{% endblock webwhois_content %}

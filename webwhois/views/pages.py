@@ -6,8 +6,9 @@ from webwhois.settings import WEBWHOIS_SEARCH_ENGINES
 from webwhois.utils import WHOIS
 from webwhois.views import BlockObjectFormView, ContactDetailMixin, CustomEmailView, DomainDetailMixin, \
     DownloadEvalFileView, EmailInRegistryView, KeysetDetailMixin, NotarizedLetterView, NssetDetailMixin, \
-    PublicResponseNotFoundView, RegistrarDetailMixin, RegistrarListMixin, ResolveHandleTypeMixin, \
-    SendPasswordFormView, ServeNotarizedLetterView, ServeRecordStatementView, UnblockObjectFormView, WhoisFormView
+    PersonalInfoFormView, PublicResponseNotFoundView, RegistrarDetailMixin, RegistrarListMixin, \
+    ResolveHandleTypeMixin, SendPasswordFormView, ServeNotarizedLetterView, ServeRecordStatementView, \
+    UnblockObjectFormView, WhoisFormView
 
 
 class BaseTemplateMixin(object):
@@ -57,6 +58,10 @@ class WebwhoisRegistrarListView(BaseTemplateMixin, RegistrarListMixin, TemplateV
 
 
 class WebwhoisDownloadEvalFileView(BaseTemplateMixin, DownloadEvalFileView):
+    pass
+
+
+class WebwhoisPersonalInfoFormView(BaseTemplateMixin, PersonalInfoFormView):
     pass
 
 
