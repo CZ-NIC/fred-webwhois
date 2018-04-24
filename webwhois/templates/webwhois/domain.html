@@ -15,12 +15,14 @@
                 <tr>
                     <th>{% trans "Domain name" context "fullname" %}</th>
                     <td>
-                        {% if handle|idn_decode == handle %}
-                            <span class="handle">{{ handle }}</span>
-                        {% else %}
-                            <span class="idn-handle">{{ handle|idn_decode }}</span>
-                            (<span class="handle">{{ handle }}</span>)
-                        {% endif %}
+                        {% with domain.handle|default:handle as handle_out %}
+                            {% if handle_out|idn_decode == handle_out %}
+                                <span class="handle">{{ handle_out }}</span>
+                            {% else %}
+                                <span class="idn-handle">{{ handle_out|idn_decode }}</span>
+                                (<span class="handle">{{ handle_out }}</span>)
+                            {% endif %}
+                        {% endwith %}
                     </td>
                 </tr>
                 {% if not object_delete_candidate %}
