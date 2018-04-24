@@ -1,3 +1,7 @@
+## 1.12.2 (2018-04-24) ##
+
+ * Fix detail of ENUM domains.
+
 ## 1.12.1 (2018-04-17) ##
 
  * Fix response for domains in delete candidate status.
