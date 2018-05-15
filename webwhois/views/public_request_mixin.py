@@ -88,15 +88,16 @@ class PublicRequestFormView(PublicRequestLoggerMixin, FormView):
             log_request_id = log_request.request_id
         else:
             log_request = log_request_id = None
-        public_request_id = err = None
+        public_request_id = error = None
         try:
             public_request_id = self._call_registry_command(form, log_request_id)
             public_response = self.get_public_response(form, public_request_id)
             cache.set(self.public_key, public_response, 60 * 60 * 24)
         except BaseException as err:
+            error = err
             raise
         finally:
-            self.finish_logging_request(log_request, public_request_id, err)
+            self.finish_logging_request(log_request, public_request_id, error)
 
     def form_valid(self, form):
         try:

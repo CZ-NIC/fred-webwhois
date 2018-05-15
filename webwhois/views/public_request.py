@@ -633,7 +633,8 @@ class ServeNotarizedLetterView(PublicRequestLoggerMixin, View):
             WEBWHOIS_LOGGING.error('Exception OBJECT_NOT_FOUND risen for public request id %s.' % log_request_id)
             error_object = PublicRequestKnownException(type(err).__name__)
             raise Http404
-        except BaseException as error_object:
+        except BaseException as err:
+            error_object = err
             raise
         finally:
             self.finish_logging_request(log_request, public_response.public_request_id, error_object)

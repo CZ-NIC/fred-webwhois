@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 
 from datetime import date
 
+import six
 from django.conf import settings
 from django.utils.timezone import localdate
 
@@ -26,9 +27,12 @@ class PublicResponse(object):
 
     def __repr__(self):
         output = '<{cls} {object_type} {handle} {public_request_id}>'.format(
-            cls=unicode(type(self).__name__), object_type=self.object_type, handle=self.handle,
+            cls=six.text_type(type(self).__name__), object_type=self.object_type, handle=self.handle,
             public_request_id=self.public_request_id)
-        return output.encode('utf-8')
+        if six.PY3:
+            return output
+        else:
+            return output.encode('utf-8')
 
     def __eq__(self, other):
         return type(self) == type(other) and self.object_type == other.object_type \

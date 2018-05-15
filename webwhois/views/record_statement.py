@@ -60,9 +60,11 @@ class ServeRecordStatementView(LoggerMixin, View):
                 pdf_content = RECORD_STATEMENT.keyset_printout(handle)
             else:
                 raise ValueError("Unknown object_type.")
-        except (OBJECT_NOT_FOUND, OBJECT_DELETE_CANDIDATE) as error_object:
+        except (OBJECT_NOT_FOUND, OBJECT_DELETE_CANDIDATE) as err:
+            error_object = err
             raise Http404
-        except BaseException as error_object:
+        except BaseException as err:
+            error_object = err
             raise
         finally:
             self.finish_logging_request(log_request, error_object)

@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from datetime import date
 
+import six
 from django.test import SimpleTestCase
 from mock import patch, sentinel
 from testfixtures import Replace, test_date
@@ -34,7 +35,10 @@ class TestPublicResponse(SimpleTestCase):
 
     def test_repr_unicode(self):
         public_response = PublicResponse('ěščř', 16, sentinel.request_type, 'rimmer')
-        self.assertEqual(repr(public_response), '<PublicResponse ěščř rimmer 16>'.encode('utf-8'))
+        string = '<PublicResponse ěščř rimmer 16>'
+        if six.PY2:
+            string = string.encode('utf-8')
+        self.assertEqual(repr(public_response), string)
 
     def test_equality(self):
         pr_rimmer = PublicResponse('smeg_head', 'H', sentinel.request_type, 'rimmer')
