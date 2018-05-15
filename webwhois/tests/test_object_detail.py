@@ -626,9 +626,9 @@ class TestDetailDomain(ObjectDetailMixin):
         self.assertTrue(response.context['object_delete_candidate'])
 
         self.assertEqual(WHOIS.mock_calls,
-                         [call.get_domain_by_handle('fred.cz'), call.get_domain_status_descriptions('en')])
+                         [call.get_domain_by_handle(b'fred.cz'), call.get_domain_status_descriptions(b'en')])
         self.assertEqual(self.LOGGER.mock_calls, [
-            call.__nonzero__(),
+            CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
                 ('handle', 'fred.cz'), ('handleType', 'domain'))),
             call.create_request().close(properties=[('foundType', 'domain')])
