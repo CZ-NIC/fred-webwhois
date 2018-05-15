@@ -166,7 +166,7 @@
             {% endif %}
             <tr>
                 <th>{% trans "Status" %}</th>
-                <td class="status" data-codes="{{ contact.statuses|join:"," }}">
+                <td class="status">
                     {% if registry_objects.contact.is_linked %}
                         {% for description in registry_objects.contact.status_descriptions %}
                             <div>{{ description }}</div>
