@@ -7,13 +7,13 @@ from .resolve_handle_type import ResolveHandleTypeMixin
 from .registrar import DownloadEvalFileView, RegistrarDetailMixin, RegistrarListMixin
 from .record_statement import ServeRecordStatementView
 from .public_request import BlockObjectFormView, CustomEmailView, EmailInRegistryView, NotarizedLetterView, \
-    PersonalInfoFormView, PublicResponseNotFoundView, ResponseNotFoundView, SendPasswordFormView, \
-    ServeNotarizedLetterView, UnblockObjectFormView
+    PersonalInfoFormView, PublicResponseNotFoundView, SendPasswordFormView, ServeNotarizedLetterView, \
+    UnblockObjectFormView
 
 
 __all__ = ['BlockObjectFormView', 'ContactDetailMixin', 'CustomEmailView',
            'DomainDetailMixin', 'DownloadEvalFileView', 'EmailInRegistryView', 'KeysetDetailMixin',
            'NotarizedLetterView', 'NssetDetailMixin', 'PersonalInfoFormView', 'PublicResponseNotFoundView',
            'RegistrarDetailMixin', 'RegistrarListMixin',
-           'ResolveHandleTypeMixin', 'ResponseNotFoundView', 'SendPasswordFormView', 'ServeNotarizedLetterView',
+           'ResolveHandleTypeMixin', 'SendPasswordFormView', 'ServeNotarizedLetterView',
            'ServeRecordStatementView', 'UnblockObjectFormView', 'WhoisFormView']

@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 import logging
-import warnings
 
 from django.core.cache import cache
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -275,28 +274,10 @@ class PublicResponseNotFound(Exception):
     """Public response was not found in the cache."""
 
 
-class ResponseDataKeyMissing(PublicResponseNotFound):
-    """Exception for a situation when the response data dict does not have required key."""
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn("ResponseDataKeyMissing is deprecated in favor of PublicResponseNotFound.",
-                      DeprecationWarning)
-        super(ResponseDataKeyMissing, self).__init__(*args, **kwargs)
-
-
 class PublicResponseNotFoundView(BaseContextMixin, TemplateView):
     """Response Not found view."""
 
     template_name = 'webwhois/public_request_response_not_found.html'
-
-
-class ResponseNotFoundView(PublicResponseNotFoundView):
-    """Backwards compatible view for PublicResponseNotFoundView."""
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn("ResponseNotFoundView is deprecated in favor of PublicResponseNotFoundView.",
-                      DeprecationWarning)
-        super(ResponseNotFoundView, self).__init__(*args, **kwargs)
 
 
 class BaseResponseTemplateView(BaseContextMixin, TemplateView):
@@ -323,20 +304,6 @@ class BaseResponseTemplateView(BaseContextMixin, TemplateView):
             public_response = cache.get(public_key)
             if public_response is None:
                 raise PublicResponseNotFound(public_key)
-            if isinstance(public_response, dict):
-                warnings.warn(
-                    "Storing responses to public requests as dicts is deprecated, use PublicResponse instead.",
-                    DeprecationWarning)
-                data = public_response
-                if 'send_to' in data:
-                    public_response = SendPasswordResponse(data['object_type'], data['response_id'],
-                                                           data.get('request_name'), data['handle'],
-                                                           data['custom_email'])
-                else:
-                    public_response = BlockResponse(data['object_type'], data['response_id'], data.get('request_name'),
-                                                    data['handle'], data['block_unblock_action_type'],
-                                                    data['lock_type'])
-                public_response.create_date = data['created_date']
             self._public_response = public_response
         return self._public_response
 
