@@ -108,7 +108,7 @@
                             <div>{% trans "To be deleted" %}</div>
                         </td>
                     {% else %}
-                        <td class="status" data-codes="{{ domain.statuses|join:"," }}">{% for description in domain_status_descriptions %}
+                        <td class="status">{% for description in domain_status_descriptions %}
                              <div>{{ description }}</div>
                             {% endfor %}
                         </td>
