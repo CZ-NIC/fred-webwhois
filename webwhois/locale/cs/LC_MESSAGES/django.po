@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-17 13:37+0200\n"
+"POT-Creation-Date: 2018-06-08 13:47+0200\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -491,9 +491,6 @@ msgstr ""
 "Pokud už víte, jak na to, začněte rovnou výběrem registrátora ze seznamu "
 "registrátorů:"
 
-msgid "In this form you can search for domains in the following zones only:"
-msgstr "V tomto formuláři můžete hledat jen domény v zónách:"
-
 msgid "Incorrect input"
 msgstr "Nesprávné zadání"
 
@@ -632,16 +629,6 @@ msgstr "Poskytnutí údajů"
 
 msgid "Phone"
 msgstr "Telefon"
-
-#, python-format
-msgid ""
-"Please print this <a href=\"%(notarized_letter_pdf_url)s\">%(pdf_name)s</a> "
-"(PDF), sign it (an officially authenticated signature is required) and send "
-"the signed original to the following address:"
-msgstr ""
-"Prosím, vytiskněte tuto <a href=\"%(notarized_letter_pdf_url)s\">"
-"%(pdf_name)s</a> (PDF), podepište ji (je nutný úředně ověřený podpis) a "
-"podepsaný originál zašlete na adresu:"
 
 #, python-format
 msgid ""
@@ -1021,27 +1008,8 @@ msgstr ""
 msgid "Website"
 msgstr "Webové stránky"
 
-msgid ""
-"Whois searches in domain names, contacts and name server sets. Enter domain "
-"names without <span>www.</span> prefix and followed by the zone (i.e. "
-"<span>nic.cz</span>, not www.nic.cz, nor nic). Enter contact handles or name "
-"server sets as plain text."
-msgstr ""
-"Hledá v doménových jménech, kontaktech a sadách nameserverů.\n"
-"Doménová jména vkládejte ve tvaru <span>domenovejmeno.cz</span> s <span>.cz</"
-"span> na konci a bez úvodního <span>www</span> (např. <span>nic.cz</span>).\n"
-"Identifikátory kontaktu nebo sady jmenných serverů vkládejte jako běžný text."
-
 msgid "Yes"
 msgstr "Ano"
-
-#, python-format
-msgid ""
-"You will find the Terms of Service in: <a href=\"%(link)s\">Intended use of "
-"supplied data and information</a>."
-msgstr ""
-"Právo k užití poskytovaných služeb vymezuje dokument: <a href=\"%(link)s"
-"\">Účel použití poskytovaných dat a informací</a>."
 
 msgid "ZONE"
 msgstr "ZONE"
@@ -1054,9 +1022,6 @@ msgstr "jiný e-mail"
 
 msgid "email in registry"
 msgstr "e-mail v registru"
-
-msgid "form"
-msgstr "formulář"
 
 #, python-format
 msgid "since %(date)s"

@@ -21,7 +21,7 @@ class BaseTemplateMixin(object):
 
 
 class WebwhoisFormView(BaseTemplateMixin, WhoisFormView):
-    template_name = "webwhois_in_cms/form_whois.html"
+    template_name = "webwhois/form_whois.html"
 
     def get_context_data(self, **kwargs):
         kwargs.setdefault("WHOIS_SEARCH_ENGINES", WEBWHOIS_SEARCH_ENGINES)
