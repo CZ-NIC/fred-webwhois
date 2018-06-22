@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 from django.views.generic import TemplateView
 
-from webwhois.settings import WEBWHOIS_SEARCH_ENGINES
 from webwhois.utils import WHOIS
 from webwhois.views import BlockObjectFormView, ContactDetailMixin, CustomEmailView, DomainDetailMixin, \
     DownloadEvalFileView, EmailInRegistryView, KeysetDetailMixin, NotarizedLetterView, NssetDetailMixin, \
@@ -24,7 +23,6 @@ class WebwhoisFormView(BaseTemplateMixin, WhoisFormView):
     template_name = "webwhois/form_whois.html"
 
     def get_context_data(self, **kwargs):
-        kwargs.setdefault("WHOIS_SEARCH_ENGINES", WEBWHOIS_SEARCH_ENGINES)
         kwargs.setdefault("managed_zone_list", WHOIS.get_managed_zone_list())
         return super(WebwhoisFormView, self).get_context_data(**kwargs)
 

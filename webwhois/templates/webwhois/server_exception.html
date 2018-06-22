@@ -10,13 +10,6 @@
 
     {% if server_exception.handle_is_in_zone %}
         <h1>{% trans "Register this domain name?" %}</h1>
-        {% if HOW_TO_REGISTER_LINK %}
-            <p>
-                {% blocktrans with link_href=HOW_TO_REGISTER_LINK.href link_label=HOW_TO_REGISTER_LINK.label trimmed %}
-                    For instructions on how to register a domain, see the manual <a href="{{ link_href }}">{{ link_label }}</a>.
-                {% endblocktrans %}
-            </p>
-        {% endif %}
         <p>{% trans "If you already know how to do it, choose a registrar from the registrar list:" %}
             <a href="{% url "webwhois:registrar_list_retail" %}" class="button">{% trans "Registrar list" %}</a>
         </p>
@@ -36,14 +29,6 @@
             {% for zone in managed_zone_list %}<li>{{ zone }}</li>
             {% endfor %}
         </ul>
-        {% if WHOIS_SEARCH_ENGINES %}
-            <p>
-                {% trans "To search for a domain in another zone use the search engine:" %}
-                <span class="whois-search-engines">
-                    {% for link in WHOIS_SEARCH_ENGINES %}{% if not forloop.first %}, {% endif %}<a href="{{ link.href }}">{{ link.label }}</a>{% endfor %}.
-                </span>
-            </p>
-        {% endif %}
     {% endif %}
 
 {% endblock webwhois_content %}

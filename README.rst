@@ -112,35 +112,6 @@ Default value::
     WEBWHOIS_CORBA_CONTEXT
 
 
-Search engines settings
------------------------
-
-Information about search engines. It is a list of engines for searching domain
-names in zones that are not managed by *FRED*. They are displayed
-on the "Search in Registry" form page.
-
-``WEBWHOIS_SEARCH_ENGINES``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The ``WEBWHOIS_SEARCH_ENGINES`` variable contains a list of dictionaries with values
-required for displaying links. Each dictionary contains keys: ``label`` for link label
-and ``href`` for link attribute *href*.
-
-Example::
-
-    WEBWHOIS_SEARCH_ENGINES = (
-        {"label": "WHOIS.COM Lookup", "href": "http://www.whois.com/whois/"},
-        {"label": "IANA WHOIS Service", "href": "http://www.iana.org/whois"},
-    )
-
-Default value::
-
-    (
-        {"label": "WHOIS.COM Lookup", "href": "http://www.whois.com/whois/"},
-        {"label": "IANA WHOIS Service", "href": "http://www.iana.org/whois"},
-    )
-
-
 Registrars settings
 -------------------
 
@@ -188,25 +159,6 @@ The ``WEBWHOIS_DNSSEC_URL`` variable containts a link to the page describing the
 Example::
 
     WEBWHOIS_DNSSEC_URL = "http://www.nic.cz/dnssec/"
-
-Default value::
-
-    None
-
-
-``WEBWHOIS_HOW_TO_REGISTER_LINK``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The ``WEBWHOIS_HOW_TO_REGISTER_LINK`` variable contains a dictionary with items for URL.
-The dictionary contains keys ``label`` for link label and ``href`` for link attribute *href*.
-The link is displayed on the page as a clue in case the object was not found in the registry.
-
-Example::
-
-    WEBWHOIS_HOW_TO_REGISTER_LINK = {
-        "href": "http://www.dobradomena.cz/",
-        "label": "www.dobradomena.cz"
-    }
 
 Default value::
 
