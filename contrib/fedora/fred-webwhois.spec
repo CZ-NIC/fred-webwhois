@@ -56,7 +56,7 @@ export webwhois_log_file=/var/log/fred-webwhois.log
 semanage fcontext -a -t httpd_log_t $webwhois_log_file
 restorecon $webwhois_log_file
 
-export webwhois_socket_dir=/var/run/webwhois/
+export webwhois_socket_dir=/var/run/webwhois
 [[ -f $webwhois_socket_dir ]] || install -o uwsgi -g uwsgi -d $webwhois_socket_dir
 semanage fcontext -a -t httpd_sys_rw_content_t $webwhois_socket_dir
 restorecon -R $webwhois_socket_dir
@@ -87,7 +87,7 @@ exit 0
 if [[ $1 -eq 0 ]]
 then
     semanage fcontext -d -t httpd_log_t /var/log/fred-webwhois.log
-    semanage fcontext -d -t httpd_sys_rw_content_t /var/run/webwhois/
+    semanage fcontext -d -t httpd_sys_rw_content_t /var/run/webwhois
 fi
 exit 0
 
