@@ -598,6 +598,12 @@ msgstr ""
 "Objekt nebyl nalezen. Zkontrolujte si, že jste typ objektu a identifikátor "
 "zadali správně."
 
+msgid ""
+"Object not found. Check that you have correctly entered the contact handle."
+msgstr ""
+"Objekt nebyl nalezen. Zkontrolujte si, že jste identifikátor kontaktu zadali "
+"správně."
+
 msgid "Object type"
 msgstr "Typ objektu"
 

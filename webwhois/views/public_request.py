@@ -133,7 +133,7 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
                 response_id = PUBLIC_REQUEST.create_personal_info_request_registry_email(data['handle'], log_request_id)
         except OBJECT_NOT_FOUND as err:
             form.add_error('handle',
-                           _('Object not found. Check that you have correctly entered the Object type and Handle.'))
+                           _('Object not found. Check that you have correctly entered the contact handle.'))
             raise PublicRequestKnownException(type(err).__name__)
         except INVALID_EMAIL as err:
             form.add_error('custom_email', _('The email was not found or the address is not valid.'))

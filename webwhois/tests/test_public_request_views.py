@@ -508,7 +508,7 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
         PUBLIC_REQUEST.create_personal_info_request_registry_email.side_effect = OBJECT_NOT_FOUND
         self._test_personal_info_error(
             'OBJECT_NOT_FOUND',
-            {'handle': ['Object not found. Check that you have correctly entered the Object type and Handle.']})
+            {'handle': ['Object not found. Check that you have correctly entered the contact handle.']})
 
     def test_personal_info_invalid_email(self):
         PUBLIC_REQUEST.create_personal_info_request_registry_email.side_effect = INVALID_EMAIL
