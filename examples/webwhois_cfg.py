@@ -19,7 +19,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = (
     'django.contrib.staticfiles',
-    'webwhois',
+    'webwhois.apps.WebwhoisAppConfig',
 )
 
 CACHES = {
