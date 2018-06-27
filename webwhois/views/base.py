@@ -16,13 +16,7 @@ mark_safe_lazy = lazy(mark_safe, six.text_type)
 
 
 class BaseContextMixin(ContextMixin):
-    """Set 'webwhois_base_template' into the context."""
-
-    webwhois_base_template = "webwhois_in_cms/main_in_content.html"
-
-    def get_context_data(self, **kwargs):
-        kwargs.setdefault("webwhois_base_template", self.webwhois_base_template)
-        return super(BaseContextMixin, self).get_context_data(**kwargs)
+    """Base mixin for webwhois views."""
 
     def render_to_response(self, context, **response_kwargs):
         self.request.current_app = self.request.resolver_match.namespace
