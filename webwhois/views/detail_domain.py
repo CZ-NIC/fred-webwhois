@@ -4,6 +4,7 @@ import re
 
 import idna
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic import TemplateView
 from fred_idl.Registry.Whois import INVALID_LABEL, OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND, TOO_MANY_LABELS, \
     UNMANAGED_ZONE
 
@@ -125,3 +126,7 @@ class DomainDetailMixin(RegistryObjectMixin):
     def get_context_data(self, **kwargs):
         kwargs.setdefault("DNSSEC_URL", WEBWHOIS_DNSSEC_URL)
         return super(DomainDetailMixin, self).get_context_data(**kwargs)
+
+
+class DomainDetailView(DomainDetailMixin, TemplateView):
+    """View with details of a domain."""

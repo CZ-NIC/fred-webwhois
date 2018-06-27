@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import datetime
 
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic import TemplateView
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND
 
 from webwhois.constants import STATUS_CONDITIONALLY_IDENTIFIED, STATUS_IDENTIFIED, STATUS_LINKED, STATUS_VALIDATED, \
@@ -70,3 +71,7 @@ class ContactDetailMixin(RegistryObjectMixin):
             data["creating_registrar"] = WHOIS.get_registrar_by_handle(registry_object.creating_registrar_handle)
         if registry_object.sponsoring_registrar_handle:
             data["sponsoring_registrar"] = WHOIS.get_registrar_by_handle(registry_object.sponsoring_registrar_handle)
+
+
+class ContactDetailView(ContactDetailMixin, TemplateView):
+    """View with details of a contact."""

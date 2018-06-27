@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic import TemplateView
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND
 
 from webwhois.utils import WHOIS
@@ -42,3 +43,7 @@ class NssetDetailMixin(RegistryObjectMixin):
     def load_related_objects(self, context):
         """Load objects related to the nsset and append them into the context."""
         self.append_nsset_related(context[self._registry_objects_key]["nsset"])
+
+
+class NssetDetailView(NssetDetailMixin, TemplateView):
+    """View with details of a nsset."""

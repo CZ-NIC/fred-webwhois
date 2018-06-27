@@ -4,7 +4,7 @@ import random
 
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import View
+from django.views.generic import TemplateView, View
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND
 
 from webwhois.settings import WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED, WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED
@@ -33,6 +33,10 @@ class RegistrarDetailMixin(RegistryObjectMixin):
             }
         except INVALID_HANDLE:
             context["server_exception"] = cls.message_invalid_handle(handle)
+
+
+class RegistrarDetailView(RegistrarDetailMixin, TemplateView):
+    """View with details of a registrar."""
 
 
 class RegistrarListMixin(BaseContextMixin):
@@ -84,6 +88,10 @@ class RegistrarListMixin(BaseContextMixin):
         kwargs.setdefault("registrars", sorted(registrars, key=lambda row: row["score"], reverse=True))
         kwargs.setdefault("is_retail", self.is_retail)
         return super(RegistrarListMixin, self).get_context_data(**kwargs)
+
+
+class RegistrarListView(RegistrarListMixin, TemplateView):
+    """View with list of a registrars."""
 
 
 class DownloadEvalFileView(View):
