@@ -8,7 +8,7 @@ from fred_idl.Registry.Whois import INVALID_LABEL, OBJECT_DELETE_CANDIDATE, OBJE
     UNMANAGED_ZONE
 
 from webwhois.constants import STATUS_DELETE_CANDIDATE
-from webwhois.settings import WEBWHOIS_DNSSEC_URL, WEBWHOIS_HOW_TO_REGISTER_LINK, WEBWHOIS_SEARCH_ENGINES
+from webwhois.settings import WEBWHOIS_DNSSEC_URL
 from webwhois.utils import WHOIS
 from webwhois.views import KeysetDetailMixin, NssetDetailMixin
 from webwhois.views.base import RegistryObjectMixin
@@ -71,12 +71,10 @@ class DomainDetailMixin(RegistryObjectMixin):
             # Only handle with format of valid domain name and in managed zone raises OBJECT_NOT_FOUND.
             context["server_exception"] = cls.make_message_not_found(handle, handle_is_domain)
             context["server_exception"]["handle_is_in_zone"] = True
-            context["HOW_TO_REGISTER_LINK"] = WEBWHOIS_HOW_TO_REGISTER_LINK
         except UNMANAGED_ZONE:
             # Handle in domain invalid format raises UNMANAGED_ZONE instead of OBJECT_NOT_FOUND.
             if "." in handle:
                 context["managed_zone_list"] = WHOIS.get_managed_zone_list()
-                context["WHOIS_SEARCH_ENGINES"] = WEBWHOIS_SEARCH_ENGINES
                 context["server_exception"] = {
                     "code": "UNMANAGED_ZONE",
                     "title": _("Unmanaged zone"),

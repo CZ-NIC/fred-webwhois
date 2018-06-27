@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-08 13:47+0200\n"
+"POT-Creation-Date: 2018-06-22 16:34+0200\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -166,14 +166,6 @@ msgstr "Fax"
 
 msgid "Flags"
 msgstr "Příznaky"
-
-#, python-format
-msgid ""
-"For instructions on how to register a domain, see the manual <a href="
-"\"%(link_href)s\">%(link_label)s</a>."
-msgstr ""
-"Postup, jak tuto doménu registrovat krok za krokem, najdete v návodu <a href="
-"\"%(link_href)s\">%(link_label)s</a>."
 
 msgid "GOST R 34.10-2001"
 msgstr "GOST R 34.10-2001"
@@ -909,9 +901,6 @@ msgstr "Objekt není blokován. Žádost nelze přijmout."
 
 msgid "To be deleted"
 msgstr "Určeno ke zrušení"
-
-msgid "To search for a domain in another zone use the search engine:"
-msgstr "Pro vyhledání domény v jiné zóně použijte vyhledávač:"
 
 #, python-format
 msgid ""
