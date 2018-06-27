@@ -14,7 +14,7 @@ ALLOWED_HOSTS = [] # fill the real hostname of the server
 
 INSTALLED_APPS = (
     'django.contrib.staticfiles',
-    'webwhois',
+    'webwhois.apps.WebwhoisAppConfig',
 )
 
 MIDDLEWARE = (

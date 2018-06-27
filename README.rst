@@ -33,7 +33,7 @@ Instructions for custom installation:
 
        python setup.py install
 
-2. Add ``webwhois`` to the ``INSTALLED_APPS`` in your ``settings.py``.
+2. Add ``webwhois.apps.WebwhoisAppConfig`` to the ``INSTALLED_APPS`` in your ``settings.py``.
 
 3. Link ``webwhois`` URLs into your ``urls.py``:
 

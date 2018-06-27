@@ -1,7 +1,7 @@
 INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.auth',
-    'webwhois',
+    'webwhois.apps.WebwhoisAppConfig',
 )
 MIDDLEWARE = []
 ROOT_URLCONF = 'webwhois.urls'
