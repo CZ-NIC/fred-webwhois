@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import warnings
+
 from django.views.generic import TemplateView
 
 from webwhois.utils import WHOIS
@@ -9,14 +11,15 @@ from webwhois.views import BlockObjectFormView, ContactDetailMixin, CustomEmailV
     ResolveHandleTypeMixin, SendPasswordFormView, ServeNotarizedLetterView, ServeRecordStatementView, \
     UnblockObjectFormView, WhoisFormView
 
+warnings.warn("Views in `webwhois.views.pages` module are deprecated in favor of views from module `webwhois.views`.",
+              DeprecationWarning)
+
 
 class BaseTemplateMixin(object):
 
-    base_template = "base_site_example.html"
-
-    def get_context_data(self, **kwargs):
-        kwargs.setdefault("base_template", self.base_template)
-        return super(BaseTemplateMixin, self).get_context_data(**kwargs)
+    def __init__(self, *args, **kwargs):
+        warnings.warn("BaseTemplateMixin has no effect and will be removed.", DeprecationWarning)
+        super(BaseTemplateMixin, self).__init__(*args, **kwargs)
 
 
 class WebwhoisFormView(BaseTemplateMixin, WhoisFormView):
