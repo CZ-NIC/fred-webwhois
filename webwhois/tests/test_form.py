@@ -6,6 +6,7 @@ from fred_idl.Registry.Whois import OBJECT_NOT_FOUND
 from mock import call, patch
 
 from webwhois.forms import BlockObjectForm, SendPasswordForm, UnblockObjectForm, WhoisForm
+from webwhois.forms.public_request import ConfirmationMethod
 from webwhois.tests.utils import TEMPLATES, apply_patch
 from webwhois.utils import WHOIS
 
@@ -103,7 +104,7 @@ class TestSendPasswordForm(SimpleTestCase):
             'handle': 'foo.cz',
             'send_to': 'email_in_registry',
             'custom_email': '',
-            'confirmation_method': 'signed_email',
+            'confirmation_method': ConfirmationMethod.SIGNED_EMAIL,
         })
 
     def test_field_is_required(self):
@@ -216,7 +217,7 @@ class TestSendPasswordForm(SimpleTestCase):
         self.assertEqual(form.cleaned_data, {
             "object_type": "domain",
             "handle": "foo.cz",
-            "confirmation_method": "notarized_letter",
+            "confirmation_method": ConfirmationMethod.NOTARIZED_LETTER,
             "send_to": "custom_email",
             "custom_email": "foo@foo.off",
         })
@@ -235,7 +236,7 @@ class BlockUnblockFormMixin(object):
         self.assertEqual(form.cleaned_data, {
             "object_type": "domain",
             "handle": "foo.cz",
-            "confirmation_method": "signed_email",
+            "confirmation_method": ConfirmationMethod.SIGNED_EMAIL,
             "lock_type": "transfer",
         })
 
@@ -290,7 +291,7 @@ class BlockUnblockFormMixin(object):
         self.assertEqual(form.cleaned_data, {
             "object_type": "domain",
             "handle": "foo.cz",
-            "confirmation_method": "notarized_letter",
+            "confirmation_method": ConfirmationMethod.NOTARIZED_LETTER,
             "lock_type": "transfer",
         })
 
@@ -305,7 +306,7 @@ class BlockUnblockFormMixin(object):
         self.assertEqual(form.cleaned_data, {
             "object_type": "domain",
             "handle": "foo.cz",
-            "confirmation_method": "notarized_letter",
+            "confirmation_method": ConfirmationMethod.NOTARIZED_LETTER,
             "lock_type": "all",
         })
 

@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.core.cache import cache
 from django.utils.crypto import get_random_string
 from django.views.generic import FormView
-from fred_idl.Registry.PublicRequest import ConfirmedBy, ObjectType_PR
+from fred_idl.Registry.PublicRequest import ObjectType_PR
 
 from webwhois.utils.corba_wrapper import LOGGER
 from webwhois.views.logger_mixin import LoggerMixin
@@ -59,12 +59,6 @@ class PublicRequestFormView(PublicRequestLoggerMixin, FormView):
             'contact': ObjectType_PR.contact,
             'nsset': ObjectType_PR.nsset,
             'keyset': ObjectType_PR.keyset
-        }[name]
-
-    def _get_confirmed_by_type(self, name):
-        return {
-            'signed_email': ConfirmedBy.signed_email,
-            'notarized_letter': ConfirmedBy.notarized_letter,
         }[name]
 
     def _call_registry_command(self, form, log_request_id):

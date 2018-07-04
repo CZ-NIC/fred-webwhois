@@ -14,8 +14,8 @@ from fred_idl.Registry.PublicRequest import HAS_DIFFERENT_BLOCK, INVALID_EMAIL, 
     OBJECT_NOT_BLOCKED, OBJECT_NOT_FOUND, OBJECT_TRANSFER_PROHIBITED, OPERATION_PROHIBITED, Language, LockRequestType
 
 from webwhois.forms import BlockObjectForm, PersonalInfoForm, SendPasswordForm, UnblockObjectForm
-from webwhois.forms.public_request import LOCK_TYPE_ALL, LOCK_TYPE_TRANSFER, LOCK_TYPE_URL_PARAM, SEND_TO_CUSTOM, \
-    SEND_TO_IN_REGISTRY
+from webwhois.forms.public_request import CONFIRMATION_METHOD_IDL_MAP, LOCK_TYPE_ALL, LOCK_TYPE_TRANSFER, \
+    LOCK_TYPE_URL_PARAM, SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY, ConfirmationMethod
 from webwhois.utils.corba_wrapper import LOGGER, PUBLIC_REQUEST
 from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, SendPasswordResponse
 from webwhois.views.base import BaseContextMixin
@@ -51,7 +51,7 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
             if data['send_to'] == 'custom_email':
                 response_id = PUBLIC_REQUEST.create_authinfo_request_non_registry_email(
                     self._get_object_type(data['object_type']), data['handle'], log_request_id,
-                    self._get_confirmed_by_type(data['confirmation_method']), data['custom_email'])
+                    CONFIRMATION_METHOD_IDL_MAP[data['confirmation_method']], data['custom_email'])
             else:
                 # confirm_type_name is 'signed_email'
                 response_id = PUBLIC_REQUEST.create_authinfo_request_registry_email(
@@ -90,7 +90,7 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
         if self.success_url:
             return force_text(self.success_url)
         url_name = "webwhois:response_not_found"
-        if self.form_cleaned_data['confirmation_method'] == 'notarized_letter':
+        if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.NOTARIZED_LETTER:
             url_name = 'webwhois:notarized_letter_response'
         else:
             if self.form_cleaned_data['send_to'] == 'email_in_registry':
@@ -126,7 +126,7 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
         try:
             if data['send_to'] == SEND_TO_CUSTOM:
                 response_id = PUBLIC_REQUEST.create_personal_info_request_non_registry_email(
-                    data['handle'], log_request_id, self._get_confirmed_by_type(data['confirmation_method']),
+                    data['handle'], log_request_id, CONFIRMATION_METHOD_IDL_MAP[data['confirmation_method']],
                     data['custom_email'])
             else:
                 assert data['send_to'] == SEND_TO_IN_REGISTRY
@@ -152,7 +152,7 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
     def get_success_url(self):
         if self.success_url:
             return force_text(self.success_url)
-        if self.form_cleaned_data['confirmation_method'] == 'notarized_letter':
+        if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.NOTARIZED_LETTER:
             url_name = 'webwhois:notarized_letter_response'
         else:
             if self.form_cleaned_data['send_to'] == 'email_in_registry':
@@ -189,7 +189,7 @@ class BlockUnblockFormView(PublicRequestFormView):
         try:
             response_id = PUBLIC_REQUEST.create_block_unblock_request(
                 self._get_object_type(form.cleaned_data['object_type']), form.cleaned_data['handle'], log_request_id,
-                self._get_confirmed_by_type(form.cleaned_data['confirmation_method']),
+                CONFIRMATION_METHOD_IDL_MAP[form.cleaned_data['confirmation_method']],
                 self._get_lock_type(form.cleaned_data['lock_type']))
         except OBJECT_NOT_FOUND as err:
             form.add_error('handle', _('Object not found. Check that you have correctly entered the Object type and '
@@ -226,7 +226,7 @@ class BlockUnblockFormView(PublicRequestFormView):
     def get_success_url(self):
         if self.success_url:
             return force_text(self.success_url)
-        if self.form_cleaned_data['confirmation_method'] == 'notarized_letter':
+        if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.NOTARIZED_LETTER:
             url_name = 'webwhois:notarized_letter_response'
         else:
             url_name = 'webwhois:custom_email_response'
