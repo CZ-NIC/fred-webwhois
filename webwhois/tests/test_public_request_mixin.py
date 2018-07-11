@@ -8,6 +8,7 @@ from fred_idl.Registry.PublicRequest import OBJECT_NOT_FOUND
 from mock import call, patch
 
 from webwhois.forms import SendPasswordForm
+from webwhois.forms.public_request import ConfirmationMethod
 from webwhois.tests.utils import apply_patch
 from webwhois.views.public_request_mixin import PublicRequestFormView, PublicRequestKnownException, cache
 
@@ -118,7 +119,7 @@ class TestPublicRequestFormView(SimpleTestCase):
             'handle': 'foo.cz',
             'object_type': 'domain',
             'custom_email': '',
-            'confirmation_method': 'signed_email',
+            'confirmation_method': ConfirmationMethod.SIGNED_EMAIL,
             'send_to': 'email_in_registry',
         }
         self.assertEqual(cache.get(pubreq.public_key), {'cleaned_data': cleaned_data, 'public_request_id': 42})
@@ -155,7 +156,7 @@ class TestPublicRequestFormView(SimpleTestCase):
             'handle': 'foo.cz',
             'object_type': 'domain',
             'custom_email': '',
-            'confirmation_method': 'signed_email',
+            'confirmation_method': ConfirmationMethod.SIGNED_EMAIL,
             'send_to': 'email_in_registry',
         }
         self.assertEqual(cache.get(pubreq.public_key), {'cleaned_data': cleaned_data, 'public_request_id': 42})

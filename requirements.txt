@@ -1,6 +1,7 @@
 django >=1.11,<2.0.99
 idna
 django-app-settings
+enum34;python_version<"3.4"
 six
 fred-pylogger
 fred-pyfco

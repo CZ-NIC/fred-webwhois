@@ -1,11 +1,14 @@
 from __future__ import unicode_literals
 
+from enum import Enum, unique
+
 import six
 from django import forms
 from django.core.validators import MaxLengthValidator
 from django.utils.functional import lazy
 from django.utils.safestring import mark_safe
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+from fred_idl.Registry.PublicRequest import ConfirmedBy
 
 LOCK_TYPE_TRANSFER = "transfer"
 LOCK_TYPE_ALL = "all"
@@ -20,7 +23,23 @@ SEND_TO_IN_REGISTRY = 'email_in_registry'
 SEND_TO_CUSTOM = 'custom_email'
 
 
+@unique
+class ConfirmationMethod(str, Enum):
+    """Enum of public request confirmation methods."""
+
+    SIGNED_EMAIL = 'signed_email'
+    NOTARIZED_LETTER = 'notarized_letter'
+
+
+CONFIRMATION_METHOD_IDL_MAP = {ConfirmationMethod.SIGNED_EMAIL: ConfirmedBy.signed_email,
+                               ConfirmationMethod.NOTARIZED_LETTER: ConfirmedBy.notarized_letter}
+
+
 class PublicRequestBaseForm(forms.Form):
+    """Base class for public request forms.
+
+    @cvar CONFIRMATION_METHOD_CHOICES: Choices for `confirmation_method` field.
+    """
 
     REGISTRY_OBJECT_TYPE = (
         ("domain", _("Domain")),
@@ -28,16 +47,20 @@ class PublicRequestBaseForm(forms.Form):
         ("nsset", _("Nsset")),
         ("keyset", _("Keyset")),
     )
-    CONFIRMATION_METHOD = (
-        ("signed_email", _("Email signed by a qualified certificate")),
-        ("notarized_letter", _("Officially verified signature")),
+    CONFIRMATION_METHOD_CHOICES = (
+        # Forms work best with strings. Use raw enum values, not enum objects.
+        (ConfirmationMethod.SIGNED_EMAIL.value, _("Email signed by a qualified certificate")),
+        (ConfirmationMethod.NOTARIZED_LETTER.value, _("Officially verified signature")),
     )
+    # Deprecated attribute kept for backward compatibility
+    CONFIRMATION_METHOD = CONFIRMATION_METHOD_CHOICES
 
     object_type = forms.ChoiceField(label=_("Object type"), choices=REGISTRY_OBJECT_TYPE)
     handle = forms.CharField(
         label=lazy(lambda: mark_safe(_("Domain (without <em>www.</em> prefix) / Handle")), six.text_type)(),
         validators=[MaxLengthValidator(255)])
-    confirmation_method = forms.ChoiceField(label=_("Confirmation method"), choices=CONFIRMATION_METHOD, required=False)
+    confirmation_method = forms.ChoiceField(label=_("Confirmation method"), choices=CONFIRMATION_METHOD_CHOICES,
+                                            required=False)
 
 
 class SendPasswordForm(PublicRequestBaseForm):
@@ -64,7 +87,7 @@ class SendPasswordForm(PublicRequestBaseForm):
                 raise forms.ValidationError(_('Custom email is required as "Send to custom email" option is selected.'
                                               ' Please fill it in.'), code='custom_email_missing')
 
-        if cleaned_data.get('confirmation_method') == 'notarized_letter' \
+        if cleaned_data.get('confirmation_method') == ConfirmationMethod.NOTARIZED_LETTER \
                 and cleaned_data.get('send_to') != 'custom_email':
             raise forms.ValidationError(_('Letter with officially verified signature can be sent only to the custom '
                                           'email. Please select "Send to custom email" and enter it.'),
