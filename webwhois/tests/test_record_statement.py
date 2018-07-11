@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
-from django.core.urlresolvers import reverse
 from django.test import SimpleTestCase, override_settings
+from django.urls import reverse
 from fred_idl.Registry.RecordStatement import INTERNAL_SERVER_ERROR, OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND
 from mock import call, patch
 
