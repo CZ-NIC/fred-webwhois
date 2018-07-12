@@ -37,9 +37,10 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
         properties_in = [
             ("handle", data["handle"]),
             ("handleType", data['object_type']),
-            ("confirmMethod", data['confirmation_method']),
             ("sendTo", data['send_to']),
         ]
+        if data['confirmation_method']:
+            properties_in.append(("confirmMethod", data['confirmation_method']))
         custom_email = data.get("custom_email")
         if custom_email:
             properties_in.append(("customEmail", custom_email))
@@ -113,9 +114,10 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
         properties_in = [
             ("handle", data["handle"]),
             ("handleType", 'contact'),
-            ("confirmMethod", data['confirmation_method']),
             ("sendTo", data['send_to']),
         ]
+        if data['confirmation_method']:
+            properties_in.append(("confirmMethod", data['confirmation_method']))
         custom_email = data.get("custom_email")
         if custom_email:
             properties_in.append(("customEmail", custom_email))
@@ -180,8 +182,9 @@ class BlockUnblockFormView(PublicRequestFormView):
         properties_in = [
             ("handle", data["handle"]),
             ("handleType", data['object_type']),
-            ("confirmMethod", data['confirmation_method']),
         ]
+        if data['confirmation_method']:
+            properties_in.append(("confirmMethod", data['confirmation_method']))
         return lock_type_key, properties_in
 
     def _call_registry_command(self, form, log_request_id):
