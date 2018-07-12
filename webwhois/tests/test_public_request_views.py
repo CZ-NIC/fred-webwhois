@@ -13,6 +13,7 @@ from fred_idl.Registry.PublicRequest import HAS_DIFFERENT_BLOCK, INVALID_EMAIL, 
     LockRequestType, ObjectType_PR
 from mock import call, patch
 
+from webwhois.forms.public_request import ConfirmationMethod
 from webwhois.tests.utils import TEMPLATES, apply_patch
 from webwhois.utils import PUBLIC_REQUEST
 from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, SendPasswordResponse
@@ -390,7 +391,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Transfer password request</a> ' \
                   '(PDF)' % self.public_key
         self._send_password_notarized_letter(post, 'AuthInfo', properties, object_type, title, message)
-        public_response = SendPasswordResponse(object_name, 24, 'AuthInfo', 'FOO', 'foo@foo.off')
+        public_response = SendPasswordResponse(object_name, 24, 'AuthInfo', 'FOO', 'foo@foo.off',
+                                               ConfirmationMethod.NOTARIZED_LETTER)
         public_response.create_date = date(2017, 3, 8)
         self.assertEqual(cache.get(self.public_key), public_response)
 
@@ -427,7 +429,7 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
 
         path = reverse("webwhois:email_in_registry_response", kwargs={"public_key": self.public_key})
         self.assertRedirects(response, path)
-        public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', None)
+        public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', None, None)
         public_response.create_date = date(2017, 3, 8)
         self.assertEqual(cache.get(self.public_key), public_response)
         self.assertEqual(PUBLIC_REQUEST.mock_calls,
@@ -448,7 +450,8 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
 
         path = reverse("webwhois:custom_email_response", kwargs={"public_key": self.public_key})
         self.assertRedirects(response, path)
-        public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', 'kryten@example.cz')
+        public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', 'kryten@example.cz',
+                                               ConfirmationMethod.SIGNED_EMAIL)
         public_response.create_date = date(2017, 3, 8)
         self.assertEqual(cache.get(self.public_key), public_response)
         calls = [call.create_personal_info_request_non_registry_email(post['handle'], 42, ConfirmedBy.signed_email,
@@ -471,7 +474,8 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
 
         path = reverse("webwhois:notarized_letter_response", kwargs={"public_key": self.public_key})
         self.assertRedirects(response, path)
-        public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', 'kryten@example.cz')
+        public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', 'kryten@example.cz',
+                                               ConfirmationMethod.NOTARIZED_LETTER)
         public_response.create_date = date(2017, 3, 8)
         self.assertEqual(cache.get(self.public_key), public_response)
 
@@ -549,7 +553,8 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
             call().close(properties=[], references=[('publicrequest', 24)])
         ])
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
-        public_response = BlockResponse(object_name, 24, action_name, 'FOO', block_action, lock_type)
+        public_response = BlockResponse(object_name, 24, action_name, 'FOO', block_action, lock_type,
+                                        confirmation_method)
         self.assertEqual(cache.get(self.public_key), public_response)
 
     def _block_transfer_signed_email(self, object_name, object_type, title, message):
@@ -990,7 +995,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         cache.clear()
 
     def test_download(self):
-        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None))
+        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None, None))
         PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
@@ -1020,7 +1025,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(self.LOGGER.create_request.mock_calls, [])
 
     def test_download_custom_email(self):
-        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', 'foo@foo.off'))
+        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', 'foo@foo.off', None))
         PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
@@ -1048,7 +1053,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
             self.LOGGER.__nonzero__.return_value = False
         else:
             self.LOGGER.__bool__.return_value = False
-        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None))
+        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None, None))
         PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
@@ -1062,7 +1067,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(self.LOGGER.create_request.mock_calls, [])
 
     def test_object_not_found(self):
-        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None))
+        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None, None))
         PUBLIC_REQUEST.create_public_request_pdf.side_effect = OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
