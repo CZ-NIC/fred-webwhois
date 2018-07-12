@@ -13,6 +13,7 @@ from fred_idl.Registry.PublicRequest import HAS_DIFFERENT_BLOCK, INVALID_EMAIL, 
     LockRequestType, ObjectType_PR
 from mock import call, patch
 
+from webwhois.forms.public_request import ConfirmationMethod
 from webwhois.tests.utils import TEMPLATES, apply_patch
 from webwhois.utils import PUBLIC_REQUEST
 from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, SendPasswordResponse
@@ -102,8 +103,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'foo.cz'),
             ('handleType', 'domain'),
-            ('confirmMethod', 'signed_email'),
             ('sendTo', 'email_in_registry'),
+            ('confirmMethod', 'signed_email'),
         ]
         object_type = ObjectType_PR.domain
         title = "Request for password for transfer domain name foo.cz"
@@ -122,8 +123,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'CONTACT'),
             ('handleType', 'contact'),
-            ('confirmMethod', 'signed_email'),
             ('sendTo', 'email_in_registry'),
+            ('confirmMethod', 'signed_email'),
         ]
         object_type = ObjectType_PR.contact
         title = "Request for password for transfer contact CONTACT"
@@ -142,8 +143,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'NSSET'),
             ('handleType', 'nsset'),
-            ('confirmMethod', 'signed_email'),
             ('sendTo', 'email_in_registry'),
+            ('confirmMethod', 'signed_email'),
         ]
         object_type = ObjectType_PR.nsset
         title = "Request for password for transfer nameserver set NSSET"
@@ -162,8 +163,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'KEYSET'),
             ('handleType', 'keyset'),
-            ('confirmMethod', 'signed_email'),
             ('sendTo', 'email_in_registry'),
+            ('confirmMethod', 'signed_email'),
         ]
         object_type = ObjectType_PR.keyset
         title = "Request for password for transfer keyset KEYSET"
@@ -190,8 +191,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             call('127.0.0.1', 'Public Request', 'AuthInfo', properties=[
                 ('handle', 'foo.cz'),
                 ('handleType', 'domain'),
+                ('sendTo', 'email_in_registry'),
                 ('confirmMethod', 'signed_email'),
-                ('sendTo', 'email_in_registry')
             ]),
             call().close(properties=[('reason', exception_code)], references=[])
         ])
@@ -231,8 +232,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             call('127.0.0.1', 'Public Request', 'AuthInfo', properties=[
                 ('handle', 'foo.cz'),
                 ('handleType', 'domain'),
-                ('confirmMethod', 'signed_email'),
                 ('sendTo', 'custom_email'),
+                ('confirmMethod', 'signed_email'),
                 ('customEmail', 'foo@foo.off')]),
             call().close(properties=[('reason', 'INVALID_EMAIL')], references=[])
         ])
@@ -277,8 +278,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'foo.cz'),
             ('handleType', 'domain'),
-            ('confirmMethod', 'signed_email'),
             ('sendTo', 'custom_email'),
+            ('confirmMethod', 'signed_email'),
             ('customEmail', 'foo@foo.off'),
         ]
         object_type = ObjectType_PR.domain
@@ -299,8 +300,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'FOO'),
             ('handleType', 'contact'),
-            ('confirmMethod', 'signed_email'),
             ('sendTo', 'custom_email'),
+            ('confirmMethod', 'signed_email'),
             ('customEmail', 'foo@foo.off'),
         ]
         object_type = ObjectType_PR.contact
@@ -321,8 +322,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'FOO'),
             ('handleType', 'nsset'),
-            ('confirmMethod', 'signed_email'),
             ('sendTo', 'custom_email'),
+            ('confirmMethod', 'signed_email'),
             ('customEmail', 'foo@foo.off'),
         ]
         object_type = ObjectType_PR.nsset
@@ -343,8 +344,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'FOO'),
             ('handleType', 'keyset'),
-            ('confirmMethod', 'signed_email'),
             ('sendTo', 'custom_email'),
+            ('confirmMethod', 'signed_email'),
             ('customEmail', 'foo@foo.off'),
         ]
         object_type = ObjectType_PR.keyset
@@ -383,14 +384,15 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'FOO'),
             ('handleType', object_name),
-            ('confirmMethod', 'notarized_letter'),
             ('sendTo', 'custom_email'),
+            ('confirmMethod', 'notarized_letter'),
             ('customEmail', 'foo@foo.off'),
         ]
         message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Transfer password request</a> ' \
                   '(PDF)' % self.public_key
         self._send_password_notarized_letter(post, 'AuthInfo', properties, object_type, title, message)
-        public_response = SendPasswordResponse(object_name, 24, 'AuthInfo', 'FOO', 'foo@foo.off')
+        public_response = SendPasswordResponse(object_name, 24, 'AuthInfo', 'FOO', 'foo@foo.off',
+                                               ConfirmationMethod.NOTARIZED_LETTER)
         public_response.create_date = date(2017, 3, 8)
         self.assertEqual(cache.get(self.public_key), public_response)
 
@@ -427,13 +429,12 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
 
         path = reverse("webwhois:email_in_registry_response", kwargs={"public_key": self.public_key})
         self.assertRedirects(response, path)
-        public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', None)
+        public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', None, None)
         public_response.create_date = date(2017, 3, 8)
         self.assertEqual(cache.get(self.public_key), public_response)
         self.assertEqual(PUBLIC_REQUEST.mock_calls,
                          [call.create_personal_info_request_registry_email(post['handle'], 42)])
-        properties = [('handle', 'CONTACT'), ('handleType', 'contact'), (u'confirmMethod', u''),
-                      ('sendTo', 'email_in_registry')]
+        properties = [('handle', 'CONTACT'), ('handleType', 'contact'), ('sendTo', 'email_in_registry')]
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
             call('127.0.0.1', 'Public Request', 'PersonalInfo', properties=properties),
             call().close(properties=[], references=[('publicrequest', 24)])
@@ -449,14 +450,15 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
 
         path = reverse("webwhois:custom_email_response", kwargs={"public_key": self.public_key})
         self.assertRedirects(response, path)
-        public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', 'kryten@example.cz')
+        public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', 'kryten@example.cz',
+                                               ConfirmationMethod.SIGNED_EMAIL)
         public_response.create_date = date(2017, 3, 8)
         self.assertEqual(cache.get(self.public_key), public_response)
         calls = [call.create_personal_info_request_non_registry_email(post['handle'], 42, ConfirmedBy.signed_email,
                                                                       'kryten@example.cz')]
         self.assertEqual(PUBLIC_REQUEST.mock_calls, calls)
-        properties = [('handle', 'CONTACT'), ('handleType', 'contact'), ('confirmMethod', 'signed_email'),
-                      ('sendTo', 'custom_email'), ('customEmail', 'kryten@example.cz')]
+        properties = [('handle', 'CONTACT'), ('handleType', 'contact'), ('sendTo', 'custom_email'),
+                      ('confirmMethod', 'signed_email'), ('customEmail', 'kryten@example.cz')]
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
             call('127.0.0.1', 'Public Request', 'PersonalInfo', properties=properties),
             call().close(properties=[], references=[('publicrequest', 24)])
@@ -472,15 +474,16 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
 
         path = reverse("webwhois:notarized_letter_response", kwargs={"public_key": self.public_key})
         self.assertRedirects(response, path)
-        public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', 'kryten@example.cz')
+        public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', 'kryten@example.cz',
+                                               ConfirmationMethod.NOTARIZED_LETTER)
         public_response.create_date = date(2017, 3, 8)
         self.assertEqual(cache.get(self.public_key), public_response)
 
         calls = [call.create_personal_info_request_non_registry_email(post['handle'], 42, ConfirmedBy.notarized_letter,
                                                                       'kryten@example.cz')]
         self.assertEqual(PUBLIC_REQUEST.mock_calls, calls)
-        properties = [('handle', 'CONTACT'), ('handleType', 'contact'), ('confirmMethod', 'notarized_letter'),
-                      ('sendTo', 'custom_email'), ('customEmail', 'kryten@example.cz')]
+        properties = [('handle', 'CONTACT'), ('handleType', 'contact'), ('sendTo', 'custom_email'),
+                      ('confirmMethod', 'notarized_letter'), ('customEmail', 'kryten@example.cz')]
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
             call('127.0.0.1', 'Public Request', 'PersonalInfo', properties=properties),
             call().close(properties=[], references=[('publicrequest', 24)])
@@ -496,8 +499,7 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
         self.assertEqual(response.context['form'].errors, form_errors)
         self.assertEqual(PUBLIC_REQUEST.mock_calls,
                          [call.create_personal_info_request_registry_email('foo.cz', 42)])
-        properties = [('handle', 'foo.cz'), ('handleType', 'contact'), ('confirmMethod', ''),
-                      ('sendTo', 'email_in_registry')]
+        properties = [('handle', 'foo.cz'), ('handleType', 'contact'), ('sendTo', 'email_in_registry')]
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
             call('127.0.0.1', 'Public Request', 'PersonalInfo', properties=properties),
             call().close(properties=[('reason', exception_code)], references=[])
@@ -551,7 +553,8 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
             call().close(properties=[], references=[('publicrequest', 24)])
         ])
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
-        public_response = BlockResponse(object_name, 24, action_name, 'FOO', block_action, lock_type)
+        public_response = BlockResponse(object_name, 24, action_name, 'FOO', block_action, lock_type,
+                                        confirmation_method)
         self.assertEqual(cache.get(self.public_key), public_response)
 
     def _block_transfer_signed_email(self, object_name, object_type, title, message):
@@ -992,7 +995,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         cache.clear()
 
     def test_download(self):
-        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None))
+        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None, None))
         PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
@@ -1022,7 +1025,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(self.LOGGER.create_request.mock_calls, [])
 
     def test_download_custom_email(self):
-        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', 'foo@foo.off'))
+        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', 'foo@foo.off', None))
         PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
@@ -1050,7 +1053,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
             self.LOGGER.__nonzero__.return_value = False
         else:
             self.LOGGER.__bool__.return_value = False
-        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None))
+        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None, None))
         PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
@@ -1064,7 +1067,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(self.LOGGER.create_request.mock_calls, [])
 
     def test_object_not_found(self):
-        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None))
+        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None, None))
         PUBLIC_REQUEST.create_public_request_pdf.side_effect = OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))

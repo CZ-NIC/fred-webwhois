@@ -6,7 +6,7 @@ from fred_idl.Registry.Whois import OBJECT_NOT_FOUND
 from mock import call, patch
 
 from webwhois.forms import BlockObjectForm, SendPasswordForm, UnblockObjectForm, WhoisForm
-from webwhois.forms.public_request import ConfirmationMethod
+from webwhois.forms.public_request import ConfirmationMethod, PublicRequestBaseForm
 from webwhois.tests.utils import TEMPLATES, apply_patch
 from webwhois.utils import WHOIS
 
@@ -87,6 +87,20 @@ class TestWhoisFormView(SimpleTestCase):
                             ' / Handle:</label>', html=True)
         self.assertEqual(self.LOGGER.mock_calls, [])
         self.assertEqual(WHOIS.mock_calls, [call.get_managed_zone_list()])
+
+
+class TestPublicRequestBaseForm(SimpleTestCase):
+    """Test `PublicRequestBaseForm` class."""
+
+    def test_clean_confirmation_method(self):
+        form = PublicRequestBaseForm({'confirmation_method': 'signed_email'})
+        form.is_valid()
+        self.assertEqual(form.cleaned_data['confirmation_method'], ConfirmationMethod.SIGNED_EMAIL)
+
+    def test_clean_confirmation_method_empty(self):
+        form = PublicRequestBaseForm({})
+        form.is_valid()
+        self.assertIsNone(form.cleaned_data['confirmation_method'])
 
 
 class TestSendPasswordForm(SimpleTestCase):

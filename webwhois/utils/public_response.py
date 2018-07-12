@@ -5,21 +5,28 @@ Responses hold the data to be displayed on the response pages.
 """
 from __future__ import unicode_literals
 
+import warnings
 from datetime import date
 
 import six
 from django.conf import settings
 from django.utils.timezone import localdate
 
+UNDEFINED = 'UNDEFINED'
+
 
 class PublicResponse(object):
     """Base class for public responses."""
 
-    def __init__(self, object_type, public_request_id, request_type, handle):
+    def __init__(self, object_type, public_request_id, request_type, handle, confirmation_method=UNDEFINED):
         self.object_type = object_type
         self.public_request_id = public_request_id
         self.handle = handle
         self.request_type = request_type
+        if confirmation_method == UNDEFINED:
+            warnings.warn("Argument confirmation_method will be required.", DeprecationWarning)
+            confirmation_method = None
+        self.confirmation_method = confirmation_method
         if settings.USE_TZ:
             self.create_date = localdate()
         else:
@@ -37,7 +44,8 @@ class PublicResponse(object):
     def __eq__(self, other):
         return type(self) == type(other) and self.object_type == other.object_type \
             and self.public_request_id == other.public_request_id and self.request_type == other.request_type \
-            and self.handle == other.handle and self.create_date == other.create_date
+            and self.handle == other.handle and self.create_date == other.create_date \
+            and self.confirmation_method == other.confirmation_method
 
     def __ne__(self, other):
         return not self == other
@@ -46,8 +54,10 @@ class PublicResponse(object):
 class SendPasswordResponse(PublicResponse):
     """Public response for send password public request."""
 
-    def __init__(self, object_type, public_request_id, request_type, handle, custom_email):
-        super(SendPasswordResponse, self).__init__(object_type, public_request_id, request_type, handle)
+    def __init__(self, object_type, public_request_id, request_type, handle, custom_email,
+                 confirmation_method=UNDEFINED):
+        super(SendPasswordResponse, self).__init__(object_type, public_request_id, request_type, handle,
+                                                   confirmation_method)
         self.custom_email = custom_email
 
     def __eq__(self, other):
@@ -57,8 +67,10 @@ class SendPasswordResponse(PublicResponse):
 class PersonalInfoResponse(PublicResponse):
     """Public response for personal info public request."""
 
-    def __init__(self, object_type, public_request_id, request_type, handle, custom_email):
-        super(PersonalInfoResponse, self).__init__(object_type, public_request_id, request_type, handle)
+    def __init__(self, object_type, public_request_id, request_type, handle, custom_email,
+                 confirmation_method=UNDEFINED):
+        super(PersonalInfoResponse, self).__init__(object_type, public_request_id, request_type, handle,
+                                                   confirmation_method)
         self.custom_email = custom_email
 
     def __eq__(self, other):
@@ -68,8 +80,9 @@ class PersonalInfoResponse(PublicResponse):
 class BlockResponse(PublicResponse):
     """Public response for block public requests."""
 
-    def __init__(self, object_type, public_request_id, request_type, handle, action, lock_type):
-        super(BlockResponse, self).__init__(object_type, public_request_id, request_type, handle)
+    def __init__(self, object_type, public_request_id, request_type, handle, action, lock_type,
+                 confirmation_method=UNDEFINED):
+        super(BlockResponse, self).__init__(object_type, public_request_id, request_type, handle, confirmation_method)
         self.action = action
         self.lock_type = lock_type
 

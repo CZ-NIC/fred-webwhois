@@ -37,9 +37,10 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
         properties_in = [
             ("handle", data["handle"]),
             ("handleType", data['object_type']),
-            ("confirmMethod", data['confirmation_method']),
             ("sendTo", data['send_to']),
         ]
+        if data['confirmation_method']:
+            properties_in.append(("confirmMethod", data['confirmation_method']))
         custom_email = data.get("custom_email")
         if custom_email:
             properties_in.append(("customEmail", custom_email))
@@ -75,7 +76,7 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
         else:
             custom_email = None
         return SendPasswordResponse(form.cleaned_data['object_type'], public_request_id, request_type,
-                                    form.cleaned_data['handle'], custom_email)
+                                    form.cleaned_data['handle'], custom_email, form.cleaned_data['confirmation_method'])
 
     def get_initial(self):
         data = super(SendPasswordFormView, self).get_initial()
@@ -113,9 +114,10 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
         properties_in = [
             ("handle", data["handle"]),
             ("handleType", 'contact'),
-            ("confirmMethod", data['confirmation_method']),
             ("sendTo", data['send_to']),
         ]
+        if data['confirmation_method']:
+            properties_in.append(("confirmMethod", data['confirmation_method']))
         custom_email = data.get("custom_email")
         if custom_email:
             properties_in.append(("customEmail", custom_email))
@@ -147,7 +149,7 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
         else:
             custom_email = None
         return PersonalInfoResponse('contact', public_request_id, request_type, form.cleaned_data['handle'],
-                                    custom_email)
+                                    custom_email, form.cleaned_data['confirmation_method'])
 
     def get_success_url(self):
         if self.success_url:
@@ -180,8 +182,9 @@ class BlockUnblockFormView(PublicRequestFormView):
         properties_in = [
             ("handle", data["handle"]),
             ("handleType", data['object_type']),
-            ("confirmMethod", data['confirmation_method']),
         ]
+        if data['confirmation_method']:
+            properties_in.append(("confirmMethod", data['confirmation_method']))
         return lock_type_key, properties_in
 
     def _call_registry_command(self, form, log_request_id):
@@ -212,7 +215,8 @@ class BlockUnblockFormView(PublicRequestFormView):
     def get_public_response(self, form, public_request_id):
         request_type = self._get_logging_request_name_and_properties(form.cleaned_data)[0]
         return BlockResponse(form.cleaned_data['object_type'], public_request_id, request_type,
-                             form.cleaned_data['handle'], self.block_action, form.cleaned_data['lock_type'])
+                             form.cleaned_data['handle'], self.block_action, form.cleaned_data['lock_type'],
+                             form.cleaned_data['confirmation_method'])
 
     def get_initial(self):
         data = super(BlockUnblockFormView, self).get_initial()
