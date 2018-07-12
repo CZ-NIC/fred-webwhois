@@ -62,6 +62,14 @@ class PublicRequestBaseForm(forms.Form):
     confirmation_method = forms.ChoiceField(label=_("Confirmation method"), choices=CONFIRMATION_METHOD_CHOICES,
                                             required=False)
 
+    def clean_confirmation_method(self):
+        """Return None if no confirmation method was selected."""
+        value = self.cleaned_data['confirmation_method']
+        if value:
+            return value
+        else:
+            return None
+
 
 class SendPasswordForm(PublicRequestBaseForm):
     """Send password for transfer."""
