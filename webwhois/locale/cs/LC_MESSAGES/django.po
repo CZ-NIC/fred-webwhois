@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-22 16:34+0200\n"
+"POT-Creation-Date: 2018-07-12 14:19+0200\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -136,6 +136,9 @@ msgstr "Doména nenalezena"
 
 msgid "Download Verified record statement in PDF."
 msgstr "Stáhnout ověřený výpis z registru v PDF."
+
+msgid "E-government"
+msgstr "Elektronická státní správa"
 
 msgid "ECDSA Curve P-256 with SHA-256"
 msgstr "ECDSA Křivka P-256 se SHA-256"
