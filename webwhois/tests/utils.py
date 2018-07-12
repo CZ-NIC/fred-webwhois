@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import os
+
 import six
 from fred_idl.Registry import IsoDateTime
 from fred_idl.Registry.Whois import KeySet
@@ -13,7 +15,7 @@ else:
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(os.path.dirname(__file__), 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
