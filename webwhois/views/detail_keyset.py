@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic import TemplateView
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND
 
 from webwhois.utils import WHOIS
@@ -42,3 +43,7 @@ class KeysetDetailMixin(RegistryObjectMixin):
     def load_related_objects(self, context):
         """Load objects related to the keyset and append them into the context."""
         self.append_keyset_related(context[self._registry_objects_key]["keyset"])
+
+
+class KeysetDetailView(KeysetDetailMixin, TemplateView):
+    """View with details of a keyset."""

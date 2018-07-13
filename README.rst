@@ -165,11 +165,4 @@ Default value::
     None
 
 
-The schema of integration into a project
-========================================
-
-The schema is shown on the main page of the standalone site.
-
-.. image:: docs/webwhois-integration-schema.svg
-
 .. _FRED: https://fred.nic.cz/

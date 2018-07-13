@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.views.generic import TemplateView
 
 from webwhois.views import ContactDetailMixin, DomainDetailMixin, KeysetDetailMixin, NssetDetailMixin
 from webwhois.views.base import RegistryObjectMixin
@@ -43,3 +44,7 @@ class ResolveHandleTypeMixin(RegistryObjectMixin):
         if len(context[self._registry_objects_key]) > 1:
             return [self.multiple_entries_template]
         return super(ResolveHandleTypeMixin, self).get_template_names()
+
+
+class ResolveHandleTypeView(ResolveHandleTypeMixin, TemplateView):
+    """View which searches all types of objects."""

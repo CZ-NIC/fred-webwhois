@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.test import SimpleTestCase, override_settings
 from django.urls import reverse
 from fred_idl.Registry.Whois import OBJECT_NOT_FOUND
-from mock import call, patch
+from mock import patch
 
 from webwhois.forms import BlockObjectForm, SendPasswordForm, UnblockObjectForm, WhoisForm
 from webwhois.forms.public_request import ConfirmationMethod, PublicRequestBaseForm
@@ -37,31 +37,26 @@ class TestWhoisForm(SimpleTestCase):
 @override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
 class TestWhoisFormView(SimpleTestCase):
 
-    managed_zone_list = ("cz", "0.2.4.e164.arpa")
-
     def setUp(self):
-        spec = ('get_contact_by_handle', 'get_domain_by_handle', 'get_keyset_by_handle', 'get_managed_zone_list',
+        spec = ('get_contact_by_handle', 'get_domain_by_handle', 'get_keyset_by_handle',
                 'get_nsset_by_handle', 'get_registrar_by_handle')
         apply_patch(self, patch.object(WHOIS, 'client', spec=spec))
         self.LOGGER = apply_patch(self, patch("webwhois.views.base.LOGGER"))
 
     def test_handle_required(self):
-        WHOIS.get_managed_zone_list.return_value = self.managed_zone_list
         response = self.client.post(reverse("webwhois:form_whois"))
         self.assertEqual(response.context["form"].errors, {'handle': ['This field is required.']})
         self.assertEqual(self.LOGGER.mock_calls, [])
-        self.assertEqual(WHOIS.mock_calls, [call.get_managed_zone_list()])
+        self.assertEqual(WHOIS.mock_calls, [])
 
     def test_handle_invalid(self):
-        WHOIS.get_managed_zone_list.return_value = self.managed_zone_list
         response = self.client.post(reverse("webwhois:form_whois"), {"handle": "a" * 256})
         self.assertEqual(response.context["form"].errors, {'handle': [
             'Ensure this value has at most 255 characters (it has 256).']})
         self.assertEqual(self.LOGGER.mock_calls, [])
-        self.assertEqual(WHOIS.mock_calls, [call.get_managed_zone_list()])
+        self.assertEqual(WHOIS.mock_calls, [])
 
     def test_handle_pattern(self):
-        WHOIS.get_managed_zone_list.return_value = self.managed_zone_list
         response = self.client.post(reverse("webwhois:form_whois"), {"handle": "a%3Fx"})
         self.assertRedirects(response, reverse("webwhois:registry_object_type", kwargs={"handle": "a%3Fx"}),
                              fetch_redirect_response=False)
@@ -81,12 +76,11 @@ class TestWhoisFormView(SimpleTestCase):
         self.assertEqual(WHOIS.mock_calls, [])
 
     def test_get_form(self):
-        WHOIS.get_managed_zone_list.return_value = self.managed_zone_list
         response = self.client.get(reverse("webwhois:form_whois"), {"handle": " mycontact "})
         self.assertContains(response, '<label for="id_handle">Domain (without <em>www.</em> prefix)'
                             ' / Handle:</label>', html=True)
         self.assertEqual(self.LOGGER.mock_calls, [])
-        self.assertEqual(WHOIS.mock_calls, [call.get_managed_zone_list()])
+        self.assertEqual(WHOIS.mock_calls, [])
 
 
 class TestPublicRequestBaseForm(SimpleTestCase):
