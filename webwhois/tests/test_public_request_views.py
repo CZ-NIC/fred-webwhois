@@ -16,7 +16,7 @@ from mock import call, patch
 from webwhois.forms.public_request import ConfirmationMethod
 from webwhois.tests.utils import TEMPLATES, apply_patch
 from webwhois.utils import PUBLIC_REQUEST
-from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, SendPasswordResponse
+from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, PublicResponse, SendPasswordResponse
 
 
 @override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
@@ -72,6 +72,19 @@ class SubmittedFormTestCase(SimpleTestCase):
 
     def tearDown(self):
         cache.clear()
+
+
+@override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
+class TestBaseResponseTemplateView(SimpleTestCase):
+    """Test BaseResponseTemplateView class."""
+
+    def test_context(self):
+        public_response = PublicResponse('android', 42, 'WashListersUnderpants', 'KRYTEN', None)
+        cache.set('test-public-key', public_response)
+
+        response = self.client.get('/base-public-response/')
+
+        self.assertEqual(response.context['public_response'], public_response)
 
 
 @override_settings(TEMPLATES=TEMPLATES, USE_TZ=True)

@@ -311,6 +311,12 @@ class BaseResponseTemplateView(BaseContextMixin, TemplateView):
             self._public_response = public_response
         return self._public_response
 
+    def get_context_data(self, **kwargs):
+        """Add public response object to the context."""
+        context = super(BaseResponseTemplateView, self).get_context_data(**kwargs)
+        context.setdefault('public_response', self.get_public_response())
+        return context
+
 
 class TextSendPasswordMixin(object):
     """Texts shared by all Request for password response views."""
