@@ -73,8 +73,7 @@ class DomainDetailMixin(RegistryObjectMixin):
             context["server_exception"] = cls.make_message_not_found(handle, handle_is_domain)
             context["server_exception"]["handle_is_in_zone"] = True
         except UNMANAGED_ZONE:
-            # Handle in domain invalid format raises UNMANAGED_ZONE instead of OBJECT_NOT_FOUND.
-            if "." in handle:
+            if handle_is_domain:
                 context["managed_zone_list"] = WHOIS.get_managed_zone_list()
                 context["server_exception"] = {
                     "code": "UNMANAGED_ZONE",
@@ -85,6 +84,7 @@ class DomainDetailMixin(RegistryObjectMixin):
                     "unmanaged_zone": True,
                 }
             else:
+                # It is a search for any type of object and the handle isn't a domain. Act as if the object isn't found.
                 context["server_exception"] = cls.make_message_not_found(handle, handle_is_domain)
         except INVALID_LABEL:
             # Pattern for the handle is more vague than the pattern of domain name format.
