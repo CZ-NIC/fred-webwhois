@@ -91,13 +91,14 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
         if self.success_url:
             return force_text(self.success_url)
         url_name = "webwhois:response_not_found"
-        if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.NOTARIZED_LETTER:
-            url_name = 'webwhois:notarized_letter_response'
+        if self.form_cleaned_data['send_to'] == 'email_in_registry':
+            url_name = 'webwhois:email_in_registry_response'
         else:
-            if self.form_cleaned_data['send_to'] == 'email_in_registry':
-                url_name = 'webwhois:email_in_registry_response'
-            else:
+            assert self.form_cleaned_data['send_to'] == 'custom_email'
+            if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.SIGNED_EMAIL:
                 url_name = 'webwhois:custom_email_response'
+            else:
+                url_name = 'webwhois:notarized_letter_response'
         return reverse(url_name, kwargs={'public_key': self.public_key},
                        current_app=self.request.resolver_match.namespace)
 
@@ -154,13 +155,14 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
     def get_success_url(self):
         if self.success_url:
             return force_text(self.success_url)
-        if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.NOTARIZED_LETTER:
-            url_name = 'webwhois:notarized_letter_response'
+        if self.form_cleaned_data['send_to'] == 'email_in_registry':
+            url_name = 'webwhois:email_in_registry_response'
         else:
-            if self.form_cleaned_data['send_to'] == 'email_in_registry':
-                url_name = 'webwhois:email_in_registry_response'
-            else:
+            assert self.form_cleaned_data['send_to'] == 'custom_email'
+            if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.SIGNED_EMAIL:
                 url_name = 'webwhois:custom_email_response'
+            else:
+                url_name = 'webwhois:notarized_letter_response'
         return reverse(url_name, kwargs={'public_key': self.public_key},
                        current_app=self.request.resolver_match.namespace)
 
@@ -230,10 +232,10 @@ class BlockUnblockFormView(PublicRequestFormView):
     def get_success_url(self):
         if self.success_url:
             return force_text(self.success_url)
-        if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.NOTARIZED_LETTER:
-            url_name = 'webwhois:notarized_letter_response'
-        else:
+        if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.SIGNED_EMAIL:
             url_name = 'webwhois:custom_email_response'
+        else:
+            url_name = 'webwhois:notarized_letter_response'
         return reverse(url_name, kwargs={'public_key': self.public_key},
                        current_app=self.request.resolver_match.namespace)
 

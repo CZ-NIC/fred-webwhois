@@ -29,10 +29,12 @@ class ConfirmationMethod(str, Enum):
 
     SIGNED_EMAIL = 'signed_email'
     NOTARIZED_LETTER = 'notarized_letter'
+    GOVERNMENT = 'government'
 
 
 CONFIRMATION_METHOD_IDL_MAP = {ConfirmationMethod.SIGNED_EMAIL: ConfirmedBy.signed_email,
-                               ConfirmationMethod.NOTARIZED_LETTER: ConfirmedBy.notarized_letter}
+                               ConfirmationMethod.NOTARIZED_LETTER: ConfirmedBy.notarized_letter,
+                               ConfirmationMethod.GOVERNMENT: ConfirmedBy.government}
 
 
 class PublicRequestBaseForm(forms.Form):
@@ -51,6 +53,7 @@ class PublicRequestBaseForm(forms.Form):
         # Forms work best with strings. Use raw enum values, not enum objects.
         (ConfirmationMethod.SIGNED_EMAIL.value, _("Email signed by a qualified certificate")),
         (ConfirmationMethod.NOTARIZED_LETTER.value, _("Officially verified signature")),
+        (ConfirmationMethod.GOVERNMENT.value, _("E-government")),
     )
     # Deprecated attribute kept for backward compatibility
     CONFIRMATION_METHOD = CONFIRMATION_METHOD_CHOICES
@@ -95,7 +98,8 @@ class SendPasswordForm(PublicRequestBaseForm):
                 raise forms.ValidationError(_('Custom email is required as "Send to custom email" option is selected.'
                                               ' Please fill it in.'), code='custom_email_missing')
 
-        if cleaned_data.get('confirmation_method') == ConfirmationMethod.NOTARIZED_LETTER \
+        confirmation_method = cleaned_data.get('confirmation_method')
+        if confirmation_method is not None and confirmation_method != ConfirmationMethod.SIGNED_EMAIL \
                 and cleaned_data.get('send_to') != 'custom_email':
             raise forms.ValidationError(_('Letter with officially verified signature can be sent only to the custom '
                                           'email. Please select "Send to custom email" and enter it.'),
