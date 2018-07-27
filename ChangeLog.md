@@ -1,3 +1,19 @@
+## 1.14 (2018-07-27) ##
+
+ * Add Python 3 and Django 2.0 support.
+ * Improve behaviour of confirmation methods in public requests.
+ * Add public response object to context of public response views.
+ * Add government confirmation method for public requests.
+ * Fix wording of error message in personal info public request.
+ * Fix unmanaged zone behaviour.
+ * Remove status codes from HTML data attributes.
+ * Remove public response backports.
+ * Remove links for search engines and domain registration from settings and templates.
+ * Remove ``webwhois_base_template`` attribute from views. Use ``base_template`` instead.
+ * Remove CZ.NIC specific webwhois templates.
+ * Remove obsolete ``default_app_config``.
+ * Fix Fedora builds.
+
 ## 1.13 (2018-04-18) ##
 
  * Add personal info public request
