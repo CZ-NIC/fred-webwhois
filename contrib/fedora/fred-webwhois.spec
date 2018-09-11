@@ -1,13 +1,11 @@
-%define name fred-webwhois
-%define release 1
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
 %define debug_package %{nil}
 
 Summary: Web WHOIS for FRED registry system
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Source0: %{name}-%{unmangled_version}.tar.gz
+Name: fred-webwhois
+Version: %{our_version}
+Release: %{?our_release}%{!?our_release:1}%{?dist}
+Source0: %{name}-%{version}.tar.gz
 License: GNU GPL
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -28,7 +26,7 @@ BuildRequires: policycoreutils-python-utils
 Web WHOIS server for FRED registry system
 
 %prep
-%setup -n %{name}-%{unmangled_version}
+%setup -n %{name}-%{version}
 
 %install
 python setup.py install -cO2 --force --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES --prefix=/usr
