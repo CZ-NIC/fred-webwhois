@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-12 14:19+0200\n"
+"POT-Creation-Date: 2018-10-02 13:26+0200\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -13,6 +13,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Generator: Weblate 2.8\n"
+
+#, python-format
+msgid "%s does not match any record."
+msgstr "Jménu %s neodpovídá žádný záznam."
 
 #, python-format
 msgid "%s is not a valid handle."
@@ -486,6 +490,13 @@ msgstr ""
 "Pokud už víte, jak na to, začněte rovnou výběrem registrátora ze seznamu "
 "registrátorů:"
 
+msgid ""
+"If you have tried to look up a domain, it is possible that it belongs to a "
+"zone that is not managed by our registry."
+msgstr ""
+"Pokud jste se pokusili vyhledat doménu, je možné, že spadá do zóny, která "
+"není naším registrem podporována."
+
 msgid "Incorrect input"
 msgstr "Nesprávné zadání"
 
@@ -667,6 +678,9 @@ msgstr "RSA/SHA-512"
 
 msgid "RSASHA1-NSEC3-SHA1"
 msgstr "RSASHA1-NSEC3-SHA1"
+
+msgid "Record not found"
+msgstr "Záznam nenalezen"
 
 msgid "Register this domain name?"
 msgstr "Registrovat tuto doménu?"
@@ -951,6 +965,9 @@ msgstr "Validováno do"
 
 msgid "Verified record statement"
 msgstr "Ověřený výpis z registru"
+
+msgid "We manage only these zones:"
+msgstr "Udržujeme jen zóny:"
 
 #, python-brace-format
 msgid ""

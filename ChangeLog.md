@@ -4,6 +4,7 @@
  * Improve behaviour of confirmation methods in public requests.
  * Add public response object to context of public response views.
  * Add government confirmation method for public requests.
+ * New behavior in case no object was found for a handle.
  * Fix wording of error message in personal info public request.
  * Fix unmanaged zone behaviour.
  * Remove status codes from HTML data attributes.
