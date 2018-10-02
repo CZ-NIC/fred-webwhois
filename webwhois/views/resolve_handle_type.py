@@ -2,8 +2,10 @@ from __future__ import unicode_literals
 
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView
 
+from webwhois.utils import WHOIS
 from webwhois.views import ContactDetailMixin, DomainDetailMixin, KeysetDetailMixin, NssetDetailMixin
 from webwhois.views.base import RegistryObjectMixin
 from webwhois.views.registrar import RegistrarDetailMixin
@@ -22,9 +24,18 @@ class ResolveHandleTypeMixin(RegistryObjectMixin):
         NssetDetailMixin.load_registry_object(context, handle)
         KeysetDetailMixin.load_registry_object(context, handle)
         RegistrarDetailMixin.load_registry_object(context, handle)
-        # handle_is_domain = False - It is not known whether that handle is a domain.
-        # It has an impact on error message.
-        DomainDetailMixin.load_registry_object(context, handle, handle_is_domain=False)
+        DomainDetailMixin.load_registry_object(context, handle)
+
+        if not context[cls._registry_objects_key]:
+            # No object was found. Create a virtual server exception to render its template.
+            # TODO: This solution is hopefully temporary and should be removed very soon.
+            context["server_exception"] = {
+                "code": "OBJECT_NOT_FOUND",
+                "title": _("Record not found"),
+                "message": cls.message_with_handle_in_html(_("%s does not match any record."), handle),
+                "object_not_found": True,
+            }
+            context["managed_zone_list"] = WHOIS.get_managed_zone_list()
 
     def load_related_objects(self, context):
         """Prepare url for redirect to the registry object type."""

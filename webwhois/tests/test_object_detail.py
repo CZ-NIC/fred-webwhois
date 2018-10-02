@@ -53,13 +53,10 @@ class TestResolveHandleType(ObjectDetailMixin):
         WHOIS.get_nsset_by_handle.side_effect = OBJECT_NOT_FOUND
         WHOIS.get_keyset_by_handle.side_effect = OBJECT_NOT_FOUND
         WHOIS.get_registrar_by_handle.side_effect = OBJECT_NOT_FOUND
-        # Handle 'testhandle' for domain raises UNMANAGED_ZONE instead of OBJECT_NOT_FOUND.
-        WHOIS.get_domain_by_handle.side_effect = UNMANAGED_ZONE
+        WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_managed_zone_list.return_value = []
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "testhandle"}))
-        self.assertContains(response, "Handle not found")
-        self.assertContains(response,
-                            "No domain, contact or name server set matches <strong>testhandle</strong> query.")
-        self.assertNotContains(response, 'Register this domain name?')
+        self.assertContains(response, "Record not found")
         self.assertEqual(self.LOGGER.mock_calls, [
             CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -72,7 +69,8 @@ class TestResolveHandleType(ObjectDetailMixin):
             call.get_nsset_by_handle('testhandle'),
             call.get_keyset_by_handle('testhandle'),
             call.get_registrar_by_handle('testhandle'),
-            call.get_domain_by_handle('testhandle'.encode())
+            call.get_domain_by_handle('testhandle'.encode()),
+            call.get_managed_zone_list(),
         ])
 
     def test_handle_with_dash_not_found(self):
@@ -80,50 +78,22 @@ class TestResolveHandleType(ObjectDetailMixin):
         WHOIS.get_nsset_by_handle.side_effect = OBJECT_NOT_FOUND
         WHOIS.get_keyset_by_handle.side_effect = OBJECT_NOT_FOUND
         WHOIS.get_registrar_by_handle.side_effect = OBJECT_NOT_FOUND
-        # Handle 'testhandle' for domain raises UNMANAGED_ZONE instead of OBJECT_NOT_FOUND.
-        WHOIS.get_domain_by_handle.side_effect = UNMANAGED_ZONE
+        WHOIS.get_managed_zone_list.return_value = []
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "-abc"}))
-        self.assertContains(response, "Handle not found")
-        self.assertContains(response, "No domain, contact or name server set matches <strong>-abc</strong> query.")
-        self.assertNotContains(response, 'Register this domain name?')
+        self.assertContains(response, "Record not found")
         self.assertEqual(self.LOGGER.mock_calls, [
             CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
                 ('handle', '-abc'), ('handleType', 'multiple'))),
-            call.create_request().close(properties=[('reason', 'IDNAError')])
+            call.create_request().close(properties=[])
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
         self.assertEqual(WHOIS.mock_calls, [
             call.get_contact_by_handle('-abc'),
             call.get_nsset_by_handle('-abc'),
             call.get_keyset_by_handle('-abc'),
-            call.get_registrar_by_handle('-abc')
-        ])
-
-    def test_handle_in_zone_not_found(self):
-        WHOIS.get_contact_by_handle.side_effect = OBJECT_NOT_FOUND
-        WHOIS.get_nsset_by_handle.side_effect = OBJECT_NOT_FOUND
-        WHOIS.get_keyset_by_handle.side_effect = OBJECT_NOT_FOUND
-        WHOIS.get_registrar_by_handle.side_effect = OBJECT_NOT_FOUND
-        # Only valid domain name in zone raises OBJECT_NOT_FOUND.
-        WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND
-        response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "fred.cz"}))
-        self.assertContains(response, "Handle not found")
-        self.assertContains(response, "No domain, contact or name server set matches <strong>fred.cz</strong> query.")
-        self.assertContains(response, 'Register this domain name?')
-        self.assertEqual(self.LOGGER.mock_calls, [
-            CALL_BOOL,
-            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
-                ('handle', 'fred.cz'), ('handleType', 'multiple'))),
-            call.create_request().close(properties=[])
-        ])
-        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
-        self.assertEqual(WHOIS.mock_calls, [
-            call.get_contact_by_handle('fred.cz'),
-            call.get_nsset_by_handle('fred.cz'),
-            call.get_keyset_by_handle('fred.cz'),
-            call.get_registrar_by_handle('fred.cz'),
-            call.get_domain_by_handle('fred.cz'.encode())
+            call.get_registrar_by_handle('-abc'),
+            call.get_managed_zone_list(),
         ])
 
     def test_contact_not_found(self):

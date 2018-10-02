@@ -31,4 +31,19 @@
         </ul>
     {% endif %}
 
+    {% if server_exception.object_not_found %}
+        {% block search_hint %}
+            <p>
+                {% trans "If you have tried to look up a domain, it is possible that it belongs to a zone that is not managed by our registry." %}
+            </p>
+            {% if managed_zone_list %}
+                {% trans "We manage only these zones:" %}
+                <ul class="managed-zones">
+                    {% for zone in managed_zone_list %}
+                        <li>{{ zone }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endblock %}
+    {% endif %}
 {% endblock webwhois_content %}
