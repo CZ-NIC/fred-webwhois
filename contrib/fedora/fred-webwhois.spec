@@ -95,6 +95,5 @@ exit 0
 %config %{_sysconfdir}/httpd/conf.d/fred-webwhois-apache.conf
 %config %{_sysconfdir}/fred/webwhois_cfg.py
 %config %{_sysconfdir}/fred/webwhois_urls.py
-%{python_sitelib}/webwhois/locale/cs/LC_MESSAGES/django.mo
 %config %attr(-,uwsgi,uwsgi) %{_sysconfdir}/uwsgi.d/webwhois.ini
 %ghost %attr(-,uwsgi,uwsgi) /var/run/webwhois/
