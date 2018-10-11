@@ -14,7 +14,7 @@ BuildArch: noarch
 Vendor: CZ.NIC <fred@nic.cz>
 Url: https://fred.nic.cz/
 BuildRequires: python-setuptools gettext
-Requires: python python2-django >= 1.11 python2-django-app-settings python-idna fred-idl fred-pyfco fred-pylogger uwsgi-plugin-python httpd
+Requires: python python2dist(django) >= 1.11 python2-django-app-settings python-idna fred-idl fred-pyfco fred-pylogger uwsgi-plugin-python2 httpd
 %if 0%{?centos}
 BuildRequires: policycoreutils-python
 Requires: mod_proxy_uwsgi
@@ -95,6 +95,5 @@ exit 0
 %config %{_sysconfdir}/httpd/conf.d/fred-webwhois-apache.conf
 %config %{_sysconfdir}/fred/webwhois_cfg.py
 %config %{_sysconfdir}/fred/webwhois_urls.py
-%{python_sitelib}/webwhois/locale/cs/LC_MESSAGES/django.mo
 %config %attr(-,uwsgi,uwsgi) %{_sysconfdir}/uwsgi.d/webwhois.ini
 %ghost %attr(-,uwsgi,uwsgi) /var/run/webwhois/
