@@ -29,7 +29,7 @@
         });
 
         $("input[name=handle]").addClass("required");
-        $("form.webwhois-send-password, form.webwhois-block-object, form.webwhois-unblock-object").submit(function () {
+        $("form.webwhois-public-request").submit(function () {
             $("ul.errorlist").remove();
             $("input.required").each(function () {
                 if(!$(this).val()) {
