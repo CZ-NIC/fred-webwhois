@@ -46,7 +46,7 @@ class DomainDetailMixin(RegistryObjectMixin):
             return
 
         try:
-            idna_handle = idna.encode(handle)
+            idna_handle = idna.encode(handle).decode()
         except idna.IDNAError:
             if handle_is_domain:
                 context["server_exception"] = cls.message_invalid_handle(handle, "IDNAError")
