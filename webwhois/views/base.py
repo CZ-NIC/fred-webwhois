@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 from django.core.cache import cache
 from django.utils import six  # Python 3 compatibility
-from django.utils.encoding import force_bytes
 from django.utils.functional import lazy
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -59,7 +58,7 @@ class RegistryObjectMixin(BaseContextMixin):
         descripts = cache.get(cache_key)
         if not descripts:
             descripts = {object_status_desc.handle: object_status_desc.name
-                         for object_status_desc in fnc_get_descriptions(force_bytes(lang))}
+                         for object_status_desc in fnc_get_descriptions(lang)}
             cache.set(cache_key, descripts)
         return descripts
 

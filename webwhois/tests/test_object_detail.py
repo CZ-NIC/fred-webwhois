@@ -69,7 +69,7 @@ class TestResolveHandleType(ObjectDetailMixin):
             call.get_nsset_by_handle('testhandle'),
             call.get_keyset_by_handle('testhandle'),
             call.get_registrar_by_handle('testhandle'),
-            call.get_domain_by_handle('testhandle'.encode()),
+            call.get_domain_by_handle('testhandle'),
             call.get_managed_zone_list(),
         ])
 
@@ -169,7 +169,7 @@ class TestResolveHandleType(ObjectDetailMixin):
             call.get_nsset_by_handle('testhandle.cz'),
             call.get_keyset_by_handle('testhandle.cz'),
             call.get_registrar_by_handle('testhandle.cz'),
-            call.get_domain_by_handle('testhandle.cz'.encode())
+            call.get_domain_by_handle('testhandle.cz')
         ])
 
     def test_one_entry(self):
@@ -224,7 +224,7 @@ class TestDetailContact(ObjectDetailMixin):
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [
             call.get_contact_by_handle('mycontact'),
-            call.get_contact_status_descriptions('en'.encode()),
+            call.get_contact_status_descriptions('en'),
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
@@ -246,7 +246,7 @@ class TestDetailContact(ObjectDetailMixin):
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [
             call.get_contact_by_handle('mycontact'),
-            call.get_contact_status_descriptions('en'.encode()),
+            call.get_contact_status_descriptions('en'),
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
@@ -267,7 +267,7 @@ class TestDetailContact(ObjectDetailMixin):
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [
             call.get_contact_by_handle('mycontact'),
-            call.get_contact_status_descriptions('en'.encode())
+            call.get_contact_status_descriptions('en')
         ])
 
     def test_contact_with_ssn_type_birthday(self):
@@ -291,7 +291,7 @@ class TestDetailContact(ObjectDetailMixin):
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [
             call.get_contact_by_handle('mycontact'),
-            call.get_contact_status_descriptions('en'.encode()),
+            call.get_contact_status_descriptions('en'),
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
@@ -315,7 +315,7 @@ class TestDetailContact(ObjectDetailMixin):
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [
             call.get_contact_by_handle('mycontact'),
-            call.get_contact_status_descriptions('en'.encode()),
+            call.get_contact_status_descriptions('en'),
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
@@ -341,7 +341,7 @@ class TestDetailContact(ObjectDetailMixin):
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [
             call.get_contact_by_handle('mycontact'),
-            call.get_contact_status_descriptions('en'.encode()),
+            call.get_contact_status_descriptions('en'),
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
@@ -366,7 +366,7 @@ class TestDetailContact(ObjectDetailMixin):
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [
             call.get_contact_by_handle('mycontact'),
-            call.get_contact_status_descriptions('en'.encode()),
+            call.get_contact_status_descriptions('en'),
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
@@ -390,7 +390,7 @@ class TestDetailContact(ObjectDetailMixin):
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [
             call.get_contact_by_handle('mycontact'),
-            call.get_contact_status_descriptions('en'.encode()),
+            call.get_contact_status_descriptions('en'),
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
@@ -447,7 +447,7 @@ class TestDetailNsset(ObjectDetailMixin):
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [
             call.get_nsset_by_handle('mynssid'),
-            call.get_nsset_status_descriptions('en'.encode()),
+            call.get_nsset_status_descriptions('en'),
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
@@ -486,7 +486,7 @@ class TestDetailNsset(ObjectDetailMixin):
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [
             call.get_nsset_by_handle('mynssid'),
-            call.get_nsset_status_descriptions('en'.encode()),
+            call.get_nsset_status_descriptions('en'),
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
@@ -543,7 +543,7 @@ class TestDetailKeyset(ObjectDetailMixin):
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [
             call.get_keyset_by_handle('mykeysid'),
-            call.get_keyset_status_descriptions('en'.encode()),
+            call.get_keyset_status_descriptions('en'),
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
@@ -582,7 +582,7 @@ class TestDetailDomain(ObjectDetailMixin):
             call.create_request().close(properties=[])
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
-        self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('fred.cz'.encode())])
+        self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('fred.cz')])
 
     def test_domain_delete_candidate(self):
         WHOIS.get_domain_status_descriptions.return_value = self._get_domain_status()
@@ -596,7 +596,7 @@ class TestDetailDomain(ObjectDetailMixin):
         self.assertTrue(response.context['object_delete_candidate'])
 
         self.assertEqual(WHOIS.mock_calls,
-                         [call.get_domain_by_handle(b'fred.cz'), call.get_domain_status_descriptions(b'en')])
+                         [call.get_domain_by_handle('fred.cz'), call.get_domain_status_descriptions('en')])
         self.assertEqual(self.LOGGER.mock_calls, [
             CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -646,17 +646,17 @@ class TestDetailDomain(ObjectDetailMixin):
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [
-            call.get_domain_by_handle('fred.cz'.encode()),
-            call.get_domain_status_descriptions('en'.encode()),
+            call.get_domain_by_handle('fred.cz'),
+            call.get_domain_status_descriptions('en'),
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_contact_by_handle('KONTAKT'),
             call.get_nsset_by_handle('NSSET-1'),
-            call.get_nsset_status_descriptions('en'.encode()),
+            call.get_nsset_status_descriptions('en'),
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_keyset_by_handle('KEYSID-1'),
-            call.get_keyset_status_descriptions('en'.encode()),
+            call.get_keyset_status_descriptions('en'),
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
@@ -679,8 +679,8 @@ class TestDetailDomain(ObjectDetailMixin):
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [
-            call.get_domain_by_handle('fred.cz'.encode()),
-            call.get_domain_status_descriptions('en'.encode()),
+            call.get_domain_by_handle('fred.cz'),
+            call.get_domain_status_descriptions('en'),
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_contact_by_handle('KONTAKT')
@@ -702,8 +702,7 @@ class TestDetailDomain(ObjectDetailMixin):
             call.create_request().close(properties=[('reason', 'UNMANAGED_ZONE')])
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
-        self.assertEqual(WHOIS.mock_calls,
-                         [call.get_domain_by_handle('fred.com'.encode()), call.get_managed_zone_list()])
+        self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('fred.com'), call.get_managed_zone_list()])
 
     def test_domain_idna_invalid_codepoint(self):
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fr:ed.com"}))
@@ -754,7 +753,7 @@ class TestDetailDomain(ObjectDetailMixin):
             call.create_request().close(properties=[('reason', 'TOO_MANY_LABELS')])
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
-        self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('www.fred.cz'.encode())])
+        self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('www.fred.cz')])
 
     def test_domain_too_many_labels_with_dot_at_the_end(self):
         WHOIS.get_domain_by_handle.side_effect = TOO_MANY_LABELS
@@ -769,7 +768,7 @@ class TestDetailDomain(ObjectDetailMixin):
             call.create_request().close(properties=[('reason', 'TOO_MANY_LABELS')])
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
-        self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('www.fred.cz.'.encode())])
+        self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('www.fred.cz.')])
 
     def test_idn_domain(self):
         self._mocks_for_domain_detail(handle="xn--frd-cma.cz")
@@ -783,17 +782,17 @@ class TestDetailDomain(ObjectDetailMixin):
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [
-            call.get_domain_by_handle('xn--frd-cma.cz'.encode()),
-            call.get_domain_status_descriptions('en'.encode()),
+            call.get_domain_by_handle('xn--frd-cma.cz'),
+            call.get_domain_status_descriptions('en'),
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_contact_by_handle('KONTAKT'),
             call.get_nsset_by_handle('NSSET-1'),
-            call.get_nsset_status_descriptions('en'.encode()),
+            call.get_nsset_status_descriptions('en'),
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_keyset_by_handle('KEYSID-1'),
-            call.get_keyset_status_descriptions('en'.encode()),
+            call.get_keyset_status_descriptions('en'),
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
@@ -810,17 +809,17 @@ class TestDetailDomain(ObjectDetailMixin):
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [
-            call.get_domain_by_handle('xn--frd-cma.cz'.encode()),
-            call.get_domain_status_descriptions('en'.encode()),
+            call.get_domain_by_handle('xn--frd-cma.cz'),
+            call.get_domain_status_descriptions('en'),
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_contact_by_handle('KONTAKT'),
             call.get_nsset_by_handle('NSSET-1'),
-            call.get_nsset_status_descriptions('en'.encode()),
+            call.get_nsset_status_descriptions('en'),
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A'),
             call.get_keyset_by_handle('KEYSID-1'),
-            call.get_keyset_status_descriptions('en'.encode()),
+            call.get_keyset_status_descriptions('en'),
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
@@ -831,7 +830,7 @@ class TestDetailDomain(ObjectDetailMixin):
         WHOIS.get_domain_by_handle.side_effect = TestException("Unexpected exception.")
         with self.assertRaises(TestException):
             self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
-        self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('fred.cz'.encode())])
+        self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('fred.cz')])
         self.assertEqual(self.LOGGER.mock_calls, [
             CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
