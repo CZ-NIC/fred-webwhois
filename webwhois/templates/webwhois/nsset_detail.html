@@ -50,7 +50,7 @@
         </tr>
         <tr>
             <th>{% trans "Status" %}</th>
-            <td class="status">{% for description in nsset_status_descriptions %}
+            <td class="status" data-codes="{{ nsset.statuses|join:"," }}">{% for description in nsset_status_descriptions %}
                  <div>{{ description }}</div>
                 {% endfor %}
             </td>
