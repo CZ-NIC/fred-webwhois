@@ -67,7 +67,7 @@
         </tr>
         <tr>
             <th>{% trans "Status" %}</th>
-            <td class="status">{% for description in keyset_status_descriptions %}
+            <td class="status" data-codes="{{ keyset.statuses|join:"," }}">{% for description in keyset_status_descriptions %}
                  <div>{{ description }}</div>
                 {% endfor %}
             </td>
