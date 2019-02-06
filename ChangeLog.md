@@ -1,3 +1,6 @@
+## 1.14.1 (2019-02-06) ##
+ * Temporarily return status codes to HTML data attributes.
+
 ## 1.14 (2018-07-27) ##
 
  * Add Python 3 and Django 2.0 support.
