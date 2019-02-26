@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2019  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -21,10 +21,8 @@ Webwhois views.
 
 isort:skip_file
 """
-
 from __future__ import unicode_literals
 
-from .form_whois import WhoisFormView
 from .detail_contact import ContactDetailMixin, ContactDetailView
 from .detail_keyset import KeysetDetailMixin, KeysetDetailView
 from .detail_nsset import NssetDetailMixin, NssetDetailView
