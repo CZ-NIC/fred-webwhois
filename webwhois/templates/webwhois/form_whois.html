@@ -6,7 +6,7 @@
 {% endblock webwhois_header %}
 
 {% block webwhois_content %}
-    <form action="{% url "webwhois:form_whois" %}" method="post" class="enum-util webwhois-search-form">
+    <form action="{% url "webwhois:form_whois" %}" method="post" class="webwhois-search-form">
         {% csrf_token %}
         <table>
             {{ form.as_table }}
