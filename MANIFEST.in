@@ -5,3 +5,5 @@ graft webwhois
 include dependency_links.txt
 include requirements.txt
 include constraints.txt
+include COPYING
+include MANIFEST
