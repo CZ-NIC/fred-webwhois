@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2019  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -34,8 +34,7 @@ urlpatterns = [
     url(r'^keyset/(?P<handle>.{1,255})/$', KeysetDetailView.as_view(), name='detail_keyset'),
     url(r'^domain/(?P<handle>.{1,255})/$', DomainDetailView.as_view(), name='detail_domain'),
     url(r'^registrar/(?P<handle>.{1,255})/$', RegistrarDetailView.as_view(), name='detail_registrar'),
-    url(r'^registrars/$', RegistrarListView.as_view(is_retail=True), name='registrar_list_retail'),
-    url(r'^registrars/wholesale/$', RegistrarListView.as_view(), name='registrar_list_wholesale'),
+    url(r'^registrars/$', RegistrarListView.as_view(), name='registrars'),
     url(r'^registrar-download-evaluation-file/(?P<handle>.{1,255})/$', DownloadEvalFileView.as_view(),
         name='download_evaluation_file'),
     url(r'^send-password/$', SendPasswordFormView.as_view(), name='form_send_password'),

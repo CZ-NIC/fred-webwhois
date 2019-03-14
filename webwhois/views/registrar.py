@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2019  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -19,6 +19,7 @@
 from __future__ import unicode_literals
 
 import random
+import warnings
 
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _
@@ -58,53 +59,108 @@ class RegistrarDetailView(RegistrarDetailMixin, TemplateView):
 
 
 class RegistrarListMixin(BaseContextMixin):
-    """List of Registrars."""
+    """Mixin for a list of registrars.
+
+    @cvar group_name: Name of the registrar group to filter results.
+    """
 
     template_name = "webwhois/registrar_list.html"
     is_retail = False
+    group_name = None
+
+    def __init__(self, *args, **kwargs):
+        super(RegistrarListMixin, self).__init__(*args, **kwargs)
+        # Caches for backend responses
+        self._groups = None
+        self._certifications = None
+
+    def get_registrars(self):
+        """Return a list of registrars to be displayed.
+
+        Results are filtered according to `group_name` attribute.
+        Supports old filtering according to a `is_retail` attribute if at least one of
+        `WEBWHOIS_REGISTRARS_GROUPS_` setting is defined.
+        """
+        registrars = WHOIS.get_registrars()
+
+        if self.group_name:
+            groups = self.get_groups()
+            if self.group_name not in groups:
+                raise Http404('Registrar group {} not found.'.format(self.group_name))
+            members = groups[self.group_name].members
+            registrars = [r for r in registrars if r.handle in members]
+
+        if WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED is not None or WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED is not None:
+            # Old filtering is in effect
+            warn_msg = ("Settings 'WEBWHOIS_REGISTRARS_GROUPS_*' and 'RegistrarListView.is_retail' are deprecated. "
+                        "Use 'RegistrarListView.group_name' instead.")
+            warnings.warn(warn_msg, DeprecationWarning)
+
+            groups = self.get_groups()
+            members = set()
+            if self.is_retail:
+                for name in (WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED or []):
+                    if name in groups:
+                        members |= set(groups[name].members)
+            else:
+                for name in (WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED or []):
+                    if name in groups:
+                        members |= set(groups[name].members)
+            registrars = [r for r in registrars if r.handle in members]
+
+        return registrars
+
+    def get_groups(self):
+        """Return dictionary of registrar groups."""
+        if self._groups is None:
+            self._groups = {group.name: group for group in WHOIS.get_registrar_groups()}
+        return self._groups
+
+    def get_certifications(self):
+        """Return dictionary of registrar certifications."""
+        if self._certifications is None:
+            self._certifications = {cert.registrar_handle: cert for cert in WHOIS.get_registrar_certification_list()}
+        return self._certifications
+
+    def get_registrar_context(self, registrar):
+        """Return context for a registrar."""
+        certification = self.get_certifications().get(registrar.handle)
+        score = certification.score if certification else 0
+        context = {"registrar": registrar, "cert": certification, "score": score, "stars": range(score)}
+        if not getattr(self._registrar_row, 'prevent_warning', False):
+            warn_msg = ("Method 'RegistrarListView._registrar_row' is deprecated in favor of "
+                        "'RegistrarListView.get_registrar_context'.")
+            warnings.warn(warn_msg, DeprecationWarning)
+        return self._registrar_row(context)
 
     def _registrar_row(self, data):
         """Use for append some extra data into the data row."""
         return data
+    # Add a flag to prevent deprecation warning, when calling this function.
+    _registrar_row.prevent_warning = True
 
-    def get_context_data(self, **kwargs):
-        # groups: {'certified': Registry.Whois.RegistrarGroup(name='certified', members=['REG-FRED_A', 'REG-FRED_B']),
-        #          ...}
-        groups = {group.name: group for group in WHOIS.get_registrar_groups()}
+    def sort_registrars(self, registrars):
+        """Sort context data of registrars.
 
-        certified_members, uncertified_members = set(), set()
-        for name in WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED:
-            if name in groups:
-                certified_members |= set(groups[name].members)
-        for name in WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED:
-            if name in groups:
-                uncertified_members |= set(groups[name].members)
-
-        # certs: {'REG-FRED_A': Registry.Whois.RegistrarCertification(registrar_handle='REG-FRED_A',
-        #                                                             score=2, evaluation_file_id=1L), ...}
-        certs = {cert.registrar_handle: cert for cert in WHOIS.get_registrar_certification_list()}
-        registrars = []
-        for reg in WHOIS.get_registrars():
-            # reg: Registry.Whois.Registrar(handle='REG-FRED_A', organization='Testing registrar A', ...)
-            if self.is_retail:
-                if reg.handle not in certified_members:
-                    continue
-            else:
-                if reg.handle not in uncertified_members:
-                    continue
-            cert = certs.get(reg.handle)
-            score = cert.score if cert else 0
-            registrars.append(
-                self._registrar_row({"registrar": reg, "cert": cert, "score": score, "stars": range(score)}),
-            )
-
+        Registrars are randomized, but sorted according to their certification score.
+        """
         # Randomize order of the list of registrars and than sort it by score.
         rand = random.SystemRandom()
         rand.shuffle(registrars)
+        return sorted(registrars, key=lambda row: row["score"], reverse=True)
 
-        kwargs.setdefault("groups", groups)
-        kwargs.setdefault("registrars", sorted(registrars, key=lambda row: row["score"], reverse=True))
-        kwargs.setdefault("is_retail", self.is_retail)
+    def get_context_data(self, **kwargs):
+        registrars = []
+        for reg in self.get_registrars():
+            registrars.append(self.get_registrar_context(reg))
+
+        kwargs.setdefault("groups", self.get_groups())
+        kwargs.setdefault("registrars", self.sort_registrars(registrars))
+        if not self.group_name and (
+                WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED is not None or WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED is not None):
+            kwargs.setdefault("is_retail", self.is_retail)
+        else:
+            kwargs.setdefault('is_retail', None)
         return super(RegistrarListMixin, self).get_context_data(**kwargs)
 
 

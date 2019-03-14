@@ -4,7 +4,9 @@
 {% block title %}{{ block.super }} - {% trans "List of registrars" %}{% endblock %}
 
 {% block webwhois_header %}
-    {% if is_retail %}
+    {% if is_retail is None %}
+        <h1>{% trans "List of registrars" %}</h1>
+    {% elif is_retail %}
         <h1>{% trans "Registrars offering also retail services" %}</h1>
     {% else %}
         <h1>{% trans "Registrars offering only wholesale services" %}</h1>

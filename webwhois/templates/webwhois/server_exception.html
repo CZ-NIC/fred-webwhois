@@ -11,7 +11,7 @@
     {% if server_exception.handle_is_in_zone %}
         <h1>{% trans "Register this domain name?" %}</h1>
         <p>{% trans "If you already know how to do it, choose a registrar from the registrar list:" %}
-            <a href="{% url "webwhois:registrar_list_retail" %}" class="button">{% trans "Registrar list" %}</a>
+            <a href="{% url "webwhois:registrars" %}" class="button">{% trans "Registrar list" %}</a>
         </p>
     {% endif %}
 
