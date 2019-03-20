@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2019  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -20,8 +20,10 @@ from __future__ import unicode_literals
 
 from django.conf.urls import include, url
 
-from webwhois.views import ServeRecordStatementView, WhoisFormView
+from webwhois.views import RegistrarListView, ServeRecordStatementView, WhoisFormView
 from webwhois.views.public_request import BaseResponseTemplateView
+
+from .views import CustomRegistrarListView
 
 urlpatterns = [
     url(r'^whois/', include('webwhois.urls', namespace='webwhois')),
@@ -33,4 +35,9 @@ urlpatterns = [
     url(r'^base-public-response/$',
         BaseResponseTemplateView.as_view(template_name='public_response.html'),
         kwargs={'public_key': 'test-public-key'}),
+    # URLs for TestRegistrarListView
+    url(r'^registrars/red-dwarf/$', RegistrarListView.as_view(group_name='red_dwarf'), name='registrars_red_dwarf'),
+    url(r'^registrars/retail/$', RegistrarListView.as_view(is_retail=True), name='registrars_retail'),
+    url(r'^registrars/wholesale/$', RegistrarListView.as_view(is_retail=False), name='registrars_wholesale'),
+    url(r'^registrars/custom/$', CustomRegistrarListView.as_view(), name='registrars_custom'),
 ]

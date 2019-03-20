@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2015-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2019  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -21,6 +21,7 @@
 from __future__ import unicode_literals
 
 import os
+import warnings
 
 from django.http.response import HttpResponseNotFound
 from django.test import SimpleTestCase
@@ -30,9 +31,10 @@ from django.utils._os import upath
 from fred_idl.ccReg import FileInfo
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND, Registrar, RegistrarCertification, RegistrarGroup
 from mock import call, patch
+from testfixtures import ShouldWarn
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
-from webwhois.tests.utils import CALL_BOOL, TEMPLATES, apply_patch
+from webwhois.tests.utils import CALL_BOOL, TEMPLATES, apply_patch, make_registrar
 from webwhois.utils import FILE_MANAGER, WHOIS
 
 
@@ -88,78 +90,193 @@ class TestRegistrarsView(GetRegistryObjectMixin, SimpleTestCase):
         self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [call.get_registrar_by_handle('REG_FRED_A')])
 
+
+@override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
+class TestRegistrarListView(SimpleTestCase):
+    """Test RegistrarListView."""
+
+    def setUp(self):
+        spec = ('get_registrar_certification_list', 'get_registrar_groups', 'get_registrars')
+        apply_patch(self, patch.object(WHOIS, 'client', spec=spec))
+
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', None)
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', None)
+    def test_registrars_empty(self):
+        WHOIS.get_registrars.return_value = []
+        WHOIS.get_registrar_groups.return_value = []
+        WHOIS.get_registrar_certification_list.return_value = []
+
+        response = self.client.get(reverse('webwhois:registrars'))
+
+        self.assertContains(response, "List of registrars")
+        self.assertIsNone(response.context['is_retail'])
+        self.assertEqual(len(response.context['registrars']), 0)
+        self.assertEqual(WHOIS.mock_calls, [call.get_registrars(), call.get_registrar_groups()])
+
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', None)
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', None)
+    def test_registrars(self):
+        registrar = make_registrar()
+        WHOIS.get_registrars.return_value = [registrar]
+        WHOIS.get_registrar_groups.return_value = []
+        WHOIS.get_registrar_certification_list.return_value = []
+
+        response = self.client.get(reverse('webwhois:registrars'))
+
+        self.assertContains(response, "List of registrars")
+        self.assertIsNone(response.context['is_retail'])
+        self.assertEqual(len(response.context['registrars']), 1)
+        self.assertEqual(response.context['registrars'][0]['registrar'], registrar)
+        self.assertEqual(WHOIS.mock_calls,
+                         [call.get_registrars(), call.get_registrar_certification_list(), call.get_registrar_groups()])
+
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', None)
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', None)
+    def test_registrars_certification_context(self):
+        WHOIS.get_registrars.return_value = [make_registrar('HOLLY')]
+        WHOIS.get_registrar_groups.return_value = []
+        certification = RegistrarCertification('HOLLY', 3, None)
+        WHOIS.get_registrar_certification_list.return_value = [certification]
+
+        response = self.client.get(reverse('webwhois:registrars'))
+
+        self.assertContains(response, "List of registrars")
+        self.assertEqual(len(response.context['registrars']), 1)
+        self.assertEqual(response.context['registrars'][0]['cert'], certification)
+        self.assertEqual(response.context['registrars'][0]['score'], 3)
+        self.assertEqual(response.context['registrars'][0]['stars'], range(3))
+        self.assertEqual(WHOIS.mock_calls,
+                         [call.get_registrars(), call.get_registrar_certification_list(), call.get_registrar_groups()])
+
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', None)
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', None)
+    def test_registrars_group(self):
+        WHOIS.get_registrars.return_value = [make_registrar(handle='HOLLY'), make_registrar(handle='GORDON')]
+        WHOIS.get_registrar_groups.return_value = [RegistrarGroup(name='red_dwarf', members=['HOLLY'])]
+        WHOIS.get_registrar_certification_list.return_value = []
+
+        response = self.client.get(reverse('registrars_red_dwarf'))
+
+        self.assertContains(response, "List of registrars")
+        self.assertIsNone(response.context['is_retail'])
+        self.assertEqual(len(response.context['registrars']), 1)
+        self.assertEqual(response.context['registrars'][0]['registrar'].handle, 'HOLLY')
+        self.assertEqual(WHOIS.mock_calls,
+                         [call.get_registrars(), call.get_registrar_groups(), call.get_registrar_certification_list()])
+
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', None)
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', None)
+    def test_registrars_group_unknown(self):
+        # Test filter using the unknown group
+        WHOIS.get_registrars.return_value = [make_registrar()]
+        WHOIS.get_registrar_groups.return_value = []
+        WHOIS.get_registrar_certification_list.return_value = []
+
+        response = self.client.get(reverse('registrars_red_dwarf'))
+
+        self.assertContains(response, "Not Found", status_code=404)
+        self.assertEqual(WHOIS.mock_calls, [call.get_registrars(), call.get_registrar_groups()])
+
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', ['certified'])
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', None)
     def test_registrars_retail(self):
-        WHOIS.get_registrar_groups.return_value = self._get_registrar_groups()
-        WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()
-        WHOIS.get_registrars.return_value = self._get_registrars()
-        response = self.client.get(reverse("webwhois:registrar_list_retail"))
+        WHOIS.get_registrars.return_value = [make_registrar(handle='RETAIL'), make_registrar(handle='WHOLESALE')]
+        WHOIS.get_registrar_groups.return_value = [RegistrarGroup(name='certified', members=['RETAIL'])]
+        WHOIS.get_registrar_certification_list.return_value = []
+
+        warn_msg = ("Settings 'WEBWHOIS_REGISTRARS_GROUPS_*' and 'RegistrarListView.is_retail' are deprecated. "
+                    "Use 'RegistrarListView.group_name' instead.")
+        with ShouldWarn(DeprecationWarning(warn_msg)):
+            warnings.simplefilter('always')
+            response = self.client.get(reverse('registrars_retail'))
+
         self.assertContains(response, "Registrars offering also retail services")
         self.assertTrue(response.context['is_retail'])
-        self.assertEqual(response.context['registrars'][0]['score'], 8)
-        self.assertEqual(response.context['registrars'][1]['score'], 2)
-        self.assertEqual(response.context['registrars'][2]['score'], 0)
-        self.assertEqual(self.LOGGER.mock_calls, [])
-        self.assertEqual(WHOIS.mock_calls, [
-            call.get_registrar_groups(),
-            call.get_registrar_certification_list(),
-            call.get_registrars()
-        ])
+        self.assertEqual(len(response.context['registrars']), 1)
+        self.assertEqual(response.context['registrars'][0]['registrar'].handle, 'RETAIL')
+        self.assertEqual(WHOIS.mock_calls,
+                         [call.get_registrars(), call.get_registrar_groups(), call.get_registrar_certification_list()])
 
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', None)
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', ['uncertified'])
     def test_registrars_wholesale(self):
-        WHOIS.get_registrar_groups.return_value = self._get_registrar_groups()
-        WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()
-        WHOIS.get_registrars.return_value = self._get_registrars()
-        response = self.client.get(reverse("webwhois:registrar_list_wholesale"))
+        WHOIS.get_registrars.return_value = [make_registrar(handle='RETAIL'), make_registrar(handle='WHOLESALE')]
+        WHOIS.get_registrar_groups.return_value = [RegistrarGroup(name='uncertified', members=['WHOLESALE'])]
+        WHOIS.get_registrar_certification_list.return_value = []
+
+        warn_msg = ("Settings 'WEBWHOIS_REGISTRARS_GROUPS_*' and 'RegistrarListView.is_retail' are deprecated. "
+                    "Use 'RegistrarListView.group_name' instead.")
+        with ShouldWarn(DeprecationWarning(warn_msg)):
+            warnings.simplefilter('always')
+            response = self.client.get(reverse('registrars_wholesale'))
+
         self.assertContains(response, "Registrars offering only wholesale services")
         self.assertFalse(response.context['is_retail'])
-        self.assertEqual(self.LOGGER.mock_calls, [])
-        self.assertEqual(WHOIS.mock_calls, [
-            call.get_registrar_groups(),
-            call.get_registrar_certification_list(),
-            call.get_registrars()
-        ])
+        self.assertEqual(len(response.context['registrars']), 1)
+        self.assertEqual(response.context['registrars'][0]['registrar'].handle, 'WHOLESALE')
+        self.assertEqual(WHOIS.mock_calls,
+                         [call.get_registrars(), call.get_registrar_groups(), call.get_registrar_certification_list()])
 
-    @patch("webwhois.views.registrar.random.SystemRandom.shuffle")
-    def test_shuffle_and_sorted_registrars(self, mock_shuffle):
-        WHOIS.get_registrar_groups.return_value = self._get_registrar_groups()
-        WHOIS.get_registrar_certification_list.return_value = self._get_registrar_certs()
-        WHOIS.get_registrars.return_value = self._get_registrars()
-        WHOIS.get_registrar_groups.return_value[0].members.extend(("REG-ACTIVE", "REG-DEACTIVE", "REG-FRED_X",
-                                                                   "REG-FRED_Y"))
-        WHOIS.get_registrar_certification_list.return_value.extend((
-            RegistrarCertification(registrar_handle='REG-ACTIVE', score=8, evaluation_file_id=None),
-            RegistrarCertification(registrar_handle='REG-DEACTIVE', score=8, evaluation_file_id=None),
-            RegistrarCertification(registrar_handle='REG-FRED_X', score=2, evaluation_file_id=None),
-            RegistrarCertification(registrar_handle='REG-FRED_Y', score=2, evaluation_file_id=None),
-        ))
-        WHOIS.get_registrars.return_value.extend((
-            Registrar(
-                handle='REG-FRED_X', name="Company X L.t.d.", organization='Testing registrar X', url='www.fred-x.cz',
-                phone='', fax='', address=self._get_place_address()),
-            Registrar(
-                handle='REG-FRED_Y', name="Company Y L.t.d.", organization='Testing registrar Y', url='www.fred-y.cz',
-                phone='', fax='', address=self._get_place_address()),
-            Registrar(
-                handle='REG-ACTIVE', name="Active L.t.d.", organization='Active registrar', url='www.active.cz',
-                phone='', fax='', address=self._get_place_address()),
-            Registrar(
-                handle='REG-DEACTIVE', name="Deactive L.t.d.", organization='Deactive registrar', url='www.deactive.cz',
-                phone='', fax='', address=self._get_place_address()),
-        ))
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', None)
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', None)
+    def test_registrars_old_context(self):
+        # Test deprecated `_registrar_row` works correctly
+        registrar = make_registrar()
+        WHOIS.get_registrars.return_value = [registrar]
+        WHOIS.get_registrar_groups.return_value = []
+        WHOIS.get_registrar_certification_list.return_value = []
 
-        mock_shuffle.side_effect = lambda regs: regs.sort(key=lambda row: row['registrar'].name, reverse=False)
-        response = self.client.get(reverse("webwhois:registrar_list_retail"))
+        warn_msg = ("Method 'RegistrarListView._registrar_row' is deprecated in favor of "
+                    "'RegistrarListView.get_registrar_context'.")
+        with ShouldWarn(DeprecationWarning(warn_msg)):
+            warnings.simplefilter('always')
+            response = self.client.get(reverse('registrars_custom'))
 
-        self.assertContains(response, "Registrars offering also retail services")
-        self.assertEqual(response.context['registrars'][0]['registrar'].handle, 'REG-ACTIVE')
-        self.assertEqual(response.context['registrars'][1]['registrar'].handle, 'REG-DEACTIVE')
-        self.assertEqual(response.context['registrars'][2]['registrar'].handle, 'REG-MOJEID')
+        self.assertContains(response, "List of registrars")
+        self.assertEqual(len(response.context['registrars']), 1)
+        self.assertTrue(response.context['registrars'][0]['custom'])
+        self.assertEqual(WHOIS.mock_calls,
+                         [call.get_registrars(), call.get_registrar_certification_list(), call.get_registrar_groups()])
 
-        self.assertEqual(WHOIS.mock_calls, [
-            call.get_registrar_groups(),
-            call.get_registrar_certification_list(),
-            call.get_registrars(),
-        ])
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', None)
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', None)
+    def test_registrars_shuffle(self):
+        holly = make_registrar(handle='HOLLY')
+        queeg = make_registrar(handle='QUEEG')
+        gordon = make_registrar(handle='GORDON')
+        WHOIS.get_registrars.return_value = [holly, queeg, gordon]
+        WHOIS.get_registrar_groups.return_value = []
+        WHOIS.get_registrar_certification_list.return_value = []
+
+        def _test_shuffle(registrars):
+            registrars.sort(key=lambda row: row['registrar'].handle)
+
+        with patch("webwhois.views.registrar.random.SystemRandom.shuffle", side_effect=_test_shuffle):
+            response = self.client.get(reverse('webwhois:registrars'))
+
+        self.assertContains(response, "List of registrars")
+        self.assertEqual([r['registrar'] for r in response.context['registrars']], [gordon, holly, queeg])
+        self.assertEqual(WHOIS.mock_calls,
+                         [call.get_registrars(), call.get_registrar_certification_list(), call.get_registrar_groups()])
+
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', None)
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', None)
+    def test_registrars_sorting(self):
+        holly = make_registrar(handle='HOLLY')
+        queeg = make_registrar(handle='QUEEG')
+        gordon = make_registrar(handle='GORDON')
+        WHOIS.get_registrars.return_value = [holly, queeg, gordon]
+        WHOIS.get_registrar_groups.return_value = []
+        WHOIS.get_registrar_certification_list.return_value = [
+            RegistrarCertification('HOLLY', 1, None), RegistrarCertification('QUEEG', 2, None),
+            RegistrarCertification('GORDON', 5, None)]
+
+        response = self.client.get(reverse('webwhois:registrars'))
+
+        self.assertContains(response, "List of registrars")
+        self.assertEqual([r['registrar'] for r in response.context['registrars']], [gordon, queeg, holly])
+        self.assertEqual(WHOIS.mock_calls,
+                         [call.get_registrars(), call.get_registrar_certification_list(), call.get_registrar_groups()])
 
 
 class SetMocksMixin(object):
@@ -184,21 +301,20 @@ class SetMocksMixin(object):
 class TestRegistrarsUnknownGroupNames(SetMocksMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     def test_registrars_retail(self):
-        response = self.client.get(reverse("webwhois:registrar_list_retail"))
+        response = self.client.get(reverse("registrars_retail"))
         self.assertContains(response, "Registrars offering also retail services")
         self.assertEqual(WHOIS.mock_calls, [
+            call.get_registrars(),
             call.get_registrar_groups(),
             call.get_registrar_certification_list(),
-            call.get_registrars()
         ])
 
     def test_registrars_wholesale(self):
-        response = self.client.get(reverse("webwhois:registrar_list_wholesale"))
+        response = self.client.get(reverse("registrars_wholesale"))
         self.assertContains(response, "Registrars offering only wholesale services")
         self.assertEqual(WHOIS.mock_calls, [
+            call.get_registrars(),
             call.get_registrar_groups(),
-            call.get_registrar_certification_list(),
-            call.get_registrars()
         ])
 
 
@@ -208,21 +324,19 @@ class TestRegistrarsUnknownGroupNames(SetMocksMixin, GetRegistryObjectMixin, Sim
 class TestRegistrarsEmptyGroupNames(SetMocksMixin, GetRegistryObjectMixin, SimpleTestCase):
 
     def test_registrars_retail(self):
-        response = self.client.get(reverse("webwhois:registrar_list_retail"))
+        response = self.client.get(reverse("registrars_retail"))
         self.assertContains(response, "Registrars offering also retail services")
         self.assertEqual(WHOIS.mock_calls, [
+            call.get_registrars(),
             call.get_registrar_groups(),
-            call.get_registrar_certification_list(),
-            call.get_registrars()
         ])
 
     def test_registrars_wholesale(self):
-        response = self.client.get(reverse("webwhois:registrar_list_wholesale"))
+        response = self.client.get(reverse("registrars_wholesale"))
         self.assertContains(response, "Registrars offering only wholesale services")
         self.assertEqual(WHOIS.mock_calls, [
+            call.get_registrars(),
             call.get_registrar_groups(),
-            call.get_registrar_certification_list(),
-            call.get_registrars()
         ])
 
 

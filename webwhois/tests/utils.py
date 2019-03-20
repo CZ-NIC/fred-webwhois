@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2019  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -22,7 +22,7 @@ import os
 
 import six
 from fred_idl.Registry import IsoDateTime
-from fred_idl.Registry.Whois import KeySet
+from fred_idl.Registry.Whois import KeySet, PlaceAddress, Registrar
 from mock import call, sentinel
 
 if six.PY2:
@@ -71,3 +71,15 @@ def make_keyset(statuses=None):
     return KeySet(handle=sentinel.handle, dns_keys=[], tech_contact_handles=[], registrar_handle=sentinel.registrar,
                   created=IsoDateTime('1970-01-01T00:00:00Z'), changed=None, last_transfer=None,
                   statuses=(statuses or []))
+
+
+def make_address():
+    return PlaceAddress(street1=sentinel.street1, street2=sentinel.street2, street3=sentinel.street3,
+                        city=sentinel.city, stateorprovince=sentinel.state, postalcode=sentinel.postalcode,
+                        country_code=sentinel.country_code)
+
+
+def make_registrar(handle=sentinel.handle):
+    """Return a registrar object."""
+    return Registrar(handle=handle, name=sentinel.name, organization=sentinel.organization,
+                     url=sentinel.url, phone=sentinel.phone, fax=sentinel.fax, address=make_address())
