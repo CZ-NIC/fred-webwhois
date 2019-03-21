@@ -1,3 +1,9 @@
+## 1.15 (2019-03-21) ##
+ * Removed ``handle_is_domain`` from ``DomainDetailMixin``.
+ * Removed ``webwhois.views.pages`` module.
+ * Refactored view for list of registrars.
+ * Cleaned up CSS styles in request forms.
+
 ## 1.14.1 (2019-02-06) ##
  * Temporarily return status codes to HTML data attributes.
 
