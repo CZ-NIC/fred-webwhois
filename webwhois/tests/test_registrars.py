@@ -164,6 +164,23 @@ class TestRegistrarListView(SimpleTestCase):
         self.assertEqual(WHOIS.mock_calls,
                          [call.get_registrars(), call.get_registrar_groups(), call.get_registrar_certification_list()])
 
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', ['certified'])
+    @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', None)
+    def test_registrars_group_old_settings(self):
+        # Test group_name ignores old settings
+        WHOIS.get_registrars.return_value = [make_registrar(handle='HOLLY'), make_registrar(handle='GORDON')]
+        WHOIS.get_registrar_groups.return_value = [RegistrarGroup(name='red_dwarf', members=['HOLLY'])]
+        WHOIS.get_registrar_certification_list.return_value = []
+
+        response = self.client.get(reverse('registrars_red_dwarf'))
+
+        self.assertContains(response, "List of registrars")
+        self.assertIsNone(response.context['is_retail'])
+        self.assertEqual(len(response.context['registrars']), 1)
+        self.assertEqual(response.context['registrars'][0]['registrar'].handle, 'HOLLY')
+        self.assertEqual(WHOIS.mock_calls,
+                         [call.get_registrars(), call.get_registrar_groups(), call.get_registrar_certification_list()])
+
     @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', None)
     @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', None)
     def test_registrars_group_unknown(self):

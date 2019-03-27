@@ -90,7 +90,7 @@ class RegistrarListMixin(BaseContextMixin):
             members = groups[self.group_name].members
             registrars = [r for r in registrars if r.handle in members]
 
-        if WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED is not None or WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED is not None:
+        elif WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED is not None or WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED is not None:
             # Old filtering is in effect
             warn_msg = ("Settings 'WEBWHOIS_REGISTRARS_GROUPS_*' and 'RegistrarListView.is_retail' are deprecated. "
                         "Use 'RegistrarListView.group_name' instead.")
