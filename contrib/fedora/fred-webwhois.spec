@@ -39,6 +39,8 @@ install -m 644 contrib/fedora/webwhois_cfg.py $RPM_BUILD_ROOT/%{_sysconfdir}/fre
 install -m 644 examples/webwhois_urls.py $RPM_BUILD_ROOT/%{_sysconfdir}/fred/
 
 install -d $RPM_BUILD_ROOT/var/run/webwhois/
+mkdir -p $RPM_BUILD_ROOT/%{_prefix}/lib/tmpfiles.d/
+echo "d /var/run/webwhois/ 755 uwsgi uwsgi" > $RPM_BUILD_ROOT/%{_prefix}/lib/tmpfiles.d/webwhois.conf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -100,3 +102,4 @@ exit 0
 %config %{_sysconfdir}/fred/webwhois_urls.py
 %config %attr(-,uwsgi,uwsgi) %{_sysconfdir}/uwsgi.d/webwhois.ini
 %ghost %attr(-,uwsgi,uwsgi) /var/run/webwhois/
+%{_prefix}/lib/tmpfiles.d/webwhois.conf
