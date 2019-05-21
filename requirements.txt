@@ -4,5 +4,5 @@ idna
 django-app-settings
 enum34;python_version<"3.4"
 six
-fred-pylogger
-fred-pyfco
+fred-pylogger @ git+ssh://git@gitlab.office.nic.cz/fred/utils/pylogger.git
+fred-pyfco @ git+ssh://git@gitlab.office.nic.cz/fred/utils/pyfco.git
