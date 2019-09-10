@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2019  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -73,8 +73,6 @@ class PublicRequestBaseForm(forms.Form):
         (ConfirmationMethod.NOTARIZED_LETTER.value, _("Officially verified signature")),
         (ConfirmationMethod.GOVERNMENT.value, _("E-government")),
     )
-    # Deprecated attribute kept for backward compatibility
-    CONFIRMATION_METHOD = CONFIRMATION_METHOD_CHOICES
 
     object_type = forms.ChoiceField(label=_("Object type"), choices=REGISTRY_OBJECT_TYPE)
     handle = forms.CharField(
