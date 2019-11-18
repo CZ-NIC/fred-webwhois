@@ -34,6 +34,7 @@ class WebwhoisAppSettings(AppSettings):
 
     CORBA_NETLOC = StringSetting(default=partial(os.environ.get, 'FRED_WEBWHOIS_NETLOC', 'localhost'))
     CORBA_CONTEXT = StringSetting(default='fred')
+    LOGGER = StringSetting(default='pylogger.corbalogger.Logger')
     LOGGER_CORBA_NETLOC = StringSetting(default=partial(_get_logger_defalt, 'CORBA_NETLOC'))
     LOGGER_CORBA_CONTEXT = StringSetting(default=partial(_get_logger_defalt, 'CORBA_CONTEXT'))
 
@@ -42,11 +43,6 @@ class WebwhoisAppSettings(AppSettings):
 
 
 WEBWHOIS_SETTINGS = WebwhoisAppSettings()
-
-
-# Webwhois settings
-# Logger module. Set "pylogger.corbalogger.LoggerFailSilent" for debug or None for disable the process.
-WEBWHOIS_LOGGER = getattr(settings, 'WEBWHOIS_LOGGER', 'pylogger.corbalogger.Logger')
 
 WEBWHOIS_DNSSEC_URL = getattr(settings, 'WEBWHOIS_DNSSEC_URL', None)
 

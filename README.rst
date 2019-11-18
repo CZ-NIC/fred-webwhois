@@ -80,7 +80,8 @@ Default value::
 ``WEBWHOIS_LOGGER``
 ^^^^^^^^^^^^^^^^^^^
 
-The ``WEBWHOIS_LOGGER`` variable contains definition for import logger object. It can be ``None``.
+The ``WEBWHOIS_LOGGER`` variable contains dotted path to a logger class.
+If ``None``, logging to logger will be disabled.
 
 Example::
 

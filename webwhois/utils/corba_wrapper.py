@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2019  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -28,7 +28,7 @@ from fred_idl.Registry import Buffer, IsoDate, IsoDateTime, PublicRequest, Recor
 from pyfco import CorbaClient, CorbaClientProxy, CorbaNameServiceClient, CorbaRecoder
 from pyfco.recoder import decode_iso_date, decode_iso_datetime
 
-from webwhois.settings import WEBWHOIS_LOGGER, WEBWHOIS_SETTINGS
+from webwhois.settings import WEBWHOIS_SETTINGS
 
 from .logger import create_logger
 
@@ -91,8 +91,8 @@ _PUBLIC_REQUEST = SimpleLazyObject(load_public_request_from_idl)
 _FILE_MANAGER = SimpleLazyObject(load_filemanager_from_idl)
 _RECORD_STATEMENT = SimpleLazyObject(load_record_statement)
 
-if WEBWHOIS_LOGGER:
-    LOGGER = SimpleLazyObject(lambda: create_logger(WEBWHOIS_LOGGER, load_logger_from_idl(), ccReg))
+if WEBWHOIS_SETTINGS.LOGGER:
+    LOGGER = SimpleLazyObject(lambda: create_logger(WEBWHOIS_SETTINGS.LOGGER, load_logger_from_idl(), ccReg))
 else:
     LOGGER = None
 
