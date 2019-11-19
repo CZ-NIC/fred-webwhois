@@ -53,10 +53,11 @@ def apply_patch(case, patcher):
     """
     Add patcher into cleanup, start it and return it.
 
-    Examples
-    --------
+    Examples:
         apply_patch(self, patch('module'))
-    or in subclass of GingerAssertMixin:
+
+        or in subclass of GingerAssertMixin:
+
         self.apply_patch(patch('module'))
         mocked = self.apply_patch(patch('module', mock))
 
