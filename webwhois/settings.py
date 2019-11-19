@@ -21,7 +21,7 @@ from __future__ import unicode_literals
 import os
 from functools import partial
 
-from appsettings import AppSettings, StringSetting
+from appsettings import AppSettings, Setting, StringSetting
 from django.conf import settings
 
 
@@ -34,7 +34,7 @@ class WebwhoisAppSettings(AppSettings):
 
     CORBA_NETLOC = StringSetting(default=partial(os.environ.get, 'FRED_WEBWHOIS_NETLOC', 'localhost'))
     CORBA_CONTEXT = StringSetting(default='fred')
-    LOGGER = StringSetting(default='pylogger.corbalogger.Logger')
+    LOGGER = Setting(default='pylogger.corbalogger.Logger')
     LOGGER_CORBA_NETLOC = StringSetting(default=partial(_get_logger_defalt, 'CORBA_NETLOC'))
     LOGGER_CORBA_CONTEXT = StringSetting(default=partial(_get_logger_defalt, 'CORBA_CONTEXT'))
 
