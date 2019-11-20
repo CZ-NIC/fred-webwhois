@@ -1,3 +1,10 @@
+## 1.16.1 (2019-11-20) ##
+ * Update spec file for F31 and Centos/RHEL 8
+
+## 1.16 (2019-10-23) ##
+ * Support Django 2.X
+ * Use PEP508 dependencies
+
 ## 1.15 (2019-03-21) ##
  * Removed ``handle_is_domain`` from ``DomainDetailMixin``.
  * Removed ``webwhois.views.pages`` module.
