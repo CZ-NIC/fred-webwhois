@@ -7,7 +7,6 @@
 
 {% block webwhois_content %}
     <div id="public_request_forms">
-        {% include "webwhois/public_request_form_menu.html" with pubreq_selected_menu="unblock_object" %}
         <form action="{% url "webwhois:form_unblock_object" %}" method="post" class="webwhois-public-request">
             {% csrf_token %}
             <table>
