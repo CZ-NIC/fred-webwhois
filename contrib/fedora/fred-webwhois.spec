@@ -13,9 +13,9 @@ Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: CZ.NIC <fred@nic.cz>
 Url: https://fred.nic.cz/
-BuildRequires: python-setuptools gettext
-Requires: python python2dist(django) >= 1.11 python2-django-app-settings python-idna fred-idl fred-pyfco fred-pylogger uwsgi-plugin-python2 httpd /usr/sbin/semanage policycoreutils python-six python-enum34
-%if 0%{?centos}
+BuildRequires: python2-setuptools gettext
+Requires: python2 python2dist(django) >= 1.11 python2-django-app-settings python2-idna fred-idl fred-pyfco fred-pylogger uwsgi-plugin-python2 httpd /usr/sbin/semanage policycoreutils python2-six python2-enum34
+%if 0%{?el7}
 Requires: mod_proxy_uwsgi
 %endif
 
