@@ -28,6 +28,7 @@ from fred_idl.Registry.PublicRequest import HAS_DIFFERENT_BLOCK, INVALID_EMAIL, 
     LockRequestType, ObjectType_PR
 
 from webwhois.forms.public_request import ConfirmationMethod
+from webwhois.forms.widgets import DeliveryType
 from webwhois.tests.utils import TEMPLATES, apply_patch
 from webwhois.utils import PUBLIC_REQUEST
 from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, PublicResponse, SendPasswordResponse
@@ -38,7 +39,7 @@ class TestForms(SimpleTestCase):
 
     def test_send_password(self):
         response = self.client.get(reverse("webwhois:form_send_password"))
-        self.assertContains(response, "Send password for transfer")
+        self.assertContains(response, "Request for password for transfer")
 
     def test_block_object(self):
         response = self.client.get(reverse("webwhois:form_block_object"))
@@ -51,9 +52,9 @@ class TestForms(SimpleTestCase):
     def test_form_param_send_to(self):
         params = "?handle=foo&object_type=nsset&send_to=custom_email"
         response = self.client.get(reverse("webwhois:form_send_password") + params)
-        self.assertContains(response, "Send password for transfer")
+        self.assertContains(response, "password for transfer")
         self.assertEqual(response.context['form'].initial, {'object_type': 'nsset', 'handle': 'foo',
-                                                            'send_to': 'custom_email'})
+                                                            'send_to': DeliveryType('custom_email', '')})
 
     def test_form_param_block_unblock(self):
         params = "?handle=foo&object_type=nsset&lock_type=all"
@@ -125,7 +126,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "object_type": "domain",
             "handle": "foo.cz",
             "confirmation_method": "signed_email",
-            "send_to": "email_in_registry",
+            "send_to_0": "email_in_registry",
+            "send_to": DeliveryType("email_in_registry", ""),
         }
         properties = [
             ('handle', 'foo.cz'),
@@ -145,7 +147,7 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "object_type": "contact",
             "handle": "CONTACT",
             "confirmation_method": "signed_email",
-            "send_to": "email_in_registry",
+            "send_to_0": "email_in_registry",
         }
         properties = [
             ('handle', 'CONTACT'),
@@ -165,7 +167,7 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "object_type": "nsset",
             "handle": "NSSET",
             "confirmation_method": "signed_email",
-            "send_to": "email_in_registry",
+            "send_to_0": "email_in_registry",
         }
         properties = [
             ('handle', 'NSSET'),
@@ -185,7 +187,7 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "object_type": "keyset",
             "handle": "KEYSET",
             "confirmation_method": "signed_email",
-            "send_to": "email_in_registry",
+            "send_to_0": "email_in_registry",
         }
         properties = [
             ('handle', 'KEYSET'),
@@ -205,7 +207,7 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "object_type": "domain",
             "handle": "foo.cz",
             "confirmation_method": "signed_email",
-            "send_to": "email_in_registry",
+            "send_to_0": "email_in_registry",
         }
         response = self.client.post(reverse("webwhois:form_send_password"), post)
         self.assertEqual(response.context['form'].errors, {'handle': [form_error_message]})
@@ -242,12 +244,12 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "object_type": "domain",
             "handle": "foo.cz",
             "confirmation_method": "signed_email",
-            "send_to": "custom_email",
-            "custom_email": "foo@foo.off",
+            "send_to_0": "custom_email",
+            "send_to_1": "foo@foo.off",
         }
         response = self.client.post(reverse("webwhois:form_send_password"), post)
         self.assertEqual(response.context['form'].errors, {
-            'custom_email': ['The email was not found or the address is not valid.']
+            'send_to': ['The email was not found or the address is not valid.']
         })
         self.assertContains(response, 'The email was not found or the address is not valid.')
         object_type = ObjectType_PR.domain
@@ -299,8 +301,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "object_type": "domain",
             "handle": "foo.cz",
             "confirmation_method": "signed_email",
-            "send_to": "custom_email",
-            "custom_email": "foo@foo.off",
+            "send_to_0": "custom_email",
+            "send_to_1": "foo@foo.off",
         }
         properties = [
             ('handle', 'foo.cz'),
@@ -321,8 +323,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "object_type": "contact",
             "handle": "FOO",
             "confirmation_method": "signed_email",
-            "send_to": "custom_email",
-            "custom_email": "foo@foo.off",
+            "send_to_0": "custom_email",
+            "send_to_1": "foo@foo.off",
         }
         properties = [
             ('handle', 'FOO'),
@@ -343,8 +345,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "object_type": "nsset",
             "handle": "FOO",
             "confirmation_method": "signed_email",
-            "send_to": "custom_email",
-            "custom_email": "foo@foo.off",
+            "send_to_0": "custom_email",
+            "send_to_1": "foo@foo.off",
         }
         properties = [
             ('handle', 'FOO'),
@@ -365,8 +367,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "object_type": "keyset",
             "handle": "FOO",
             "confirmation_method": "signed_email",
-            "send_to": "custom_email",
-            "custom_email": "foo@foo.off",
+            "send_to_0": "custom_email",
+            "send_to_1": "foo@foo.off",
         }
         properties = [
             ('handle', 'FOO'),
@@ -387,7 +389,7 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "object_type": "domain",
             "handle": "foo.cz",
             "confirmation_method": "notarized_letter",
-            "send_to": "email_in_registry",
+            "send_to_0": "email_in_registry",
         }
         response = self.client.post(reverse("webwhois:form_send_password"), post)
         self.assertEqual(response.context['form'].errors, {'__all__': [
@@ -405,8 +407,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "object_type": object_name,
             "handle": "FOO",
             "confirmation_method": "notarized_letter",
-            "send_to": "custom_email",
-            "custom_email": "foo@foo.off",
+            "send_to_0": "custom_email",
+            "send_to_1": "foo@foo.off",
         }
         properties = [
             ('handle', 'FOO'),
@@ -449,7 +451,7 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
     """Test `PersonalInfoFormView` class."""
 
     def test_personal_info_email_in_registry(self):
-        post = {"object_type": "contact", "handle": "CONTACT", "send_to": "email_in_registry"}
+        post = {"object_type": "contact", "handle": "CONTACT", "send_to_0": "email_in_registry"}
         PUBLIC_REQUEST.create_personal_info_request_registry_email.return_value = 24
 
         response = self.client.post(reverse("webwhois:form_personal_info"), post)
@@ -470,7 +472,7 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
 
     def test_personal_info_custom_email(self):
         post = {"object_type": "contact", "handle": "CONTACT", "confirmation_method": "signed_email",
-                "send_to": "custom_email", "custom_email": "kryten@example.cz"}
+                "send_to_0": "custom_email", "send_to_1": "kryten@example.cz"}
         PUBLIC_REQUEST.create_personal_info_request_non_registry_email.return_value = 24
 
         response = self.client.post(reverse("webwhois:form_personal_info"), post)
@@ -494,7 +496,7 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
 
     def test_personal_info_notarized_letter(self):
         post = {"object_type": "contact", "handle": "CONTACT", "confirmation_method": "notarized_letter",
-                "send_to": "custom_email", "custom_email": "kryten@example.cz"}
+                "send_to_0": "custom_email", "send_to_1": "kryten@example.cz"}
         PUBLIC_REQUEST.create_personal_info_request_non_registry_email.return_value = 24
 
         response = self.client.post(reverse("webwhois:form_personal_info"), post)
@@ -518,7 +520,7 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
 
     def _test_personal_info_error(self, exception_code, form_errors):
-        post = {"object_type": "domain", "handle": "foo.cz", "send_to": "email_in_registry"}
+        post = {"object_type": "domain", "handle": "foo.cz", "send_to_0": "email_in_registry"}
 
         response = self.client.post(reverse("webwhois:form_personal_info"), post)
 
@@ -543,7 +545,7 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
         PUBLIC_REQUEST.create_personal_info_request_registry_email.side_effect = INVALID_EMAIL
         self._test_personal_info_error(
             'INVALID_EMAIL',
-            {'custom_email': ['The email was not found or the address is not valid.']})
+            {'send_to': ['The email was not found or the address is not valid.']})
 
 
 @override_settings(TEMPLATES=TEMPLATES, USE_TZ=True)

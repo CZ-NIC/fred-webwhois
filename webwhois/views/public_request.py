@@ -33,6 +33,7 @@ from fred_idl.Registry.PublicRequest import HAS_DIFFERENT_BLOCK, INVALID_EMAIL, 
 from webwhois.forms import BlockObjectForm, PersonalInfoForm, SendPasswordForm, UnblockObjectForm
 from webwhois.forms.public_request import CONFIRMATION_METHOD_IDL_MAP, LOCK_TYPE_ALL, LOCK_TYPE_TRANSFER, \
     LOCK_TYPE_URL_PARAM, SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY, ConfirmationMethod
+from webwhois.forms.widgets import DeliveryType
 from webwhois.utils.corba_wrapper import LOGGER, PUBLIC_REQUEST
 from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, SendPasswordResponse
 from webwhois.views.base import BaseContextMixin
@@ -54,11 +55,11 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
         properties_in = [
             ("handle", data["handle"]),
             ("handleType", data['object_type']),
-            ("sendTo", data['send_to']),
+            ("sendTo", data['send_to'].choice),
         ]
         if data['confirmation_method']:
             properties_in.append(("confirmMethod", data['confirmation_method']))
-        custom_email = data.get("custom_email")
+        custom_email = data.get("send_to").custom_email
         if custom_email:
             properties_in.append(("customEmail", custom_email))
         return "AuthInfo", properties_in
@@ -66,10 +67,10 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
     def _call_registry_command(self, form, log_request_id):
         data = form.cleaned_data
         try:
-            if data['send_to'] == 'custom_email':
+            if data['send_to'].choice == 'custom_email':
                 response_id = PUBLIC_REQUEST.create_authinfo_request_non_registry_email(
                     self._get_object_type(data['object_type']), data['handle'], log_request_id,
-                    CONFIRMATION_METHOD_IDL_MAP[data['confirmation_method']], data['custom_email'])
+                    CONFIRMATION_METHOD_IDL_MAP[data['confirmation_method']], data['send_to'].custom_email)
             else:
                 # confirm_type_name is 'signed_email'
                 response_id = PUBLIC_REQUEST.create_authinfo_request_registry_email(
@@ -82,14 +83,14 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
             form.add_error('handle', _('Transfer of object is prohibited. The request can not be accepted.'))
             raise PublicRequestKnownException(type(err).__name__)
         except INVALID_EMAIL as err:
-            form.add_error('custom_email', _('The email was not found or the address is not valid.'))
+            form.add_error('send_to', _('The email was not found or the address is not valid.'))
             raise PublicRequestKnownException(type(err).__name__)
         return response_id
 
     def get_public_response(self, form, public_request_id):
         request_type = self._get_logging_request_name_and_properties(form.cleaned_data)[0]
-        if form.cleaned_data['send_to'] == 'custom_email':
-            custom_email = form.cleaned_data['custom_email']
+        if form.cleaned_data['send_to'].choice == 'custom_email':
+            custom_email = form.cleaned_data['send_to'].custom_email
         else:
             custom_email = None
         return SendPasswordResponse(form.cleaned_data['object_type'], public_request_id, request_type,
@@ -101,17 +102,17 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
         data["object_type"] = self.request.GET.get("object_type")
         send_to = self.request.GET.get("send_to")
         if send_to and send_to in (SEND_TO_IN_REGISTRY, SEND_TO_CUSTOM):
-            data["send_to"] = send_to
+            data["send_to"] = DeliveryType(send_to, '')
         return data
 
     def get_success_url(self):
         if self.success_url:
             return force_text(self.success_url)
         url_name = "webwhois:response_not_found"
-        if self.form_cleaned_data['send_to'] == 'email_in_registry':
+        if self.form_cleaned_data['send_to'].choice == 'email_in_registry':
             url_name = 'webwhois:email_in_registry_response'
         else:
-            assert self.form_cleaned_data['send_to'] == 'custom_email'
+            assert self.form_cleaned_data['send_to'].choice == 'custom_email'
             if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.SIGNED_EMAIL:
                 url_name = 'webwhois:custom_email_response'
             else:
@@ -132,11 +133,11 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
         properties_in = [
             ("handle", data["handle"]),
             ("handleType", 'contact'),
-            ("sendTo", data['send_to']),
+            ("sendTo", data['send_to'].choice),
         ]
         if data['confirmation_method']:
             properties_in.append(("confirmMethod", data['confirmation_method']))
-        custom_email = data.get("custom_email")
+        custom_email = data.get("send_to").custom_email
         if custom_email:
             properties_in.append(("customEmail", custom_email))
         return "PersonalInfo", properties_in
@@ -144,26 +145,26 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
     def _call_registry_command(self, form, log_request_id):
         data = form.cleaned_data
         try:
-            if data['send_to'] == SEND_TO_CUSTOM:
+            if data['send_to'].choice == SEND_TO_CUSTOM:
                 response_id = PUBLIC_REQUEST.create_personal_info_request_non_registry_email(
                     data['handle'], log_request_id, CONFIRMATION_METHOD_IDL_MAP[data['confirmation_method']],
-                    data['custom_email'])
+                    data['send_to'].custom_email)
             else:
-                assert data['send_to'] == SEND_TO_IN_REGISTRY
+                assert data['send_to'].choice == SEND_TO_IN_REGISTRY
                 response_id = PUBLIC_REQUEST.create_personal_info_request_registry_email(data['handle'], log_request_id)
         except OBJECT_NOT_FOUND as err:
             form.add_error('handle',
                            _('Object not found. Check that you have correctly entered the contact handle.'))
             raise PublicRequestKnownException(type(err).__name__)
         except INVALID_EMAIL as err:
-            form.add_error('custom_email', _('The email was not found or the address is not valid.'))
+            form.add_error('send_to', _('The email was not found or the address is not valid.'))
             raise PublicRequestKnownException(type(err).__name__)
         return response_id
 
     def get_public_response(self, form, public_request_id):
         request_type = self._get_logging_request_name_and_properties(form.cleaned_data)[0]
-        if form.cleaned_data['send_to'] == 'custom_email':
-            custom_email = form.cleaned_data['custom_email']
+        if form.cleaned_data['send_to'].choice == 'custom_email':
+            custom_email = form.cleaned_data['send_to'].custom_email
         else:
             custom_email = None
         return PersonalInfoResponse('contact', public_request_id, request_type, form.cleaned_data['handle'],
@@ -172,10 +173,10 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
     def get_success_url(self):
         if self.success_url:
             return force_text(self.success_url)
-        if self.form_cleaned_data['send_to'] == 'email_in_registry':
+        if self.form_cleaned_data['send_to'].choice == 'email_in_registry':
             url_name = 'webwhois:email_in_registry_response'
         else:
-            assert self.form_cleaned_data['send_to'] == 'custom_email'
+            assert self.form_cleaned_data['send_to'].choice == 'custom_email'
             if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.SIGNED_EMAIL:
                 url_name = 'webwhois:custom_email_response'
             else:

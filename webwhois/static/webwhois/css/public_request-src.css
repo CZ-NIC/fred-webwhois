@@ -1,0 +1,35 @@
+.webwhois-public-request {
+    display: grid;
+    grid-auto-columns: max-content;
+    grid-row-gap: 10px;
+}
+
+.label-wrapper {
+    grid-column: 1;
+    margin-right: 50px;
+}
+
+.field-wrapper {
+    grid-column: 2 / 4;
+}
+
+.webwhois-public-request > button {
+    grid-column: 1 / 4;
+    justify-self: end;
+}
+
+.label-confirmation_method {
+    grid-column: 2;
+}
+
+.label-confirmation_method + .field-wrapper {
+    grid-column: 3;
+}
+
+.field-wrapper > label:not(:last-of-type) {
+    display: block;
+}
+
+.field-wrapper > label {
+    margin: 0 20px 10px 0;
+}

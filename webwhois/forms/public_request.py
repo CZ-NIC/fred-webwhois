@@ -24,6 +24,11 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 from fred_idl.Registry.PublicRequest import ConfirmedBy
 
+from webwhois.constants import SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY
+
+from .fields import DeliveryField
+from .widgets import DeliveryType
+
 LOCK_TYPE_TRANSFER = "transfer"
 LOCK_TYPE_ALL = "all"
 LOCK_TYPE_URL_PARAM = "lock_type"
@@ -32,9 +37,6 @@ LOCK_TYPE = (
     (LOCK_TYPE_TRANSFER, _("transfer object")),
     (LOCK_TYPE_ALL, _("all object changes")),
 )
-
-SEND_TO_IN_REGISTRY = 'email_in_registry'
-SEND_TO_CUSTOM = 'custom_email'
 
 
 @unique
@@ -77,6 +79,11 @@ class PublicRequestBaseForm(forms.Form):
     confirmation_method = forms.ChoiceField(label=_("Confirmation method"), choices=CONFIRMATION_METHOD_CHOICES,
                                             required=False)
 
+    class Media:
+        css = {
+            'all': ('webwhois/css/public_request-prefixed.css',)
+        }
+
     def clean_confirmation_method(self):
         """Return None if no confirmation method was selected."""
         value = self.cleaned_data['confirmation_method']
@@ -93,29 +100,22 @@ class SendPasswordForm(PublicRequestBaseForm):
         (SEND_TO_IN_REGISTRY, _('email in registry')),
         (SEND_TO_CUSTOM, _('custom email')),
     )
-    send_to = forms.ChoiceField(choices=SEND_TO, initial=SEND_TO_IN_REGISTRY, widget=forms.RadioSelect,
-                                label=_("Send to"))
-    custom_email = forms.EmailField(label=_("Custom email"), required=False)
-    field_order = ('object_type', 'handle', 'send_to', 'custom_email', 'confirmation_method')
+
+    send_to = DeliveryField(choices=SEND_TO, initial=DeliveryType(SEND_TO_IN_REGISTRY, ""), label=_("Send to"))
+
+    field_order = ('object_type', 'handle', 'send_to', 'confirmation_method')
 
     def clean(self):
-        cleaned_data = super(SendPasswordForm, self).clean()
-        if cleaned_data.get('send_to') == SEND_TO_IN_REGISTRY:
-            if cleaned_data.get('custom_email'):
-                raise forms.ValidationError(_(
-                    'Option "Send to email in registry" is incompatible with custom email. Please choose one of '
-                    'the two options.'), code='unexpected_custom_email')
-        elif cleaned_data.get('send_to') == SEND_TO_CUSTOM:
-            if not cleaned_data.get('custom_email'):
-                raise forms.ValidationError(_('Custom email is required as "Send to custom email" option is selected.'
-                                              ' Please fill it in.'), code='custom_email_missing')
+        cleaned_data = self.cleaned_data
 
         confirmation_method = cleaned_data.get('confirmation_method')
         if confirmation_method is not None and confirmation_method != ConfirmationMethod.SIGNED_EMAIL \
-                and cleaned_data.get('send_to') != 'custom_email':
+                and 'send_to' in cleaned_data and cleaned_data.get('send_to').choice != SEND_TO_CUSTOM:
             raise forms.ValidationError(_('Letter with officially verified signature can be sent only to the custom '
                                           'email. Please select "Send to custom email" and enter it.'),
                                         code='custom_email_required')
+
+        return cleaned_data
 
 
 class PersonalInfoForm(SendPasswordForm):

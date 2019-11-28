@@ -2,7 +2,8 @@
 {% load static %}
 
 {% block extrahead %}
-    <script type="text/javascript" src="{% url 'jsi18n' packages='webwhois' %}"></script>
+    <script type="text/javascript" src="{% url 'webwhois:jsi18n' packages='webwhois' %}"></script>
     <script src="{% static "admin/js/jquery.init.js" %}"></script>
     <script src="{% static "webwhois/js/webwhois.js" %}"></script>
+    {{ form.media }}
 {% endblock %}

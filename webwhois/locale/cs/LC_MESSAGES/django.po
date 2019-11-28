@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-02 13:26+0200\n"
+"POT-Creation-Date: 2019-12-09 09:52+0100\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -91,9 +91,6 @@ msgstr ""
 msgid "Created by registrar"
 msgstr "Vytvořeno registrátorem"
 
-msgid "Custom email"
-msgstr "Jiný e-mail"
-
 msgid ""
 "Custom email is required as \"Send to custom email\" option is selected. "
 "Please fill it in."
@@ -179,9 +176,6 @@ msgstr "GOST R 34.10-2001"
 
 msgid "Handle"
 msgstr "Identifikátor"
-
-msgid "Handle not found"
-msgstr "Záznam nenalezen"
 
 msgid "Holder"
 msgstr "Držitel"
@@ -573,10 +567,6 @@ msgid "No domain matches %s handle."
 msgstr "Doména %s nebyla nalezena."
 
 #, python-format
-msgid "No domain, contact or name server set matches %s query."
-msgstr "Jménu %s neodpovídá žádná doména, kontakt ani sada jmenných serverů."
-
-#, python-format
 msgid "No key set matches %s handle."
 msgstr "Sada klíčů s identifikátorem %s nebyla nalezena."
 
@@ -635,9 +625,6 @@ msgstr "Číslo pasu"
 
 msgid "Personal ID"
 msgstr "Číslo OP"
-
-msgid "Personal data"
-msgstr "Poskytnutí údajů"
 
 msgid "Phone"
 msgstr "Telefon"
@@ -801,12 +788,6 @@ msgstr "Zabezpečeno pomocí"
 
 msgid "Send"
 msgstr "Odeslat"
-
-msgid "Send password"
-msgstr "Poslat heslo"
-
-msgid "Send password for transfer"
-msgstr "Poslat heslo pro převod"
 
 msgid "Send to"
 msgstr "Zaslat na"

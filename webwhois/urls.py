@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 from django.conf.urls import url
+from django.views.i18n import JavaScriptCatalog
 
 from webwhois.views import BlockObjectFormView, ContactDetailView, CustomEmailView, DomainDetailView, \
     DownloadEvalFileView, EmailInRegistryView, KeysetDetailView, NotarizedLetterView, NssetDetailView, \
@@ -25,6 +26,7 @@ from webwhois.views import BlockObjectFormView, ContactDetailView, CustomEmailVi
 app_name = 'webwhois'
 urlpatterns = [
     url(r'^$', WhoisFormView.as_view(), name='form_whois'),
+    url(r'^jsi18n/(?P<packages>\S+?)/$', JavaScriptCatalog.as_view(), name='jsi18n'),
     url(r'^object/(?P<handle>.{1,255})/$', ResolveHandleTypeView.as_view(), name='registry_object_type'),
     url(r'^contact/(?P<handle>.{1,255})/$', ContactDetailView.as_view(), name='detail_contact'),
     url(r'^nsset/(?P<handle>.{1,255})/$', NssetDetailView.as_view(), name='detail_nsset'),
