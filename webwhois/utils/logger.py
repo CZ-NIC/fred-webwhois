@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2016-2019  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -21,7 +21,7 @@ from __future__ import unicode_literals
 from django.utils.module_loading import import_string
 
 
-def create_logger(logger_path, logger_corba_object, corba_ccreg):
+def create_logger(logger_path, logger_corba_object):
     """
     Return logger instance or None when logger_path is not set.
 
@@ -31,4 +31,4 @@ def create_logger(logger_path, logger_corba_object, corba_ccreg):
     @raise ImportError: If logger_path is invalid.
     """
     logger_class = import_string(logger_path)
-    return logger_class(logger_corba_object, corba_ccreg)
+    return logger_class(logger_corba_object)
