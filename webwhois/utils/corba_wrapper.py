@@ -92,7 +92,7 @@ _FILE_MANAGER = SimpleLazyObject(load_filemanager_from_idl)
 _RECORD_STATEMENT = SimpleLazyObject(load_record_statement)
 
 if WEBWHOIS_SETTINGS.LOGGER:
-    LOGGER = SimpleLazyObject(lambda: create_logger(WEBWHOIS_SETTINGS.LOGGER, load_logger_from_idl(), ccReg))
+    LOGGER = SimpleLazyObject(lambda: create_logger(WEBWHOIS_SETTINGS.LOGGER, load_logger_from_idl()))
 else:
     LOGGER = None
 
