@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2019  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -20,7 +20,6 @@ from __future__ import unicode_literals
 
 from datetime import date
 
-import six
 from django.core.cache import cache
 from django.http import HttpResponseNotFound
 from django.test import SimpleTestCase, override_settings
@@ -1080,10 +1079,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
 
     def test_download_without_logger(self):
-        if six.PY2:
-            self.LOGGER.__nonzero__.return_value = False
-        else:
-            self.LOGGER.__bool__.return_value = False
+        self.LOGGER.__bool__.return_value = False
         cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None, None))
         PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",

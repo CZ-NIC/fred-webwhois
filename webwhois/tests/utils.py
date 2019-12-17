@@ -20,16 +20,11 @@ from __future__ import unicode_literals
 
 import os
 
-import six
 from fred_idl.Registry import IsoDateTime
 from fred_idl.Registry.Whois import KeySet, PlaceAddress, Registrar
 from mock import call, sentinel
 
-if six.PY2:
-    CALL_BOOL = call.__nonzero__()
-else:
-    CALL_BOOL = call.__bool__()
-
+CALL_BOOL = call.__bool__()
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

@@ -1,6 +1,5 @@
 django >=1.10,<2.2.99
 idna
 django-app-settings
-six
 fred-pylogger @ git+ssh://git@gitlab.office.nic.cz/fred/utils/pylogger.git
 fred-pyfco @ git+ssh://git@gitlab.office.nic.cz/fred/utils/pyfco.git

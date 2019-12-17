@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2018-2019  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -23,7 +23,6 @@ from __future__ import unicode_literals
 import warnings
 from datetime import date
 
-import six
 from django.test import SimpleTestCase
 from mock import patch, sentinel
 from testfixtures import Replace, ShouldWarn, test_date
@@ -62,8 +61,6 @@ class TestPublicResponse(SimpleTestCase):
     def test_repr_unicode(self):
         public_response = PublicResponse('ěščř', 16, sentinel.request_type, 'rimmer', sentinel.confirmation_method)
         string = '<PublicResponse ěščř rimmer 16>'
-        if six.PY2:
-            string = string.encode('utf-8')
         self.assertEqual(repr(public_response), string)
 
     def test_equality(self):
