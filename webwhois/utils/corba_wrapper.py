@@ -32,8 +32,7 @@ from .logger import create_logger
 
 
 class WebwhoisCorbaRecoder(CorbaRecoder):
-    """
-    Decodes whois specific structures.
+    """Decodes whois specific structures.
 
     Decodes ISO date and time corba structures into date and datetime objects.
     Decodes Registry.Buffer into into bytes.
