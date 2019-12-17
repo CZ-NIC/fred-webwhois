@@ -15,7 +15,6 @@ RUN apt-get --yes update \
     git \
     libomniorb4-2 \
     omniidl-python \
-    python2.7 \
     python3-dev \
     python3-setuptools \
     ssh \
