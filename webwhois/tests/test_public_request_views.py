@@ -127,7 +127,6 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "handle": "foo.cz",
             "confirmation_method": "signed_email",
             "send_to_0": "email_in_registry",
-            "send_to": DeliveryType("email_in_registry", ""),
         }
         properties = [
             ('handle', 'foo.cz'),

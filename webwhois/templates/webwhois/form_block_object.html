@@ -7,7 +7,7 @@
 
 {% block webwhois_content %}
     <div id="public_request_forms">
-        <form action="{% url "webwhois:form_block_object" %}" method="post" class="webwhois-public-request">
+        <form id="block_object_form" action="{% url "webwhois:form_block_object" %}" method="post" class="webwhois-public-request">
             {% csrf_token %}
 
             {% include "webwhois/include/public_request_form_fields.html" %}

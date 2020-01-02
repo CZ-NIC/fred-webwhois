@@ -2,59 +2,6 @@
     <head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <title>{% block title %}Web Whois{% endblock %}</title>
-        <style>
-            table {
-                border-collapse: collapse;
-            }
-            table th, table td {
-                border: 1px solid gray;
-                padding: .2em .4em;
-            }
-            table th {
-                background-color: lightgray;
-            }
-            table caption {
-                padding: 1em;
-                border: solid gray 1px;
-                border-bottom-width: 0;
-                font-weight: bold;
-            }
-
-            #id_lock_type, #id_send_to {
-                margin: 0;
-                padding: 0;
-            }
-            #id_lock_type li, #id_send_to li {
-                display: inline;
-                list-style-type: none;
-            }
-
-            ul.form-menu {
-                margin: 0;
-                padding: 0;
-                margin-bottom: 6px;
-            }
-            ul.form-menu li
-            {
-                border: solid gray 1px;
-                display: inline;
-                list-style-type: none;
-                padding: .4em 1em;
-            }
-            ul.form-menu li a {
-                text-decoration: none;
-            }
-            ul.form-menu li.selected {
-                font-weight: bold;
-            }
-            .letter {
-                border: solid lightgray 1px;
-                padding: 1em;
-            }
-            .letter div {
-                padding-bottom: 1em;
-            }
-        </style>
         {% block extrahead %}{% endblock %}
     </head>
     <body>

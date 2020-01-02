@@ -17,17 +17,12 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 from unittest.mock import patch
 
-from django import forms
-from django.core.exceptions import ValidationError
 from django.test import SimpleTestCase, override_settings
 from django.urls import reverse
 from fred_idl.Registry.Whois import OBJECT_NOT_FOUND
 
-from webwhois.constants import SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY
 from webwhois.forms import BlockObjectForm, SendPasswordForm, UnblockObjectForm, WhoisForm
-from webwhois.forms.fields import DeliveryField
 from webwhois.forms.public_request import ConfirmationMethod, DeliveryType, PublicRequestBaseForm
-from webwhois.forms.widgets import DeliveryWidget
 from webwhois.tests.utils import TEMPLATES, apply_patch
 from webwhois.utils import WHOIS
 
@@ -126,7 +121,6 @@ class TestSendPasswordForm(SimpleTestCase):
             "handle": "foo.cz",
             "confirmation_method": "signed_email",
             "send_to_0": "email_in_registry",
-            "send_to": DeliveryType("email_in_registry", None),
         })
         self.assertEqual(form.errors, {})
         self.assertEqual(form.cleaned_data, {
@@ -345,41 +339,3 @@ class TestBlockObjectForm(BlockUnblockFormMixin, SimpleTestCase):
 
 class TestUnblockObjectForm(BlockUnblockFormMixin, SimpleTestCase):
     form_class = UnblockObjectForm
-
-
-class TestWidgets(SimpleTestCase):
-    """Test widgets from widgets module"""
-
-    def test_decompress(self):
-        widget = DeliveryWidget(widgets=[])
-        empty = widget.decompress(None)
-        self.assertEqual(empty, [None, None])
-
-        val = widget.decompress(DeliveryType("custom_email", "foo@foo.boo"))
-        self.assertEqual(val, ["custom_email", "foo@foo.boo"])
-
-    def test_overriding_required(self):
-        fields = (forms.ChoiceField(choices=(('1', '1'), ('2', '2')), required=True),
-                  forms.EmailField(required=False))
-        widget = DeliveryWidget(widgets=[f.widget for f in fields])
-        context = widget.get_context('send_to', DeliveryType('1', '2'), {'required': True, 'id': 'id_send_to'})
-        self.assertEqual(context['widget']['subwidgets'][1]['attrs']['required'], False)
-
-
-class TestFields(SimpleTestCase):
-    """Test fields from fields module"""
-
-    def test_compress(self):
-        field = DeliveryField(choices=['1', '2'])
-        compressed = field.compress([SEND_TO_CUSTOM, 'foo@foo.boo'])
-        self.assertEqual(compressed, DeliveryType(SEND_TO_CUSTOM, 'foo@foo.boo'))
-
-    # send to registry => empty custom email
-    def test_validate_redundant_email(self):
-        field = DeliveryField(choices=['1', '2'])
-        self.assertRaises(ValidationError, field.validate, DeliveryType(SEND_TO_IN_REGISTRY, 'foo@foo.boo'))
-
-    # send to custom => not empty custom email
-    def test_validate_missing_email(self):
-        field = DeliveryField(choices=['1', '2'])
-        self.assertRaises(ValidationError, field.validate, DeliveryType(SEND_TO_CUSTOM, ''))

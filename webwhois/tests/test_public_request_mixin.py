@@ -150,7 +150,6 @@ class TestPublicRequestFormView(SimpleTestCase):
             "object_type": "domain",
             "handle": "foo.cz",
             "confirmation_method": "signed_email",
-            "send_to": DeliveryType("email_in_registry", ""),
             "send_to_0": "email_in_registry",
         })
         self.assertTrue(form.is_valid())

@@ -1,12 +1,12 @@
 .webwhois-public-request {
-    display: grid;
+    display: inline-grid;
     grid-auto-columns: max-content;
     grid-row-gap: 10px;
 }
 
 .label-wrapper {
     grid-column: 1;
-    margin-right: 50px;
+    margin-right: 10px;
 }
 
 .field-wrapper {
@@ -18,11 +18,13 @@
     justify-self: end;
 }
 
-.label-confirmation_method {
+#send_password_form .label-confirmation_method,
+#personal_info_form .label-confirmation_method {
     grid-column: 2;
 }
 
-.label-confirmation_method + .field-wrapper {
+#send_password_form .label-confirmation_method + .field-wrapper,
+#personal_info_form .label-confirmation_method + .field-wrapper  {
     grid-column: 3;
 }
 
@@ -32,4 +34,17 @@
 
 .field-wrapper > label {
     margin: 0 20px 10px 0;
+}
+
+.help-text {
+    display: none;
+}
+
+#id_lock_type {
+    margin: 0;
+    padding: 0;
+}
+#id_lock_type li {
+    display: inline;
+    list-style-type: none;
 }

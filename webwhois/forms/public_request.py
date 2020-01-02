@@ -77,7 +77,9 @@ class PublicRequestBaseForm(forms.Form):
         label=lazy(lambda: mark_safe(_("Domain (without <em>www.</em> prefix) / Handle")), str)(),
         validators=[MaxLengthValidator(255)])
     confirmation_method = forms.ChoiceField(label=_("Confirmation method"), choices=CONFIRMATION_METHOD_CHOICES,
-                                            required=False)
+                                            required=False,
+                                            help_text=_('If you are entering another e-mail, you must attach '
+                                            'verification that entered e-mail belongs to the responsible person.'))
 
     class Media:
         css = {
@@ -128,6 +130,11 @@ class PersonalInfoForm(SendPasswordForm):
 class BlockObjectForm(PublicRequestBaseForm):
     """Block object in registry."""
 
+    confirmation_method = forms.ChoiceField(label=_("Confirmation method"), required=False,
+                                            choices=PublicRequestBaseForm.CONFIRMATION_METHOD_CHOICES,
+                                            help_text=_('You must attach that request is applied by the responsible '
+                                            'person.'))
+
     lock_type = forms.ChoiceField(choices=LOCK_TYPE, initial=LOCK_TYPE_TRANSFER, widget=forms.RadioSelect,
                                   label=pgettext_lazy("verb_inf", "Block"))
     field_order = ('lock_type', 'object_type', 'handle', 'confirmation_method')
@@ -135,6 +142,11 @@ class BlockObjectForm(PublicRequestBaseForm):
 
 class UnblockObjectForm(PublicRequestBaseForm):
     """Unblock object in registry."""
+
+    confirmation_method = forms.ChoiceField(label=_("Confirmation method"), required=False,
+                                            choices=PublicRequestBaseForm.CONFIRMATION_METHOD_CHOICES,
+                                            help_text=_('You must attach that request is applied by the responsible '
+                                            'person.'))
 
     lock_type = forms.ChoiceField(choices=LOCK_TYPE, initial=LOCK_TYPE_TRANSFER, widget=forms.RadioSelect,
                                   label=pgettext_lazy("verb_inf", "Unblock"))

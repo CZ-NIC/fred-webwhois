@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2019  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -15,13 +15,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
-"""
-Fields used in webwhois.
+"""Fields used in webwhois.
 
 Contains DeliveryField which is ChoiceWidget with other option (as EmailField). This field using DeliveryWidget with
 its template and customization of validation required fields (EmailField can be required=false)
 """
-from __future__ import unicode_literals
+from typing import Iterable
 
 from django import forms
 from django.utils.translation import ugettext_lazy as _
@@ -31,19 +30,19 @@ from webwhois.forms.widgets import DeliveryType, DeliveryWidget, PlainRadioSelec
 
 
 class DeliveryField(forms.MultiValueField):
-    """MultiField with ChoiceField and EmailField as other option."""
-    def __init__(self, choices, *args, **kwargs):
+    """MultiField with ChoiceField and EmailField as the other option."""
+
+    def __init__(self, choices: Iterable[Iterable[str]], *args, **kwargs):
         fields = (forms.ChoiceField(choices=choices, widget=PlainRadioSelect, required=True),
                   forms.EmailField(required=False))
         self.widget = DeliveryWidget(widgets=[f.widget for f in fields])
         super(DeliveryField, self).__init__(fields=fields, require_all_fields=False, *args, **kwargs)
 
-    def compress(self, data_list):
-        """Return the choicefield value and charfield value."""
-        value = DeliveryType(*data_list)
-        return value
+    def compress(self, data_list: Iterable) -> DeliveryType:
+        """Return the ChoiceField value and CharField value."""
+        return DeliveryType(*data_list)
 
-    def validate(self, value):
+    def validate(self, value: DeliveryType):
         if value.choice == SEND_TO_IN_REGISTRY:
             if value.custom_email:
                 raise forms.ValidationError(_(

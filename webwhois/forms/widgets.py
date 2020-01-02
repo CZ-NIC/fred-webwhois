@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019  CZ.NIC, z. s. p. o.
+# Copyright (C) 2019-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -15,34 +15,35 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
-"""
-Widgets used in webwhois.
+"""Widgets used in webwhois.
 
 Contains DeliveryWidget which is ChoiceWidget with other option (as EmailField).
 DeliveryWidget contains template and customization of validation required fields (EmailField can be required=false)
 """
-from __future__ import unicode_literals
 
-import collections
+from typing import List, NamedTuple, Optional
 
 from django import forms
 
-DeliveryType = collections.namedtuple('DeliveryType', 'choice custom_email')
+DeliveryType = NamedTuple('DeliveryType', [('choice', str), ('custom_email', str)])
 
 
 class PlainRadioSelect(forms.RadioSelect):
-    """RadioSelect with custom template which not rendering it as list."""
+    """RadioSelect with custom template which is not rendering it as a list."""
+
     template_name = 'forms/widgets/widget_optional_radio_select.html'
 
 
 class DeliveryWidget(forms.MultiWidget):
-    """Widget for DeliveryFied."""
-    def decompress(self, value):
+    """Widget for DeliveryField."""
+
+    def decompress(self, value: Optional[DeliveryType]) -> List[Optional[str]]:
         if not value:
             return [None, None]
         return [value.choice, value.custom_email]
 
     def get_context(self, name, value, attrs):
+        # workaround for not fully working require_all_fields in MultiValueField
         context = super().get_context(name, value, attrs)
         context['widget']['subwidgets'][1]['attrs']['required'] = False
         return context
