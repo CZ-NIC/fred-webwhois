@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2019  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -19,10 +19,10 @@
 from __future__ import unicode_literals
 
 import os
+from unittest.mock import call, sentinel
 
 from fred_idl.Registry import IsoDateTime
 from fred_idl.Registry.Whois import KeySet, PlaceAddress, Registrar
-from mock import call, sentinel
 
 CALL_BOOL = call.__bool__()
 TEMPLATES = [

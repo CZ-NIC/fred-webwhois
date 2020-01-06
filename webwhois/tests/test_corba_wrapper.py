@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2016-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2016-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -21,6 +21,7 @@
 from __future__ import unicode_literals
 
 from datetime import datetime
+from unittest.mock import call, patch, sentinel
 
 import omniORB
 from django.test import SimpleTestCase, override_settings
@@ -28,7 +29,6 @@ from django.utils import timezone
 from fred_idl.ccReg import FileManager, Logger, _objref_FileDownload
 from fred_idl.Registry import Buffer, IsoDateTime
 from fred_idl.Registry.Whois import WhoisIntf
-from mock import call, patch, sentinel
 
 from webwhois.utils.corba_wrapper import WebwhoisCorbaRecoder, load_filemanager_from_idl, load_logger_from_idl, \
     load_whois_from_idl

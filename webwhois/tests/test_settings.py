@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -19,9 +19,10 @@
 """Tests of`webwhois.settings` module."""
 from __future__ import unicode_literals
 
+from unittest.mock import patch, sentinel
+
 from django.conf import settings
 from django.test import SimpleTestCase
-from mock import patch, sentinel
 
 from webwhois.settings import WEBWHOIS_SETTINGS
 

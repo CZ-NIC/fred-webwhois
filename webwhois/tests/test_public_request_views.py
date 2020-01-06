@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2019  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -19,6 +19,7 @@
 from __future__ import unicode_literals
 
 from datetime import date
+from unittest.mock import call, patch
 
 from django.core.cache import cache
 from django.http import HttpResponseNotFound
@@ -28,7 +29,6 @@ from django.utils.html import escape
 from fred_idl.Registry.PublicRequest import HAS_DIFFERENT_BLOCK, INVALID_EMAIL, OBJECT_ALREADY_BLOCKED, \
     OBJECT_NOT_BLOCKED, OBJECT_NOT_FOUND, OBJECT_TRANSFER_PROHIBITED, OPERATION_PROHIBITED, ConfirmedBy, Language, \
     LockRequestType, ObjectType_PR
-from mock import call, patch
 
 from webwhois.forms.public_request import ConfirmationMethod
 from webwhois.tests.utils import TEMPLATES, apply_patch

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2019  CZ.NIC, z. s. p. o.
+# Copyright (C) 2016-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -18,8 +18,9 @@
 
 from __future__ import unicode_literals
 
+from unittest.mock import MagicMock, call
+
 from django.test import SimpleTestCase
-from mock import MagicMock, call
 from pylogger.corbalogger import Logger
 
 from webwhois.utils.logger import create_logger

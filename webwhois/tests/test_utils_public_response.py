@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2018-2019  CZ.NIC, z. s. p. o.
+# Copyright (C) 2018-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -22,9 +22,9 @@ from __future__ import unicode_literals
 
 import warnings
 from datetime import date
+from unittest.mock import patch, sentinel
 
 from django.test import SimpleTestCase
-from mock import patch, sentinel
 from testfixtures import Replace, ShouldWarn, test_date
 
 from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, PublicResponse, SendPasswordResponse
