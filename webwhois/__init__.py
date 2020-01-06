@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2019  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -17,4 +17,3 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 
 """Web whois for FRED registry."""
-from __future__ import unicode_literals

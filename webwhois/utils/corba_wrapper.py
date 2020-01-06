@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2019  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -17,8 +17,6 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 
 """Utilities for Corba."""
-from __future__ import unicode_literals
-
 from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import SimpleLazyObject

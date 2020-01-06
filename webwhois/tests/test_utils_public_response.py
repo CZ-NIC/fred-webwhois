@@ -18,8 +18,6 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 
 """Test `webwhois.utils.public_response` module."""
-from __future__ import unicode_literals
-
 import warnings
 from datetime import date
 from unittest.mock import patch, sentinel

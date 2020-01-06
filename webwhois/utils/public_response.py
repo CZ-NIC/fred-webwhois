@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2018-2019  CZ.NIC, z. s. p. o.
+# Copyright (C) 2018-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -21,8 +21,6 @@ Public responses - responses for public requests.
 
 Responses hold the data to be displayed on the response pages.
 """
-from __future__ import unicode_literals
-
 import warnings
 from datetime import date
 

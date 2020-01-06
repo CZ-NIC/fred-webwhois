@@ -17,8 +17,6 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 
 """Tests of`webwhois.settings` module."""
-from __future__ import unicode_literals
-
 from unittest.mock import patch, sentinel
 
 from django.conf import settings
