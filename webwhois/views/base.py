@@ -15,6 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+from typing import Any, Dict
+
 from django.core.cache import cache
 from django.utils.functional import lazy
 from django.utils.html import escape
@@ -57,7 +59,7 @@ class RegistryObjectMixin(BaseContextMixin):
     _registry_objects_cache = None
 
     server_exception_template = "webwhois/server_exception.html"
-    object_type_name = None
+    object_type_name = None  # type: str
 
     @staticmethod
     def _get_status_descriptions(type_name, fnc_get_descriptions):
@@ -128,7 +130,7 @@ class RegistryObjectMixin(BaseContextMixin):
     def _get_registry_objects(self):
         """Return a dict with objects loaded from the registry."""
         if self._registry_objects_cache is None:
-            context = {self._registry_objects_key: {}}
+            context = {self._registry_objects_key: {}}  # type: Dict[str, Any]
             log_request = self.prepare_logging_request()
             exception_name = None
             try:

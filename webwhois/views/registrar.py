@@ -17,6 +17,7 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 import random
 import warnings
+from typing import Iterable
 
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _
@@ -84,7 +85,7 @@ class RegistrarListMixin(BaseContextMixin):
             groups = self.get_groups()
             if self.group_name not in groups:
                 raise Http404('Registrar group {} not found.'.format(self.group_name))
-            members = groups[self.group_name].members
+            members = groups[self.group_name].members  # type: Iterable[str]
             registrars = [r for r in registrars if r.handle in members]
 
         elif WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED is not None or WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED is not None:
@@ -134,7 +135,7 @@ class RegistrarListMixin(BaseContextMixin):
         """Use for append some extra data into the data row."""
         return data
     # Add a flag to prevent deprecation warning, when calling this function.
-    _registrar_row.prevent_warning = True
+    _registrar_row.prevent_warning = True  # type: ignore
 
     def sort_registrars(self, registrars):
         """Sort context data of registrars.

@@ -249,7 +249,7 @@ class TestSendPasswordForm(SimpleTestCase):
 
 class BlockUnblockFormMixin(object):
 
-    def test_is_valid(self):
+    def test_is_valid(self: SimpleTestCase):
         form = self.form_class({
             "object_type": "domain",
             "handle": "foo.cz",
@@ -264,7 +264,7 @@ class BlockUnblockFormMixin(object):
             "lock_type": "transfer",
         })
 
-    def test_field_is_required(self):
+    def test_field_is_required(self: SimpleTestCase):
         form = self.form_class({})
         self.assertEqual(form.errors, {
             'object_type': ['This field is required.'],
@@ -272,7 +272,7 @@ class BlockUnblockFormMixin(object):
             'lock_type': ['This field is required.'],
         })
 
-    def test_max_length(self):
+    def test_max_length(self: SimpleTestCase):
         form = self.form_class({
             "object_type": "domain",
             "handle": "o" * 256,
@@ -281,7 +281,7 @@ class BlockUnblockFormMixin(object):
         })
         self.assertEqual(form.errors, {'handle': ['Ensure this value has at most 255 characters (it has 256).']})
 
-    def test_stripped_handle(self):
+    def test_stripped_handle(self: SimpleTestCase):
         form = self.form_class({
             "object_type": "domain",
             "handle": "  foo  ",
@@ -291,7 +291,7 @@ class BlockUnblockFormMixin(object):
         self.assertEqual(form.errors, {})
         self.assertEqual(form.cleaned_data["handle"], "foo")
 
-    def test_enum_types(self):
+    def test_enum_types(self: SimpleTestCase):
         form = self.form_class({
             "object_type": "foo",
             "handle": "foo.cz",
@@ -304,7 +304,7 @@ class BlockUnblockFormMixin(object):
             'lock_type': ['Select a valid choice. foo is not one of the available choices.'],
         })
 
-    def test_is_valid_notarized_letter_transfer(self):
+    def test_is_valid_notarized_letter_transfer(self: SimpleTestCase):
         form = self.form_class({
             "object_type": "domain",
             "handle": "foo.cz",
@@ -319,7 +319,7 @@ class BlockUnblockFormMixin(object):
             "lock_type": "transfer",
         })
 
-    def test_is_valid_notarized_letter_all(self):
+    def test_is_valid_notarized_letter_all(self: SimpleTestCase):
         form = self.form_class({
             "object_type": "domain",
             "handle": "foo.cz",

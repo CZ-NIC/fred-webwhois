@@ -292,7 +292,7 @@ class TestRegistrarListView(SimpleTestCase):
                          [call.get_registrars(), call.get_registrar_certification_list(), call.get_registrar_groups()])
 
 
-class SetMocksMixin(object):
+class SetMocksMixin(GetRegistryObjectMixin):
 
     def setUp(self):
         spec = ('get_registrar_certification_list', 'get_registrar_groups', 'get_registrars')
@@ -311,7 +311,7 @@ class SetMocksMixin(object):
 @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', ['foo'])
 @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', ['unfoo'])
 @override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
-class TestRegistrarsUnknownGroupNames(SetMocksMixin, GetRegistryObjectMixin, SimpleTestCase):
+class TestRegistrarsUnknownGroupNames(SetMocksMixin, SimpleTestCase):
 
     def test_registrars_retail(self):
         response = self.client.get(reverse("registrars_retail"))
@@ -334,7 +334,7 @@ class TestRegistrarsUnknownGroupNames(SetMocksMixin, GetRegistryObjectMixin, Sim
 @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', [])
 @patch('webwhois.views.registrar.WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', [])
 @override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
-class TestRegistrarsEmptyGroupNames(SetMocksMixin, GetRegistryObjectMixin, SimpleTestCase):
+class TestRegistrarsEmptyGroupNames(SetMocksMixin, SimpleTestCase):
 
     def test_registrars_retail(self):
         response = self.client.get(reverse("registrars_retail"))

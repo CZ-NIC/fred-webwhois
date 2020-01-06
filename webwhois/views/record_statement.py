@@ -15,6 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+from typing import Any, Iterable, List, Tuple
+
 from django.http import Http404, HttpResponse
 from django.views.generic import View
 from fred_idl.Registry.RecordStatement import OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND
@@ -44,7 +46,7 @@ class ServeRecordStatementView(LoggerMixin, View):
         """
         if log_request is None:
             return
-        properties_out, references = [], []
+        properties_out, references = [], []  # type: List[Iterable[Any]], List[Tuple[str, Any]]
         if error_object:
             if isinstance(error_object, (OBJECT_NOT_FOUND, OBJECT_DELETE_CANDIDATE)):
                 properties_out.append(("reason", type(error_object).__name__))

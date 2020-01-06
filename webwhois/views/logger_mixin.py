@@ -17,15 +17,17 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 
 """LoggerMixin for views."""
+from django.views import View
+
 from webwhois.utils.corba_wrapper import LOGGER
 
 
 class LoggerMixin(object):
     """Create LogRequest. Force implementation of finish_logging_request, _get_logging_request_name_and_properties."""
 
-    service_name = None
+    service_name = None  # type: str
 
-    def prepare_logging_request(self, cleaned_data):
+    def prepare_logging_request(self: View, cleaned_data):
         """Prepare logging request.
 
         @param cleaned_data: Cleaned data for logger properties.
