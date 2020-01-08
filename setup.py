@@ -1,7 +1,6 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 #
-# Copyright (C) 2015-2019  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -51,5 +50,5 @@ setup(name='fred-webwhois',
       setup_requires=['Babel >=2.3'],
       install_requires=open('requirements.txt').read().splitlines(),
       extras_require={'quality': ['isort', 'flake8', 'pydocstyle', 'polint'],
-                      'test': ['mock', 'testfixtures']},
+                      'test': ['testfixtures']},
       cmdclass={'build': custom_build, 'sdist': custom_sdist})

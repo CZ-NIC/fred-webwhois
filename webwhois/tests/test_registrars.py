@@ -1,7 +1,6 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 #
-# Copyright (C) 2015-2019  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -17,11 +16,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
-
-from __future__ import unicode_literals
-
 import os
 import warnings
+from unittest.mock import call, patch
 
 from django.http.response import HttpResponseNotFound
 from django.test import SimpleTestCase
@@ -30,7 +27,6 @@ from django.urls import reverse
 from django.utils._os import upath
 from fred_idl.ccReg import FileInfo
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND, Registrar, RegistrarCertification, RegistrarGroup
-from mock import call, patch
 from testfixtures import ShouldWarn
 
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin

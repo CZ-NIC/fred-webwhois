@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2018-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -21,12 +21,9 @@ Public responses - responses for public requests.
 
 Responses hold the data to be displayed on the response pages.
 """
-from __future__ import unicode_literals
-
 import warnings
 from datetime import date
 
-import six
 from django.conf import settings
 from django.utils.timezone import localdate
 
@@ -51,13 +48,9 @@ class PublicResponse(object):
             self.create_date = date.today()
 
     def __repr__(self):
-        output = '<{cls} {object_type} {handle} {public_request_id}>'.format(
-            cls=six.text_type(type(self).__name__), object_type=self.object_type, handle=self.handle,
+        return '<{cls} {object_type} {handle} {public_request_id}>'.format(
+            cls=str(type(self).__name__), object_type=self.object_type, handle=self.handle,
             public_request_id=self.public_request_id)
-        if six.PY3:
-            return output
-        else:
-            return output.encode('utf-8')
 
     def __eq__(self, other):
         return type(self) == type(other) and self.object_type == other.object_type \

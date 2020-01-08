@@ -1,7 +1,6 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 #
-# Copyright (C) 2015-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -17,10 +16,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
-
-from __future__ import unicode_literals
-
 from datetime import date
+from unittest.mock import call, patch, sentinel
 
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
@@ -29,7 +26,6 @@ from django.utils.formats import reset_format_cache
 from django.views import View
 from fred_idl.Registry.Whois import INVALID_HANDLE, INVALID_LABEL, OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND, \
     TOO_MANY_LABELS, UNMANAGED_ZONE, ContactIdentification, DisclosableContactIdentification
-from mock import call, patch, sentinel
 
 from webwhois.constants import STATUS_DELETE_CANDIDATE, STATUS_LINKED, STATUS_VALIDATED, STATUS_VERIFICATION_FAILED, \
     STATUS_VERIFICATION_IN_PROCESS

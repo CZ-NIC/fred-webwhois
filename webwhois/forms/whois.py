@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -15,10 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
-
-from __future__ import unicode_literals
-
-import six
 from django import forms
 from django.core.validators import MaxLengthValidator
 from django.utils.functional import lazy
@@ -30,6 +26,6 @@ class WhoisForm(forms.Form):
     """Whois form to enter HANDLE."""
 
     handle = forms.CharField(
-        label=lazy(lambda: mark_safe(_("Domain (without <em>www.</em> prefix) / Handle")), six.text_type)(),
+        label=lazy(lambda: mark_safe(_("Domain (without <em>www.</em> prefix) / Handle")), str)(),
         required=True, validators=[MaxLengthValidator(255)],
     )

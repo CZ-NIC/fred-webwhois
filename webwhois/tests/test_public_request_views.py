@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -15,12 +15,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
-
-from __future__ import unicode_literals
-
 from datetime import date
+from unittest.mock import call, patch
 
-import six
 from django.core.cache import cache
 from django.http import HttpResponseNotFound
 from django.test import SimpleTestCase, override_settings
@@ -29,7 +26,6 @@ from django.utils.html import escape
 from fred_idl.Registry.PublicRequest import HAS_DIFFERENT_BLOCK, INVALID_EMAIL, OBJECT_ALREADY_BLOCKED, \
     OBJECT_NOT_BLOCKED, OBJECT_NOT_FOUND, OBJECT_TRANSFER_PROHIBITED, OPERATION_PROHIBITED, ConfirmedBy, Language, \
     LockRequestType, ObjectType_PR
-from mock import call, patch
 
 from webwhois.forms.public_request import ConfirmationMethod
 from webwhois.tests.utils import TEMPLATES, apply_patch
@@ -1080,10 +1076,7 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
 
     def test_download_without_logger(self):
-        if six.PY2:
-            self.LOGGER.__nonzero__.return_value = False
-        else:
-            self.LOGGER.__bool__.return_value = False
+        self.LOGGER.__bool__.return_value = False
         cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None, None))
         PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",

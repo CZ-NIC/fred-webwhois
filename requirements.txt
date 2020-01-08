@@ -1,8 +1,5 @@
-django >=1.10,<2.0;python_version=="2.7.*"
-django >=1.10,<2.2.99;python_version>="3.4"
+django >=1.10,<2.2.99
 idna
 django-app-settings
-enum34;python_version<"3.4"
-six
 fred-pylogger @ git+ssh://git@gitlab.office.nic.cz/fred/utils/pylogger.git
 fred-pyfco @ git+ssh://git@gitlab.office.nic.cz/fred/utils/pyfco.git

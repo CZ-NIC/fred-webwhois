@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2018  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -15,15 +15,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
-
-from __future__ import unicode_literals
-
 from datetime import datetime
+from unittest.mock import call, patch
 
 from django.test import SimpleTestCase, override_settings
 from django.test.client import RequestFactory
 from fred_idl.Registry.PublicRequest import OBJECT_NOT_FOUND
-from mock import call, patch
 
 from webwhois.forms import SendPasswordForm
 from webwhois.forms.public_request import ConfirmationMethod

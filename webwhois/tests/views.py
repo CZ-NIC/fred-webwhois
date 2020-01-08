@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019  CZ.NIC, z. s. p. o.
+# Copyright (C) 2019-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -17,8 +17,6 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 
 """Custom views for tests."""
-from __future__ import unicode_literals
-
 from webwhois.views import RegistrarListView
 
 
