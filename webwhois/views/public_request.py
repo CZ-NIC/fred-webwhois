@@ -16,8 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 import logging
+from typing import Any, Dict, Optional, Type
 
 from django.core.cache import cache
+from django.forms import Form
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.encoding import force_text
@@ -45,7 +47,7 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
 
     form_class = SendPasswordForm
     template_name = 'webwhois/form_send_password.html'
-    form_cleaned_data = None
+    form_cleaned_data = None  # type: Dict[str, Any]
 
     def _get_logging_request_name_and_properties(self, data):
         """Return Request type name and Properties."""
@@ -123,7 +125,7 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
 
     form_class = PersonalInfoForm
     template_name = 'webwhois/form_personal_info.html'
-    form_cleaned_data = None
+    form_cleaned_data = None  # type: Dict[str, Any]
 
     def _get_logging_request_name_and_properties(self, data):
         """Return Request type name and Properties."""
@@ -185,10 +187,10 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
 class BlockUnblockFormView(PublicRequestFormView):
     """Block or Unblock object form view."""
 
-    form_class = None
-    block_action = None
-    logging_lock_type = None
-    form_cleaned_data = None
+    form_class = None  # type: Type[Form]
+    block_action = None  # type: str
+    logging_lock_type = None  # type: Dict[str, str]
+    form_cleaned_data = None  # type: Dict[str, Any]
 
     def _get_lock_type(self, key):
         raise NotImplementedError
@@ -653,7 +655,7 @@ class ServeNotarizedLetterView(PublicRequestLoggerMixin, View):
             log_request_id = log_request.request_id
         else:
             log_request, log_request_id = None, None
-        error_object = None
+        error_object = None  # type: Optional[BaseException]
         try:
             pdf_content = PUBLIC_REQUEST.create_public_request_pdf(public_response.public_request_id, language_code)
         except OBJECT_NOT_FOUND as err:

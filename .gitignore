@@ -12,3 +12,4 @@
 /install.log
 /.tox
 /.coverage*
+/.mypy_cache
