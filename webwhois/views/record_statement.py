@@ -37,8 +37,7 @@ class ServeRecordStatementView(LoggerMixin, View):
         return 'RecordStatement', properties
 
     def finish_logging_request(self, log_request, error_object):
-        """
-        Finish logging request.
+        """Finish logging request.
 
         @param log_request: Logger instace.
         @param error_object: Error object of python exception or corba exception.

@@ -1,4 +1,0 @@
-[pydocstyle]
-match_dir = (?!migrations).*
-convention = google
-add_ignore = D1,D212

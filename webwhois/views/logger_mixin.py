@@ -26,8 +26,7 @@ class LoggerMixin(object):
     service_name = None
 
     def prepare_logging_request(self, cleaned_data):
-        """
-        Prepare logging request.
+        """Prepare logging request.
 
         @param cleaned_data: Cleaned data for logger properties.
         @type cleaned_data: C{dict}

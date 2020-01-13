@@ -16,8 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Public responses - responses for public requests.
+"""Public responses - responses for public requests.
 
 Responses hold the data to be displayed on the response pages.
 """

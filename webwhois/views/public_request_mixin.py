@@ -37,8 +37,7 @@ class PublicRequestLoggerMixin(LoggerMixin):
     service_name = "Public Request"
 
     def finish_logging_request(self, log_request, response_id, error_object):
-        """
-        Finish logging request.
+        """Finish logging request.
 
         @param log_request: Logger instace.
         @param response_id: Response ID. It can be None. None causes the request result is 'Fail'.
@@ -85,8 +84,7 @@ class PublicRequestFormView(PublicRequestLoggerMixin, FormView):
         raise NotImplementedError
 
     def logged_call_to_registry(self, form):
-        """
-         Log the call to the registry.
+        """Log the call to the registry.
 
         @param form: Django form instance with cleaned_data.
         @return: Response ID.

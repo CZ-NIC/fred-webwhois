@@ -46,8 +46,7 @@ class BaseContextMixin(ContextMixin):
 
 
 class RegistryObjectMixin(BaseContextMixin):
-    """
-    Base class for loading object registry of the handle.
+    """Base class for loading object registry of the handle.
 
     It is rasied standard HTTP 500 "Server Error" page when Corba backend falied.
     Catch omniORB.CORBA.TRANSIENT and omniORB.CORBA.OBJECT_NOT_EXIST
@@ -62,8 +61,7 @@ class RegistryObjectMixin(BaseContextMixin):
 
     @staticmethod
     def _get_status_descriptions(type_name, fnc_get_descriptions):
-        """
-        Get status descritions from the cache. Load them from a backend and put in the cache if they missing there.
+        """Get status descritions from the cache. Load them from a backend and put in the cache if they missing there.
 
         Load status only for a defined object type and current site language.
         """

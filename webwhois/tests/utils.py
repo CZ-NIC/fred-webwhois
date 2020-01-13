@@ -42,8 +42,7 @@ TEMPLATES = [
 
 
 def apply_patch(case, patcher):
-    """
-    Add patcher into cleanup, start it and return it.
+    """Add patcher into cleanup, start it and return it.
 
     Examples:
         apply_patch(self, patch('module'))
