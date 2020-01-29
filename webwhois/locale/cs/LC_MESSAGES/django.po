@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-21 11:04+0100\n"
+"POT-Creation-Date: 2020-01-30 10:44+0100\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -22,11 +22,50 @@ msgstr "Jménu %s neodpovídá žádný záznam."
 msgid "%s is not a valid handle."
 msgstr "%s je neplatný identifikátor."
 
+#, python-format
+msgid ""
+"A prerequisite for a successful fulfilment is that the object is already "
+"prohibited to be transferred or modified. You can find this out by <a href="
+"\"%(whois_url)s\">looking up your object</a> in the register and verifying "
+"that there is at least one of the flags “Sponsoring registrar change "
+"forbidden” or “Update forbidden” in the Status description."
+msgstr ""
+"Předpokladem pro úspěšné podání je, že na objektu již je zakázáno jej buď "
+"převádět nebo měnit; to zjistíte <a href=\"%(whois_url)s\">vyhledáním "
+"objektu ve službě Whois</a> a ověřením, že se v položce Stav nachází některý "
+"z příznaků „Není povolena změna určeného registrátora“ nebo „Není povolena "
+"změna údajů“."
+
 msgid "Address"
 msgstr "Adresa"
 
 msgid "Administrative contact"
 msgstr "Administrativní kontakt"
+
+msgid ""
+"After you submit this request, the register will prohibit, according to your "
+"choice, to transfer your object or to modify its details (changes, removals)."
+msgstr ""
+"Po podání žádosti registr podle vaší volby zakáže buď objekt převádět nebo "
+"provádět úpravy údajů (změny, odstranění), které jsou v něm uvedeny."
+
+msgid ""
+"After you submit this request, the register will revoke a prohibition, "
+"according to your choice, to transfer your object or to modify its details "
+"(changes, removals), i.e. it will allow to transfer or modify the object "
+"again."
+msgstr ""
+"Po podání žádosti registr podle vaší volby opětovně umožní buď objekt "
+"převádět nebo provádět úpravy údajů (změny, odstranění), které jsou v něm "
+"uvedeny. "
+
+msgid ""
+"After you submit this request, the register will send a complete report "
+"about personal information that is recorded as your contact in the register "
+"to the contact, unless you request to send it to a custom email."
+msgstr ""
+"Po podání žádosti registr odešle e-mailem kontaktu kompletní výpis osobních "
+"údajů vedených u kontaktu, pokud nepožadujete zaslání na jiný e-mail."
 
 msgid "Algorithm"
 msgstr "Algoritmus"
@@ -43,9 +82,6 @@ msgstr "Datum narození"
 msgctxt "verb_inf"
 msgid "Block"
 msgstr "Blokovat"
-
-msgid "Blocking Request"
-msgstr "Žádost o zablokování"
 
 msgid "Certification"
 msgstr "Certifikace"
@@ -113,6 +149,9 @@ msgstr "Delete DS"
 msgid "Diffie-Helman"
 msgstr "Diffie-Helman"
 
+msgid "Disabling enhanced object security Request"
+msgstr "Žádost o zrušení zvýšeného zabezpečení objektu"
+
 msgid "Domain"
 msgstr "Doména"
 
@@ -158,6 +197,9 @@ msgstr "E-mail"
 
 msgid "Email signed by a qualified certificate"
 msgstr "E-mail podepsaný kvalifikovaným certifikátem"
+
+msgid "Enabling enhanced object security Request"
+msgstr "Žádost o zvýšení zabezpečení objektu"
 
 msgid "Evaluation protocol"
 msgstr "Certifikační protokol"
@@ -479,6 +521,13 @@ msgid "Identification type"
 msgstr "Typ identifikace"
 
 msgid ""
+"If enhanced security is enabled on the object, transfer is not possible, "
+"therefore the password cannot be sent either."
+msgstr ""
+"Pokud je na objektu zvýšené zabezpečení, převod k jinému registrátorovi v "
+"takové chvíli není možný, proto ani není možné poslat heslo. "
+
+msgid ""
 "If you already know how to do it, choose a registrar from the registrar list:"
 msgstr ""
 "Pokud už víte, jak na to, začněte rovnou výběrem registrátora ze seznamu "
@@ -497,6 +546,24 @@ msgid ""
 msgstr ""
 "Pokud jste se pokusili vyhledat doménu, je možné, že spadá do zóny, která "
 "není naším registrem podporována."
+
+msgid ""
+"If you request to send it to a custom email, it must be verified first that "
+"the person confirming it is authorized to confirm the request."
+msgstr ""
+"Je-li požadováno zaslání na jiný e-mail, ověřuje se oprávnění potvrzující "
+"osoby k potvrzení takové žádosti."
+
+msgid ""
+"If you request to send the password to an email in the registry, the "
+"register will send an email with the transfer password to the holder and all "
+"administrative contacts in case of domains, to the contact itself, or to all "
+"technical contacts in case of nameserver sets or key sets."
+msgstr ""
+"Jestliže je požádáno o zaslání hesla na e-mail v registru, e-mail s heslem "
+"je zaslán držiteli a všem administrativním konktaktům v případě domény, "
+"kontaktu samotnému nebo všem technickým kontaktům v případě sady jmenných "
+"serverů nebo sady klíčů."
 
 msgid "Incorrect input"
 msgstr "Nesprávné zadání"
@@ -630,6 +697,9 @@ msgstr "Organizace"
 msgid "Passport number"
 msgstr "Číslo pasu"
 
+msgid "Password (authinfo) request"
+msgstr "Žádost o heslo (authinfo)"
+
 msgid "Personal ID"
 msgstr "Číslo OP"
 
@@ -703,73 +773,96 @@ msgstr "Registrátoři poskytující služby velkoobchodům"
 msgid "Request does not exist or has expired."
 msgstr "Žádost neexistuje nebo již vypršela."
 
-msgid "Request for blocking an object"
-msgstr "Žádost o zablokování objektu"
-
-#, python-format
-msgid "Request for blocking of contact %(handle)s"
-msgstr "Žádost o zablokování kontaktu %(handle)s"
-
-#, python-format
-msgid "Request for blocking of domain name %(handle)s"
-msgstr "Žádost o zablokování doménového jména %(handle)s"
-
-#, python-format
-msgid "Request for blocking of keyset %(handle)s"
-msgstr "Žádost o zablokování sady klíčů %(handle)s"
-
-#, python-format
-msgid "Request for blocking of nameserver set %(handle)s"
-msgstr "Žádost o zablokování sady jmenných serverů %(handle)s"
-
-msgid "Request for password for transfer"
-msgstr "Žádost o zaslání hesla pro převod"
-
-#, python-format
-msgid "Request for password for transfer contact %(handle)s"
-msgstr "Žádost o zaslání hesla pro převod kontaktu %(handle)s"
-
-#, python-format
-msgid "Request for password for transfer domain name %(handle)s"
-msgstr "Žádost o zaslání hesla pro převod doménového jména %(handle)s"
-
-#, python-format
-msgid "Request for password for transfer keyset %(handle)s"
-msgstr "Žádost o zaslání hesla pro převod sady klíčů %(handle)s"
-
-#, python-format
-msgid "Request for password for transfer nameserver set %(handle)s"
-msgstr "Žádost o zaslání hesla pro převod sady jmenných serverů %(handle)s"
-
-msgid "Request for personal data"
-msgstr "Žádost o zaslání osobních údajů"
-
 #, python-format
 msgid "Request for personal data of contact %(handle)s"
 msgstr "Žádost o zaslání osobních údajů ke kontaktu %(handle)s"
 
-#, python-format
-msgid "Request for personal data of contact %(handle)s:"
-msgstr "Žádost o zaslání osobních údajů pro kontakt %(handle)s:"
+msgid "Request form to disable enhanced object security"
+msgstr "Formulář žádosti o zrušení zvýšeného zabezpečení objektu"
 
-msgid "Request for unblocking an object"
-msgstr "Žádost o odblokování objektu"
+msgid "Request form to enable enhanced object security"
+msgstr "Formulář žádosti o zvýšení zabezpečení objektu"
 
-#, python-format
-msgid "Request to cancel the blocking of contact %(handle)s"
-msgstr "Žádost o zrušení blokace kontaktu %(handle)s"
+msgid "Request form to send a password"
+msgstr "Formulář žádosti o poskytnutí hesla"
 
-#, python-format
-msgid "Request to cancel the blocking of domain name %(handle)s"
-msgstr "Žádost o zrušení blokace doménového jména %(handle)s"
+msgid "Request form to send personal information"
+msgstr "Formulář žádosti o výpis osobních údajů"
 
-#, python-format
-msgid "Request to cancel the blocking of keyset %(handle)s"
-msgstr "Žádost o zrušení blokace sady klíčů %(handle)s"
+msgid "Request to disable enhanced object security"
+msgstr "Žádost o zrušení zvýšeného zabezpečení objektu"
 
 #, python-format
-msgid "Request to cancel the blocking of nameserver set %(handle)s"
+msgid "Request to disable enhanced object security of contact %(handle)s"
+msgstr "Žádost o zrušení zvýšeného zabezpečení objektu kontaktu %(handle)s"
+
+#, python-format
+msgid "Request to disable enhanced object security of domain name %(handle)s"
+msgstr ""
+"Žádost o zrušení zvýšeného zabezpečení objektu doménového jména %(handle)s"
+
+#, python-format
+msgid "Request to disable enhanced object security of keyset %(handle)s"
+msgstr "Žádost o zrušení zvýšeného zabezpečení objektu sady klíčů %(handle)s"
+
+#, python-format
+msgid ""
+"Request to disable enhanced object security of nameserver set %(handle)s"
 msgstr "Žádost o zrušení blokace sady jmenných serverů %(handle)s"
+
+msgid "Request to enable enhanced object security"
+msgstr "Žádost o zvýšení zabezpečení objektu"
+
+#, python-format
+msgid "Request to enable enhanced object security of contact %(handle)s"
+msgstr "Žádost o zvýšení zabezpečení objektu kontaktu %(handle)s"
+
+#, python-format
+msgid "Request to enable enhanced object security of domain name %(handle)s"
+msgstr "Žádost o zvýšení zabezpečení objektu doménového jména %(handle)s"
+
+#, python-format
+msgid "Request to enable enhanced object security of keyset %(handle)s"
+msgstr "Žádost o zvýšení zabezpečení objektu sady klíčů %(handle)s"
+
+#, python-format
+msgid "Request to enable enhanced object security of nameserver set %(handle)s"
+msgstr "Žádost o zvýšení blokace sady jmenných serverů %(handle)s"
+
+msgid "Request to personal information"
+msgstr "Žádost o výpis osobních údajů"
+
+msgid "Request to send a password (authinfo)"
+msgstr "Žádost o poskytnutí hesla (authinfo)"
+
+#, python-format
+msgid "Request to send a password (authinfo) for transfer contact %(handle)s"
+msgstr "Žádost o poskytnutí hesla (authinfo) kontaktu %(handle)s"
+
+#, python-format
+msgid ""
+"Request to send a password (authinfo) for transfer domain name %(handle)s"
+msgstr "Žádost o poskytnutí hesla (authinfo) doménového jména %(handle)s"
+
+#, python-format
+msgid "Request to send a password (authinfo) for transfer keyset %(handle)s"
+msgstr "Žádost o poskytnutí hesla (authinfo) sady klíčů %(handle)s"
+
+#, python-format
+msgid ""
+"Request to send a password (authinfo) for transfer nameserver set %(handle)s"
+msgstr "Žádost o poskytnutí hesla (authinfo) sady jmenných serverů %(handle)s"
+
+msgid "Request to send personal information"
+msgstr "Žádost o výpis osobních údajů"
+
+#, python-format
+msgid "Request to send personal information of contact %(handle)s"
+msgstr "Žádost o výpis osobních údajů ke kontaktu %(handle)s"
+
+#, python-format
+msgid "Request to send personal information of contact %(handle)s:"
+msgstr "Žádost o výpis osobních údajů pro kontakt %(handle)s:"
 
 msgid "Reserved"
 msgstr "Rezervováno"
@@ -820,63 +913,85 @@ msgid "Status"
 msgstr "Stav"
 
 #, python-format
-msgid "Subject: Confirmation of the request to block of contact %(handle)s:"
-msgstr "Věc: Potvrzení žádosti o blokaci kontaktu %(handle)s:"
-
-#, python-format
 msgid ""
-"Subject: Confirmation of the request to block of domain name %(handle)s:"
-msgstr "Věc: Potvrzení žádosti o blokaci doménového jména %(handle)s:"
-
-#, python-format
-msgid "Subject: Confirmation of the request to block of keyset %(handle)s:"
-msgstr "Věc: Potvrzení žádosti o blokaci sady klíčů %(handle)s:"
-
-#, python-format
-msgid ""
-"Subject: Confirmation of the request to block of nameserver set %(handle)s:"
-msgstr "Věc: Potvrzení žádosti o blokaci sady jmenných serverů %(handle)s:"
-
-#, python-format
-msgid ""
-"Subject: Confirmation of the request to cancel the blocking of contact "
-"%(handle)s:"
-msgstr "Věc: Potvrzení žádosti o zrušení blokace kontaktu %(handle)s:"
-
-#, python-format
-msgid ""
-"Subject: Confirmation of the request to cancel the blocking of domain name "
-"%(handle)s:"
-msgstr "Věc: Potvrzení žádosti o zrušení blokace doménového jména %(handle)s:"
-
-#, python-format
-msgid ""
-"Subject: Confirmation of the request to cancel the blocking of keyset "
-"%(handle)s:"
-msgstr "Věc: Potvrzení žádosti o zrušení blokace sady klíčů %(handle)s:"
-
-#, python-format
-msgid ""
-"Subject: Confirmation of the request to cancel the blocking of nameserver "
-"set %(handle)s:"
+"Subject: Confirmation of the request to disable enhanced object security of "
+"contact %(handle)s:"
 msgstr ""
-"Věc: Potvrzení žádosti o zrušení blokace sady jmenných serverů %(handle)s:"
+"Věc: Potvrzení žádosti o zrušení zvýšeného zabezpečení kontaktu %(handle)s:"
 
 #, python-format
-msgid "Subject: Request for password for transfer contact %(handle)s:"
-msgstr "Žádost o zaslání hesla pro převod kontaktu %(handle)s:"
+msgid ""
+"Subject: Confirmation of the request to disable enhanced object security of "
+"domain name %(handle)s:"
+msgstr ""
+"Věc: Potvrzení žádosti o zrušení zvýšeného zabezpečení doménového jména "
+"%(handle)s:"
 
 #, python-format
-msgid "Subject: Request for password for transfer domain name %(handle)s:"
-msgstr "Žádost o zaslání hesla pro převod doménového jména %(handle)s:"
+msgid ""
+"Subject: Confirmation of the request to disable enhanced object security of "
+"keyset %(handle)s:"
+msgstr ""
+"Věc: Potvrzení žádosti o zrušení zvýšeného zabezpečení sady klíčů %(handle)s:"
 
 #, python-format
-msgid "Subject: Request for password for transfer keyset %(handle)s:"
-msgstr "Žádost o zaslání hesla pro převod sady klíčů %(handle)s:"
+msgid ""
+"Subject: Confirmation of the request to disable enhanced object security of "
+"nameserver set %(handle)s:"
+msgstr ""
+"Věc: Potvrzení žádosti o zrušení zvýšeného zabezpečení sady jmenných serverů "
+"%(handle)s:"
 
 #, python-format
-msgid "Subject: Request for password for transfer nameserver set %(handle)s:"
-msgstr "Žádost o zaslání hesla pro převod sady jmenných serverů %(handle)s:"
+msgid ""
+"Subject: Confirmation of the request to enable enhanced object security of "
+"contact %(handle)s:"
+msgstr "Věc: Potvrzení žádosti o zvýšení zabezpečení kontaktu %(handle)s:"
+
+#, python-format
+msgid ""
+"Subject: Confirmation of the request to enable enhanced object security of "
+"domain name %(handle)s:"
+msgstr ""
+"Věc: Potvrzení žádosti o zvýšení zabezpečení doménového jména %(handle)s:"
+
+#, python-format
+msgid ""
+"Subject: Confirmation of the request to enable enhanced object security of "
+"keyset %(handle)s:"
+msgstr "Věc: Potvrzení žádosti o zvýšení zabezpečení sady klíčů %(handle)s:"
+
+#, python-format
+msgid ""
+"Subject: Confirmation of the request to enable enhanced object security of "
+"nameserver set %(handle)s:"
+msgstr ""
+"Věc: Potvrzení žádosti o zvýšení zabezpečení sady jmenných serverů "
+"%(handle)s:"
+
+#, python-format
+msgid ""
+"Subject: Request to send a password (authinfo) for transfer contact "
+"%(handle)s:"
+msgstr "Žádost o poskytnutí hesla (authinfo) kontaktu %(handle)s:"
+
+#, python-format
+msgid ""
+"Subject: Request to send a password (authinfo) for transfer domain name "
+"%(handle)s:"
+msgstr "Žádost o poskytnutí hesla (authinfo) doménového jména %(handle)s:"
+
+#, python-format
+msgid ""
+"Subject: Request to send a password (authinfo) for transfer keyset "
+"%(handle)s:"
+msgstr "Žádost o poskytnutí hesla (authinfo) sady klíčů %(handle)s:"
+
+#, python-format
+msgid ""
+"Subject: Request to send a password (authinfo) for transfer nameserver set "
+"%(handle)s:"
+msgstr "Žádost o poskytnutí hesla (authinfo) sady jmenných serverů %(handle)s:"
 
 msgid "Technical contact"
 msgstr "Technický kontakt"
@@ -886,6 +1001,15 @@ msgstr "Technologie"
 
 msgid "The email was not found or the address is not valid."
 msgstr "E-mail nebyl nalezen nebo je neplatný."
+
+msgid ""
+"Then the register will send an informational email to the holder in case of "
+"domains, to the contact itself, or to all technical contacts in case of "
+"nameserver sets or key sets."
+msgstr ""
+"Následně registr odešle informační e-mail buď držiteli v případě domény, "
+"kontaktu samotnému nebo všem technickým kontaktům v případě sady jmenných "
+"serverů nebo sady klíčů."
 
 msgid ""
 "There are multiple records having the given handle. Continue with selection "
@@ -920,9 +1044,6 @@ msgstr ""
 msgid "Transfer of object is prohibited. The request can not be accepted."
 msgstr "Převod objektu není povolen. Žádost nelze přijmout."
 
-msgid "Transfer password request"
-msgstr "Žádost o heslo pro převod"
-
 msgid "URL"
 msgstr "URL"
 
@@ -932,9 +1053,6 @@ msgstr "Nepřiřazeno"
 msgctxt "verb_inf"
 msgid "Unblock"
 msgstr "Odblokovat"
-
-msgid "Unblocking Request"
-msgstr "Žádost o odblokování"
 
 msgid "Unmanaged zone"
 msgstr "Nepodporovaná zóna"

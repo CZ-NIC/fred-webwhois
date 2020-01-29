@@ -2,17 +2,26 @@
 {% load i18n %}
 
 {% block webwhois_header %}
-    <h1>{% trans "Request for personal data" %}</h1>
+    <h1>{% trans "Request to send personal information" %}</h1>
+    <p>
+        {% trans "After you submit this request, the register will send a complete report about personal information that is recorded as your contact in the register to the contact, unless you request to send it to a custom email." %}
+    </p>
+    <p>
+        {% trans "If you request to send it to a custom email, it must be verified first that the person confirming it is authorized to confirm the request." %}
+    </p>
 {% endblock webwhois_header %}
 
 {% block webwhois_content %}
-    <div id="public_request_forms">
-        <form id="personal_info_form" action="{% url "webwhois:form_personal_info" %}" method="post" class="webwhois-public-request">
-            {% csrf_token %}
+    <div id="form_wrapper">
+        <h2>{% trans "Request form to send personal information" %}</h2>
+        <div id="public_request_forms">
+            <form id="personal_info_form" action="{% url "webwhois:form_personal_info" %}" method="post" class="webwhois-public-request">
+                {% csrf_token %}
 
-            {% include "webwhois/include/public_request_form_fields.html" %}
+                {% include "webwhois/include/public_request_form_fields.html" %}
 
-            <button id="submit_button" type="submit">{% trans "Send" %}</button>
-        </form>
+                <button id="submit_button" type="submit">{% trans "Send" %}</button>
+            </form>
+        </div>
     </div>
 {% endblock webwhois_content %}

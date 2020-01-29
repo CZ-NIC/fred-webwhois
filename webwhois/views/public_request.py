@@ -342,10 +342,10 @@ class TextSendPasswordMixin(object):
     """Texts shared by all Request for password response views."""
 
     text_title = {
-        'contact': _('Request for password for transfer contact %(handle)s'),
-        'domain': _('Request for password for transfer domain name %(handle)s'),
-        'nsset': _('Request for password for transfer nameserver set %(handle)s'),
-        'keyset': _('Request for password for transfer keyset %(handle)s'),
+        'contact': _('Request to send a password (authinfo) for transfer contact %(handle)s'),
+        'domain': _('Request to send a password (authinfo) for transfer domain name %(handle)s'),
+        'nsset': _('Request to send a password (authinfo) for transfer nameserver set %(handle)s'),
+        'keyset': _('Request to send a password (authinfo) for transfer keyset %(handle)s'),
     }
 
 
@@ -394,24 +394,24 @@ class TextPasswordAndBlockMixin(TextSendPasswordMixin):
 
     text_title = {
         'send_password': TextSendPasswordMixin.text_title,
-        'personal_info': _('Request for personal data of contact %(handle)s'),
+        'personal_info': _('Request to send personal information of contact %(handle)s'),
         'block_transfer': {
-            'contact': _('Request for blocking of contact %(handle)s'),
-            'domain': _('Request for blocking of domain name %(handle)s'),
-            'nsset': _('Request for blocking of nameserver set %(handle)s'),
-            'keyset': _('Request for blocking of keyset %(handle)s'),
+            'contact': _('Request to enable enhanced object security of contact %(handle)s'),
+            'domain': _('Request to enable enhanced object security of domain name %(handle)s'),
+            'nsset': _('Request to enable enhanced object security of nameserver set %(handle)s'),
+            'keyset': _('Request to enable enhanced object security of keyset %(handle)s'),
         },
         'block': {
-            'contact': _('Request for blocking of contact %(handle)s'),
-            'domain': _('Request for blocking of domain name %(handle)s'),
-            'nsset': _('Request for blocking of nameserver set %(handle)s'),
-            'keyset': _('Request for blocking of keyset %(handle)s'),
+            'contact': _('Request to enable enhanced object security of contact %(handle)s'),
+            'domain': _('Request to enable enhanced object security of domain name %(handle)s'),
+            'nsset': _('Request to enable enhanced object security of nameserver set %(handle)s'),
+            'keyset': _('Request to enable enhanced object security of keyset %(handle)s'),
         },
         'unblock': {
-            'contact': _('Request to cancel the blocking of contact %(handle)s'),
-            'domain': _('Request to cancel the blocking of domain name %(handle)s'),
-            'nsset': _('Request to cancel the blocking of nameserver set %(handle)s'),
-            'keyset': _('Request to cancel the blocking of keyset %(handle)s'),
+            'contact': _('Request to disable enhanced object security of contact %(handle)s'),
+            'domain': _('Request to disable enhanced object security of domain name %(handle)s'),
+            'nsset': _('Request to disable enhanced object security of nameserver set %(handle)s'),
+            'keyset': _('Request to disable enhanced object security of keyset %(handle)s'),
         },
     }
 
@@ -423,23 +423,31 @@ class CustomEmailView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
 
     text_subject = {
         'send_password': {
-            'contact': _('Subject: Request for password for transfer contact %(handle)s:'),
-            'domain': _('Subject: Request for password for transfer domain name %(handle)s:'),
-            'nsset': _('Subject: Request for password for transfer nameserver set %(handle)s:'),
-            'keyset': _('Subject: Request for password for transfer keyset %(handle)s:'),
+            'contact': _('Subject: Request to send a password (authinfo) for transfer contact %(handle)s:'),
+            'domain': _('Subject: Request to send a password (authinfo) for transfer domain name %(handle)s:'),
+            'nsset': _('Subject: Request to send a password (authinfo) for transfer nameserver set %(handle)s:'),
+            'keyset': _('Subject: Request to send a password (authinfo) for transfer keyset %(handle)s:'),
         },
-        'personal_info': _('Request for personal data of contact %(handle)s:'),
+        'personal_info': _('Request to send personal information of contact %(handle)s:'),
         'block': {
-            'contact': _('Subject: Confirmation of the request to block of contact %(handle)s:'),
-            'domain': _('Subject: Confirmation of the request to block of domain name %(handle)s:'),
-            'nsset': _('Subject: Confirmation of the request to block of nameserver set %(handle)s:'),
-            'keyset': _('Subject: Confirmation of the request to block of keyset %(handle)s:'),
+            'contact': _('Subject: Confirmation of the request to enable enhanced object security of '
+                         'contact %(handle)s:'),
+            'domain': _('Subject: Confirmation of the request to enable enhanced object security of '
+                        'domain name %(handle)s:'),
+            'nsset': _('Subject: Confirmation of the request to enable enhanced object security of '
+                       'nameserver set %(handle)s:'),
+            'keyset': _('Subject: Confirmation of the request to enable enhanced object security of '
+                        'keyset %(handle)s:'),
         },
         'unblock': {
-            'contact': _('Subject: Confirmation of the request to cancel the blocking of contact %(handle)s:'),
-            'domain': _('Subject: Confirmation of the request to cancel the blocking of domain name %(handle)s:'),
-            'nsset': _('Subject: Confirmation of the request to cancel the blocking of nameserver set %(handle)s:'),
-            'keyset': _('Subject: Confirmation of the request to cancel the blocking of keyset %(handle)s:'),
+            'contact': _('Subject: Confirmation of the request to disable enhanced object security of '
+                         'contact %(handle)s:'),
+            'domain': _('Subject: Confirmation of the request to disable enhanced object security of '
+                        'domain name %(handle)s:'),
+            'nsset': _('Subject: Confirmation of the request to disable enhanced object security of '
+                       'nameserver set %(handle)s:'),
+            'keyset': _('Subject: Confirmation of the request to disable enhanced object security of '
+                        'keyset %(handle)s:'),
         },
     }
     text_content = {
@@ -597,21 +605,21 @@ class NotarizedLetterView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
         if isinstance(public_response, SendPasswordResponse):
             title = self.text_title['send_password'][public_response.object_type] % text_context
             context['text_title'] = context['text_header'] = title
-            context['pdf_name'] = _("Transfer password request")
+            context['pdf_name'] = _("Password (authinfo) request")
         elif isinstance(public_response, PersonalInfoResponse):
             title = self.text_title['personal_info'] % text_context
             context['text_title'] = context['text_header'] = title
-            context['pdf_name'] = _("Request for personal data")
+            context['pdf_name'] = _("Request to personal information")
         else:
             assert isinstance(public_response, BlockResponse)
             if public_response.action == 'block':
                 title = self.text_title['block'][public_response.object_type] % text_context
                 context['text_title'] = context['text_header'] = title
-                context["pdf_name"] = _("Blocking Request")
+                context["pdf_name"] = _("Enabling enhanced object security Request")
             else:
                 title = self.text_title['unblock'][public_response.object_type] % text_context
                 context['text_title'] = context['text_header'] = title
-                context["pdf_name"] = _("Unblocking Request")
+                context["pdf_name"] = _("Disabling enhanced object security Request")
         return context
 
 
