@@ -25,3 +25,6 @@ STATUS_VERIFICATION_FAILED = 'contactFailedManualVerification'
 STATUS_CONDITIONALLY_IDENTIFIED = 'conditionallyIdentifiedContact'
 STATUS_IDENTIFIED = 'identifiedContact'
 STATUS_VALIDATED = 'validatedContact'
+
+SEND_TO_IN_REGISTRY = 'email_in_registry'
+SEND_TO_CUSTOM = 'custom_email'

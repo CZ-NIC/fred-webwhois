@@ -24,6 +24,7 @@ from fred_idl.Registry.PublicRequest import OBJECT_NOT_FOUND
 
 from webwhois.forms import SendPasswordForm
 from webwhois.forms.public_request import ConfirmationMethod
+from webwhois.forms.widgets import DeliveryType
 from webwhois.tests.utils import apply_patch
 from webwhois.views.public_request_mixin import PublicRequestFormView, PublicRequestKnownException, cache
 
@@ -126,16 +127,15 @@ class TestPublicRequestFormView(SimpleTestCase):
             "object_type": "domain",
             "handle": "foo.cz",
             "confirmation_method": "signed_email",
-            "send_to": "email_in_registry",
+            "send_to_0": "email_in_registry",
         })
         self.assertTrue(form.is_valid())
         pubreq.logged_call_to_registry(form)
         cleaned_data = {
             'handle': 'foo.cz',
             'object_type': 'domain',
-            'custom_email': '',
             'confirmation_method': ConfirmationMethod.SIGNED_EMAIL,
-            'send_to': 'email_in_registry',
+            'send_to': DeliveryType('email_in_registry', ''),
         }
         self.assertEqual(cache.get(pubreq.public_key), {'cleaned_data': cleaned_data, 'public_request_id': 42})
         self.assertEqual(self.LOGGER.mock_calls, [])
@@ -150,7 +150,7 @@ class TestPublicRequestFormView(SimpleTestCase):
             "object_type": "domain",
             "handle": "foo.cz",
             "confirmation_method": "signed_email",
-            "send_to": "email_in_registry",
+            "send_to_0": "email_in_registry",
         })
         self.assertTrue(form.is_valid())
         return form
@@ -170,9 +170,8 @@ class TestPublicRequestFormView(SimpleTestCase):
         cleaned_data = {
             'handle': 'foo.cz',
             'object_type': 'domain',
-            'custom_email': '',
             'confirmation_method': ConfirmationMethod.SIGNED_EMAIL,
-            'send_to': 'email_in_registry',
+            'send_to': DeliveryType('email_in_registry', ''),
         }
         self.assertEqual(cache.get(pubreq.public_key), {'cleaned_data': cleaned_data, 'public_request_id': 42})
 

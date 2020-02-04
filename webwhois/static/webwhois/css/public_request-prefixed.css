@@ -1,0 +1,62 @@
+/* prefixed by https://autoprefixer.github.io (PostCSS: v7.0.23, autoprefixer: v9.7.3) */
+
+.webwhois-public-request {
+    display: -ms-inline-grid;
+    display: inline-grid;
+    grid-auto-columns: -webkit-max-content;
+    grid-auto-columns: max-content;
+    grid-row-gap: 10px;
+}
+
+.label-wrapper {
+    -ms-grid-column: 1;
+    grid-column: 1;
+    margin-right: 10px;
+}
+
+.field-wrapper {
+    -ms-grid-column: 2;
+    -ms-grid-column-span: 2;
+    grid-column: 2 / 4;
+}
+
+.webwhois-public-request > button {
+    -ms-grid-column: 1;
+    -ms-grid-column-span: 3;
+    grid-column: 1 / 4;
+    -ms-grid-column-align: end;
+        justify-self: end;
+}
+
+#send_password_form .label-confirmation_method,
+#personal_info_form .label-confirmation_method {
+    -ms-grid-column: 2;
+    grid-column: 2;
+}
+
+#send_password_form .label-confirmation_method + .field-wrapper,
+#personal_info_form .label-confirmation_method + .field-wrapper  {
+    -ms-grid-column: 3;
+    grid-column: 3;
+}
+
+.field-wrapper > label:not(:last-of-type) {
+    display: block;
+}
+
+.field-wrapper > label {
+    margin: 0 20px 10px 0;
+}
+
+.help-text {
+    display: none;
+}
+
+#id_lock_type {
+    margin: 0;
+    padding: 0;
+}
+#id_lock_type li {
+    display: inline;
+    list-style-type: none;
+}

@@ -2,21 +2,32 @@
 {% load i18n %}
 
 {% block webwhois_header %}
-    <h1>{% trans "Request for unblocking an object" %}</h1>
+    <h1>{% trans "Request to disable enhanced object security" %}</h1>
+    <p>
+        {% trans "After you submit this request, the register will revoke a prohibition, according to your choice, to transfer your object or to modify its details (changes, removals), i.e. it will allow to transfer or modify the object again." %}
+    </p>
+    <p>
+        {% trans "Then the register will send an informational email to the holder in case of domains, to the contact itself, or to all technical contacts in case of nameserver sets or key sets." %}
+    </p>
+    <p>
+        {% url 'webwhois:form_whois' as whois_url %}
+        {% blocktrans trimmed %}
+            A prerequisite for a successful fulfilment is that the object is already prohibited to be transferred or modified. You can find this out by <a href="{{ whois_url }}">looking up your object</a> in the register and verifying that there is at least one of the flags “Sponsoring registrar change forbidden” or “Update forbidden” in the Status description.
+        {% endblocktrans %}
+    </p>
 {% endblock webwhois_header %}
 
 {% block webwhois_content %}
-    <div id="public_request_forms">
-        {% include "webwhois/public_request_form_menu.html" with pubreq_selected_menu="unblock_object" %}
-        <form action="{% url "webwhois:form_unblock_object" %}" method="post" class="webwhois-public-request">
-            {% csrf_token %}
-            <table>
-                <caption>{% trans "Unblock" context "verb_inf" %}</caption>
-                {{ form.as_table }}
-                <tr>
-                    <th></th><td><button id="submit_button" type="submit">{% trans "Send" %}</button></td>
-                </tr>
-            </table>
-        </form>
+    <div id="form_wrapper">
+        <h2>{% trans "Request form to disable enhanced object security" %}</h2>
+        <div id="public_request_forms">
+            <form id="unblock_object_form" action="{% url "webwhois:form_unblock_object" %}" method="post" class="webwhois-public-request">
+                {% csrf_token %}
+
+                {% include "webwhois/include/public_request_form_fields.html" %}
+
+                <button id="submit_button" type="submit">{% trans "Send" %}</button>
+            </form>
+        </div>
     </div>
 {% endblock webwhois_content %}

@@ -22,7 +22,7 @@ from django.urls import reverse
 from fred_idl.Registry.Whois import OBJECT_NOT_FOUND
 
 from webwhois.forms import BlockObjectForm, SendPasswordForm, UnblockObjectForm, WhoisForm
-from webwhois.forms.public_request import ConfirmationMethod, PublicRequestBaseForm
+from webwhois.forms.public_request import ConfirmationMethod, DeliveryType, PublicRequestBaseForm
 from webwhois.tests.utils import TEMPLATES, apply_patch
 from webwhois.utils import WHOIS
 
@@ -120,14 +120,13 @@ class TestSendPasswordForm(SimpleTestCase):
             "object_type": "domain",
             "handle": "foo.cz",
             "confirmation_method": "signed_email",
-            "send_to": "email_in_registry",
+            "send_to_0": "email_in_registry",
         })
         self.assertEqual(form.errors, {})
         self.assertEqual(form.cleaned_data, {
             'object_type': 'domain',
             'handle': 'foo.cz',
-            'send_to': 'email_in_registry',
-            'custom_email': '',
+            'send_to': DeliveryType('email_in_registry', ""),
             'confirmation_method': ConfirmationMethod.SIGNED_EMAIL,
         })
 
@@ -144,7 +143,7 @@ class TestSendPasswordForm(SimpleTestCase):
             "object_type": "domain",
             "handle": "o" * 256,
             "confirmation_method": "signed_email",
-            "send_to": "email_in_registry",
+            "send_to_0": "email_in_registry",
         })
         self.assertEqual(form.errors, {'handle': ['Ensure this value has at most 255 characters (it has 256).']})
 
@@ -153,7 +152,7 @@ class TestSendPasswordForm(SimpleTestCase):
             "object_type": "domain",
             "handle": "  foo  ",
             "confirmation_method": "signed_email",
-            "send_to": "email_in_registry",
+            "send_to_0": "email_in_registry",
         })
         self.assertEqual(form.errors, {})
         self.assertEqual(form.cleaned_data["handle"], "foo")
@@ -163,7 +162,7 @@ class TestSendPasswordForm(SimpleTestCase):
             "object_type": "foo",
             "handle": "foo.cz",
             "confirmation_method": "foo",
-            "send_to": "foo",
+            "send_to_0": "foo",
         })
         self.assertEqual(form.errors, {
             'confirmation_method': ['Select a valid choice. foo is not one of the available choices.'],
@@ -176,21 +175,21 @@ class TestSendPasswordForm(SimpleTestCase):
             "object_type": "domain",
             "handle": "foo.cz",
             "confirmation_method": "signed_email",
-            "send_to": "email_in_registry",
-            "custom_email": "foo",
+            "send_to_0": "email_in_registry",
+            "send_to_1": "foo",
         })
-        self.assertEqual(form.errors, {'custom_email': ['Enter a valid email address.']})
+        self.assertEqual(form.errors, {'send_to': ['Enter a valid email address.']})
 
     def test_custom_email_and_sent_to_registry(self):
         form = SendPasswordForm({
             "object_type": "domain",
             "handle": "foo.cz",
             "confirmation_method": "signed_email",
-            "send_to": "email_in_registry",
-            "custom_email": "foo@foo.off",
+            "send_to_0": "email_in_registry",
+            "send_to_1": "foo@foo.off",
         })
         self.assertEqual(form.errors, {
-            '__all__': ['Option "Send to email in registry" is incompatible with custom email. '
+            'send_to': ['Option "Send to email in registry" is incompatible with custom email. '
                         'Please choose one of the two options.']
         })
 
@@ -199,11 +198,10 @@ class TestSendPasswordForm(SimpleTestCase):
             "object_type": "domain",
             "handle": "foo.cz",
             "confirmation_method": "signed_email",
-            "send_to": "custom_email",
-            "custom_email": "",
+            "send_to_0": "custom_email",
         })
         self.assertEqual(form.errors, {
-            '__all__': ['Custom email is required as "Send to custom email" option is selected. Please fill it in.']
+            'send_to': ['Custom email is required as "Send to custom email" option is selected. Please fill it in.']
         })
 
     def test_notarized_letter_send_to_registry(self):
@@ -211,7 +209,8 @@ class TestSendPasswordForm(SimpleTestCase):
             "object_type": "domain",
             "handle": "foo.cz",
             "confirmation_method": "notarized_letter",
-            "send_to": "email_in_registry",
+            "send_to_0": "email_in_registry",
+            "send_to_1": "",
         })
         self.assertEqual(form.errors, {
             '__all__': ['Letter with officially verified signature can be sent only to the custom email. '
@@ -223,10 +222,10 @@ class TestSendPasswordForm(SimpleTestCase):
             "object_type": "domain",
             "handle": "foo.cz",
             "confirmation_method": "notarized_letter",
-            "send_to": "custom_email",
+            "send_to_0": "custom_email",
         })
         self.assertEqual(form.errors, {
-            '__all__': ['Custom email is required as "Send to custom email" option is selected. Please fill it in.']
+            'send_to': ['Custom email is required as "Send to custom email" option is selected. Please fill it in.']
         })
 
     def test_notarized_letter(self):
@@ -234,16 +233,15 @@ class TestSendPasswordForm(SimpleTestCase):
             "object_type": "domain",
             "handle": "foo.cz",
             "confirmation_method": "notarized_letter",
-            "send_to": "custom_email",
-            "custom_email": "foo@foo.off",
+            "send_to_0": "custom_email",
+            "send_to_1": "foo@foo.off",
         })
         self.assertEqual(form.errors, {})
         self.assertEqual(form.cleaned_data, {
             "object_type": "domain",
             "handle": "foo.cz",
             "confirmation_method": ConfirmationMethod.NOTARIZED_LETTER,
-            "send_to": "custom_email",
-            "custom_email": "foo@foo.off",
+            "send_to": DeliveryType("custom_email", "foo@foo.off"),
         })
 
 

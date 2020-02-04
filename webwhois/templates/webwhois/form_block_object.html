@@ -2,21 +2,26 @@
 {% load i18n %}
 
 {% block webwhois_header %}
-    <h1>{% trans "Request for blocking an object" %}</h1>
+    <h1>{% trans "Request to enable enhanced object security" %}</h1>
+    <p>
+        {% trans "After you submit this request, the register will prohibit, according to your choice, to transfer your object or to modify its details (changes, removals)." %}
+    </p>
+    <p>
+        {% trans "Then the register will send an informational email to the holder in case of domains, to the contact itself, or to all technical contacts in case of nameserver sets or key sets." %}
+    </p>
 {% endblock webwhois_header %}
 
 {% block webwhois_content %}
-    <div id="public_request_forms">
-        {% include "webwhois/public_request_form_menu.html" with pubreq_selected_menu="block_object" %}
-        <form action="{% url "webwhois:form_block_object" %}" method="post" class="webwhois-public-request">
-            {% csrf_token %}
-            <table>
-                <caption>{% trans "Block" context "verb_inf" %}</caption>
-                {{ form.as_table }}
-                <tr>
-                    <th></th><td><button id="submit_button" type="submit">{% trans "Send" %}</button></td>
-                </tr>
-            </table>
-        </form>
+    <div id="form_wrapper">
+        <h2>{% trans "Request form to enable enhanced object security" %}</h2>
+        <div id="public_request_forms">
+            <form id="block_object_form" action="{% url "webwhois:form_block_object" %}" method="post" class="webwhois-public-request">
+                {% csrf_token %}
+
+                {% include "webwhois/include/public_request_form_fields.html" %}
+
+                <button id="submit_button" type="submit">{% trans "Send" %}</button>
+            </form>
+        </div>
     </div>
 {% endblock webwhois_content %}
