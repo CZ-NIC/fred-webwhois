@@ -37,7 +37,7 @@ class custom_sdist(sdist):
 
 
 setup(name='fred-webwhois',
-      version='1.16.1',
+      version='1.17.0',
       description='NIC.CZ Fred Web Whois',
       author='Zdeněk Böhm, CZ.NIC',
       author_email='zdenek.bohm@nic.cz',

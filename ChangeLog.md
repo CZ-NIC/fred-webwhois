@@ -1,3 +1,12 @@
+## 1.17 (2020-03-03) ##
+
+ * Refactor public requests.
+ * Drop support for python 2.7.
+ * Drop deprecated ``PublicRequestBaseForm.CONFIRMATION_METHOD``.
+ * Drop deprecated usage of pylogger.
+ * Update implementation of ``WEBWHOIS_LOGGER`` setting.
+ * Update development tools settings, add mypy.
+
 ## 1.16.1 (2019-11-20) ##
  * Update spec file for F31 and Centos/RHEL 8
 
