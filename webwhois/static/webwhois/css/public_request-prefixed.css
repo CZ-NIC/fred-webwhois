@@ -8,6 +8,12 @@
     grid-row-gap: 10px;
 }
 
+@media screen and (max-width: 850px) {
+    .webwhois-public-request {
+        display: block;
+    }
+}
+
 .label-wrapper {
     -ms-grid-column: 1;
     grid-column: 1;
