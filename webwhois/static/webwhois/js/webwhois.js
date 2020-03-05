@@ -3,28 +3,30 @@
 */
 
 (function ($) {
-
     $(document).ready(function() {
-        $("input[name=send_to]").click(function() {
+        $("input[name=send_to_0]").click(function() {
             if ($(this).val() == "email_in_registry") {
-                $("input[name=custom_email]").val("").prop('disabled', true).removeClass("required");
+                $("input[name=send_to_1]").val("").prop('disabled', true).removeClass("required");
                 $("select[name=confirmation_method]").val("signed_email").prop('disabled', true);
             } else {
-                $("input[name=custom_email]").prop('disabled', false).addClass("required");
+                $("input[name=send_to_1]").prop('disabled', false).addClass("required");
                 $("select[name=confirmation_method]").prop('disabled', false);
             }
         });
-        if ($("input[name=send_to]:checked").val() == "email_in_registry") {
-            $("input[name=custom_email]").val("").prop('disabled', true).removeClass("required");
+
+        if ($("input[name=send_to_0]:checked").val() == "email_in_registry") {
+            $("input[name=send_to_1]").val("").prop('disabled', true).removeClass("required");
             $("select[name=confirmation_method]").prop('disabled', true);
         } else {
-            $("input[name=custom_email]").prop('disabled', false).addClass("required");
+            $("input[name=send_to_1]").prop('disabled', false).addClass("required");
         }
 
         $("select[name=confirmation_method]").change(function () {
+
+
             if ($(this).val() == "notarized_letter") {
-                $("input[name=send_to][value=custom_email]").prop('checked', true);
-                $("input[name=custom_email]").prop('disabled', false).addClass("required");
+                $("input[name=send_to_0][value=custom_email]").prop('checked', true);
+                $("input[name=send_to_1]").prop('disabled', false).addClass("required");
             }
         });
 
