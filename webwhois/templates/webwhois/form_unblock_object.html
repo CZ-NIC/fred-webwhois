@@ -12,7 +12,7 @@
     <p>
         {% url 'webwhois:form_whois' as whois_url %}
         {% blocktrans trimmed %}
-            A prerequisite for a successful fulfilment is that the object is already prohibited to be transferred or modified. You can find this out by <a href="{{ whois_url }}">looking up your object</a> in the register and verifying that there is at least one of the flags “Sponsoring registrar change forbidden” or “Update forbidden” in the Status description.
+            A prerequisite for a successful fulfilment is that the object is already prohibited to be transferred or modified. You can find this out by <a href="{{ whois_url }}">looking up your object</a> in the register and verifying that there is at least one of the flags <i>“Sponsoring registrar change forbidden”</i> or <i>“Update forbidden”</i> in the Status description.
         {% endblocktrans %}
     </p>
 {% endblock webwhois_header %}

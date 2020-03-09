@@ -1,7 +1,6 @@
 /* prefixed by https://autoprefixer.github.io (PostCSS: v7.0.23, autoprefixer: v9.7.3) */
 
 .webwhois-public-request {
-    display: -ms-inline-grid;
     display: inline-grid;
     grid-auto-columns: -webkit-max-content;
     grid-auto-columns: max-content;
@@ -52,6 +51,11 @@
 
 .field-wrapper > label {
     margin: 0 20px 10px 0;
+}
+
+.field-wrapper > .errorlist li {
+    min-width: 230px;
+    box-sizing: border-box;
 }
 
 .help-text {
