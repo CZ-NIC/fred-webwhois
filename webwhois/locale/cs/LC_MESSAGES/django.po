@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-11 09:55+0100\n"
+"POT-Creation-Date: 2020-03-11 10:56+0100\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -625,6 +625,9 @@ msgstr "Prohlížení seznamu jmenných serverů (DNS)"
 
 msgid "Name server set not found"
 msgstr "Sada jmenných serverů nenalezena"
+
+msgid "New search in the registry"
+msgstr "Nové vyhledávání v registru"
 
 msgid "No"
 msgstr "Ne"
