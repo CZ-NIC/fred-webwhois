@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2019  CZ.NIC, z. s. p. o.
+# Copyright (C) 2016-2020  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -28,5 +28,4 @@ STATIC_URL = '/static/'
 
 WEBWHOIS_CORBA_EXPORT_MODULES = ('Registry', 'ccReg')
 WEBWHOIS_LOGGER = None
-WEBWHOIS_DNSSEC_URL = "http://www.nic.cz/dnssec/"  # ths can be None
 WEBWHOIS_CAPTCHA_MAX_REQUESTS = 100

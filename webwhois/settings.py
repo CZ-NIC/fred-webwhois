@@ -41,8 +41,6 @@ class WebwhoisAppSettings(AppSettings):
 
 WEBWHOIS_SETTINGS = WebwhoisAppSettings()
 
-WEBWHOIS_DNSSEC_URL = getattr(settings, 'WEBWHOIS_DNSSEC_URL', None)
-
 # Groups names that will be displayed with/without certifications.
 WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED = getattr(settings, 'WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', None)
 WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED = getattr(settings, 'WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', None)

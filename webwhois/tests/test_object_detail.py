@@ -37,8 +37,6 @@ from webwhois.views.detail_nsset import NssetDetailMixin
 
 from .utils import CALL_BOOL, TEMPLATES, apply_patch, make_keyset
 
-WEBWHOIS_DNSSEC_URL = "http://www.nic.cz/dnssec/"
-
 
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None, LANGUAGE_CODE='en',
                    CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}},
@@ -646,7 +644,6 @@ class TestDetailDomain(ObjectDetailMixin):
         WHOIS.get_domain_by_handle.return_value = self._get_domain(handle=handle) if handle else self._get_domain()
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
 
-    @patch("webwhois.views.detail_domain.WEBWHOIS_DNSSEC_URL", WEBWHOIS_DNSSEC_URL)
     def test_domain(self):
         self._mocks_for_domain_detail()
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
@@ -674,7 +671,6 @@ class TestDetailDomain(ObjectDetailMixin):
             call.get_contact_by_handle('KONTAKT'),
             call.get_registrar_by_handle('REG-FRED_A')
         ])
-        self.assertContains(response, '<a href="%s">DNSSEC</a>' % WEBWHOIS_DNSSEC_URL, html=True)
 
     def test_domain_without_nsset_and_keyset(self):
         WHOIS.get_contact_status_descriptions.return_value = self._get_contact_status()

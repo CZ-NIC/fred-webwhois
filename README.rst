@@ -147,23 +147,4 @@ Default value::
     []
 
 
-DNSSEC settings
----------------
-
-Information about the DNSSEC system. There is a link displayed on the page above the list of registrars.
-
-``WEBWHOIS_DNSSEC_URL``
-^^^^^^^^^^^^^^^^^^^^^^^
-
-The ``WEBWHOIS_DNSSEC_URL`` variable containts a link to the page describing the system. It can be ``None``.
-
-Example::
-
-    WEBWHOIS_DNSSEC_URL = "http://www.nic.cz/dnssec/"
-
-Default value::
-
-    None
-
-
 .. _FRED: https://fred.nic.cz/

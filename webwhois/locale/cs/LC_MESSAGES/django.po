@@ -883,8 +883,8 @@ msgstr "Výsledek vyhledávání <strong>%(handle)s</strong>:"
 msgid "Secure Entry Point (SEP)"
 msgstr "Secure Entry Point (SEP)"
 
-msgid "Secured by"
-msgstr "Zabezpečeno pomocí"
+msgid "Secured by DNSSEC"
+msgstr "Zabezpečeno pomocí DNSSEC"
 
 msgid "Send"
 msgstr "Odeslat"
