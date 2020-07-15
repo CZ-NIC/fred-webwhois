@@ -1,3 +1,7 @@
+## Unreleased ##
+
+ * Drop setting ``WEBWHOIS_DNSSEC_URL``.
+
 ## 1.17 (2020-03-03) ##
 
  * Refactor public requests.

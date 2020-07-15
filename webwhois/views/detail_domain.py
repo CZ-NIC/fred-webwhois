@@ -24,7 +24,6 @@ from fred_idl.Registry.Whois import INVALID_LABEL, OBJECT_DELETE_CANDIDATE, OBJE
     UNMANAGED_ZONE
 
 from webwhois.constants import STATUS_DELETE_CANDIDATE
-from webwhois.settings import WEBWHOIS_DNSSEC_URL
 from webwhois.utils import WHOIS
 from webwhois.views import KeysetDetailMixin, NssetDetailMixin
 from webwhois.views.base import RegistryObjectMixin
@@ -119,10 +118,6 @@ class DomainDetailMixin(RegistryObjectMixin):
         if registry_object.keyset_handle:
             data["keyset"] = {"detail": WHOIS.get_keyset_by_handle(registry_object.keyset_handle)}
             KeysetDetailMixin.append_keyset_related(data["keyset"])
-
-    def get_context_data(self, **kwargs):
-        kwargs.setdefault("DNSSEC_URL", WEBWHOIS_DNSSEC_URL)
-        return super(DomainDetailMixin, self).get_context_data(**kwargs)
 
 
 class DomainDetailView(DomainDetailMixin, TemplateView):

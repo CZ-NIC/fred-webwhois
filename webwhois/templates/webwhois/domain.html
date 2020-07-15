@@ -91,7 +91,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <th>{% trans "Secured by" %} {% if DNSSEC_URL %}<a href="{{ DNSSEC_URL }}">DNSSEC</a>{% else %}DNSSEC{% endif %}</th>
+                        <th>{% trans "Secured by DNSSEC" %}</th>
                         <td class="dnssec">
                             {% if domain.keyset_handle %}
                                 <img src='{% static "webwhois/img/icon-yes.gif" %}' alt='{% trans "Yes" %}'>
