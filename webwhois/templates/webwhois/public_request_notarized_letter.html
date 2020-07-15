@@ -1,9 +1,7 @@
 {% extends "webwhois/block_main.html" %}
 {% load i18n %}
 
-{% block title %}
-    {{ block.super }} - {{ text_title }}
-{% endblock %}
+{% block title %}{{ text_title }} - {{ block.super }}{% endblock %}
 
 {% block webwhois_header %}
     <h1>{{ text_header }}</h1>

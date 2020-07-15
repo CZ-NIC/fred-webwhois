@@ -1,7 +1,7 @@
 {% extends "webwhois/block_main.html" %}
 {% load i18n %}
 
-{% block title %}{{ block.super }} - {% trans "Keyset" %} {{ handle }}{% endblock %}
+{% block title %}{% trans "Keyset" %} {{ handle }} - {{ block.super }}{% endblock %}
 
 {% block webwhois_header %}
     {{ block.super }}

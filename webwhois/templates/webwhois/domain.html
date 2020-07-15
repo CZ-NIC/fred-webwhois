@@ -1,7 +1,7 @@
 {% extends "webwhois/block_main.html" %}
 {% load i18n static webwhois_filters %}
 
-{% block title %}{{ block.super }} - {% trans "Domain name" context "fullname" %} {{ handle }}{% endblock %}
+{% block title %}{% trans "Domain name" context "fullname" %} {{ handle }} - {{ block.super }}{% endblock %}
 
 {% block webwhois_header %}
     {{ block.super }}

@@ -1,6 +1,8 @@
 {% extends "webwhois/block_main.html" %}
 {% load i18n %}
 
+{% block title %}{% trans "Search in the Registry (Whois)" %} - {{ block.super }}{% endblock %}
+
 {% block webwhois_header %}
     <h1>{% trans "Search in the Registry (Whois)" %}</h1>
 {% endblock webwhois_header %}
