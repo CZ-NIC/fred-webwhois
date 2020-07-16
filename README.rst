@@ -113,38 +113,4 @@ Default value::
     WEBWHOIS_CORBA_CONTEXT
 
 
-Registrars settings
--------------------
-
-Information about registrars. There are links displayed on the page with a list of registrars.
-
-``WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The ``WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED`` variable contains a code that represents certified registrars in the registry.
-The certified registrars are shown in the list "Registrars offering also retail services".
-
-Example::
-
-    WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED = ["certified"]
-
-Default value::
-
-    []
-
-``WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The ``WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED`` variable contains a code that represents uncertified registrars in the registry.
-The uncertified registrars are shown in the list "Registrars offering only wholesale services".
-
-Example::
-
-    WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED = ["uncertified"]
-
-Default value::
-
-    []
-
-
 .. _FRED: https://fred.nic.cz/

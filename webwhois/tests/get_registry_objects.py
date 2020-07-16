@@ -19,7 +19,7 @@ from django.utils.decorators import method_decorator
 from fred_idl.Registry import IsoDate, IsoDateTime
 from fred_idl.Registry.Whois import Contact, ContactIdentification, DisclosableContactIdentification, \
     DisclosablePlaceAddress, DisclosableString, DNSKey, Domain, IPAddress, IPv4, KeySet, NameServer, NSSet, \
-    ObjectStatusDesc, PlaceAddress, Registrar, RegistrarCertification, RegistrarGroup
+    ObjectStatusDesc, PlaceAddress, Registrar, RegistrarCertification
 
 from webwhois.constants import STATUS_CONDITIONALLY_IDENTIFIED, STATUS_DELETE_CANDIDATE, STATUS_IDENTIFIED, \
     STATUS_LINKED, STATUS_VALIDATED, STATUS_VERIFICATION_FAILED, STATUS_VERIFICATION_IN_PROCESS, \
@@ -107,11 +107,6 @@ class GetRegistryObjectMixin(object):
             setattr(obj, key, value)
         return obj
 
-    def _get_place_address(self):
-        return PlaceAddress(
-            street1='The street 123', street2='', street3='', city='Prague', stateorprovince='', postalcode='13200',
-            country_code='CZ')
-
     def _get_registrar(self):
         address = PlaceAddress(
             street1='The street 123', street2='', street3='', city='Prague', stateorprovince='', postalcode='12300',
@@ -181,39 +176,8 @@ class GetRegistryObjectMixin(object):
             setattr(obj, key, value)
         return obj
 
-    def _get_registrar_groups(self):
-        return [
-            RegistrarGroup(name='certified', members=['REG-FRED_A', 'REG-FRED_B', 'REG-MOJEID']),
-            RegistrarGroup(name='dnssec', members=['REG-FRED_A']),
-            RegistrarGroup(name='ipv6', members=['REG-FRED_B']),
-            RegistrarGroup(name='mojeid', members=['REG-FRED_A']),
-            RegistrarGroup(name='uncertified', members=['REG-FRED_C'])
-        ]
-
     def _get_registrar_certs(self):
         return [
             RegistrarCertification(registrar_handle='REG-FRED_A', score=2, evaluation_file_id=1),
             RegistrarCertification(registrar_handle='REG-MOJEID', score=8, evaluation_file_id=2),
-        ]
-
-    def _get_registrars(self):
-        return [
-            Registrar(
-                handle='REG-FRED_A', name="Company A L.t.d.", organization='Testing registrar A', url='www.fred-a.cz',
-                phone='', fax='', address=self._get_place_address()),
-            Registrar(
-                handle='REG-FRED_B', name="Company B L.t.d.", organization='Testing registrar B',
-                url='http://www.fred-b.cz', phone='', fax='', address=self._get_place_address()),
-            Registrar(
-                handle='REG-FRED_C', name="Company C L.t.d.", organization='Testing registrar NOCRED',
-                url='https://www.no-credit.cz', phone='', fax='', address=self._get_place_address()),
-            Registrar(
-                handle='REG-MOJEID', name="MojeID s.r.o.", organization='MojeID registrar', url='www.mojeid.cz',
-                phone='', fax='', address=self._get_place_address()),
-            Registrar(
-                handle='REG-OLD_ONE', name="Company One L.t.d.", organization='Old One', url='www.old-one.cz', phone='',
-                fax='', address=self._get_place_address()),
-            Registrar(
-                handle='REG-OLD_TWO', name="Company Two L.t.d.", organization='Old Two', url='www.old-two.cz', phone='',
-                fax='', address=self._get_place_address()),
         ]
