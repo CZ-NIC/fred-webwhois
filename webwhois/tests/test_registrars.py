@@ -24,7 +24,6 @@ from django.http.response import HttpResponseNotFound
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils._os import upath
 from fred_idl.ccReg import FileInfo
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND, Registrar, RegistrarCertification, RegistrarGroup
 from testfixtures import ShouldWarn
@@ -356,7 +355,7 @@ class TestRegistrarsEmptyGroupNames(SetMocksMixin, SimpleTestCase):
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(os.path.dirname(upath(__file__)), 'templates')],
+        'DIRS': [os.path.join(os.path.dirname(__file__), 'templates')],
     },
 ]
 
