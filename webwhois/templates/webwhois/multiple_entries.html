@@ -1,7 +1,7 @@
 {% extends "webwhois/block_main.html" %}
 {% load i18n %}
 
-{% block title %}{{ block.super }} - {% trans "Multiple entries found" %} {{ handle }}{% endblock %}
+{% block title %}{% trans "Multiple entries found" %} {{ handle }} - {{ block.super }}{% endblock %}
 
 {% block webwhois_content %}
     <h1>{% trans "Multiple entries found" %}</h1>

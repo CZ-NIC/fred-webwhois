@@ -1,6 +1,8 @@
 {% extends "webwhois/form_public_request.html" %}
 {% load i18n %}
 
+{% block title %}{% trans "Request to send personal information" %} - {{ block.super }}{% endblock %}
+
 {% block webwhois_header %}
     <h1>{% trans "Request to send personal information" %}</h1>
     <p>
