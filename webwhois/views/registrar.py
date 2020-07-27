@@ -17,14 +17,14 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 import random
 import warnings
-from typing import Iterable
+from typing import Any, Iterable
 
 from django.http import Http404, HttpResponse
+from django.utils.functional import SimpleLazyObject
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView, View
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND
 
-from webwhois.settings import WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED, WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED
 from webwhois.utils import FILE_MANAGER, WHOIS
 from webwhois.views.base import BaseContextMixin, RegistryObjectMixin
 
@@ -56,6 +56,14 @@ class RegistrarDetailView(RegistrarDetailMixin, TemplateView):
     """View with details of a registrar."""
 
 
+def _deprecate_variable(value: Any, message: str) -> SimpleLazyObject:
+    """Mark context variable as deprecated."""
+    def _return_value() -> Any:
+        warnings.warn(message, DeprecationWarning)
+        return value
+    return SimpleLazyObject(_return_value)
+
+
 class RegistrarListMixin(BaseContextMixin):
     """Mixin for a list of registrars.
 
@@ -63,7 +71,6 @@ class RegistrarListMixin(BaseContextMixin):
     """
 
     template_name = "webwhois/registrar_list.html"
-    is_retail = False
     group_name = None
 
     def __init__(self, *args, **kwargs):
@@ -76,36 +83,14 @@ class RegistrarListMixin(BaseContextMixin):
         """Return a list of registrars to be displayed.
 
         Results are filtered according to `group_name` attribute.
-        Supports old filtering according to a `is_retail` attribute if at least one of
-        `WEBWHOIS_REGISTRARS_GROUPS_` setting is defined.
         """
         registrars = WHOIS.get_registrars()
-
         if self.group_name:
             groups = self.get_groups()
             if self.group_name not in groups:
                 raise Http404('Registrar group {} not found.'.format(self.group_name))
             members = groups[self.group_name].members  # type: Iterable[str]
             registrars = [r for r in registrars if r.handle in members]
-
-        elif WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED is not None or WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED is not None:
-            # Old filtering is in effect
-            warn_msg = ("Settings 'WEBWHOIS_REGISTRARS_GROUPS_*' and 'RegistrarListView.is_retail' are deprecated. "
-                        "Use 'RegistrarListView.group_name' instead.")
-            warnings.warn(warn_msg, DeprecationWarning)
-
-            groups = self.get_groups()
-            members = set()
-            if self.is_retail:
-                for name in (WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED or []):
-                    if name in groups:
-                        members |= set(groups[name].members)
-            else:
-                for name in (WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED or []):
-                    if name in groups:
-                        members |= set(groups[name].members)
-            registrars = [r for r in registrars if r.handle in members]
-
         return registrars
 
     def get_groups(self):
@@ -154,11 +139,11 @@ class RegistrarListMixin(BaseContextMixin):
 
         kwargs.setdefault("groups", self.get_groups())
         kwargs.setdefault("registrars", self.sort_registrars(registrars))
-        if not self.group_name and (
-                WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED is not None or WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED is not None):
-            kwargs.setdefault("is_retail", self.is_retail)
-        else:
-            kwargs.setdefault('is_retail', None)
+        # Set is_retail and mark it as deprecated.
+        kwargs.setdefault('is_retail', None)
+        if kwargs['is_retail'] is not None:
+            kwargs['is_retail'] = _deprecate_variable(
+                kwargs['is_retail'], "Context variable is_retail is deprecated. Update your templates accordingly.")
         return super(RegistrarListMixin, self).get_context_data(**kwargs)
 
 

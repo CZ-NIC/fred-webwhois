@@ -34,7 +34,5 @@ urlpatterns = [
         kwargs={'public_key': 'test-public-key'}),
     # URLs for TestRegistrarListView
     url(r'^registrars/red-dwarf/$', RegistrarListView.as_view(group_name='red_dwarf'), name='registrars_red_dwarf'),
-    url(r'^registrars/retail/$', RegistrarListView.as_view(is_retail=True), name='registrars_retail'),
-    url(r'^registrars/wholesale/$', RegistrarListView.as_view(is_retail=False), name='registrars_wholesale'),
     url(r'^registrars/custom/$', CustomRegistrarListView.as_view(), name='registrars_custom'),
 ]

@@ -19,7 +19,6 @@ import os
 from functools import partial
 
 from appsettings import AppSettings, Setting, StringSetting
-from django.conf import settings
 
 
 def _get_logger_defalt(setting_name):
@@ -40,7 +39,3 @@ class WebwhoisAppSettings(AppSettings):
 
 
 WEBWHOIS_SETTINGS = WebwhoisAppSettings()
-
-# Groups names that will be displayed with/without certifications.
-WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED = getattr(settings, 'WEBWHOIS_REGISTRARS_GROUPS_CERTIFIED', None)
-WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED = getattr(settings, 'WEBWHOIS_REGISTRARS_GROUPS_UNCERTIFIED', None)
