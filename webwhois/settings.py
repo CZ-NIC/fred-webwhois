@@ -33,6 +33,7 @@ class WebwhoisAppSettings(AppSettings):
     LOGGER = Setting(default='pylogger.corbalogger.Logger')
     LOGGER_CORBA_NETLOC = StringSetting(default=partial(_get_logger_defalt, 'CORBA_NETLOC'))
     LOGGER_CORBA_CONTEXT = StringSetting(default=partial(_get_logger_defalt, 'CORBA_CONTEXT'))
+    LOGGER_CORBA_OBJECT = StringSetting(default='Logger')
 
     class Meta:
         setting_prefix = 'WEBWHOIS_'
