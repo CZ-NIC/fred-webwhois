@@ -112,5 +112,10 @@ Default value::
 
     WEBWHOIS_CORBA_CONTEXT
 
+``WEBWHOIS_LOGGER_CORBA_OBJECT``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The name of the CORBA object for logger.
+Default value is ``Logger``.
 
 .. _FRED: https://fred.nic.cz/

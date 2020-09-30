@@ -79,7 +79,7 @@ def load_record_statement():
 def load_logger_from_idl():
     service_client = CorbaNameServiceClient(host_port=WEBWHOIS_SETTINGS.LOGGER_CORBA_NETLOC,
                                             context_name=WEBWHOIS_SETTINGS.LOGGER_CORBA_CONTEXT)
-    return CorbaClient(service_client.get_object('Logger', Logger), CorbaRecoder('utf-8'),
+    return CorbaClient(service_client.get_object(WEBWHOIS_SETTINGS.LOGGER_CORBA_OBJECT, Logger), CorbaRecoder('utf-8'),
                        ccReg.Logger.INTERNAL_SERVER_ERROR)
 
 
