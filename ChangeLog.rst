@@ -4,8 +4,19 @@ ChangeLog
 Unreleased
 ----------
 
+1.18 (2020-10-01)
+-----------------
+
+* Add support for Python 3.8.
 * Add support for Django 3.0.
+* Add ``WEBWHOIS_LOGGER_CORBA_OBJECT`` setting.
 * Drop setting ``WEBWHOIS_DNSSEC_URL``.
+* Clean deprecated parts of registrar list mixin.
+  * Deprecate ``is_retail`` context variable in registrar list mixin.
+* Fix page titles.
+* Style fixes on public request pages.
+* Update style checks, add bumpversion.
+* Reformat Chnagelog.
 
 1.17 (2020-03-03)
 -----------------
