@@ -17,3 +17,5 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 
 """Web whois for FRED registry."""
+
+__version__ = '1.17.0'
