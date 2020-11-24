@@ -4,6 +4,12 @@ ChangeLog
 Unreleased
 ----------
 
+1.18.1 (2020-11-24)
+-------------------
+
+* Fix tag mistake.
+* Rename `CHANGELOG.rst`.
+
 1.18 (2020-10-01)
 -----------------
 
