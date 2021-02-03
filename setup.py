@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
