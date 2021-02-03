@@ -9,6 +9,7 @@ Unreleased
 
 * Fix tag mistake.
 * Rename `CHANGELOG.rst`.
+* Update CI setup.
 
 1.18 (2020-10-01)
 -----------------
