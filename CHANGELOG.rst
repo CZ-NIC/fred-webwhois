@@ -4,6 +4,9 @@ ChangeLog
 Unreleased
 ----------
 
+* Add support for Python 3.9.
+* Add support for Django 3.1.
+
 1.18.1 (2020-11-24)
 -------------------
 
