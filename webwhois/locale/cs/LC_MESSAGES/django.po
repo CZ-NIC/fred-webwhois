@@ -73,12 +73,6 @@ msgstr "Algoritmus"
 msgid "Authorized person"
 msgstr "Zodpovědná osoba"
 
-msgid "Birth date"
-msgstr "Datum narození"
-
-msgid "Birth day"
-msgstr "Datum narození"
-
 msgctxt "verb_inf"
 msgid "Block"
 msgstr "Blokovat"
@@ -143,6 +137,9 @@ msgstr "DSA-NSEC3-SHA1"
 msgid "DSA/SHA1"
 msgstr "DSA/SHA1"
 
+msgid "Day of Birth"
+msgstr "Datum narození"
+
 msgid "Delete DS"
 msgstr "Delete DS"
 
@@ -178,7 +175,7 @@ msgid "Download Verified record statement in PDF."
 msgstr "Stáhnout ověřený výpis z registru v PDF."
 
 msgid "E-government"
-msgstr "Elektronická státní správa"
+msgstr "Elektronická veřejná správa"
 
 msgid "ECDSA Curve P-256 with SHA-256"
 msgstr "ECDSA Křivka P-256 se SHA-256"
@@ -514,6 +511,9 @@ msgstr ""
 "formuláře na stránce %(form_url)s dne %(created_date)s s přiděleným "
 "identifikačním číslem %(response_id)s."
 
+msgid "ID card number"
+msgstr "Číslo OP"
+
 msgid "Identification data"
 msgstr "Identifikační údaj"
 
@@ -655,7 +655,7 @@ msgstr "Registrátor s identifikátorem %s nebyl nalezen."
 msgid "Not disclosed"
 msgstr "Neveřejný údaj"
 
-msgid "Notify e-mail"
+msgid "Notification email"
 msgstr "E-mail pro oznámení"
 
 msgid "Nsset"
@@ -699,9 +699,6 @@ msgstr "Číslo pasu"
 
 msgid "Password (authinfo) request"
 msgstr "Žádost o heslo (authinfo)"
-
-msgid "Personal ID"
-msgstr "Číslo OP"
 
 msgid "Phone"
 msgstr "Telefon"
@@ -1147,12 +1144,12 @@ msgstr "jiný e-mail"
 msgid "email in registry"
 msgstr "e-mail v registru"
 
+msgid "object transfer"
+msgstr "převod objektu"
+
 #, python-format
 msgid "since %(date)s"
 msgstr "od %(date)s"
 
 msgid "the company website"
 msgstr "web společnosti"
-
-msgid "transfer object"
-msgstr "převod objektu"
