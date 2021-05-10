@@ -68,9 +68,9 @@ class TestTemplateTags(SimpleTestCase):
         self.assertEqual(dnskey_alg_label(251), "Reserved")
 
     def test_dnskey_alg_label_invalid_key(self):
-        with self.assertRaisesMessage(ValueError, 'dnskey_alg_label: alg_id -1 is out of range.'):
+        with self.assertRaisesMessage(ValueError, '-1 is not a valid DnskeyAlgorithm'):
             dnskey_alg_label(-1)
-        with self.assertRaisesMessage(ValueError, 'dnskey_alg_label: alg_id 257 is out of range.'):
+        with self.assertRaisesMessage(ValueError, '257 is not a valid DnskeyAlgorithm'):
             dnskey_alg_label(257)
 
     def test_dnskey_flag_labels(self):
