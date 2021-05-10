@@ -19,7 +19,7 @@
 """Webwhois constants."""
 from django.utils.translation import ugettext_lazy as _
 
-from .utils import _DnskeyAlgorithmBase
+from .utils import _DnskeyAlgorithmBase, _DnskeyFlagBase
 
 STATUS_LINKED = 'linked'
 STATUS_DELETE_CANDIDATE = 'deleteCandidate'
@@ -62,3 +62,15 @@ _DNSKEY_ALGORITHMS.update({'UNASSIGNED_{}'.format(i): (i, _("Unassigned")) for i
 _DNSKEY_ALGORITHMS.update({'RESERVED_{}'.format(i): (i, _("Reserved")) for i in range(0, 256)
                            if i not in [v[0] for v in _DNSKEY_ALGORITHMS.values()]})
 DnskeyAlgorithm = _DnskeyAlgorithmBase('DnskeyAlgorithm', _DNSKEY_ALGORITHMS)  # type: ignore[arg-type]
+
+
+# https://www.iana.org/assignments/dnskey-flags/dnskey-flags.xhtml
+_DNSKEY_FLAGS = {
+    'ZONE': (1 << 8, _("ZONE")),
+    'REVOKE': (1 << 7, _("REVOKE")),
+    'SECURE_ENTRY_POINT': (1 << 0, _("Secure Entry Point (SEP)")),
+}
+# Add usassigned
+_DNSKEY_FLAGS.update({'UNASSIGNED_{}'.format(15 - i): (1 << i, _("Unassigned")) for i in range(0, 16)
+                      if 1 << i not in [v[0] for v in _DNSKEY_FLAGS.values()]})
+DnskeyFlag = _DnskeyFlagBase('DnskeyFlag', _DNSKEY_FLAGS)  # type: ignore[arg-type]

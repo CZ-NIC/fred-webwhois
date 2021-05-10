@@ -17,7 +17,7 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 from django.test import SimpleTestCase
 
-from webwhois.constants import DnskeyAlgorithm
+from webwhois.constants import DnskeyAlgorithm, DnskeyFlag
 
 
 class DnskeyAlgorithmTest(SimpleTestCase):
@@ -25,3 +25,15 @@ class DnskeyAlgorithmTest(SimpleTestCase):
         self.assertEqual(DnskeyAlgorithm.DELETE_DS.name, 'DELETE_DS')
         self.assertEqual(DnskeyAlgorithm.DELETE_DS.value, 0)
         self.assertEqual(DnskeyAlgorithm.DELETE_DS.label, 'Delete DS')
+
+
+class DnskeyFlagTest(SimpleTestCase):
+    def test_props(self):
+        self.assertEqual(DnskeyFlag.ZONE.name, 'ZONE')
+        self.assertEqual(DnskeyFlag.ZONE.value, 256)
+        self.assertEqual(DnskeyFlag.ZONE.label, 'ZONE')
+
+    def test_flags(self):
+        dnskey = DnskeyFlag.ZONE | DnskeyFlag.REVOKE | DnskeyFlag.UNASSIGNED_2
+        flags = dnskey.flags  # type: ignore[attr-defined]
+        self.assertEqual(flags, {DnskeyFlag.ZONE, DnskeyFlag.REVOKE, DnskeyFlag.UNASSIGNED_2})

@@ -97,4 +97,4 @@ class TestTemplateTags(SimpleTestCase):
         with self.assertRaisesMessage(ValueError, 'dnskey_flag_labels: flags -1 is out of range.'):
             dnskey_flag_labels(-1)
         with self.assertRaisesMessage(ValueError, 'dnskey_flag_labels: flags 65536 is out of range.'):
-            dnskey_flag_labels(0b10000000000000000)
+            dnskey_flag_labels(65536)

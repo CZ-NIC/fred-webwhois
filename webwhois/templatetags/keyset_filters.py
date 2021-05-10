@@ -17,28 +17,13 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 
 """Templatetags for keyset values."""
-from django import template
-from django.utils.encoding import force_text
-from django.utils.translation import ugettext_lazy as _
+from typing import Iterable, cast
 
-from ..constants import DnskeyAlgorithm
+from django import template
+
+from ..constants import DnskeyAlgorithm, DnskeyFlag
 
 register = template.Library()
-
-# https://www.iana.org/assignments/dnskey-flags/dnskey-flags.xhtml#dnskey-flags-1
-#  0-6  Unassigned
-#    7  ZONE
-#    8  REVOKE
-# 9-14  Unassigned
-#   15  Secure Entry Point (SEP)
-
-DNSKEY_FLAG_LABELS = {
-    # 0123456789ABCDEF
-    #        78      F
-    0b0000000100000000: _("ZONE"),
-    0b0000000010000000: _("REVOKE"),
-    0b0000000000000001: _("Secure Entry Point (SEP)"),
-}
 
 
 @register.filter
@@ -50,11 +35,8 @@ def dnskey_alg_label(alg_id):
 @register.filter
 def dnskey_flag_labels(flags):
     """Show DNSKey flag descriptions."""
-    if not (0 <= flags <= 0xffff):
+    if not (0 <= flags <= sum(cast(Iterable[int], DnskeyFlag))):
         raise ValueError("dnskey_flag_labels: flags %d is out of range." % flags)
 
-    descriptions = []
-    for mask, label in DNSKEY_FLAG_LABELS.items():
-        if flags & mask:
-            descriptions.append(force_text(label))
-    return ", ".join(descriptions)
+    flags = DnskeyFlag(flags)  # type: ignore[operator]
+    return ", ".join(str(f.label) for f in sorted(flags.flags, reverse=True) if not f.name.startswith('UNASSIGNED'))

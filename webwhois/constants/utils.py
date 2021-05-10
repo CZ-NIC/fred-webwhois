@@ -17,8 +17,8 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 #
 """Utilities for constants."""
-from enum import Enum, unique
-from typing import cast
+from enum import Enum, IntFlag, unique
+from typing import Set, Tuple, cast
 
 
 class _DnskeyMixin:
@@ -43,3 +43,21 @@ class _DnskeyAlgorithmBase(_DnskeyMixin, int, Enum):
 
         obj.label = label
         return obj
+
+
+@unique
+class _DnskeyFlagBase(_DnskeyMixin, IntFlag):  # type: ignore[misc]
+    """Base class for DnskeyFlag."""
+
+    def __new__(cls, value: int, label: str):
+        """Construct item with label."""
+        obj = super().__new__(cls, value)
+        obj._value_ = value
+
+        obj.label = label
+        return obj
+
+    @property
+    def flags(self) -> Set['_DnskeyFlagBase']:
+        """Return individual flags."""
+        return {f for f in cast(Tuple['_DnskeyFlagBase', ...], tuple(self.__class__)) if f in self}
