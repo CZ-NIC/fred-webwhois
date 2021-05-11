@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -34,7 +34,7 @@ LOCK_TYPE_ALL = "all"
 LOCK_TYPE_URL_PARAM = "lock_type"
 
 LOCK_TYPE = (
-    (LOCK_TYPE_TRANSFER, _("transfer object")),
+    (LOCK_TYPE_TRANSFER, _("object transfer")),
     (LOCK_TYPE_ALL, _("all object changes")),
 )
 

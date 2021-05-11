@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -33,12 +33,12 @@ def text_wrap(value, size):
 
 
 SSN_TYPE = {
-    'RC': _('Birth date'),
-    'OP': _('Personal ID'),
+    'RC': _('Day of Birth'),
+    'OP': _('ID card number'),
     'PASS': _('Passport number'),
     'ICO': _('VAT ID number'),
     'MPSV': _('MPSV ID'),
-    'BIRTHDAY': _('Birth day'),
+    'BIRTHDAY': _('Day of Birth'),
 }
 
 

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -33,12 +33,12 @@ class TestTemplateTags(SimpleTestCase):
 
     def test_contact_ssn_type_label(self):
         for code, label in (
-            ('RC', 'Birth date'),
-            ('OP', 'Personal ID'),
+            ('RC', 'Day of Birth'),
+            ('OP', 'ID card number'),
             ('PASS', 'Passport number'),
             ('ICO', 'VAT ID number'),
             ('MPSV', 'MPSV ID'),
-            ('BIRTHDAY', 'Birth day'),
+            ('BIRTHDAY', 'Day of Birth'),
             ('foo', 'Unspecified type: foo'),
             ('', ''),
         ):
