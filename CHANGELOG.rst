@@ -4,11 +4,12 @@ ChangeLog
 Unreleased
 ----------
 
-1.19.0 (2021-03-25)
+1.19.0 (2021-05-11)
 -------------------
 
 * Add support for Python 3.9.
 * Add support for Django 3.1.
+* Add production ready ``Dockerfile``.
 
 1.18.1 (2020-11-24)
 -------------------
