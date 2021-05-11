@@ -118,4 +118,17 @@ Default value::
 The name of the CORBA object for logger.
 Default value is ``Logger``.
 
+Docker
+======
+
+Webwhois can be deployed using docker.
+
+To build image use::
+
+    docker build --tag webwhois --file docker/uwsgi/Dockerfile .
+
+The image provides a uWSGI service at port 16000 and a volume with static files.
+Running the image requires setting a ``SECRET_KEY`` and ``ALLOWED_HOSTS`` enviroment variables.
+Webwhois settings can be provided as enviroment variables as well.
+
 .. _FRED: https://fred.nic.cz/

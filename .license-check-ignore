@@ -1,2 +1,4 @@
+# Ignore docker configuration
+docker/uwsgi/*
 # Check on test settings is wicked.
 webwhois/tests/settings.py
