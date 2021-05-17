@@ -50,10 +50,17 @@ Settings
 
 The following settings can be defined in your ``settings.py``.
 
-CORBA settings
---------------
+``WEBWHOIS_CDNSKEY_NETLOC``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-CORBA variables are required to establish a connection to the **FRED server** instance.
+Network location, i.e. host and port, of the cdnskey processor server.
+Default value is ``None``, i.e. scan results are not available.
+
+``WEBWHOIS_CDNSKEY_SSL_CERT``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Path to file with SSL root certificate.
+Default value is ``None``, which disables the SSL encryption.
 
 ``WEBWHOIS_CORBA_NETLOC``
 ^^^^^^^^^^^^^^^^^^^^^^^^^
