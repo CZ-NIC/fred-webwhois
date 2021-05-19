@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -23,9 +23,10 @@ from django.http import HttpResponseNotFound
 from django.test import SimpleTestCase, override_settings
 from django.urls import reverse
 from django.utils.html import escape
-from fred_idl.Registry.PublicRequest import HAS_DIFFERENT_BLOCK, INVALID_EMAIL, OBJECT_ALREADY_BLOCKED, \
-    OBJECT_NOT_BLOCKED, OBJECT_NOT_FOUND, OBJECT_TRANSFER_PROHIBITED, OPERATION_PROHIBITED, ConfirmedBy, Language, \
-    LockRequestType, ObjectType_PR
+from fred_idl.Registry.PublicRequest import (HAS_DIFFERENT_BLOCK, INVALID_EMAIL, OBJECT_ALREADY_BLOCKED,
+                                             OBJECT_NOT_BLOCKED, OBJECT_NOT_FOUND, OBJECT_TRANSFER_PROHIBITED,
+                                             OPERATION_PROHIBITED, ConfirmedBy, Language, LockRequestType,
+                                             ObjectType_PR)
 
 from webwhois.forms.public_request import ConfirmationMethod
 from webwhois.forms.widgets import DeliveryType

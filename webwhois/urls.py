@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -18,10 +18,11 @@
 from django.conf.urls import url
 from django.views.i18n import JavaScriptCatalog
 
-from webwhois.views import BlockObjectFormView, ContactDetailView, CustomEmailView, DomainDetailView, \
-    DownloadEvalFileView, EmailInRegistryView, KeysetDetailView, NotarizedLetterView, NssetDetailView, \
-    PersonalInfoFormView, PublicResponseNotFoundView, RegistrarDetailView, RegistrarListView, ResolveHandleTypeView, \
-    SendPasswordFormView, ServeNotarizedLetterView, ServeRecordStatementView, UnblockObjectFormView, WhoisFormView
+from webwhois.views import (BlockObjectFormView, ContactDetailView, CustomEmailView, DomainDetailView,
+                            DownloadEvalFileView, EmailInRegistryView, KeysetDetailView, NotarizedLetterView,
+                            NssetDetailView, PersonalInfoFormView, PublicResponseNotFoundView, RegistrarDetailView,
+                            RegistrarListView, ResolveHandleTypeView, SendPasswordFormView, ServeNotarizedLetterView,
+                            ServeRecordStatementView, UnblockObjectFormView, WhoisFormView)
 
 app_name = 'webwhois'
 urlpatterns = [

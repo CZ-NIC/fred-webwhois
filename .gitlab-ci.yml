@@ -65,12 +65,16 @@ image:py39:
     image: "$CI_REGISTRY_IMAGE/tox:3.9"
 
 .test: &test
-    script:
-        # First, build all virtualenvs in parallel without actually executing any tests.
+    stage: test
+    before_script:
+        - echo "Active index - $PIP_INDEX_URL"
+        # First, build all virtualenvs without actually executing any tests.
         - tox --parallel all --notest
+    script:
         - tox
 
 .test-thaw: &test-thaw
+    <<: *test
     only:
         - schedules
     script:
@@ -95,31 +99,39 @@ piprot:
 test:py36:
     <<: *test
     <<: *py36
+    needs: ["image:py36"]
 
 test:py37:
     <<: *test
     <<: *py37
+    needs: ["image:py37"]
 
 test:py38:
     <<: *test
     <<: *py38
+    needs: ["image:py38"]
 
 test:py39:
     <<: *test
     <<: *py39
+    needs: ["image:py39"]
 
 test:py36-thaw:
     <<: *test-thaw
     <<: *py36
+    needs: ["image:py36"]
 
 test:py37-thaw:
     <<: *test-thaw
     <<: *py37
+    needs: ["image:py37"]
 
 test:py38-thaw:
     <<: *test-thaw
     <<: *py38
+    needs: ["image:py38"]
 
 test:py39-thaw:
     <<: *test-thaw
     <<: *py39
+    needs: ["image:py39"]

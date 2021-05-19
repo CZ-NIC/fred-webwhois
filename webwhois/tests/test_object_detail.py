@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -24,11 +24,12 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import reset_format_cache
 from django.views import View
-from fred_idl.Registry.Whois import INVALID_HANDLE, INVALID_LABEL, OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND, \
-    TOO_MANY_LABELS, UNMANAGED_ZONE, ContactIdentification, DisclosableContactIdentification
+from fred_idl.Registry.Whois import (INVALID_HANDLE, INVALID_LABEL, OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND,
+                                     TOO_MANY_LABELS, UNMANAGED_ZONE, ContactIdentification,
+                                     DisclosableContactIdentification)
 
-from webwhois.constants import STATUS_DELETE_CANDIDATE, STATUS_LINKED, STATUS_VALIDATED, STATUS_VERIFICATION_FAILED, \
-    STATUS_VERIFICATION_IN_PROCESS
+from webwhois.constants import (STATUS_DELETE_CANDIDATE, STATUS_LINKED, STATUS_VALIDATED, STATUS_VERIFICATION_FAILED,
+                                STATUS_VERIFICATION_IN_PROCESS)
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.utils import WHOIS
 from webwhois.views.base import RegistryObjectMixin

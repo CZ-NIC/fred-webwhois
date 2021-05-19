@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -27,18 +27,19 @@ from django.utils.formats import date_format
 from django.utils.html import format_html
 from django.utils.translation import get_language, ugettext_lazy as _
 from django.views.generic import TemplateView, View
-from fred_idl.Registry.PublicRequest import HAS_DIFFERENT_BLOCK, INVALID_EMAIL, OBJECT_ALREADY_BLOCKED, \
-    OBJECT_NOT_BLOCKED, OBJECT_NOT_FOUND, OBJECT_TRANSFER_PROHIBITED, OPERATION_PROHIBITED, Language, LockRequestType
+from fred_idl.Registry.PublicRequest import (HAS_DIFFERENT_BLOCK, INVALID_EMAIL, OBJECT_ALREADY_BLOCKED,
+                                             OBJECT_NOT_BLOCKED, OBJECT_NOT_FOUND, OBJECT_TRANSFER_PROHIBITED,
+                                             OPERATION_PROHIBITED, Language, LockRequestType)
 
 from webwhois.forms import BlockObjectForm, PersonalInfoForm, SendPasswordForm, UnblockObjectForm
-from webwhois.forms.public_request import CONFIRMATION_METHOD_IDL_MAP, LOCK_TYPE_ALL, LOCK_TYPE_TRANSFER, \
-    LOCK_TYPE_URL_PARAM, SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY, ConfirmationMethod
+from webwhois.forms.public_request import (CONFIRMATION_METHOD_IDL_MAP, LOCK_TYPE_ALL, LOCK_TYPE_TRANSFER,
+                                           LOCK_TYPE_URL_PARAM, SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY, ConfirmationMethod)
 from webwhois.forms.widgets import DeliveryType
 from webwhois.utils.corba_wrapper import LOGGER, PUBLIC_REQUEST
 from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, SendPasswordResponse
 from webwhois.views.base import BaseContextMixin
-from webwhois.views.public_request_mixin import PublicRequestFormView, PublicRequestKnownException, \
-    PublicRequestLoggerMixin
+from webwhois.views.public_request_mixin import (PublicRequestFormView, PublicRequestKnownException,
+                                                 PublicRequestLoggerMixin)
 
 WEBWHOIS_LOGGING = logging.getLogger(__name__)
 

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -17,7 +17,7 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 import random
 import warnings
-from typing import Any, Iterable
+from typing import Any, Iterable, Optional, cast
 
 from django.http import Http404, HttpResponse
 from django.utils.functional import SimpleLazyObject
@@ -71,7 +71,7 @@ class RegistrarListMixin(BaseContextMixin):
     """
 
     template_name = "webwhois/registrar_list.html"
-    group_name = None
+    group_name: Optional[str] = None
 
     def __init__(self, *args, **kwargs):
         super(RegistrarListMixin, self).__init__(*args, **kwargs)
@@ -130,7 +130,7 @@ class RegistrarListMixin(BaseContextMixin):
         # Randomize order of the list of registrars and than sort it by score.
         rand = random.SystemRandom()
         rand.shuffle(registrars)
-        return sorted(registrars, key=lambda row: row["score"], reverse=True)
+        return sorted(registrars, key=lambda row: cast(int, row["score"]), reverse=True)
 
     def get_context_data(self, **kwargs):
         registrars = []

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -17,13 +17,14 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 from django.utils.decorators import method_decorator
 from fred_idl.Registry import IsoDate, IsoDateTime
-from fred_idl.Registry.Whois import Contact, ContactIdentification, DisclosableContactIdentification, \
-    DisclosablePlaceAddress, DisclosableString, DNSKey, Domain, IPAddress, IPv4, KeySet, NameServer, NSSet, \
-    ObjectStatusDesc, PlaceAddress, Registrar, RegistrarCertification
+from fred_idl.Registry.Whois import (Contact, ContactIdentification, DisclosableContactIdentification,
+                                     DisclosablePlaceAddress, DisclosableString, DNSKey, Domain, IPAddress, IPv4,
+                                     KeySet, NameServer, NSSet, ObjectStatusDesc, PlaceAddress, Registrar,
+                                     RegistrarCertification)
 
-from webwhois.constants import STATUS_CONDITIONALLY_IDENTIFIED, STATUS_DELETE_CANDIDATE, STATUS_IDENTIFIED, \
-    STATUS_LINKED, STATUS_VALIDATED, STATUS_VERIFICATION_FAILED, STATUS_VERIFICATION_IN_PROCESS, \
-    STATUS_VERIFICATION_PASSED
+from webwhois.constants import (STATUS_CONDITIONALLY_IDENTIFIED, STATUS_DELETE_CANDIDATE, STATUS_IDENTIFIED,
+                                STATUS_LINKED, STATUS_VALIDATED, STATUS_VERIFICATION_FAILED,
+                                STATUS_VERIFICATION_IN_PROCESS, STATUS_VERIFICATION_PASSED)
 from webwhois.utils.corba_wrapper import WebwhoisCorbaRecoder
 
 

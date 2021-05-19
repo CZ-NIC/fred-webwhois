@@ -19,8 +19,8 @@
 from django.test import SimpleTestCase
 
 from webwhois.templatetags.keyset_filters import dnskey_alg_label, dnskey_flag_labels
-from webwhois.templatetags.webwhois_filters import add_scheme, contact_ssn_type_label, idn_decode, strip_scheme, \
-    text_wrap
+from webwhois.templatetags.webwhois_filters import (add_scheme, contact_ssn_type_label, idn_decode, strip_scheme,
+                                                    text_wrap)
 
 
 class TestTemplateTags(SimpleTestCase):
