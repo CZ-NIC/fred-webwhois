@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -21,8 +21,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND
 
-from webwhois.constants import STATUS_CONDITIONALLY_IDENTIFIED, STATUS_IDENTIFIED, STATUS_LINKED, STATUS_VALIDATED, \
-    STATUS_VERIFICATION_FAILED, STATUS_VERIFICATION_IN_PROCESS, STATUS_VERIFICATION_PASSED
+from webwhois.constants import (STATUS_CONDITIONALLY_IDENTIFIED, STATUS_IDENTIFIED, STATUS_LINKED, STATUS_VALIDATED,
+                                STATUS_VERIFICATION_FAILED, STATUS_VERIFICATION_IN_PROCESS, STATUS_VERIFICATION_PASSED)
 from webwhois.utils import WHOIS
 from webwhois.views.base import RegistryObjectMixin
 

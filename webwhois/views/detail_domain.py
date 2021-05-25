@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -20,8 +20,8 @@ import re
 import idna
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView
-from fred_idl.Registry.Whois import INVALID_LABEL, OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND, TOO_MANY_LABELS, \
-    UNMANAGED_ZONE
+from fred_idl.Registry.Whois import (INVALID_LABEL, OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND, TOO_MANY_LABELS,
+                                     UNMANAGED_ZONE)
 
 from webwhois.constants import STATUS_DELETE_CANDIDATE
 from webwhois.utils import WHOIS

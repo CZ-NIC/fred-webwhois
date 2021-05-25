@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2016-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2016-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -26,8 +26,8 @@ from fred_idl.ccReg import FileManager, Logger, _objref_FileDownload
 from fred_idl.Registry import Buffer, IsoDateTime
 from fred_idl.Registry.Whois import WhoisIntf
 
-from webwhois.utils.corba_wrapper import WebwhoisCorbaRecoder, load_filemanager_from_idl, load_logger_from_idl, \
-    load_whois_from_idl
+from webwhois.utils.corba_wrapper import (WebwhoisCorbaRecoder, load_filemanager_from_idl, load_logger_from_idl,
+                                          load_whois_from_idl)
 
 from .utils import apply_patch
 
