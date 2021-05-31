@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-15 13:17+0200\n"
+"POT-Creation-Date: 2021-06-16 11:43+0200\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -136,6 +136,9 @@ msgstr "DSA-NSEC3-SHA1"
 
 msgid "DSA/SHA1"
 msgstr "DSA/SHA1"
+
+msgid "Date and time"
+msgstr "Datum a čas"
 
 msgid "Day of Birth"
 msgstr "Datum narození"
@@ -629,6 +632,9 @@ msgstr "Jméno"
 msgid "Name server"
 msgstr "Jmenný server"
 
+msgid "Name server IP address"
+msgstr "IP adresa jmenného serveru"
+
 msgid "Name server set"
 msgstr "Sada jmenných serverů"
 
@@ -739,6 +745,9 @@ msgstr "Soukromý algoritmus OID"
 
 msgid "Protocol"
 msgstr "Protokol"
+
+msgid "Public key"
+msgstr "Veřejný klíč"
 
 msgid "REVOKE"
 msgstr "REVOKE"
@@ -884,6 +893,9 @@ msgstr "Rezervováno"
 
 msgid "Reserved for Indirect Keys"
 msgstr "Rezervováno pro Indirect Keys"
+
+msgid "Scan results"
+msgstr "Výsledky skenů"
 
 msgid "Search"
 msgstr "Hledat"
@@ -1149,6 +1161,9 @@ msgstr ""
 
 msgid "Website"
 msgstr "Webové stránky"
+
+msgid "Worker"
+msgstr "Stroj"
 
 msgid "Yes"
 msgstr "Ano"

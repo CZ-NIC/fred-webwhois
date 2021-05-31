@@ -22,8 +22,8 @@ from django.views.i18n import JavaScriptCatalog
 from webwhois.views import (BlockObjectFormView, ContactDetailView, CustomEmailView, DomainDetailView,
                             DownloadEvalFileView, EmailInRegistryView, KeysetDetailView, NotarizedLetterView,
                             NssetDetailView, PersonalInfoFormView, PublicResponseNotFoundView, RegistrarDetailView,
-                            RegistrarListView, ResolveHandleTypeView, SendPasswordFormView, ServeNotarizedLetterView,
-                            ServeRecordStatementView, UnblockObjectFormView, WhoisFormView)
+                            RegistrarListView, ResolveHandleTypeView, ScanResultsView, SendPasswordFormView,
+                            ServeNotarizedLetterView, ServeRecordStatementView, UnblockObjectFormView, WhoisFormView)
 
 app_name = 'webwhois'
 urlpatterns = [
@@ -34,6 +34,7 @@ urlpatterns = [
     path('nsset/<handle>/', NssetDetailView.as_view(), name='detail_nsset'),
     path('keyset/<handle>/', KeysetDetailView.as_view(), name='detail_keyset'),
     path('domain/<handle>/', DomainDetailView.as_view(), name='detail_domain'),
+    path('domain/<handle>/scan-results/', ScanResultsView.as_view(), name='scan_results'),
     path('registrar/<handle>/', RegistrarDetailView.as_view(), name='detail_registrar'),
     path('registrars/', RegistrarListView.as_view(), name='registrars'),
     path('registrar-download-evaluation-file/<handle>/', DownloadEvalFileView.as_view(),

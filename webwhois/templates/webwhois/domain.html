@@ -130,3 +130,12 @@
         {% include "webwhois/verified_record_statement_link.html" %}
     {% endwith %}
 {% endblock webwhois_content %}
+
+{% block webwhois_footer %}
+    {% if scan_results_link %}
+        <p>
+            <a href="{{ scan_results_link }}">{% trans "Scan results" %}</a>
+        </p>
+    {% endif %}
+    {{ block.super }}
+{% endblock webwhois_footer %}

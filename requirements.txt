@@ -1,5 +1,6 @@
 django >=2.2,<3.2.99
 django-app-settings
+grpcio
 idna
 omniORB ~=4.2.2
 cdnskey-processor-api ~=0.1.0
