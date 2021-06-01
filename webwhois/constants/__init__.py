@@ -15,6 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+#
+"""Webwhois constants."""
 STATUS_LINKED = 'linked'
 STATUS_DELETE_CANDIDATE = 'deleteCandidate'
 
