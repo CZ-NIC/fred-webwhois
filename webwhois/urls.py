@@ -15,7 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
-from django.conf.urls import url
+#
+from django.urls import path, re_path
 from django.views.i18n import JavaScriptCatalog
 
 from webwhois.views import (BlockObjectFormView, ContactDetailView, CustomEmailView, DomainDetailView,
@@ -26,29 +27,26 @@ from webwhois.views import (BlockObjectFormView, ContactDetailView, CustomEmailV
 
 app_name = 'webwhois'
 urlpatterns = [
-    url(r'^$', WhoisFormView.as_view(), name='form_whois'),
-    url(r'^jsi18n/(?P<packages>\S+?)/$', JavaScriptCatalog.as_view(), name='jsi18n'),
-    url(r'^object/(?P<handle>.{1,255})/$', ResolveHandleTypeView.as_view(), name='registry_object_type'),
-    url(r'^contact/(?P<handle>.{1,255})/$', ContactDetailView.as_view(), name='detail_contact'),
-    url(r'^nsset/(?P<handle>.{1,255})/$', NssetDetailView.as_view(), name='detail_nsset'),
-    url(r'^keyset/(?P<handle>.{1,255})/$', KeysetDetailView.as_view(), name='detail_keyset'),
-    url(r'^domain/(?P<handle>.{1,255})/$', DomainDetailView.as_view(), name='detail_domain'),
-    url(r'^registrar/(?P<handle>.{1,255})/$', RegistrarDetailView.as_view(), name='detail_registrar'),
-    url(r'^registrars/$', RegistrarListView.as_view(), name='registrars'),
-    url(r'^registrar-download-evaluation-file/(?P<handle>.{1,255})/$', DownloadEvalFileView.as_view(),
-        name='download_evaluation_file'),
-    url(r'^send-password/$', SendPasswordFormView.as_view(), name='form_send_password'),
-    url(r'^personal-info/$', PersonalInfoFormView.as_view(), name='form_personal_info'),
-    url(r'^block-object/$', BlockObjectFormView.as_view(), name='form_block_object'),
-    url(r'^unblock-object/$', UnblockObjectFormView.as_view(), name='form_unblock_object'),
-    url(r'^response-not-found/(?P<public_key>\w{64})/$', PublicResponseNotFoundView.as_view(),
-        name='response_not_found'),
-    url(r'^email-in-registry/(?P<public_key>\w{64})/$', EmailInRegistryView.as_view(),
-        name='email_in_registry_response'),
-    url(r'^custom-email/(?P<public_key>\w{64})/$', CustomEmailView.as_view(), name='custom_email_response'),
-    url(r'^notarized-letter/(?P<public_key>\w{64})/$', NotarizedLetterView.as_view(), name='notarized_letter_response'),
-    url(r'^pdf-notarized-letter/(?P<public_key>\w{64})/$', ServeNotarizedLetterView.as_view(),
-        name='notarized_letter_serve_pdf'),
-    url(r'^verified-record-statement-pdf/(?P<object_type>(contact|domain|nsset|keyset))/(?P<handle>.{1,255})/$',
-        ServeRecordStatementView.as_view(), name='record_statement_pdf'),
+    path('', WhoisFormView.as_view(), name='form_whois'),
+    path('jsi18n/<packages>/', JavaScriptCatalog.as_view(), name='jsi18n'),
+    path('object/<handle>/', ResolveHandleTypeView.as_view(), name='registry_object_type'),
+    path('contact/<handle>/', ContactDetailView.as_view(), name='detail_contact'),
+    path('nsset/<handle>/', NssetDetailView.as_view(), name='detail_nsset'),
+    path('keyset/<handle>/', KeysetDetailView.as_view(), name='detail_keyset'),
+    path('domain/<handle>/', DomainDetailView.as_view(), name='detail_domain'),
+    path('registrar/<handle>/', RegistrarDetailView.as_view(), name='detail_registrar'),
+    path('registrars/', RegistrarListView.as_view(), name='registrars'),
+    path('registrar-download-evaluation-file/<handle>/', DownloadEvalFileView.as_view(),
+         name='download_evaluation_file'),
+    path('send-password/', SendPasswordFormView.as_view(), name='form_send_password'),
+    path('personal-info/', PersonalInfoFormView.as_view(), name='form_personal_info'),
+    path('block-object/', BlockObjectFormView.as_view(), name='form_block_object'),
+    path('unblock-object/', UnblockObjectFormView.as_view(), name='form_unblock_object'),
+    path('response-not-found/<public_key>/', PublicResponseNotFoundView.as_view(), name='response_not_found'),
+    path('email-in-registry/<public_key>/', EmailInRegistryView.as_view(), name='email_in_registry_response'),
+    path('custom-email/<public_key>/', CustomEmailView.as_view(), name='custom_email_response'),
+    path('notarized-letter/<public_key>/', NotarizedLetterView.as_view(), name='notarized_letter_response'),
+    path('pdf-notarized-letter/<public_key>/', ServeNotarizedLetterView.as_view(), name='notarized_letter_serve_pdf'),
+    re_path(r'^verified-record-statement-pdf/(?P<object_type>(contact|domain|nsset|keyset))/(?P<handle>[^/]+)/$',
+            ServeRecordStatementView.as_view(), name='record_statement_pdf'),
 ]

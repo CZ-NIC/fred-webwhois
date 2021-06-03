@@ -1,6 +1,6 @@
 """URLs definition for webwhois site."""
-from django.conf.urls import include, url
+from django.urls import include, path
 
 urlpatterns = [
-    url(r'^', include('webwhois.urls')),
+    path('', include('webwhois.urls')),
 ]

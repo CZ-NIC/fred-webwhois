@@ -39,8 +39,10 @@ Instructions for custom installation:
 
    .. code:: python
 
+       from django.urls import include, path
+
        urlpatterns += [
-           url(r'^whois', include('webwhois.urls')),
+           path('whois/', include('webwhois.urls')),
        ]
 
 Settings

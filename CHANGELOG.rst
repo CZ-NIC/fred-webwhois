@@ -8,6 +8,9 @@ Unreleased
 * Drop support for Django < 2.2.
 * Add support for Python 3.9.
 * Add support for Django 3.1 and 3.2.
+* Update ``webwhois.urls`` to Django 2+.
+  Slight changes occured, e.g. ``/`` is no longer matched as part of a ``handle``.
+  These changes shouldn't affect the usage.
 
 1.19.0 (2021-05-11)
 -------------------
