@@ -15,15 +15,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
-from typing import Any, List
-
+#
 INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.auth',
     'webwhois.apps.WebwhoisAppConfig',
 )
-# Backwards compatibility for Django <= 1.11
-MIDDLEWARE = []  # type: List[Any]
 ROOT_URLCONF = 'webwhois.urls'
 SECRET_KEY = 'SECRET'
 STATIC_URL = '/static/'

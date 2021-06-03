@@ -5,6 +5,7 @@ Unreleased
 ----------
 
 * Drop support for Python 3.5.
+* Drop support for Django < 2.2.
 * Add support for Python 3.9.
 * Add support for Django 3.1 and 3.2.
 
