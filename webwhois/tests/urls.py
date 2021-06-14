@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -15,7 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
-from django.conf.urls import include, url
+#
+from django.urls import include, path
 
 from webwhois.views import RegistrarListView, ServeRecordStatementView, WhoisFormView
 from webwhois.views.public_request import BaseResponseTemplateView
@@ -23,16 +24,15 @@ from webwhois.views.public_request import BaseResponseTemplateView
 from .views import CustomRegistrarListView
 
 urlpatterns = [
-    url(r'^whois/', include('webwhois.urls', namespace='webwhois')),
+    path('whois/', include('webwhois.urls', namespace='webwhois')),
     # urls required by 404:
-    url(r'^$', WhoisFormView.as_view(), name='home_page'),
-    url(r'^i18n/', include('django.conf.urls.i18n')),
-    url(r'^test-record-statement-pdf/(?P<object_type>(\w+))/(?P<handle>.{1,255})/$',
-        ServeRecordStatementView.as_view(), name='test_record_statement_pdf'),
-    url(r'^base-public-response/$',
-        BaseResponseTemplateView.as_view(template_name='public_response.html'),
-        kwargs={'public_key': 'test-public-key'}),
+    path('', WhoisFormView.as_view(), name='home_page'),
+    path('i18n/', include('django.conf.urls.i18n')),
+    path('test-record-statement-pdf/<object_type>/<handle>/', ServeRecordStatementView.as_view(),
+         name='test_record_statement_pdf'),
+    path('base-public-response/', BaseResponseTemplateView.as_view(template_name='public_response.html'),
+         kwargs={'public_key': 'test-public-key'}),
     # URLs for TestRegistrarListView
-    url(r'^registrars/red-dwarf/$', RegistrarListView.as_view(group_name='red_dwarf'), name='registrars_red_dwarf'),
-    url(r'^registrars/custom/$', CustomRegistrarListView.as_view(), name='registrars_custom'),
+    path('registrars/red-dwarf/', RegistrarListView.as_view(group_name='red_dwarf'), name='registrars_red_dwarf'),
+    path('registrars/custom/', CustomRegistrarListView.as_view(), name='registrars_custom'),
 ]
