@@ -22,7 +22,7 @@ from functools import lru_cache
 from typing import Any, Dict, Iterable, Optional
 
 from cdnskey_processor_api import service_report_grpc_pb2_grpc
-from cdnskey_processor_api.common_types_pb2 import DnskeyAlg, DnskeyFlags
+from cdnskey_processor_api.common_types_pb2 import Cdnskey, CdnskeyStatus as CdnskeyStatusProto, DnskeyAlg, DnskeyFlags
 from cdnskey_processor_api.service_report_grpc_pb2 import RawScanResultsRequest
 from django.http import Http404
 from frgal import GrpcClient, GrpcDecoder
@@ -30,7 +30,7 @@ from grpc import ChannelCredentials, RpcError, StatusCode, ssl_channel_credentia
 
 from webwhois.settings import WEBWHOIS_SETTINGS
 
-from ..constants import DnskeyAlgorithm, DnskeyFlag
+from ..constants import CdnskeyStatus, DnskeyAlgorithm, DnskeyFlag
 
 
 class CdnskeyDecoder(GrpcDecoder):
@@ -40,12 +40,19 @@ class CdnskeyDecoder(GrpcDecoder):
         super().__init__()
         self.set_decoder(DnskeyFlags, self._decode_dnskey_flag)
         self.set_decoder(DnskeyAlg, self._decode_dnskey_algorithm)
+        self.set_decoder(Cdnskey, self._decode_cdnskey)
 
     def _decode_dnskey_flag(self, value: DnskeyFlags) -> DnskeyFlag:  # type: ignore[valid-type]
         return DnskeyFlag(value.value)  # type: ignore[operator, no-any-return]
 
     def _decode_dnskey_algorithm(self, value: DnskeyAlg) -> DnskeyAlgorithm:  # type: ignore[valid-type]
         return DnskeyAlgorithm(value.value)  # type: ignore[operator, no-any-return]
+
+    def _decode_cdnskey(self, value: Cdnskey):
+        decoded = self._decode_message(value)
+        # Decode status to enum.
+        decoded['status'] = CdnskeyStatus(CdnskeyStatusProto.Name(decoded['status']))  # type: ignore[call-arg]
+        return decoded
 
 
 class CdnskeyClient(GrpcClient):

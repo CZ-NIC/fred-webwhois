@@ -21,7 +21,7 @@ from tempfile import NamedTemporaryFile
 from typing import Dict, List, Sequence, Type
 from unittest.mock import call, patch, sentinel
 
-from cdnskey_processor_api.common_types_pb2 import DnskeyAlg, DnskeyFlags
+from cdnskey_processor_api.common_types_pb2 import Cdnskey, CdnskeyStatus as CdnskeyStatusProto, DnskeyAlg, DnskeyFlags
 from cdnskey_processor_api.service_report_grpc_pb2 import RawScanResult, RawScanResultsReply, RawScanResultsRequest
 from django.conf import settings
 from django.http import Http404
@@ -32,7 +32,7 @@ from frgal.utils import TestClientMixin
 from grpc import RpcError, StatusCode
 from grpc._channel import _RPCState, _SingleThreadedRendezvous as _Rendezvous
 
-from webwhois.constants import DnskeyAlgorithm, DnskeyFlag
+from webwhois.constants import CdnskeyStatus, DnskeyAlgorithm, DnskeyFlag
 from webwhois.utils.cdnskey_client import CdnskeyClient, CdnskeyDecoder, get_cdnskey_client
 
 
@@ -66,6 +66,20 @@ class CdnskeyDecoderTest(SimpleTestCase):
                 decoded = decoder.decode(message)
                 self.assertEqual(decoded, result)
                 self.assertIsInstance(decoded, DnskeyAlgorithm)
+
+    def test_decode_cdnskey(self):
+        decoder = CdnskeyDecoder()
+        data = (
+            # message, result
+            (Cdnskey(), {'status': CdnskeyStatus.INSECURE_KEY, 'flags': 0, 'proto': 0, 'alg': 0, 'public_key': None}),
+            (Cdnskey(status=CdnskeyStatusProto.UNTRUSTWORTHY),
+             {'status': CdnskeyStatus.UNTRUSTWORTHY, 'flags': 0, 'proto': 0, 'alg': 0, 'public_key': None}),
+        )
+        for message, result in data:
+            with self.subTest(message=message):
+                decoded = decoder.decode(message)
+                self.assertEqual(decoded, result)
+                self.assertIsInstance(decoded['status'], CdnskeyStatus)
 
 
 class TestCdnskeyClient(TestClientMixin, CdnskeyClient):
@@ -114,7 +128,7 @@ class CdnskeyClientTest(SimpleTestCase):
         reply.data.items.append(self._get_scan_result(worker, ip_address, DnskeyFlag.ZONE, DnskeyAlgorithm.RSAMD5))
         replies = [reply]
         cdnskey = {'flags': DnskeyFlag.ZONE, 'alg': DnskeyAlgorithm.RSAMD5, 'proto': 0, 'public_key': self.public_key,
-                   'status': 0}
+                   'status': CdnskeyStatus.INSECURE_KEY}
         result = {'worker_name': worker, 'scan_at': self.scan_at, 'nameserver_ip': ip_address,
                   'nameserver': self.nameserver, 'cdnskey': cdnskey}
         self._test_raw_scan_results(replies, [result])
@@ -127,11 +141,11 @@ class CdnskeyClientTest(SimpleTestCase):
         reply.data.items.append(self._get_scan_result(worker, ip_address, DnskeyFlag.ZONE, DnskeyAlgorithm.DSA))
         replies = [reply]
         cdnskey_1 = {'flags': DnskeyFlag.ZONE, 'alg': DnskeyAlgorithm.RSAMD5, 'proto': 0, 'public_key': self.public_key,
-                     'status': 0}
+                     'status': CdnskeyStatus.INSECURE_KEY}
         result_1 = {'worker_name': worker, 'scan_at': self.scan_at, 'nameserver_ip': ip_address,
                     'nameserver': self.nameserver, 'cdnskey': cdnskey_1}
         cdnskey_2 = {'flags': DnskeyFlag.ZONE, 'alg': DnskeyAlgorithm.DSA, 'proto': 0, 'public_key': self.public_key,
-                     'status': 0}
+                     'status': CdnskeyStatus.INSECURE_KEY}
         result_2 = {'worker_name': worker, 'scan_at': self.scan_at, 'nameserver_ip': ip_address,
                     'nameserver': self.nameserver, 'cdnskey': cdnskey_2}
         self._test_raw_scan_results(replies, [result_1, result_2])
@@ -145,11 +159,11 @@ class CdnskeyClientTest(SimpleTestCase):
         reply_2.data.items.append(self._get_scan_result(worker, ip_address, DnskeyFlag.ZONE, DnskeyAlgorithm.DSA))
         replies = [reply_1, reply_2]
         cdnskey_1 = {'flags': DnskeyFlag.ZONE, 'alg': DnskeyAlgorithm.RSAMD5, 'proto': 0, 'public_key': self.public_key,
-                     'status': 0}
+                     'status': CdnskeyStatus.INSECURE_KEY}
         result_1 = {'worker_name': worker, 'scan_at': self.scan_at, 'nameserver_ip': ip_address,
                     'nameserver': self.nameserver, 'cdnskey': cdnskey_1}
         cdnskey_2 = {'flags': DnskeyFlag.ZONE, 'alg': DnskeyAlgorithm.DSA, 'proto': 0, 'public_key': self.public_key,
-                     'status': 0}
+                     'status': CdnskeyStatus.INSECURE_KEY}
         result_2 = {'worker_name': worker, 'scan_at': self.scan_at, 'nameserver_ip': ip_address,
                     'nameserver': self.nameserver, 'cdnskey': cdnskey_2}
         self._test_raw_scan_results(replies, [result_1, result_2])
