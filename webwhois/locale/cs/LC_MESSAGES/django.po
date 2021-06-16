@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwhois\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-23 13:23+0100\n"
+"POT-Creation-Date: 2021-06-15 13:17+0200\n"
 "PO-Revision-Date: 2017-02-09 07:38+0000\n"
 "Last-Translator: Václav Fuksa <vaclav.fuksa@nic.cz>\n"
 "Language-Team: Czech <https://weblate.office.nic.cz/projects/fred/fred-"
@@ -574,6 +574,18 @@ msgstr "Neplatný identifikátor"
 msgid "Key"
 msgstr "Klíč"
 
+msgid "Key for insecure domain is not present."
+msgstr "Klíč k nezabezpečené doméně nenalezen."
+
+msgid "Key for insecure domain is present."
+msgstr "Klíč k nezabezpečené doméně nalezen."
+
+msgid "Key for secure domain is not present."
+msgstr "Klíč k zabezpečené doméně nenalezen."
+
+msgid "Key for secure domain is present."
+msgstr "Klíč k zabezpečené doméně nalezen."
+
 msgid "Key server set not found"
 msgstr "Sada klíčů nenalezena"
 
@@ -639,6 +651,12 @@ msgstr "Kontakt s identifikátorem %s nebyl nalezen."
 #, python-format
 msgid "No domain matches %s handle."
 msgstr "Doména %s nebyla nalezena."
+
+msgid "No information about domain is available."
+msgstr "Nejsou dostupné žádné informace o doméně."
+
+msgid "No information about insecure domain is available at the nameserver."
+msgstr "Nejsou dostupné žádné informace o doméně u jmenného serveru."
 
 #, python-format
 msgid "No key set matches %s handle."
@@ -1043,6 +1061,12 @@ msgstr "Převod objektu není povolen. Žádost nelze přijmout."
 
 msgid "URL"
 msgstr "URL"
+
+msgid "Unable to resolve IP address of the nameserver."
+msgstr "Nepodařilo se získat IP adresu jmenného serveru."
+
+msgid "Unable to verify CDNSKEY record."
+msgstr "CDNSKEY záznam nebyl nalezen."
 
 msgid "Unassigned"
 msgstr "Nepřiřazeno"

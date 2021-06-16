@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2016-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -18,7 +18,7 @@
 import os
 from functools import partial
 
-from appsettings import AppSettings, Setting, StringSetting
+from appsettings import AppSettings, FileSetting, Setting, StringSetting
 
 
 def _get_logger_defalt(setting_name):
@@ -28,6 +28,8 @@ def _get_logger_defalt(setting_name):
 class WebwhoisAppSettings(AppSettings):
     """Web whois settings."""
 
+    CDNSKEY_NETLOC = StringSetting(default=None)
+    CDNSKEY_SSL_CERT = FileSetting(default=None, mode=os.R_OK)
     CORBA_NETLOC = StringSetting(default=partial(os.environ.get, 'FRED_WEBWHOIS_NETLOC', 'localhost'))
     CORBA_CONTEXT = StringSetting(default='fred')
     LOGGER = Setting(default='pylogger.corbalogger.Logger')

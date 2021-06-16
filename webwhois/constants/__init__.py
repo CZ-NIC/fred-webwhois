@@ -17,6 +17,8 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 #
 """Webwhois constants."""
+from enum import Enum, unique
+
 from django.utils.translation import ugettext_lazy as _
 
 from .utils import _DnskeyAlgorithmBase, _DnskeyFlagBase
@@ -74,3 +76,27 @@ _DNSKEY_FLAGS = {
 _DNSKEY_FLAGS.update({'UNASSIGNED_{}'.format(15 - i): (1 << i, _("Unassigned")) for i in range(0, 16)
                       if 1 << i not in [v[0] for v in _DNSKEY_FLAGS.values()]})
 DnskeyFlag = _DnskeyFlagBase('DnskeyFlag', _DNSKEY_FLAGS)  # type: ignore[arg-type]
+
+
+@unique
+class CdnskeyStatus(str, Enum):
+    """Enum with cdnskey scan status."""
+
+    INSECURE_KEY = ('INSECURE_KEY', _('Key for insecure domain is present.'))
+    INSECURE_EMPTY = ('INSECURE_EMPTY', _('Key for insecure domain is not present.'))
+    SECURE_KEY = ('SECURE_KEY', _('Key for secure domain is present.'))
+    SECURE_EMPTY = ('SECURE_EMPTY', _('Key for secure domain is not present.'))
+    UNTRUSTWORTHY = ('UNTRUSTWORTHY', _('Unable to verify CDNSKEY record.'))
+    UNKNOWN = ('UNKNOWN', _('No information about domain is available.'))
+    UNRESOLVED = ('UNRESOLVED', _('No information about insecure domain is available at the nameserver.'))
+    UNRESOLVED_IP = ('UNRESOLVED_IP', _('Unable to resolve IP address of the nameserver.'))
+
+    label: str
+
+    def __new__(cls, value: str, label: str):
+        """Construct item with label."""
+        obj = super().__new__(cls, value)
+        obj._value_ = value
+
+        obj.label = label
+        return obj
