@@ -16,8 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 import re
+from typing import Dict, cast
 
 import idna
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView
 from fred_idl.Registry.Whois import (INVALID_LABEL, OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND, TOO_MANY_LABELS,
@@ -25,6 +27,7 @@ from fred_idl.Registry.Whois import (INVALID_LABEL, OBJECT_DELETE_CANDIDATE, OBJ
 
 from webwhois.constants import STATUS_DELETE_CANDIDATE
 from webwhois.utils import WHOIS
+from webwhois.utils.cdnskey_client import get_cdnskey_client
 from webwhois.views import KeysetDetailMixin, NssetDetailMixin
 from webwhois.views.base import RegistryObjectMixin
 
@@ -122,3 +125,9 @@ class DomainDetailMixin(RegistryObjectMixin):
 
 class DomainDetailView(DomainDetailMixin, TemplateView):
     """View with details of a domain."""
+
+    def get_context_data(self, handle: str, **kwargs) -> Dict:  # type: ignore[override]
+        context = cast(Dict, super().get_context_data(handle=handle, **kwargs))
+        if get_cdnskey_client() is not None:
+            context['scan_results_link'] = reverse('webwhois:scan_results', kwargs={'handle': handle})
+        return context

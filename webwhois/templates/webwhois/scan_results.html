@@ -1,0 +1,44 @@
+{% extends base_template %}
+{% load i18n %}
+
+{% block title %}{% trans "Scan results" %} {{ handle }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+    <div id="whois">
+        {% block webwhois_main %}
+            {% block webwhois_header %}
+                <h1>{% trans "Scan results" %}</h1>
+            {% endblock webwhois_header %}
+
+            {% block webwhois_content %}
+                <table class="result">
+                    <tr>
+                        <th>{% trans "Date and time" %}</th>
+                        <th>{% trans "Worker" %}</th>
+                        <th>{% trans "Name server" %}</th>
+                        <th>{% trans "Name server IP address" %}</th>
+                        <th>{% trans "Status" %}</th>
+                        <th>{% trans "Flags" %}</th>
+                        <th>{% trans "Algorithm" %}</th>
+                        <th>{% trans "Public key" %}</th>
+                    </tr>
+                    {% for result in scan_results %}
+                        <tr>
+                            <td>{{ result.scan_at }}</td>
+                            <td>{{ result.worker_name }}</td>
+                            <td>{{ result.nameserver|default:'' }}</td>
+                            <td>{{ result.nameserver_ip|default:'' }}</td>
+                            <td title="{{ result.cdnskey.status.label }}">{{ result.cdnskey.status.value }}</td>
+                            <td>{% if result.cdnskey.public_key %}{% for flag in result.cdnskey.flags.flags %}{{ flag.label }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}</td>
+                            <td>{% if result.cdnskey.public_key %}{{ result.cdnskey.alg.label }}{% endif %}</td>
+                            <td>{% if result.cdnskey.public_key %}{{ result.cdnskey.public_key }}{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endblock webwhois_content %}
+
+            {% block webwhois_footer %}
+            {% endblock webwhois_footer %}
+        {% endblock webwhois_main %}
+    </div>
+{% endblock content %}

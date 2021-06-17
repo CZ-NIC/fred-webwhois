@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -32,10 +32,12 @@ from .record_statement import ServeRecordStatementView
 from .registrar import DownloadEvalFileView, RegistrarDetailMixin, RegistrarDetailView, RegistrarListMixin, \
     RegistrarListView
 from .resolve_handle_type import ResolveHandleTypeMixin, ResolveHandleTypeView
+from .scan_results import ScanResultsView
 
 __all__ = ['BlockObjectFormView', 'ContactDetailMixin', 'ContactDetailView', 'CustomEmailView', 'DomainDetailMixin',
            'DomainDetailView', 'DownloadEvalFileView', 'EmailInRegistryView', 'KeysetDetailMixin', 'KeysetDetailView',
            'NotarizedLetterView', 'NssetDetailMixin', 'NssetDetailView', 'PersonalInfoFormView',
            'PublicResponseNotFoundView', 'RegistrarDetailMixin', 'RegistrarDetailView', 'RegistrarListMixin',
-           'RegistrarListView', 'ResolveHandleTypeMixin', 'ResolveHandleTypeView', 'SendPasswordFormView',
-           'ServeNotarizedLetterView', 'ServeRecordStatementView', 'UnblockObjectFormView', 'WhoisFormView']
+           'RegistrarListView', 'ResolveHandleTypeMixin', 'ResolveHandleTypeView', 'ScanResultsView',
+           'SendPasswordFormView', 'ServeNotarizedLetterView', 'ServeRecordStatementView', 'UnblockObjectFormView',
+           'WhoisFormView']

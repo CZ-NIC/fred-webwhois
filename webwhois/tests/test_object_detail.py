@@ -850,6 +850,25 @@ class TestDetailDomain(ObjectDetailMixin):
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'Error')
 
+    def test_scan_results_link(self):
+        self._mocks_for_domain_detail()
+
+        with patch('webwhois.views.detail_domain.get_cdnskey_client', return_value=sentinel.client, autospec=True):
+            response = self.client.get(reverse('webwhois:detail_domain', kwargs={'handle': 'fred.cz'}))
+
+        self.assertContains(response, 'Domain name details')
+        self.assertEqual(response.context['scan_results_link'],
+                         reverse('webwhois:scan_results', kwargs={'handle': 'fred.cz'}))
+
+    def test_scan_results_link_none(self):
+        self._mocks_for_domain_detail()
+
+        with patch('webwhois.views.detail_domain.get_cdnskey_client', return_value=None, autospec=True):
+            response = self.client.get(reverse('webwhois:detail_domain', kwargs={'handle': 'fred.cz'}))
+
+        self.assertContains(response, 'Domain name details')
+        self.assertNotIn('scan_results_link', response.context)
+
 
 class FakeRegistryObjectView(RegistryObjectMixin, View):
     """Test view for RegistryObjectMixin."""
