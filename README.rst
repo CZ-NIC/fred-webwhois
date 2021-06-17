@@ -51,19 +51,19 @@ Settings
 The following settings can be defined in your ``settings.py``.
 
 ``WEBWHOIS_CDNSKEY_NETLOC``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------
 
 Network location, i.e. host and port, of the cdnskey processor server.
 Default value is ``None``, i.e. scan results are not available.
 
 ``WEBWHOIS_CDNSKEY_SSL_CERT``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------
 
 Path to file with SSL root certificate.
 Default value is ``None``, which disables the SSL encryption.
 
 ``WEBWHOIS_CORBA_NETLOC``
-^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------
 
 Network location, i.e. host and port, of the CORBA server.
 Used to construct Interoperable Object Reference (IOR).
@@ -74,7 +74,7 @@ Example::
     WEBWHOIS_CORBA_NETLOC= 'localhost:12345'
 
 ``WEBWHOIS_CORBA_CONTEXT``
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------
 
 The ``WEBWHOIS_CORBA_CONTEXT`` variable contains a name of the CORBA context.
 
@@ -87,7 +87,7 @@ Default value::
     'fred'
 
 ``WEBWHOIS_LOGGER``
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 The ``WEBWHOIS_LOGGER`` variable contains dotted path to a logger class.
 If ``None``, logging to logger will be disabled.
@@ -101,14 +101,14 @@ Default value::
     'pylogger.corbalogger.Logger'
 
 ``WEBWHOIS_LOGGER_CORBA_NETLOC``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------
 
 Network location, i.e. host and port, of the CORBA server for logging.
 Used to construct Interoperable Object Reference (IOR).
 By default a ``WEBWHOIS_CORBA_NETLOC`` is used.
 
 ``WEBWHOIS_LOGGER_CORBA_CONTEXT``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------
 
 The ``WEBWHOIS_LOGGER_CORBA_CONTEXT`` variable contains a name of the Logger CORBA context. This is usually same as
 a **Fred CORBA** instance.
@@ -122,7 +122,7 @@ Default value::
     WEBWHOIS_CORBA_CONTEXT
 
 ``WEBWHOIS_LOGGER_CORBA_OBJECT``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------
 
 The name of the CORBA object for logger.
 Default value is ``Logger``.
