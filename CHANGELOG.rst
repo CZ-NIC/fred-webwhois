@@ -11,6 +11,7 @@ Unreleased
 * Update ``webwhois.urls`` to Django 2+.
   Slight changes occured, e.g. ``/`` is no longer matched as part of a ``handle``.
   These changes shouldn't affect the usage.
+* Style results of a scan
 
 1.19.0 (2021-05-11)
 -------------------
