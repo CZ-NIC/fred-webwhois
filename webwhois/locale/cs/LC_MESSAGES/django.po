@@ -101,6 +101,9 @@ msgstr "Kontakt nenalezen"
 msgid "Contact verification status"
 msgstr "Ověření kontaktu"
 
+msgid "Copy"
+msgstr "Zkopírovat"
+
 #, python-format
 msgid ""
 "Copy the following text and insert it into an email, sign it with your "
@@ -1104,6 +1107,9 @@ msgstr "Validováno do"
 
 msgid "Verified record statement"
 msgstr "Ověřený výpis z registru"
+
+msgid "View"
+msgstr "Zobrazit"
 
 msgid "We manage only these zones:"
 msgstr "Udržujeme jen zóny:"

@@ -1,7 +1,13 @@
 {% extends base_template %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{% trans "Scan results" %} {{ handle }} - {{ block.super }}{% endblock %}
+
+{% block extrahead %}
+    <link rel="stylesheet" href="{% static "webwhois/css/scan_results.css" %}">
+    <script type="text/javascript" src="{% url 'webwhois:jsi18n' packages='webwhois' %}"></script>
+    <script defer type="module" src="{% static "webwhois/js/scan_results.js" %}"></script>
+{% endblock %}
 
 {% block content %}
     <div id="whois">
@@ -11,29 +17,78 @@
             {% endblock webwhois_header %}
 
             {% block webwhois_content %}
-                <table class="result">
-                    <tr>
-                        <th>{% trans "Date and time" %}</th>
-                        <th>{% trans "Worker" %}</th>
-                        <th>{% trans "Name server" %}</th>
-                        <th>{% trans "Name server IP address" %}</th>
-                        <th>{% trans "Status" %}</th>
-                        <th>{% trans "Flags" %}</th>
-                        <th>{% trans "Algorithm" %}</th>
-                        <th>{% trans "Public key" %}</th>
-                    </tr>
+                <table class="result scan-table">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Date and time" %}</th>
+                            <th>{% trans "Worker" %}</th>
+                            <th>{% trans "Name server" %}</th>
+                            <th>{% trans "Status" %}</th>
+                            <th>{% trans "Flags" %}</th>
+                            <th>{% trans "Algorithm" %}</th>
+                            <th>{% trans "Public key" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                     {% for result in scan_results %}
                         <tr>
-                            <td>{{ result.scan_at }}</td>
-                            <td>{{ result.worker_name }}</td>
-                            <td>{{ result.nameserver|default:'' }}</td>
-                            <td>{{ result.nameserver_ip|default:'' }}</td>
-                            <td title="{{ result.cdnskey.status.label }}">{{ result.cdnskey.status.value }}</td>
-                            <td>{% if result.cdnskey.public_key %}{% for flag in result.cdnskey.flags.flags %}{{ flag.label }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}</td>
-                            <td>{% if result.cdnskey.public_key %}{{ result.cdnskey.alg.label }}{% endif %}</td>
-                            <td>{% if result.cdnskey.public_key %}{{ result.cdnskey.public_key }}{% endif %}</td>
+                            <td data-label="{% trans "Date and time" %}">{{ result.scan_at }}</td>
+                            <td data-label="{% trans "Worker" %}">{{ result.worker_name }}</td>
+                            <td data-label="{% trans "Name server" %}">
+                                <div class="name-server-wrapper">
+                                    <span>{{ result.nameserver|default:'' }}</span>
+                                    {% if result.nameserver_ip|length > 0 %}
+                                        <span>({{ result.nameserver_ip }})</span>
+                                    {% endif  %}
+                                </div>
+                            </td>
+                            <td data-label="{% trans "Status" %}">
+                                <div class="status-wrapper">
+                                    <span>{{ result.cdnskey.status.value }}</span>
+                                    <span
+                                        tabindex="0"
+                                        data-text="{{ result.cdnskey.status.label }}"
+                                        class="tooltip question-mark">
+                                    </span>
+                                </div>
+                            </td>
+                            <td
+                                data-label="{% trans "Flags" %}">
+                                    {% if result.cdnskey.public_key %}
+                                        {% for flag in result.cdnskey.flags.flags %}
+                                            {{ flag.label }}{% if not forloop.last %},{% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                            </td>
+                            <td
+                                data-label="{% trans "Algorithm" %}">
+                                    {% if result.cdnskey.public_key %}
+                                        {{ result.cdnskey.alg.label }}
+                                    {% endif %}
+                            </td>
+                            <td data-label="{% trans "Public key" %}">
+                                {% if result.cdnskey.public_key %}
+                                    <div class="public-key-wrapper">
+                                        <pre class="public-key">{{ result.cdnskey.public_key }}</pre>
+                                        <div class="public-key-actions">
+                                            <span
+                                                tabindex="0"
+                                                class="tooltip public-key-view"
+                                                data-text="{{ result.cdnskey.public_key }}">
+                                                {% trans "View" %}
+                                            </span>
+                                            <button
+                                                class="public-key-copy"
+                                                data-public_key="{{ result.cdnskey.public_key }}">
+                                                {% trans "Copy" %}
+                                            </button>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
+                    </tbody>
                 </table>
             {% endblock webwhois_content %}
 
