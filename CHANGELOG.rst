@@ -4,6 +4,9 @@ ChangeLog
 Unreleased
 ----------
 
+1.20.0 (2021-07-01)
+-------------------
+
 * Drop support for Python 3.5.
 * Drop support for Django < 2.2.
 * Add support for Python 3.9.
@@ -11,7 +14,11 @@ Unreleased
 * Update ``webwhois.urls`` to Django 2+.
   Slight changes occured, e.g. ``/`` is no longer matched as part of a ``handle``.
   These changes shouldn't affect the usage.
-* Style results of a scan
+* Add cdnskey scan results.
+* Refactor DNS key algorithms & flags to enums.
+* Fix wording.
+* Fix settings description in readme.
+* Update style check & CI setup.
 
 1.19.0 (2021-05-11)
 -------------------
