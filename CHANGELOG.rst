@@ -4,7 +4,7 @@ ChangeLog
 Unreleased
 ----------
 
-1.20.0 (2021-07-01)
+1.20.0 (2021-07-07)
 -------------------
 
 * Drop support for Python 3.5.
