@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -16,7 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 from django import forms
-from django.core.validators import MaxLengthValidator
+from django.core.validators import MaxLengthValidator, RegexValidator
+from django.urls.converters import StringConverter
 from django.utils.functional import lazy
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -27,5 +28,5 @@ class WhoisForm(forms.Form):
 
     handle = forms.CharField(
         label=lazy(lambda: mark_safe(_("Domain (without <em>www.</em> prefix) / Handle")), str)(),
-        required=True, validators=[MaxLengthValidator(255)],
+        required=True, validators=[RegexValidator('^' + StringConverter.regex + '$'), MaxLengthValidator(255)],
     )
