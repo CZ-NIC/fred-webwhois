@@ -17,9 +17,9 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 #
 from datetime import datetime
+from unittest import skipIf
 from unittest.mock import call, patch, sentinel
 
-from cdnskey_processor_api.service_report_grpc_pb2 import RawScanResult, RawScanResultsReply
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -29,6 +29,11 @@ from grpc import StatusCode
 from grpc._channel import _RPCState, _SingleThreadedRendezvous as _Rendezvous
 from omniORB import CORBA
 
+try:
+    from cdnskey_processor_api.service_report_grpc_pb2 import RawScanResult, RawScanResultsReply
+except ImportError:
+    RawScanResult = None
+
 from webwhois.constants import CdnskeyStatus, DnskeyAlgorithm, DnskeyFlag
 from webwhois.utils import WHOIS
 
@@ -37,6 +42,19 @@ from .utils import CALL_BOOL, TEMPLATES
 
 
 @override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
+class ScanResultsViewNoBackendTest(SimpleTestCase):
+    """Test scan results view without a backend."""
+    domain = 'example.org'
+
+    def test_no_backend(self):
+        with override_settings(WEBWHOIS_CDNSKEY_NETLOC=None):
+            response = self.client.get(reverse('webwhois:scan_results', kwargs={'handle': self.domain}))
+
+        self.assertContains(response, 'not found', status_code=404)
+
+
+@override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
+@skipIf(RawScanResult is None, "Only available with cdnskey_processor_api installed.")
 class ScanResultsViewTest(SimpleTestCase):
     domain = 'example.org'
     worker = 'kryten'
@@ -75,14 +93,6 @@ class ScanResultsViewTest(SimpleTestCase):
         scan_result.cdnskey.alg.value = self.alg
         scan_result.cdnskey.public_key.value = self.public_key
         return scan_result
-
-    def test_no_backend(self):
-        self.get_cdnskey_client_mock.return_value = None
-
-        response = self.client.get(reverse('webwhois:scan_results', kwargs={'handle': self.domain}))
-
-        self.assertContains(response, 'not found', status_code=404)
-        self.assertEqual(self.get_cdnskey_client_mock.mock_calls, [call()])
 
     def _test_results(self):
         reply = RawScanResultsReply()

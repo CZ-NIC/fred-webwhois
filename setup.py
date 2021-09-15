@@ -51,5 +51,6 @@ setup(name='fred-webwhois',
       python_requires='~=3.6',
       install_requires=open('requirements.txt').read().splitlines(),
       extras_require={'quality': ['isort', 'flake8', 'pydocstyle', 'polint', 'mypy'],
-                      'test': ['testfixtures']},
+                      'test': ['testfixtures'],
+                      'cdnskey': ['frgal ~=3.3', 'cdnskey-processor-api ~=0.1.0']},
       cmdclass={'build': custom_build, 'sdist': custom_sdist})
