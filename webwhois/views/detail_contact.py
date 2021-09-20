@@ -26,6 +26,8 @@ from webwhois.constants import (STATUS_CONDITIONALLY_IDENTIFIED, STATUS_IDENTIFI
 from webwhois.utils import WHOIS
 from webwhois.views.base import RegistryObjectMixin
 
+from ..exceptions import WebwhoisError
+
 
 class ContactDetailMixin(RegistryObjectMixin):
 
@@ -59,13 +61,14 @@ class ContactDetailMixin(RegistryObjectMixin):
                 "birthday": birthday,
                 "label": _("Contact"),
             }
-        except OBJECT_NOT_FOUND:
-            context["server_exception"] = {
-                "title": _("Contact not found"),
-                "message": cls.message_with_handle_in_html(_("No contact matches %s handle."), handle),
-            }
-        except INVALID_HANDLE:
-            context["server_exception"] = cls.message_invalid_handle(handle)
+        except OBJECT_NOT_FOUND as error:
+            raise WebwhoisError(
+                'OBJECT_NOT_FOUND',
+                title=_("Contact not found"),
+                message=cls.message_with_handle_in_html(_("No contact matches %s handle."), handle),
+            ) from error
+        except INVALID_HANDLE as error:
+            raise WebwhoisError(**cls.message_invalid_handle(handle)) from error
 
     def load_related_objects(self, context):
         """Load objects related to the contact and append them into the context."""

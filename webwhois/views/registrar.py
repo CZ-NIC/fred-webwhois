@@ -27,6 +27,7 @@ from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND
 from webwhois.utils import FILE_MANAGER, WHOIS
 from webwhois.views.base import BaseContextMixin, RegistryObjectMixin
 
+from ..exceptions import WebwhoisError
 from ..utils.deprecation import deprecated_context
 
 
@@ -44,13 +45,14 @@ class RegistrarDetailMixin(RegistryObjectMixin):
                 "detail": WHOIS.get_registrar_by_handle(handle),
                 "label": _("Registrar"),
             }
-        except OBJECT_NOT_FOUND:
-            context["server_exception"] = {
-                "title": _("Registrar not found"),
-                "message": cls.message_with_handle_in_html(_("No registrar matches %s handle."), handle),
-            }
-        except INVALID_HANDLE:
-            context["server_exception"] = cls.message_invalid_handle(handle)
+        except OBJECT_NOT_FOUND as error:
+            raise WebwhoisError(
+                'OBJECT_NOT_FOUND',
+                title=_("Registrar not found"),
+                message=cls.message_with_handle_in_html(_("No registrar matches %s handle."), handle),
+            ) from error
+        except INVALID_HANDLE as error:
+            raise WebwhoisError(**cls.message_invalid_handle(handle)) from error
 
 
 class RegistrarDetailView(RegistrarDetailMixin, TemplateView):

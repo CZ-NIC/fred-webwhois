@@ -27,6 +27,8 @@ from django.views.generic.base import ContextMixin
 from webwhois.constants import STATUS_DELETE_CANDIDATE
 from webwhois.utils import LOGGER
 
+from ..exceptions import WebwhoisError
+
 mark_safe_lazy = lazy(mark_safe, str)
 
 
@@ -91,7 +93,11 @@ class RegistryObjectMixin(BaseContextMixin):
 
     @classmethod
     def load_registry_object(cls, context, handle):
-        """Load registry object of the handle and append it into the context."""
+        """Load registry object of the handle and append it into the context.
+
+        Raises:
+            WebwhoisError: If an expected error is returned from registry backend.
+        """
 
     def load_related_objects(self, context):
         """Load objects related to the main registry object and append them into the context."""
@@ -122,9 +128,9 @@ class RegistryObjectMixin(BaseContextMixin):
                 properties_out.extend(found_types)
             else:
                 log_request.result = "NotFound"
-                exception_code = context.get("server_exception", {}).get("code")
-                if exception_code and exception_code != "OBJECT_NOT_FOUND":
-                    properties_out.append(("reason", exception_code))
+                error = context.get("server_exception")
+                if error and error.code != "OBJECT_NOT_FOUND":
+                    properties_out.append(("reason", error.code))
         log_request.close(properties=properties_out)
 
     def _get_registry_objects(self):
@@ -135,6 +141,8 @@ class RegistryObjectMixin(BaseContextMixin):
             exception_name = None
             try:
                 self.load_registry_object(context, self.kwargs["handle"])
+            except WebwhoisError as error:
+                context['server_exception'] = error
             except BaseException as err:
                 exception_name = err.__class__.__name__
                 raise
