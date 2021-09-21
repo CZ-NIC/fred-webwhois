@@ -15,7 +15,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
-from typing import Any, Dict
+#
+import warnings
+from functools import lru_cache
+from typing import Any, Dict, Optional
 
 from django.core.cache import cache
 from django.utils.functional import lazy
@@ -58,7 +61,7 @@ class RegistryObjectMixin(BaseContextMixin):
     """
 
     _registry_objects_key = "registry_objects"
-    _registry_objects_cache = None
+    _registry_objects_cache: Optional[Dict] = None
 
     server_exception_template = "webwhois/server_exception.html"
     object_type_name = None  # type: str
@@ -140,7 +143,16 @@ class RegistryObjectMixin(BaseContextMixin):
             log_request = self.prepare_logging_request()
             exception_name = None
             try:
-                self.load_registry_object(context, self.kwargs["handle"])
+                default_load = self.load_registry_object.__func__.__module__.startswith(  # type: ignore[attr-defined]
+                    'webwhois.views')
+                if default_load:
+                    obj = self.get_object()
+                    context[self._registry_objects_key] = self._make_context(obj)
+                else:
+                    warnings.warn(
+                        "Method load_registry_object is deprecated, use get_object or get_context_data instead.",
+                        DeprecationWarning)
+                    self.load_registry_object(context, self.kwargs["handle"])
             except WebwhoisError as error:
                 context['server_exception'] = error
             except BaseException as err:
@@ -152,6 +164,30 @@ class RegistryObjectMixin(BaseContextMixin):
                 self.load_related_objects(context)
             self._registry_objects_cache = context
         return self._registry_objects_cache
+
+    def _make_context(self, obj: Any) -> Dict[str, Any]:
+        """Turn object into a context."""
+        return {self.object_type_name: {"detail": obj}}
+
+    @lru_cache()
+    def get_object(self) -> Any:
+        """Fetch and return an object from registry.
+
+        Raises:
+            WebwhoisError: If an expected error is returned from registry backend.
+        """
+        return self._get_object(self.kwargs['handle'])
+
+    def _get_object(self, handle: str) -> Any:
+        """Actually fetches and returns the object from registry.
+
+        Arguments:
+            handle: Handle of an object to find.
+
+        Raises:
+            WebwhoisError: If an expected error is returned from registry backend.
+        """
+        raise NotImplementedError
 
     def get_context_data(self, handle, **kwargs):
         kwargs.setdefault("handle", handle)

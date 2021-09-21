@@ -15,6 +15,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+#
+from typing import Any, Dict
+
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND
@@ -57,6 +60,24 @@ class NssetDetailMixin(RegistryObjectMixin):
             ) from error
         except INVALID_HANDLE as error:
             raise WebwhoisError(**cls.message_invalid_handle(handle)) from error
+
+    def _get_object(self, handle: str) -> Any:
+        try:
+            return WHOIS.get_nsset_by_handle(handle)
+        except OBJECT_NOT_FOUND as error:
+            raise WebwhoisError(
+                'OBJECT_NOT_FOUND',
+                title=_("Name server set not found"),
+                message=self.message_with_handle_in_html(_("No name server set matches %s handle."), handle),
+            ) from error
+        except INVALID_HANDLE as error:
+            raise WebwhoisError(**self.message_invalid_handle(handle)) from error
+
+    def _make_context(self, obj: Any) -> Dict[str, Any]:
+        """Turn object into a context."""
+        context = super()._make_context(obj)
+        context[self.object_type_name]["label"] = _("Nsset")
+        return context
 
     def load_related_objects(self, context):
         """Load objects related to the nsset and append them into the context."""

@@ -17,7 +17,7 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 import random
 import warnings
-from typing import Iterable, Optional, cast
+from typing import Any, Dict, Iterable, Optional, cast
 
 from django.http import Http404, HttpResponse
 from django.utils.translation import gettext_lazy as _
@@ -53,6 +53,24 @@ class RegistrarDetailMixin(RegistryObjectMixin):
             ) from error
         except INVALID_HANDLE as error:
             raise WebwhoisError(**cls.message_invalid_handle(handle)) from error
+
+    def _get_object(self, handle: str) -> Any:
+        try:
+            return WHOIS.get_registrar_by_handle(handle)
+        except OBJECT_NOT_FOUND as error:
+            raise WebwhoisError(
+                'OBJECT_NOT_FOUND',
+                title=_("Registrar not found"),
+                message=self.message_with_handle_in_html(_("No registrar matches %s handle."), handle),
+            ) from error
+        except INVALID_HANDLE as error:
+            raise WebwhoisError(**self.message_invalid_handle(handle)) from error
+
+    def _make_context(self, obj: Any) -> Dict[str, Any]:
+        """Turn object into a context."""
+        context = super()._make_context(obj)
+        context[self.object_type_name]["label"] = _("Registrar")
+        return context
 
 
 class RegistrarDetailView(RegistrarDetailMixin, TemplateView):
