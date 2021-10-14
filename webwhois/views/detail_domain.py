@@ -31,6 +31,9 @@ from webwhois.utils.cdnskey_client import get_cdnskey_client
 from webwhois.views import KeysetDetailMixin, NssetDetailMixin
 from webwhois.views.base import RegistryObjectMixin
 
+from ..context_processors import _get_managed_zones
+from ..utils.deprecation import deprecated_context
+
 
 class DomainDetailMixin(RegistryObjectMixin):
 
@@ -74,7 +77,9 @@ class DomainDetailMixin(RegistryObjectMixin):
             context["server_exception"] = cls.make_message_not_found(handle)
             context["server_exception"]["handle_is_in_zone"] = True
         except UNMANAGED_ZONE:
-            context["managed_zone_list"] = WHOIS.get_managed_zone_list()
+            context["managed_zone_list"] = deprecated_context(
+                _get_managed_zones(),
+                "Context variable 'managed_zone_list' is deprecated. Use 'managed_zones' context processor instead.")
             context["server_exception"] = {
                 "code": "UNMANAGED_ZONE",
                 "title": _("Unmanaged zone"),

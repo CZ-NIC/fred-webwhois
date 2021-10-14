@@ -16,6 +16,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+#
+import warnings
 from datetime import date
 from unittest.mock import call, patch, sentinel
 
@@ -27,9 +29,11 @@ from django.views import View
 from fred_idl.Registry.Whois import (INVALID_HANDLE, INVALID_LABEL, OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND,
                                      TOO_MANY_LABELS, UNMANAGED_ZONE, ContactIdentification,
                                      DisclosableContactIdentification)
+from testfixtures import Comparison, StringComparison
 
 from webwhois.constants import (STATUS_DELETE_CANDIDATE, STATUS_LINKED, STATUS_VALIDATED, STATUS_VERIFICATION_FAILED,
                                 STATUS_VERIFICATION_IN_PROCESS)
+from webwhois.context_processors import _get_managed_zones
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.utils import WHOIS
 from webwhois.views.base import RegistryObjectMixin
@@ -60,6 +64,10 @@ class ObjectDetailMixin(GetRegistryObjectMixin, SimpleTestCase):
 
 @override_settings(TEMPLATES=TEMPLATES)
 class TestResolveHandleType(ObjectDetailMixin):
+    def setUp(self):
+        super().setUp()
+        WHOIS.get_managed_zone_list.return_value = []
+        _get_managed_zones.cache_clear()
 
     def test_handle_not_found(self):
         WHOIS.get_contact_by_handle.side_effect = OBJECT_NOT_FOUND
@@ -67,7 +75,6 @@ class TestResolveHandleType(ObjectDetailMixin):
         WHOIS.get_keyset_by_handle.side_effect = OBJECT_NOT_FOUND
         WHOIS.get_registrar_by_handle.side_effect = OBJECT_NOT_FOUND
         WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND
-        WHOIS.get_managed_zone_list.return_value = []
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "testhandle"}))
         self.assertContains(response, "Record not found")
         self.assertEqual(self.LOGGER.mock_calls, [
@@ -91,7 +98,6 @@ class TestResolveHandleType(ObjectDetailMixin):
         WHOIS.get_nsset_by_handle.side_effect = OBJECT_NOT_FOUND
         WHOIS.get_keyset_by_handle.side_effect = OBJECT_NOT_FOUND
         WHOIS.get_registrar_by_handle.side_effect = OBJECT_NOT_FOUND
-        WHOIS.get_managed_zone_list.return_value = []
         response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "-abc"}))
         self.assertContains(response, "Record not found")
         self.assertEqual(self.LOGGER.mock_calls, [
@@ -108,6 +114,22 @@ class TestResolveHandleType(ObjectDetailMixin):
             call.get_registrar_by_handle('-abc'),
             call.get_managed_zone_list(),
         ])
+
+    def test_handle_not_found_deprecation(self):
+        WHOIS.get_contact_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_nsset_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_keyset_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_registrar_by_handle.side_effect = OBJECT_NOT_FOUND
+        WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND
+
+        with warnings.catch_warnings(record=True) as captured:
+            warnings.simplefilter("always")
+
+            response = self.client.get(reverse("webwhois:registry_object_type", kwargs={"handle": "testhandle"}))
+            self.assertContains(response, "Record not found")
+
+        warns = [i.message for i in captured]
+        self.assertIn(Comparison(DeprecationWarning(StringComparison(".*'managed_zone_list' is deprecated.*"))), warns)
 
     def test_contact_not_found(self):
         WHOIS.get_contact_by_handle.side_effect = OBJECT_NOT_FOUND
@@ -580,10 +602,13 @@ class TestDetailKeyset(ObjectDetailMixin):
 
 @override_settings(TEMPLATES=TEMPLATES)
 class TestDetailDomain(ObjectDetailMixin):
+    def setUp(self):
+        super().setUp()
+        WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
+        _get_managed_zones.cache_clear()
 
     def test_domain_not_found(self):
         WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND
-        WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
         self.assertContains(response, 'Domain not found')
         self.assertContains(response, 'No domain matches <strong>fred.cz</strong> handle.')
@@ -600,7 +625,6 @@ class TestDetailDomain(ObjectDetailMixin):
     def test_domain_delete_candidate(self):
         WHOIS.get_domain_status_descriptions.return_value = self._get_domain_status()
         WHOIS.get_domain_by_handle.side_effect = OBJECT_DELETE_CANDIDATE
-        WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
 
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
 
@@ -620,7 +644,6 @@ class TestDetailDomain(ObjectDetailMixin):
 
     def test_domain_not_found_idna_formated(self):
         WHOIS.get_domain_by_handle.side_effect = OBJECT_NOT_FOUND
-        WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "...fred.cz"}))
         self.assertContains(response, 'Invalid handle')
         self.assertContains(response, '<strong>...fred.cz</strong> is not a valid handle.')
@@ -699,7 +722,6 @@ class TestDetailDomain(ObjectDetailMixin):
 
     def test_domain_unmanaged_zone(self):
         WHOIS.get_domain_by_handle.side_effect = UNMANAGED_ZONE
-        WHOIS.get_managed_zone_list.return_value = ['cz', '0.2.4.e164.arpa']
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.com"}))
         self.assertContains(response, 'Unmanaged zone')
         msg = 'Domain <strong>fred.com</strong> cannot be found in the registry. ' \
@@ -714,6 +736,17 @@ class TestDetailDomain(ObjectDetailMixin):
         ])
         self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
         self.assertEqual(WHOIS.mock_calls, [call.get_domain_by_handle('fred.com'), call.get_managed_zone_list()])
+
+    def test_domain_unmanaged_zone_deprecation(self):
+        WHOIS.get_domain_by_handle.side_effect = UNMANAGED_ZONE
+        with warnings.catch_warnings(record=True) as captured:
+            warnings.simplefilter("always")
+
+            response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.com"}))
+            self.assertContains(response, 'Unmanaged zone')
+
+        warns = [i.message for i in captured]
+        self.assertIn(Comparison(DeprecationWarning(StringComparison(".*'managed_zone_list' is deprecated.*"))), warns)
 
     def test_domain_idna_invalid_codepoint(self):
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fr:ed.com"}))
