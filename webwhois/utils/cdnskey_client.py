@@ -21,12 +21,22 @@ import itertools
 from functools import lru_cache
 from typing import Any, Dict, Iterable, Optional
 
-from cdnskey_processor_api import service_report_grpc_pb2_grpc
-from cdnskey_processor_api.common_types_pb2 import Cdnskey, CdnskeyStatus as CdnskeyStatusProto, DnskeyAlg, DnskeyFlags
-from cdnskey_processor_api.service_report_grpc_pb2 import RawScanResultsRequest
+from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
-from frgal import GrpcClient, GrpcDecoder
 from grpc import ChannelCredentials, RpcError, StatusCode, ssl_channel_credentials
+
+try:
+    from cdnskey_processor_api import service_report_grpc_pb2_grpc
+    from cdnskey_processor_api.common_types_pb2 import (Cdnskey, CdnskeyStatus as CdnskeyStatusProto, DnskeyAlg,
+                                                        DnskeyFlags)
+    from cdnskey_processor_api.service_report_grpc_pb2 import RawScanResultsRequest
+    from frgal import GrpcClient, GrpcDecoder
+except ImportError:
+    Cdnskey, DnskeyAlg, DnskeyFlags = None, None, None
+    GrpcDecoder = object
+
+    class GrpcClient:  # type: ignore[no-redef]
+        pass
 
 from webwhois.settings import WEBWHOIS_SETTINGS
 
@@ -92,6 +102,8 @@ def get_cdnskey_client() -> Optional[CdnskeyClient]:
     """
     if not WEBWHOIS_SETTINGS.CDNSKEY_NETLOC:
         return None
+    if Cdnskey is None:
+        raise ImproperlyConfigured("WEBWHOIS_CDNSKEY_NETLOC is installed, but cdnskey_processor_api is not available.")
     credentials = None
     if WEBWHOIS_SETTINGS.CDNSKEY_SSL_CERT:
         with open(WEBWHOIS_SETTINGS.CDNSKEY_SSL_CERT) as file:

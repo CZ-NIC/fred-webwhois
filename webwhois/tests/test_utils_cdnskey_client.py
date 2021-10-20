@@ -19,23 +19,35 @@
 from datetime import datetime
 from tempfile import NamedTemporaryFile
 from typing import Dict, List, Sequence, Type
+from unittest import skipIf
 from unittest.mock import call, patch, sentinel
 
-from cdnskey_processor_api.common_types_pb2 import Cdnskey, CdnskeyStatus as CdnskeyStatusProto, DnskeyAlg, DnskeyFlags
-from cdnskey_processor_api.service_report_grpc_pb2 import RawScanResult, RawScanResultsReply, RawScanResultsRequest
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
 from django.utils import timezone
-from frgal.utils import TestClientMixin
 from grpc import RpcError, StatusCode
 from grpc._channel import _RPCState, _SingleThreadedRendezvous as _Rendezvous
+
+try:
+    from cdnskey_processor_api.common_types_pb2 import (Cdnskey, CdnskeyStatus as CdnskeyStatusProto, DnskeyAlg,
+                                                        DnskeyFlags)
+    from cdnskey_processor_api.service_report_grpc_pb2 import RawScanResult, RawScanResultsReply, RawScanResultsRequest
+    from frgal.utils import TestClientMixin
+except ImportError:
+    Cdnskey = None
+    RawScanResult, RawScanResultsReply = None, None
+
+    class TestClientMixin:  # type: ignore[no-redef]
+        pass
 
 from webwhois.constants import CdnskeyStatus, DnskeyAlgorithm, DnskeyFlag
 from webwhois.utils.cdnskey_client import CdnskeyClient, CdnskeyDecoder, get_cdnskey_client
 
 
+@skipIf(Cdnskey is None, "Only available with cdnskey_processor_api installed.")
 class CdnskeyDecoderTest(SimpleTestCase):
     def test_decode_flags(self):
         decoder = CdnskeyDecoder()
@@ -86,6 +98,7 @@ class TestCdnskeyClient(TestClientMixin, CdnskeyClient):
     """Testing version of an CdnskeyClient."""
 
 
+@skipIf(Cdnskey is None, "Only available with cdnskey_processor_api installed.")
 class CdnskeyClientTest(SimpleTestCase):
     scan_at = datetime(2020, 3, 2, 13, tzinfo=timezone.utc)
     public_key = 'Quagaars!'
@@ -200,6 +213,15 @@ class GetClientTest(SimpleTestCase):
         with override_settings(WEBWHOIS_CDNSKEY_NETLOC=None):
             self.assertIsNone(get_cdnskey_client())
 
+    @skipIf(Cdnskey, "Only available with cdnskey_processor_api not installed.")
+    def test_missing(self):
+        # Test cdnskey is set up, but api is missing.
+        msg = "WEBWHOIS_CDNSKEY_NETLOC is installed, but cdnskey_processor_api is not available"
+        with override_settings(WEBWHOIS_CDNSKEY_NETLOC=sentinel.netloc):
+            with self.assertRaisesRegex(ImproperlyConfigured, msg):
+                get_cdnskey_client()
+
+    @skipIf(Cdnskey is None, "Only available with cdnskey_processor_api installed.")
     def test_netloc(self):
         with override_settings(WEBWHOIS_CDNSKEY_NETLOC=sentinel.netloc):
             del settings.WEBWHOIS_CDNSKEY_SSL_CERT
@@ -208,6 +230,7 @@ class GetClientTest(SimpleTestCase):
 
         self.assertEqual(client_mock.mock_calls, [call(sentinel.netloc, credentials=None)])
 
+    @skipIf(Cdnskey is None, "Only available with cdnskey_processor_api installed.")
     def test_ssl_cert(self):
         tmp_file = NamedTemporaryFile()
         tmp_file.write(b'Gazpacho!')
