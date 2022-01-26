@@ -9,7 +9,7 @@ The application searches domain names, contacts, nameserver sets and key sets.
 Dependencies
 ============
 
-- python >=3.6
+- python >=3.7
 - Other dependencies are listed in `<setup.cfg>`_.
 
 
