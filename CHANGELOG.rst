@@ -4,6 +4,8 @@ ChangeLog
 Unreleased
 ----------
 
+* Add ``managed_zones`` context processor.
+  Context variable ``managed_zone_list`` is now deprecated and replaced by ``managed_zones`` provided by the context processor.
 * Add utilities for deprecation warnings.
 
 1.20.1 (2021-08-31)

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -20,10 +20,12 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView
 
-from webwhois.utils import WHOIS
 from webwhois.views import ContactDetailMixin, DomainDetailMixin, KeysetDetailMixin, NssetDetailMixin
 from webwhois.views.base import RegistryObjectMixin
 from webwhois.views.registrar import RegistrarDetailMixin
+
+from ..context_processors import _get_managed_zones
+from ..utils.deprecation import deprecated_context
 
 
 class ResolveHandleTypeMixin(RegistryObjectMixin):
@@ -50,7 +52,9 @@ class ResolveHandleTypeMixin(RegistryObjectMixin):
                 "message": cls.message_with_handle_in_html(_("%s does not match any record."), handle),
                 "object_not_found": True,
             }
-            context["managed_zone_list"] = WHOIS.get_managed_zone_list()
+            context["managed_zone_list"] = deprecated_context(
+                _get_managed_zones(),
+                "Context variable 'managed_zone_list' is deprecated. Use 'managed_zones' context processor instead.")
 
     def load_related_objects(self, context):
         """Prepare url for redirect to the registry object type."""

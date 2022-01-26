@@ -25,10 +25,12 @@
     {% endif %}
 
     {% if server_exception.unmanaged_zone %}
-        <ul class="managed-zones">
-            {% for zone in managed_zone_list %}<li>{{ zone }}</li>
-            {% endfor %}
-        </ul>
+        {% if managed_zones or managed_zone_list %}
+            <ul class="managed-zones">
+                {% for zone in managed_zones|default:managed_zone_list %}<li>{{ zone }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     {% endif %}
 
     {% if server_exception.object_not_found %}
@@ -36,10 +38,10 @@
             <p>
                 {% trans "If you have tried to look up a domain, it is possible that it belongs to a zone that is not managed by our registry." %}
             </p>
-            {% if managed_zone_list %}
+            {% if managed_zones or managed_zone_list %}
                 {% trans "We manage only these zones:" %}
                 <ul class="managed-zones">
-                    {% for zone in managed_zone_list %}
+                    {% for zone in managed_zones|default:managed_zone_list %}
                         <li>{{ zone }}</li>
                     {% endfor %}
                 </ul>
