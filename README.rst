@@ -10,7 +10,7 @@ Dependencies
 ============
 
 - python >=3.6
-- Other dependencies are listed in `<requirements.txt>`_.
+- Other dependencies are listed in `<setup.cfg>`_.
 
 
 A part of the FRED system

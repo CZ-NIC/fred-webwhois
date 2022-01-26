@@ -5,7 +5,6 @@
 !*.rst
 !MANIFEST.in
 !setup.*
-!requirements.txt
 !docker/uwsgi
 # But ignore these
 **/__pycache__
