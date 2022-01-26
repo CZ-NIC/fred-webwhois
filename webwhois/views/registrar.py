@@ -17,16 +17,17 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 import random
 import warnings
-from typing import Any, Iterable, Optional, cast
+from typing import Iterable, Optional, cast
 
 from django.http import Http404, HttpResponse
-from django.utils.functional import SimpleLazyObject
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView, View
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND
 
 from webwhois.utils import FILE_MANAGER, WHOIS
 from webwhois.views.base import BaseContextMixin, RegistryObjectMixin
+
+from ..utils.deprecation import deprecated_context
 
 
 class RegistrarDetailMixin(RegistryObjectMixin):
@@ -54,14 +55,6 @@ class RegistrarDetailMixin(RegistryObjectMixin):
 
 class RegistrarDetailView(RegistrarDetailMixin, TemplateView):
     """View with details of a registrar."""
-
-
-def _deprecate_variable(value: Any, message: str) -> SimpleLazyObject:
-    """Mark context variable as deprecated."""
-    def _return_value() -> Any:
-        warnings.warn(message, DeprecationWarning)
-        return value
-    return SimpleLazyObject(_return_value)
 
 
 class RegistrarListMixin(BaseContextMixin):
@@ -142,7 +135,7 @@ class RegistrarListMixin(BaseContextMixin):
         # Set is_retail and mark it as deprecated.
         kwargs.setdefault('is_retail', None)
         if kwargs['is_retail'] is not None:
-            kwargs['is_retail'] = _deprecate_variable(
+            kwargs['is_retail'] = deprecated_context(
                 kwargs['is_retail'], "Context variable is_retail is deprecated. Update your templates accordingly.")
         return super(RegistrarListMixin, self).get_context_data(**kwargs)
 

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -18,13 +18,12 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 import os
 import warnings
-from unittest.mock import call, patch, sentinel
+from unittest.mock import call, patch
 
 from django.http.response import HttpResponseNotFound
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.functional import SimpleLazyObject
 from fred_idl.ccReg import FileInfo
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND, RegistrarCertification, RegistrarGroup
 from testfixtures import ShouldWarn
@@ -32,29 +31,6 @@ from testfixtures import ShouldWarn
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
 from webwhois.tests.utils import CALL_BOOL, TEMPLATES, apply_patch, make_registrar
 from webwhois.utils import FILE_MANAGER, WHOIS
-from webwhois.views.registrar import _deprecate_variable
-
-
-class TestDeprecateVariable(SimpleTestCase):
-    def test_deprecated_variable_create(self):
-        with warnings.catch_warnings(record=True) as captured:
-            warnings.simplefilter("always")
-            wrapped = _deprecate_variable(sentinel.value, sentinel.message)
-
-        self.assertIsInstance(wrapped, SimpleLazyObject)
-        self.assertEqual(captured, [])
-
-    def test_deprecated_variable_eval(self):
-        message = "Everybody's dead, Dave."
-        wrapped = _deprecate_variable(sentinel.value, message)
-        with warnings.catch_warnings(record=True) as captured:
-            warnings.simplefilter("always")
-            self.assertEqual(wrapped, sentinel.value)
-
-        warns = [i.message for i in captured]
-        self.assertEqual(len(warns), 1)
-        self.assertIsInstance(warns[0], DeprecationWarning)
-        self.assertIn(message, str(warns[0]))
 
 
 @override_settings(ROOT_URLCONF='webwhois.tests.urls', STATIC_URL='/static/', TEMPLATES=TEMPLATES)

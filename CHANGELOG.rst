@@ -4,6 +4,8 @@ ChangeLog
 Unreleased
 ----------
 
+* Add utilities for deprecation warnings.
+
 1.20.1 (2021-08-31)
 -------------------
 
