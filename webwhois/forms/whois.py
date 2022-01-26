@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -20,7 +20,7 @@ from django.core.validators import MaxLengthValidator, RegexValidator
 from django.urls.converters import StringConverter
 from django.utils.functional import lazy
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 class WhoisForm(forms.Form):

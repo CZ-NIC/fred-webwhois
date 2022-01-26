@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -22,10 +22,10 @@ from django.core.cache import cache
 from django.forms import Form
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.formats import date_format
 from django.utils.html import format_html
-from django.utils.translation import get_language, ugettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _
 from django.views.generic import TemplateView, View
 from fred_idl.Registry.PublicRequest import (HAS_DIFFERENT_BLOCK, INVALID_EMAIL, OBJECT_ALREADY_BLOCKED,
                                              OBJECT_NOT_BLOCKED, OBJECT_NOT_FOUND, OBJECT_TRANSFER_PROHIBITED,
@@ -108,7 +108,7 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
 
     def get_success_url(self):
         if self.success_url:
-            return force_text(self.success_url)
+            return force_str(self.success_url)
         url_name = "webwhois:response_not_found"
         if self.form_cleaned_data['send_to'].choice == 'email_in_registry':
             url_name = 'webwhois:email_in_registry_response'
@@ -173,7 +173,7 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
 
     def get_success_url(self):
         if self.success_url:
-            return force_text(self.success_url)
+            return force_str(self.success_url)
         if self.form_cleaned_data['send_to'].choice == 'email_in_registry':
             url_name = 'webwhois:email_in_registry_response'
         else:
@@ -250,7 +250,7 @@ class BlockUnblockFormView(PublicRequestFormView):
 
     def get_success_url(self):
         if self.success_url:
-            return force_text(self.success_url)
+            return force_str(self.success_url)
         if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.SIGNED_EMAIL:
             url_name = 'webwhois:custom_email_response'
         else:

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2018-2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2018-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -19,7 +19,7 @@
 """Webwhois constants."""
 from enum import Enum, unique
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from .utils import _DnskeyAlgorithmBase, _DnskeyFlagBase
 

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -21,7 +21,7 @@ from django import forms
 from django.core.validators import MaxLengthValidator
 from django.utils.functional import lazy
 from django.utils.safestring import mark_safe
-from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from fred_idl.Registry.PublicRequest import ConfirmedBy
 
 from webwhois.constants import SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY
