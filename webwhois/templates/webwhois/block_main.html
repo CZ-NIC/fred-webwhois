@@ -8,18 +8,16 @@
             {% block webwhois_header %}
                 <h1>{% trans "Search in the Registry (Whois)" %}</h1>
                 <p>
-                    {% blocktrans with handle=handle trimmed %}
-                    Search results for handle <strong>{{ handle }}</strong>:
-                    {% endblocktrans %}
+                    {% trans "Search results for handle" %} <strong class="text-primary">{{ handle }}</strong>:
                 </p>
             {% endblock webwhois_header %}
 
             {% block webwhois_content %}{% endblock webwhois_content %}
 
             {% block webwhois_footer %}
-                <p>
-                    <a href="{% url "webwhois:form_whois" %}">{% trans "New search in the registry" %}</a>
-                </p>
+                <a class="btn btn-primary mt-5" href="{% url "webwhois:form_whois" %}">
+                    {% trans "New search in the registry" %}
+                </a>
             {% endblock webwhois_footer %}
 
         {% endblock webwhois_main %}

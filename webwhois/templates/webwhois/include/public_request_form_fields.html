@@ -1,14 +1,19 @@
-<div class="general_error">
-    {{ form.non_field_errors }}
-</div>
+{{ form.non_field_errors }}
 
 {% for field in form %}
     {% if field.help_text %}
-        <div class="help-text">{{ field.help_text }}</div>
+    <aside class="d-flex flex-column flex-lg-row my-2">
+        <div class="w-75"></div>
+        <div class="w-100">
+            <div class="help-text text-muted">{{ field.help_text }}</div>
+        </div>
+    </aside>
     {% endif %}
-    <div class="label-wrapper label-{{ field.name }}">{{ field.label_tag }}</div>
-    <div class="field-wrapper">
-        {{ field.errors }}
-        {{ field }}
-    </div>
+    <aside class="d-flex flex-column flex-lg-row my-2">
+        <div class="w-75 label-wrapper label-{{ field.name }}">{{ field.label_tag }}</div>
+        <div class="w-100 field-wrapper">
+            {{ field.errors }}
+            {{ field }}
+        </div>
+    </aside>
 {% endfor %}

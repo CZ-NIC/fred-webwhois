@@ -1140,7 +1140,7 @@ class TestResponseErrorMessage(SimpleTestCase):
 
     def _assert_response(self, path):
         response = self.client.get(path, follow=True)
-        self.assertContains(response, '<div class="error">'
+        self.assertContains(response, '<div class="errororlist">'
                             'Sorry, but the request does not exist or has expired. Please enter a new one.'
                             '</div>', html=True)
         self.assertRedirects(response, reverse("webwhois:response_not_found", kwargs={"public_key": self.public_key}))

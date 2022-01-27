@@ -48,6 +48,15 @@ image:py310:
     variables:
         PYTHON_VERSION: "3.10"
 
+image:node14:
+    extends: .image
+    script:
+        - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+        - docker build --pull --tag "$IMAGE_TAG" docker/node
+        - docker push "$IMAGE_TAG"
+    variables:
+        IMAGE_TAG: $CI_REGISTRY_IMAGE/node:14
+
 ########################################################################################################################
 # Basic declarations
 .py37: &py37
@@ -61,6 +70,10 @@ image:py310:
 
 .py310: &py310
     image: "$CI_REGISTRY_IMAGE/tox:3.10"
+
+.node: &node
+    stage: test
+    image: "$CI_REGISTRY/$CI_PROJECT_PATH/node:14"
 
 .test: &test
     stage: test
@@ -99,3 +112,16 @@ test:py310:
     <<: *test
     <<: *py310
     needs: ["image:py310"]
+
+test:node14:
+    <<: *node
+    before_script:
+        - node --version
+        - npm --version
+        - npm clean-install
+        - npm list || true
+    script:
+        - npm run check-css
+        - npm run check-js -- --max-warnings=0
+        - npm run build
+    needs: ["image:node14"]

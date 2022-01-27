@@ -17,12 +17,14 @@
     <div id="form_wrapper">
         <h2>{% trans "Request form to enable enhanced object security" %}</h2>
         <div id="public_request_forms">
-            <form id="block_object_form" action="{% url "webwhois:form_block_object" %}" method="post" class="webwhois-public-request">
+            <form id="block_object_form" action="{% url "webwhois:form_block_object" %}" method="post" class="webwhois-public-request w-100">
                 {% csrf_token %}
 
                 {% include "webwhois/include/public_request_form_fields.html" %}
 
-                <button id="submit_button" type="submit">{% trans "Send" %}</button>
+                <button class="btn btn-primary d-block ms-auto mt-5" id="submit_button" type="submit">
+                    {% trans "Send" %}
+                </button>
             </form>
         </div>
     </div>

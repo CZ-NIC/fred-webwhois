@@ -10,7 +10,7 @@
 
 {% block webwhois_content %}
     {% with contact=registry_objects.contact.detail %}
-        <table class="result contact">
+        <table class="result contact table table table-bordered">
             <tr>
                 <th>{% trans "Handle" %}</th>
                 <td><span class="handle">{{ contact.handle }}</span>{% block webwhois_contact_handle %}{% endblock webwhois_contact_handle %}</td>

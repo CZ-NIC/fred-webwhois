@@ -10,7 +10,7 @@
 
 {% block webwhois_content %}
     {% with registrar=registry_objects.registrar.detail %}
-        <table class="result registrar">
+        <table class="result registrar table table-bordered">
             <tr>
                 <th>{% trans "Handle" %}</th>
                 <td class="handle">{{ registrar.handle }}</td>

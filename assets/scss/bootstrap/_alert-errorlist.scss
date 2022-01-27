@@ -1,0 +1,18 @@
+// Bootstrap variables for specific class
+.errorlist {
+    @include border-radius($alert-border-radius);
+    background-color: shift-color($danger, $alert-bg-scale);
+    border: $alert-border-width solid transparent;
+    border-color: shift-color($danger, $alert-border-scale);
+    color: shift-color($danger, $alert-color-scale);
+    list-style: none;
+    margin-bottom: space(2);
+    margin-top: space(2);
+    padding: $alert-padding-y $alert-padding-x;
+    position: relative;
+    white-space: pre-wrap;
+
+    @media (min-width: 992px) {
+        margin-top: space(4);
+    }
+}

@@ -81,11 +81,6 @@ class PublicRequestBaseForm(forms.Form):
                                             help_text=_('If you are entering another e-mail, you must attach '
                                             'verification that entered e-mail belongs to the responsible person.'))
 
-    class Media:
-        css = {
-            'all': ('webwhois/css/public_request-prefixed.css',)
-        }
-
     def clean_confirmation_method(self):
         """Return None if no confirmation method was selected."""
         value = self.cleaned_data['confirmation_method']

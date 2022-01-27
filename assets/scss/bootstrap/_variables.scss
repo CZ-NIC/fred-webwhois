@@ -1,0 +1,35 @@
+// scss-docs-start theme-color-variables
+$primary: #cf2f44;
+$secondary: #1e1e1e;
+$info: #aeb4ab;
+$light: #f8f8f8;
+$dark: #444  ;
+// scss-docs-end theme-color-variables
+
+// Spacing
+// scss-docs-start spacer-variables-maps
+$spacer: 1rem;
+$spacers: (
+    0: 0,
+    1: $spacer * 0.25,
+    2: $spacer * 0.5,
+    3: $spacer,
+    4: $spacer * 1.5,
+    5: $spacer * 3,
+    6: $spacer * 6,
+    7: $spacer * 12,
+);
+
+@function space($space) {
+    @return map-get($spacers, $space);
+}
+
+// Settings for the `<body>` element.
+$body-bg: $light;
+$body-color: $secondary;
+
+// scss-docs-start headings-variables
+$headings-margin-bottom: $spacer;
+$headings-color: $secondary;
+$headings-font-weight: 700;
+// scss-docs-end headings-variables

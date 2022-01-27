@@ -24,8 +24,7 @@ from setuptools.command.sdist import sdist
 
 
 class custom_build(build):
-    sub_commands = [('compile_catalog', lambda x: True)] + build.sub_commands
-
+    sub_commands = [('compile_catalog', lambda x: True), ('build_js', None)] + build.sub_commands
 
 class custom_sdist(sdist):
 
@@ -34,5 +33,5 @@ class custom_sdist(sdist):
         # sdist is an old style class so super cannot be used.
         sdist.run(self)
 
-
-setup(cmdclass={'build': custom_build, 'sdist': custom_sdist})
+setup(webpack_output_path='webwhois/static/webwhois',
+        cmdclass={'build': custom_build, 'sdist': custom_sdist})
