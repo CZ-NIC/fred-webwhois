@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2016-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -26,11 +26,11 @@ from webwhois.utils.logger import create_logger
 class TestLogger(SimpleTestCase):
 
     def test_create_logger(self):
-        with self.assertRaisesRegexp(ImportError, "foo doesn't look like a module path"):
+        with self.assertRaisesRegex(ImportError, "foo doesn't look like a module path"):
             create_logger("foo", None)
-        with self.assertRaisesRegexp(ImportError, "No module named '?foo'?"):
+        with self.assertRaisesRegex(ImportError, "No module named '?foo'?"):
             create_logger("foo.off", None)
-        with self.assertRaisesRegexp(ImportError, 'does not define a "foo" attribute/class'):
+        with self.assertRaisesRegex(ImportError, 'does not define a "foo" attribute/class'):
             create_logger("pylogger.foo", None)
 
         corba = MagicMock()

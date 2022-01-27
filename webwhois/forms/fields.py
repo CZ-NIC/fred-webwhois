@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -23,7 +23,7 @@ its template and customization of validation required fields (EmailField can be 
 from typing import Iterable
 
 from django import forms
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from webwhois.constants import SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY
 from webwhois.forms.widgets import DeliveryType, DeliveryWidget, PlainRadioSelect
