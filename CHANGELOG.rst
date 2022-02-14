@@ -9,6 +9,11 @@ Unreleased
   by the context processor.
 * Add utilities for deprecation warnings.
 
+1.20.2 (2022-02-14)
+-------------------
+
+* Make requirements for cdnskey scan results optional.
+
 1.20.1 (2021-08-31)
 -------------------
 

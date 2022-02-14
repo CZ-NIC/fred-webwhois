@@ -13,11 +13,8 @@ Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: CZ.NIC <fred@nic.cz>
 Url: https://fred.nic.cz/
-BuildRequires: python2-setuptools gettext
-Requires: python2 python2dist(django) >= 1.11 python2-django-app-settings python2-idna fred-idl fred-pyfco fred-pylogger uwsgi-plugin-python2 httpd /usr/sbin/semanage policycoreutils python2-six python2-enum34
-%if 0%{?el7}
-Requires: mod_proxy_uwsgi
-%endif
+BuildRequires: python3-setuptools gettext python3-pip
+Requires: python3 python3-django >= 2.2 python3-django-app-settings python3-idna python3-fred-idl python3-fred-pyfco python3-fred-pylogger uwsgi-plugin-python3 httpd /usr/sbin/semanage policycoreutils python3-grpcio
 
 %description
 Web WHOIS server for FRED registry system
@@ -26,7 +23,7 @@ Web WHOIS server for FRED registry system
 %setup -n %{name}-%{version}
 
 %install
-python2 setup.py install -cO2 --force --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES --prefix=/usr
+python3 setup.py install -cO2 --force --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES --prefix=/usr
 
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/httpd/conf.d/
 install -m 644 contrib/fedora/apache.conf $RPM_BUILD_ROOT/%{_sysconfdir}/httpd/conf.d/fred-webwhois-apache.conf
