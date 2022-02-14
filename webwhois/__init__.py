@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -18,4 +18,4 @@
 
 """Web whois for FRED registry."""
 
-__version__ = '1.20.2-rc3'
+__version__ = '1.20.2'

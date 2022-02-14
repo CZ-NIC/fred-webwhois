@@ -4,7 +4,7 @@ ChangeLog
 Unreleased
 ----------
 
-1.20.2 (2021-10-20)
+1.20.2 (2022-02-14)
 -------------------
 
 * Make requirements for cdnskey scan results optional.

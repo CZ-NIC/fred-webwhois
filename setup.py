@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -37,7 +37,7 @@ class custom_sdist(sdist):
 
 
 setup(name='fred-webwhois',
-      version='1.20.2-rc3',
+      version='1.20.2',
       description='NIC.CZ Fred Web Whois',
       author='Zdeněk Böhm, CZ.NIC',
       author_email='zdenek.bohm@nic.cz',
