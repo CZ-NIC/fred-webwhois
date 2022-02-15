@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -248,7 +248,7 @@ class TestDetailContact(ObjectDetailMixin):
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertContains(response, "Contact details")
-        self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
+        self.assertContains(response, "mycontact")
         self.assertFalse(response.context['registry_objects']['contact']['is_linked'])
         self.assertEqual(self.LOGGER.mock_calls, [
             CALL_BOOL,
@@ -270,7 +270,7 @@ class TestDetailContact(ObjectDetailMixin):
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertContains(response, "Contact details")
-        self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
+        self.assertContains(response, "mycontact")
         self.assertTrue(response.context['registry_objects']['contact']['is_linked'])
         self.assertEqual(self.LOGGER.mock_calls, [
             CALL_BOOL,
@@ -292,7 +292,7 @@ class TestDetailContact(ObjectDetailMixin):
                                                                      sponsoring_registrar_handle="")
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertContains(response, "Contact details")
-        self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
+        self.assertContains(response, "mycontact")
         self.assertEqual(self.LOGGER.mock_calls, [
             CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -315,7 +315,7 @@ class TestDetailContact(ObjectDetailMixin):
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_contact", kwargs={"handle": "mycontact"}))
         self.assertContains(response, "Contact details")
-        self.assertContains(response, "Search results for handle <strong>mycontact</strong>:")
+        self.assertContains(response, "mycontact")
         self.assertEqual(response.context['registry_objects']['contact']['birthday'], date(2000, 6, 28))
         self.assertEqual(self.LOGGER.mock_calls, [
             CALL_BOOL,
@@ -472,7 +472,7 @@ class TestDetailNsset(ObjectDetailMixin):
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
         self.assertContains(response, "Name server set (DNS) details")
-        self.assertContains(response, "Search results for handle <strong>mynssid</strong>:")
+        self.assertContains(response, "mynssid")
         self.assertEqual(self.LOGGER.mock_calls, [
             CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -511,7 +511,7 @@ class TestDetailNsset(ObjectDetailMixin):
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_nsset", kwargs={"handle": "mynssid"}))
         self.assertContains(response, "Name server set (DNS) details")
-        self.assertContains(response, "Search results for handle <strong>mynssid</strong>:")
+        self.assertContains(response, "mynssid")
         self.assertEqual(self.LOGGER.mock_calls, [
             CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -568,7 +568,7 @@ class TestDetailKeyset(ObjectDetailMixin):
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_keyset", kwargs={"handle": "mykeysid"}))
         self.assertContains(response, "Key set details")
-        self.assertContains(response, "Search results for handle <strong>mykeysid</strong>:")
+        self.assertContains(response, "mykeysid")
         self.assertEqual(self.LOGGER.mock_calls, [
             CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -672,7 +672,7 @@ class TestDetailDomain(ObjectDetailMixin):
         self._mocks_for_domain_detail()
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
         self.assertContains(response, "Domain name details")
-        self.assertContains(response, "Search results for handle <strong>fred.cz</strong>:")
+        self.assertContains(response, "fred.cz")
         self.assertEqual(self.LOGGER.mock_calls, [
             CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -704,7 +704,7 @@ class TestDetailDomain(ObjectDetailMixin):
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fred.cz"}))
         self.assertContains(response, "Domain name details")
-        self.assertContains(response, "Search results for handle <strong>fred.cz</strong>:")
+        self.assertContains(response, "fred.cz")
         self.assertEqual(self.LOGGER.mock_calls, [
             CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -817,7 +817,7 @@ class TestDetailDomain(ObjectDetailMixin):
     def test_idn_domain(self):
         self._mocks_for_domain_detail(handle="xn--frd-cma.cz")
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "fréd.cz"}))
-        self.assertContains(response, "Search results for handle <strong>fréd.cz</strong>:")
+        self.assertContains(response, "fréd.cz")
         self.assertEqual(self.LOGGER.mock_calls, [
             CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
@@ -844,7 +844,7 @@ class TestDetailDomain(ObjectDetailMixin):
     def test_idn_domain_punycode(self):
         self._mocks_for_domain_detail(handle="xn--frd-cma.cz")
         response = self.client.get(reverse("webwhois:detail_domain", kwargs={"handle": "xn--frd-cma.cz"}))
-        self.assertContains(response, "Search results for handle <strong>xn--frd-cma.cz</strong>:")
+        self.assertContains(response, "xn--frd-cma.cz")
         self.assertEqual(self.LOGGER.mock_calls, [
             CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
