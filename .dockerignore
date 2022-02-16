@@ -1,11 +1,14 @@
 # Ignore everything
 *
 # Upload these
+!assets
 !webwhois
 !*.rst
 !MANIFEST.in
 !setup.*
 !docker/uwsgi
+!*.json
+!*.js
 # But ignore these
 **/__pycache__
 docker/uwsgi/Dockerfile

@@ -21,7 +21,7 @@ cache:
     script:
         # Login to GitLab container registry https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#using-the-gitlab-container-registry
         - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
-        - docker build --pull --build-arg PYTHON_VERSION=$PYTHON_VERSION --tag "$IMAGE_TAG" --file docker/Dockerfile .
+        - docker build --pull --build-arg PYTHON_VERSION=$PYTHON_VERSION --tag "$IMAGE_TAG" --file docker/python/Dockerfile .
         - docker push "$IMAGE_TAG"
     tags:
         - dind

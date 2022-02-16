@@ -1,5 +1,20 @@
 ARG PYTHON_VERSION=3.9
 ############################################################
+# JS build
+FROM node:14 AS js_build
+WORKDIR /app
+
+RUN adduser --home /app --disabled-password --gecos 'webwhois' webwhois
+
+COPY webwhois/static/ /app/webwhois/static/
+COPY assets/ /app/assets/
+COPY package.json package-lock.json *.js /app/
+
+RUN npm install -g npm@latest
+RUN npm clean-install \
+    && npm run build
+
+############################################################
 # Base image
 FROM python:${PYTHON_VERSION}-slim AS base
 WORKDIR /app
@@ -10,6 +25,7 @@ RUN adduser --home /app --disabled-password --gecos 'webwhois' webwhois
 # Build image
 FROM base AS build
 ARG PIP_INDEX_URL=https://pypi.nic.cz/cznic/public
+ENV SKIP_NPM=1
 
 # Install build dependencies from debian
 RUN apt-get update \
@@ -23,6 +39,7 @@ ENV PATH="/app/venv/bin:$PATH"
 
 # Copy source code
 COPY . /app/src
+COPY --from=js_build /app/webwhois/static/ /app/webwhois/static/
 
 # Install application and other dependencies
 WORKDIR /app/src
@@ -32,7 +49,6 @@ RUN pip install --no-cache-dir \
         sentry-sdk \
         # Install uwsgi for the python version in use.
         uwsgi
-
 
 ############################################################
 # Uwsgi image

@@ -1,6 +1,7 @@
-include *.rst
+include *.rst *.js *.json
 include LICENSE
 include COPYING
+graft assets
 graft contrib
 graft docs
 graft examples
