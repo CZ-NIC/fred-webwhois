@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -1140,9 +1140,9 @@ class TestResponseErrorMessage(SimpleTestCase):
 
     def _assert_response(self, path):
         response = self.client.get(path, follow=True)
-        self.assertContains(response, '<div class="error">'
-                            'Sorry, but the request does not exist or has expired. Please enter a new one.'
-                            '</div>', html=True)
+        self.assertContains(response,
+                            'Sorry, but the request does not exist or has expired. Please enter a new one.',
+                            html=True)
         self.assertRedirects(response, reverse("webwhois:response_not_found", kwargs={"public_key": self.public_key}))
 
     def test_email_in_registry_response(self):

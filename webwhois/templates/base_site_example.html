@@ -1,10 +1,31 @@
+{% load i18n static %}
+
 <html>
-    <head>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-        <title>{% block title %}Web Whois{% endblock %}</title>
-        {% block extrahead %}{% endblock %}
-    </head>
-    <body>
-        {% block content %}{% endblock %}
-    </body>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>{% block title %}Web Whois{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="{% static 'webwhois/img/favicon.ico' %}" />
+    <link rel="stylesheet" href="{% static 'webwhois/css/main.css' %}" type="text/css" />
+    {% block extrahead %}{% endblock %}
+</head>
+
+<body class="d-flex flex-column justify-content-between h-100">
+    <header class="container">
+            <div class="row">
+                <div class="col">
+                    <img src="{% static 'webwhois/img/fred-logo.svg' %}" height="35" class="d-block mt-3 mb-5" alt="logo">
+                </div>
+            </div>
+    </header>
+    <section class="container ">
+        <div class="row">
+            <div class="col">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </section>
+    <footer class="py-3 py-lg-6"></footer>
+</body>
 </html>

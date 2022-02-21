@@ -4,17 +4,18 @@
 {% block title %}{% trans "Search in the Registry (Whois)" %} - {{ block.super }}{% endblock %}
 
 {% block webwhois_header %}
-    <h1>{% trans "Search in the Registry (Whois)" %}</h1>
+    <h1 class="text-md-center">{% trans "Search in the Registry (Whois)" %}</h1>
 {% endblock webwhois_header %}
 
 {% block webwhois_content %}
-    <form action="{% url "webwhois:form_whois" %}" method="post" class="webwhois-search-form">
+    <form action="{% url "webwhois:form_whois" %}" method="post" class="webwhois-search-form m-0">
         {% csrf_token %}
-        <table>
-            {{ form.as_table }}
-            <tr>
-                <th></th><td><button id="submit_button" type="submit">{% trans "Search" %}</button></td>
-            </tr>
-        </table>
+        <div class="d-flex flex-column flex-md-row width-auto align-items-start align-items-md-center justify-content-start justify-content-md-center">
+            {{ form }}
+            <button class="btn btn-primary mt-5 mt-md-0 mx-0 mx-md-3" id="submit_button" type="submit">{% trans "Search" %}</button>
+        </div>
     </form>
 {% endblock webwhois_content %}
+
+{% block webwhois_footer %}
+{% endblock webwhois_footer %}

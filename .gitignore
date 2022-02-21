@@ -2,6 +2,8 @@
 *.mo
 /webwhois/locale/*.pot
 /webwhois/locale/C
+/webwhois/static/webwhois/css
+/webwhois/static/webwhois/js
 *~
 /dist/
 /build/
@@ -12,3 +14,4 @@
 /.tox
 /.coverage*
 /.mypy_cache
+/node_modules

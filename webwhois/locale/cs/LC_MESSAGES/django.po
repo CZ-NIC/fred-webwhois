@@ -906,9 +906,8 @@ msgstr "Hledat"
 msgid "Search in the Registry (Whois)"
 msgstr "Vyhledávání v registru (Whois)"
 
-#, python-format
-msgid "Search results for handle <strong>%(handle)s</strong>:"
-msgstr "Výsledek vyhledávání <strong>%(handle)s</strong>:"
+msgid "Search results for handle"
+msgstr "Výsledek vyhledávání"
 
 msgid "Secure Entry Point (SEP)"
 msgstr "Secure Entry Point (SEP)"

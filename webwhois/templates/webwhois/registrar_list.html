@@ -14,7 +14,8 @@
 {% endblock webwhois_header %}
 
 {% block webwhois_content %}
-    <table class="result registrars">
+<div class="table-responsive">
+    <table class="result registrars table table-bordered">
         <tr>
             {% block webwhois_registrar_list_header %}
                 <th>{% trans "Registrar" %}</th>
@@ -34,13 +35,13 @@
                     <td><a href="{{ registrar.url|add_scheme }}">{{ registrar.url|strip_scheme }}</a></td>
                     <td>
                         {% if registrar.handle in groups.dnssec.members %}
-                            <img src="{% static "webwhois/img/technology/dnssec.png" %}">
+                            <img src="{% static "webwhois/img/technology/dnssec.png" %}" alt="DNSSEC">
                         {% endif %}
                         {% if registrar.handle in groups.mojeid.members %}
-                            <img src="{% static "webwhois/img/technology/mojeid.png" %}">
+                            <img src="{% static "webwhois/img/technology/mojeid.png" %}" alt="mojeid.cz">
                         {% endif %}
                         {% if registrar.handle in groups.ipv6.members %}
-                            <img src="{% static "webwhois/img/technology/ipv6.png" %}">
+                            <img src="{% static "webwhois/img/technology/ipv6.png" %}" alt="IPv6">
                         {% endif %}
                     </td>
                     {% if is_retail %}
@@ -62,4 +63,5 @@
             {% endwith %}
         {% endfor %}
     </table>
+</div>
 {% endblock webwhois_content %}

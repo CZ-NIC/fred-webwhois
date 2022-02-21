@@ -4,20 +4,19 @@
 {% block title %}{% trans "Scan results" %} {{ handle }} - {{ block.super }}{% endblock %}
 
 {% block extrahead %}
-    <link rel="stylesheet" href="{% static "webwhois/css/scan_results.css" %}">
     <script type="text/javascript" src="{% url 'webwhois:jsi18n' packages='webwhois' %}"></script>
     <script defer type="module" src="{% static "webwhois/js/scan_results.js" %}"></script>
 {% endblock %}
 
 {% block content %}
-    <div id="whois">
+    <div id="whois" class="table-responsive">
         {% block webwhois_main %}
             {% block webwhois_header %}
                 <h1>{% trans "Scan results" %}</h1>
             {% endblock webwhois_header %}
 
             {% block webwhois_content %}
-                <table class="result scan-table">
+                <table class="result scan-table table table-bordered">
                     <thead>
                         <tr>
                             <th>{% trans "Date and time" %}</th>

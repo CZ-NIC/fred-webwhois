@@ -1,0 +1,15 @@
+{
+    "extends": "stylelint-config-sass-guidelines",
+    "rules": {
+        "max-nesting-depth": 5,
+        "selector-max-empty-lines": 0,
+        "max-empty-lines": 1,
+        "no-eol-whitespace": true,
+        "selector-max-compound-selectors": 5,
+        "indentation": 4,
+        "string-quotes": null,
+        "selector-no-qualifying-type": null,
+        "selector-max-id": 1,
+        "selector-class-pattern": "[0-9a-z_-]+"
+    }
+}

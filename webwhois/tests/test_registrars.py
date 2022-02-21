@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -73,7 +73,7 @@ class TestRegistrarsView(GetRegistryObjectMixin, SimpleTestCase):
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_registrar", kwargs={"handle": "REG_FRED_A"}))
         self.assertContains(response, "Registrar details")
-        self.assertContains(response, "Search results for handle <strong>REG_FRED_A</strong>:")
+        self.assertContains(response, "REG_FRED_A")
         self.assertEqual(self.LOGGER.mock_calls, [
             CALL_BOOL,
             call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(

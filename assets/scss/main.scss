@@ -1,0 +1,53 @@
+@use './bootstrap/variables' as *;
+@use './bootstrap/bootstrap';
+
+.width-auto * {
+    width: auto;
+}
+
+.webwhois-search-form {
+    label {
+        margin-right: space(3);
+    }
+}
+
+label[for^="id_send_to"] {
+    display: block;
+    line-height: 1.6;
+    margin: space(3) 0;
+}
+
+.label-wrapper label[for^="id_"] {
+    line-height: 38px;
+}
+
+.alert {
+    ul {
+        margin: 0;
+        padding: 0;
+    }
+
+    li {
+        list-style-type: none;
+    }
+}
+
+ul#id_lock_type {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul {
+    margin-inline-start: 1.1rem;
+}
+
+pre.dnskey {
+    background: $info;
+    display: inline-block;
+    margin: 0;
+    padding: 1rem;
+}
+
+.help-text {
+    display: none;
+}

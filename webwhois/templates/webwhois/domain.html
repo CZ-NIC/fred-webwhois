@@ -10,8 +10,8 @@
 
 {% block webwhois_content %}
     {% with domain=registry_objects.domain.detail nsset=registry_objects.domain.nsset keyset=registry_objects.domain.keyset registrant=registry_objects.domain.registrant registrar=registry_objects.domain.registrar domain_admins=registry_objects.domain.admins domain_status_descriptions=registry_objects.domain.status_descriptions %}
-        <div id="domain_record">
-            <table class="result domain">
+        <div class="table-responsive" id="domain_record">
+            <table class="result domain table table-bordered">
                 <tr>
                     <th>{% trans "Domain name" context "fullname" %}</th>
                     <td>
