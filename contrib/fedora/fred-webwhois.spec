@@ -13,8 +13,10 @@ Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: CZ.NIC <fred@nic.cz>
 Url: https://fred.nic.cz/
-BuildRequires: python3-setuptools gettext python3-pip
+BuildRequires: python3-devel python3-setuptools gettext python3-pip npm
 Requires: python3 python3-django >= 2.2 python3-django-app-settings python3-idna python3-fred-idl python3-fred-pyfco python3-fred-pylogger uwsgi-plugin-python3 httpd /usr/sbin/semanage policycoreutils python3-grpcio
+
+%{?python_disable_dependency_generator}
 
 %description
 Web WHOIS server for FRED registry system
@@ -22,8 +24,13 @@ Web WHOIS server for FRED registry system
 %prep
 %setup -n %{name}-%{version}
 
+%build
+%py3_build
+
 %install
-python3 setup.py install -cO2 --force --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES --prefix=/usr
+%py3_install
+
+mkdir -p $RPM_BUILD_ROOT/%{_datadir}/fred-webwhois/
 
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/httpd/conf.d/
 install -m 644 contrib/fedora/apache.conf $RPM_BUILD_ROOT/%{_sysconfdir}/httpd/conf.d/fred-webwhois-apache.conf
@@ -79,6 +86,9 @@ create_random_string_made_of_50_characters()
 sed -i "s/SECRET_KEY = .*/SECRET_KEY = '$(create_random_string_made_of_50_characters)'/g" %{_sysconfdir}/fred/webwhois_cfg.py
 sed -i "s/ALLOWED_HOSTS = \[\]/ALLOWED_HOSTS = \['localhost', '$(hostname)'\]/g" %{_sysconfdir}/fred/webwhois_cfg.py
 
+# install symlink to static files for easy apache configuration
+ln -s %{python3_sitelib}/webwhois/static %{_datadir}/fred-webwhois/static
+
 fi
 exit 0
 
@@ -89,11 +99,18 @@ then
     semanage fcontext -d -t httpd_log_t /var/log/fred-webwhois.log
     semanage fcontext -d -t httpd_sys_rw_content_t /var/run/webwhois
 }
+
+# remove installed symlink
+rm %{_datadir}/fred-webwhois/static
+
 fi
 exit 0
 
-%files -f INSTALLED_FILES
+%files
 %defattr(-,root,root)
+%{python3_sitelib}/fred_webwhois-*.egg-info/
+%{python3_sitelib}/webwhois/
+%{_datadir}/fred-webwhois/
 %config %{_sysconfdir}/httpd/conf.d/fred-webwhois-apache.conf
 %config %{_sysconfdir}/fred/webwhois_cfg.py
 %config %{_sysconfdir}/fred/webwhois_urls.py
