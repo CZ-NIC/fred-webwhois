@@ -41,6 +41,8 @@ from webwhois.views.base import BaseContextMixin
 from webwhois.views.public_request_mixin import (PublicRequestFormView, PublicRequestKnownException,
                                                  PublicRequestLoggerMixin)
 
+from ..constants import PublicRequestsLogEntryType
+
 WEBWHOIS_LOGGING = logging.getLogger(__name__)
 
 
@@ -50,6 +52,7 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
     form_class = SendPasswordForm
     template_name = 'webwhois/form_send_password.html'
     form_cleaned_data = None  # type: Dict[str, Any]
+    log_entry_type = PublicRequestsLogEntryType.AUTH_INFO
 
     def _get_logging_request_name_and_properties(self, data):
         """Return Request type name and Properties."""
@@ -63,7 +66,7 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
         custom_email = data.get("send_to").custom_email
         if custom_email:
             properties_in.append(("customEmail", custom_email))
-        return "AuthInfo", properties_in
+        return self.log_entry_type, properties_in
 
     def _call_registry_command(self, form, log_request_id):
         data = form.cleaned_data
@@ -128,6 +131,7 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
     form_class = PersonalInfoForm
     template_name = 'webwhois/form_personal_info.html'
     form_cleaned_data = None  # type: Dict[str, Any]
+    log_entry_type = PublicRequestsLogEntryType.PERSONAL_INFO
 
     def _get_logging_request_name_and_properties(self, data):
         """Return Request type name and Properties."""
@@ -141,7 +145,7 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
         custom_email = data.get("send_to").custom_email
         if custom_email:
             properties_in.append(("customEmail", custom_email))
-        return "PersonalInfo", properties_in
+        return self.log_entry_type, properties_in
 
     def _call_registry_command(self, form, log_request_id):
         data = form.cleaned_data
@@ -266,8 +270,8 @@ class BlockObjectFormView(BaseContextMixin, BlockUnblockFormView):
     template_name = 'webwhois/form_block_object.html'
     block_action = 'block'
     logging_lock_type = {
-        LOCK_TYPE_TRANSFER: "BlockTransfer",
-        LOCK_TYPE_ALL: "BlockChanges",
+        LOCK_TYPE_TRANSFER: PublicRequestsLogEntryType.BLOCK_TRANSFER,
+        LOCK_TYPE_ALL: PublicRequestsLogEntryType.BLOCK_CHANGES,
     }
 
     def _get_lock_type(self, key):
@@ -284,8 +288,8 @@ class UnblockObjectFormView(BaseContextMixin, BlockUnblockFormView):
     template_name = 'webwhois/form_unblock_object.html'
     block_action = 'unblock'
     logging_lock_type = {
-        LOCK_TYPE_TRANSFER: "UnblockTransfer",
-        LOCK_TYPE_ALL: "UnblockChanges",
+        LOCK_TYPE_TRANSFER: PublicRequestsLogEntryType.UNBLOCK_TRANSFER,
+        LOCK_TYPE_ALL: PublicRequestsLogEntryType.UNBLOCK_CHANGES,
     }
 
     def _get_lock_type(self, key):
@@ -627,6 +631,8 @@ class NotarizedLetterView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
 class ServeNotarizedLetterView(PublicRequestLoggerMixin, View):
     """Serve Notarized letter PDF view."""
 
+    log_entry_type = PublicRequestsLogEntryType.NOTARIZED_LETTER_PDF
+
     def _get_logging_request_name_and_properties(self, data):
         properties = [
             ("handle", data['handle']),
@@ -636,7 +642,7 @@ class ServeNotarizedLetterView(PublicRequestLoggerMixin, View):
         ]
         if 'custom_email' in data:
             properties.append(('customEmail', data['custom_email']))
-        return 'NotarizedLetterPdf', properties
+        return self.log_entry_type, properties
 
     def get(self, request, public_key):
         public_response = cache.get(public_key)

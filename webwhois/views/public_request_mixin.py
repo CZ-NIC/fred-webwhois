@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -23,6 +23,8 @@ from fred_idl.Registry.PublicRequest import ObjectType_PR
 from webwhois.utils.corba_wrapper import LOGGER
 from webwhois.views.logger_mixin import LoggerMixin
 
+from ..constants import PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType, PublicRequestsLogResult
+
 
 class PublicRequestKnownException(Exception):
     """Used for displaying message on the form."""
@@ -34,7 +36,8 @@ class PublicRequestKnownException(Exception):
 class PublicRequestLoggerMixin(LoggerMixin):
     """Mixin for logging request if LOGGER is set."""
 
-    service_name = "Public Request"
+    service_name = PUBLIC_REQUESTS_LOGGER_SERVICE
+    log_entry_type: PublicRequestsLogEntryType
 
     def finish_logging_request(self, log_request, response_id, error_object):
         """Finish logging request.
@@ -49,16 +52,16 @@ class PublicRequestLoggerMixin(LoggerMixin):
         if error_object:
             if isinstance(error_object, PublicRequestKnownException):
                 properties_out.append(("reason", error_object.exception_code_name))
-                log_request.result = "Fail"
+                log_request.result = PublicRequestsLogResult.FAIL
             else:
                 # Default result is "Error"
                 properties_out.append(("exception", error_object.__class__.__name__))
         else:
             if response_id:
                 references.append(('publicrequest', response_id))
-                log_request.result = "Ok"
+                log_request.result = PublicRequestsLogResult.SUCCESS
             else:
-                log_request.result = "Fail"
+                log_request.result = PublicRequestsLogResult.FAIL
         log_request.close(properties=properties_out, references=references)
 
 

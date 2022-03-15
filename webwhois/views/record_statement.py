@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -24,11 +24,14 @@ from fred_idl.Registry.RecordStatement import OBJECT_DELETE_CANDIDATE, OBJECT_NO
 from webwhois.utils.corba_wrapper import LOGGER, RECORD_STATEMENT
 from webwhois.views.public_request_mixin import LoggerMixin
 
+from ..constants import LOGGER_SERVICE, LogEntryType, LogResult
+
 
 class ServeRecordStatementView(LoggerMixin, View):
     """Serve record statement PDF."""
 
-    service_name = "Web whois"
+    service_name = LOGGER_SERVICE
+    log_entry_type = LogEntryType.RECORD_STATEMENT
 
     def _get_logging_request_name_and_properties(self, data):
         properties = [
@@ -36,7 +39,7 @@ class ServeRecordStatementView(LoggerMixin, View):
             ("objectType", data['object_type']),
             ("documentType", 'public'),
         ]
-        return 'RecordStatement', properties
+        return self.log_entry_type, properties
 
     def finish_logging_request(self, log_request, error_object):
         """Finish logging request.
@@ -50,12 +53,12 @@ class ServeRecordStatementView(LoggerMixin, View):
         if error_object:
             if isinstance(error_object, (OBJECT_NOT_FOUND, OBJECT_DELETE_CANDIDATE)):
                 properties_out.append(("reason", type(error_object).__name__))
-                log_request.result = "NotFound"
+                log_request.result = LogResult.NOT_FOUND
             else:
                 # Default result is "Error"
                 properties_out.append(("exception", error_object.__class__.__name__))
         else:
-            log_request.result = "Ok"
+            log_request.result = LogResult.SUCCESS
         log_request.close(properties=properties_out, references=references)
 
     def get(self, request, object_type, handle):

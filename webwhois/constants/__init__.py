@@ -100,3 +100,47 @@ class CdnskeyStatus(str, Enum):
 
         obj.label = label
         return obj
+
+
+LOGGER_SERVICE = 'Web whois'
+PUBLIC_REQUESTS_LOGGER_SERVICE = 'Public Request'
+
+
+@unique
+class LogResult(str, Enum):
+    """Result values for log."""
+
+    SUCCESS = 'Ok'
+    NOT_FOUND = 'NotFound'
+    ERROR = 'Error'
+
+
+@unique
+class PublicRequestsLogResult(str, Enum):
+    """Result values for log."""
+
+    SUCCESS = 'Ok'
+    ERROR = 'Error'
+    FAIL = 'Fail'
+
+
+@unique
+class LogEntryType(str, Enum):
+    """Log entry types for log."""
+
+    INFO = 'Info'
+    RECORD_STATEMENT = 'RecordStatement'
+    SCAN_RESULTS = 'ScanResults'
+
+
+@unique
+class PublicRequestsLogEntryType(str, Enum):
+    """Log entry types for log."""
+
+    AUTH_INFO = 'AuthInfo'
+    BLOCK_TRANSFER = 'BlockTransfer'
+    BLOCK_CHANGES = 'BlockChanges'
+    UNBLOCK_TRANSFER = 'UnblockTransfer'
+    UNBLOCK_CHANGES = 'UnblockChanges'
+    NOTARIZED_LETTER_PDF = 'NotarizedLetterPdf'
+    PERSONAL_INFO = 'PersonalInfo'

@@ -27,9 +27,9 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views.generic.base import ContextMixin
 
-from webwhois.constants import STATUS_DELETE_CANDIDATE
 from webwhois.utils import LOGGER
 
+from ..constants import LOGGER_SERVICE, STATUS_DELETE_CANDIDATE, LogEntryType, LogResult
 from ..exceptions import WebwhoisError
 
 mark_safe_lazy = lazy(mark_safe, str)
@@ -65,6 +65,8 @@ class RegistryObjectMixin(BaseContextMixin):
 
     server_exception_template = "webwhois/server_exception.html"
     object_type_name = None  # type: str
+    service_name = LOGGER_SERVICE
+    log_entry_type = LogEntryType.INFO
 
     @staticmethod
     def _get_status_descriptions(type_name, fnc_get_descriptions):
@@ -114,7 +116,7 @@ class RegistryObjectMixin(BaseContextMixin):
             ("handle", self.kwargs["handle"]),
             ("handleType", self.object_type_name),
         )
-        return LOGGER.create_request(self.request.META.get('REMOTE_ADDR', ''), "Web whois", "Info",
+        return LOGGER.create_request(self.request.META.get('REMOTE_ADDR', ''), self.service_name, self.log_entry_type,
                                      properties=properties_in)
 
     def finish_logging_request(self, log_request, context, exception_type_name=None):
@@ -122,15 +124,15 @@ class RegistryObjectMixin(BaseContextMixin):
             return
         properties_out = []
         if exception_type_name is not None:
-            log_request.result = "Error"
+            log_request.result = LogResult.ERROR
             properties_out.append(("exception", exception_type_name))
         else:
             found_types = [("foundType", name) for name in sorted(context.get(self._registry_objects_key, {}).keys())]
             if len(found_types):
-                log_request.result = "Ok"
+                log_request.result = LogResult.SUCCESS
                 properties_out.extend(found_types)
             else:
-                log_request.result = "NotFound"
+                log_request.result = LogResult.NOT_FOUND
                 error = context.get("server_exception")
                 if error and error.code != "OBJECT_NOT_FOUND":
                     properties_out.append(("reason", error.code))
