@@ -7,6 +7,8 @@ Unreleased
 * Add ``managed_zones`` context processor.
   Context variable ``managed_zone_list`` is now deprecated and replaced by ``managed_zones`` provided
   by the context processor.
+* Refactored error handling in whois search.
+  Variable ``server_exception`` is now a ``WebwhoisError`` instance with deprecated backwards compatible dictionary API.
 * Add utilities for deprecation warnings.
 
 1.20.2 (2022-02-14)

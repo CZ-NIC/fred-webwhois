@@ -32,6 +32,7 @@ from webwhois.views import KeysetDetailMixin, NssetDetailMixin
 from webwhois.views.base import RegistryObjectMixin
 
 from ..context_processors import _get_managed_zones
+from ..exceptions import WebwhoisError
 from ..utils.deprecation import deprecated_context
 
 
@@ -54,14 +55,12 @@ class DomainDetailMixin(RegistryObjectMixin):
     def load_registry_object(cls, context, handle):
         """Load domain of the handle and append it into the context."""
         if handle.startswith("."):
-            context["server_exception"] = cls.message_invalid_handle(handle)
-            return
+            raise WebwhoisError(**cls.message_invalid_handle(handle))
 
         try:
             idna_handle = idna.encode(handle).decode()
         except idna.IDNAError:
-            context["server_exception"] = cls.message_invalid_handle(handle, "IDNAError")
-            return
+            raise WebwhoisError(**cls.message_invalid_handle(handle, "IDNAError"))
 
         try:
             context[cls._registry_objects_key]["domain"] = {
@@ -72,37 +71,33 @@ class DomainDetailMixin(RegistryObjectMixin):
             context['object_delete_candidate'] = True
             # Add fake domain into context for ResolveHandleTypeMixin.
             context[cls._registry_objects_key]['domain'] = None
-        except OBJECT_NOT_FOUND:
+        except OBJECT_NOT_FOUND as error:
             # Only handle with format of valid domain name and in managed zone raises OBJECT_NOT_FOUND.
-            context["server_exception"] = cls.make_message_not_found(handle)
-            context["server_exception"]["handle_is_in_zone"] = True
-        except UNMANAGED_ZONE:
+            raise WebwhoisError('OBJECT_NOT_FOUND', **cls.make_message_not_found(handle),
+                                handle_is_in_zone=True) from error
+        except UNMANAGED_ZONE as error:
             context["managed_zone_list"] = deprecated_context(
                 _get_managed_zones(),
                 "Context variable 'managed_zone_list' is deprecated. Use 'managed_zones' context processor instead.")
-            context["server_exception"] = {
-                "code": "UNMANAGED_ZONE",
-                "title": _("Unmanaged zone"),
-                "message": cls.message_with_handle_in_html(
-                    _("Domain %s cannot be found in the registry. You can search for domains in the these zones only:"),
-                    handle),
-                "unmanaged_zone": True,
-            }
+            message = cls.message_with_handle_in_html(
+                _("Domain %s cannot be found in the registry. You can search for domains in the these zones only:"),
+                handle)
+            raise WebwhoisError('UNMANAGED_ZONE', title=_("Unmanaged zone"), message=message,
+                                unmanaged_zone=True) from error
         except INVALID_LABEL:
             # Pattern for the handle is more vague than the pattern of domain name format.
-            context["server_exception"] = cls.message_invalid_handle(handle, "INVALID_LABEL")
-        except TOO_MANY_LABELS:
+            raise WebwhoisError(**cls.message_invalid_handle(handle, "INVALID_LABEL"))
+        except TOO_MANY_LABELS as error:
             # Caution! Domain name can have more than one fullstop character and it is still valid.
             # for example: '0.2.4.e164.arpa'
             # remove subdomain names: 'www.sub.domain.cz' -> 'domain.cz'
             domain_match = re.search(r"([^.]+\.\w+)\.?$", handle, re.IGNORECASE)
             assert domain_match is not None
             context["example_domain_name"] = domain_match.group(1)
-            context["server_exception"] = {
-                "code": "TOO_MANY_LABELS",
-                "title": _("Incorrect input"),
-                "too_many_parts_in_domain_name": True,
-            }
+            raise WebwhoisError('TOO_MANY_LABELS', title=_("Incorrect input"),
+                                # Templates in webwhois <=1.20 didn't expect message to be `None`.
+                                message='',
+                                too_many_parts_in_domain_name=True) from error
 
     def load_related_objects(self, context):
         """Load objects related to the domain and append them into the context."""

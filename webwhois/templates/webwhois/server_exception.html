@@ -6,7 +6,9 @@
 {% block webwhois_content %}
 
     <h1>{{ server_exception.title }}</h1>
-    <p>{{ server_exception.message }}</p>
+    {% if server_exception.message %}
+        <p>{{ server_exception.message }}</p>
+    {% endif %}
 
     {% if server_exception.handle_is_in_zone %}
         <h1>{% trans "Register this domain name?" %}</h1>

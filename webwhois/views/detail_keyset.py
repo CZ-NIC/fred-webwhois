@@ -22,6 +22,8 @@ from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND
 from webwhois.utils import WHOIS
 from webwhois.views.base import RegistryObjectMixin
 
+from ..exceptions import WebwhoisError
+
 
 class KeysetDetailMixin(RegistryObjectMixin):
 
@@ -47,13 +49,14 @@ class KeysetDetailMixin(RegistryObjectMixin):
                 "detail": WHOIS.get_keyset_by_handle(handle),
                 "label": _("Keyset"),
             }
-        except OBJECT_NOT_FOUND:
-            context["server_exception"] = {
-                "title": _("Key server set not found"),
-                "message": cls.message_with_handle_in_html(_("No key set matches %s handle."), handle),
-            }
-        except INVALID_HANDLE:
-            context["server_exception"] = cls.message_invalid_handle(handle)
+        except OBJECT_NOT_FOUND as error:
+            raise WebwhoisError(
+                'OBJECT_NOT_FOUND',
+                title=_("Key server set not found"),
+                message=cls.message_with_handle_in_html(_("No key set matches %s handle."), handle),
+            ) from error
+        except INVALID_HANDLE as error:
+            raise WebwhoisError(**cls.message_invalid_handle(handle)) from error
 
     def load_related_objects(self, context):
         """Load objects related to the keyset and append them into the context."""

@@ -15,6 +15,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+#
+from contextlib import suppress
+
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -25,6 +28,7 @@ from webwhois.views.base import RegistryObjectMixin
 from webwhois.views.registrar import RegistrarDetailMixin
 
 from ..context_processors import _get_managed_zones
+from ..exceptions import WebwhoisError
 from ..utils.deprecation import deprecated_context
 
 
@@ -37,21 +41,27 @@ class ResolveHandleTypeMixin(RegistryObjectMixin):
     @classmethod
     def load_registry_object(cls, context, handle):
         """Load all registry objects of the handle and append it into the context."""
-        ContactDetailMixin.load_registry_object(context, handle)
-        NssetDetailMixin.load_registry_object(context, handle)
-        KeysetDetailMixin.load_registry_object(context, handle)
-        RegistrarDetailMixin.load_registry_object(context, handle)
-        DomainDetailMixin.load_registry_object(context, handle)
+        # Ignore errors from object search.
+        with suppress(WebwhoisError):
+            ContactDetailMixin.load_registry_object(context, handle)
+        with suppress(WebwhoisError):
+            NssetDetailMixin.load_registry_object(context, handle)
+        with suppress(WebwhoisError):
+            KeysetDetailMixin.load_registry_object(context, handle)
+        with suppress(WebwhoisError):
+            RegistrarDetailMixin.load_registry_object(context, handle)
+        with suppress(WebwhoisError):
+            DomainDetailMixin.load_registry_object(context, handle)
 
         if not context[cls._registry_objects_key]:
             # No object was found. Create a virtual server exception to render its template.
             # TODO: This solution is hopefully temporary and should be removed very soon.
-            context["server_exception"] = {
-                "code": "OBJECT_NOT_FOUND",
-                "title": _("Record not found"),
-                "message": cls.message_with_handle_in_html(_("%s does not match any record."), handle),
-                "object_not_found": True,
-            }
+            context["server_exception"] = WebwhoisError(
+                code="OBJECT_NOT_FOUND",
+                title=_("Record not found"),
+                message=cls.message_with_handle_in_html(_("%s does not match any record."), handle),
+                object_not_found=True,
+            )
             context["managed_zone_list"] = deprecated_context(
                 _get_managed_zones(),
                 "Context variable 'managed_zone_list' is deprecated. Use 'managed_zones' context processor instead.")
