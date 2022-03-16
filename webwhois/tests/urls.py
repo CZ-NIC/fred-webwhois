@@ -21,13 +21,15 @@ from django.urls import include, path
 from webwhois.views import RegistrarListView, ServeRecordStatementView, WhoisFormView
 from webwhois.views.public_request import BaseResponseTemplateView
 
-from .views import CustomRegistrarListView
+from .views import CustomRegistrarListView, GetObjectRegistryView, LoadObjectRegistryView
 
 urlpatterns = [
     path('whois/', include('webwhois.urls', namespace='webwhois')),
     # urls required by 404:
     path('', WhoisFormView.as_view(), name='home_page'),
     path('i18n/', include('django.conf.urls.i18n')),
+    path('registry_mixin/get_object/', GetObjectRegistryView.as_view(), kwargs={'handle': 'kryten'}),
+    path('registry_mixin/load_registry/', LoadObjectRegistryView.as_view(), kwargs={'handle': 'kryten'}),
     path('test-record-statement-pdf/<object_type>/<handle>/', ServeRecordStatementView.as_view(),
          name='test_record_statement_pdf'),
     path('base-public-response/', BaseResponseTemplateView.as_view(template_name='public_response.html'),

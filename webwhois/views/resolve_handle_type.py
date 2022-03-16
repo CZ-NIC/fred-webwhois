@@ -17,12 +17,17 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 #
 from contextlib import suppress
+from typing import Any, Dict
 
+import idna
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView
+from fred_idl.Registry.Whois import (INVALID_HANDLE, INVALID_LABEL, OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND,
+                                     TOO_MANY_LABELS, UNMANAGED_ZONE)
 
+from webwhois.utils import WHOIS
 from webwhois.views import ContactDetailMixin, DomainDetailMixin, KeysetDetailMixin, NssetDetailMixin
 from webwhois.views.base import RegistryObjectMixin
 from webwhois.views.registrar import RegistrarDetailMixin
@@ -73,11 +78,50 @@ class ResolveHandleTypeMixin(RegistryObjectMixin):
                       current_app=self.request.resolver_match.namespace)
         context.setdefault("redirect_to_type", url)
 
+    def _get_object(self, handle: str) -> Any:
+        objects = {}
+        with suppress(OBJECT_NOT_FOUND, INVALID_HANDLE):
+            objects['contact'] = WHOIS.get_contact_by_handle(handle)
+        with suppress(OBJECT_NOT_FOUND, INVALID_HANDLE):
+            objects['nsset'] = WHOIS.get_nsset_by_handle(handle)
+        with suppress(OBJECT_NOT_FOUND, INVALID_HANDLE):
+            objects['keyset'] = WHOIS.get_keyset_by_handle(handle)
+        with suppress(OBJECT_NOT_FOUND, INVALID_HANDLE):
+            objects['registrar'] = WHOIS.get_registrar_by_handle(handle)
+        if not handle.startswith("."):
+            with suppress(OBJECT_NOT_FOUND, UNMANAGED_ZONE, INVALID_LABEL, TOO_MANY_LABELS, idna.IDNAError):
+                idna_handle = idna.encode(handle).decode()
+                try:
+                    objects['domain'] = WHOIS.get_domain_by_handle(idna_handle)
+                except OBJECT_DELETE_CANDIDATE:
+                    objects['domain'] = None
+        if not objects:
+            raise WebwhoisError(
+                code="OBJECT_NOT_FOUND",
+                title=_("Record not found"),
+                message=self.message_with_handle_in_html(_("%s does not match any record."), handle),
+                object_not_found=True,
+            )
+        return objects
+
+    def _make_context(self, obj: Dict[str, Any]) -> Dict[str, Any]:
+        """Turn object into a context."""
+        return {k: {'detail': v} for k, v in obj.items()}
+
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         if "redirect_to_type" in context:
             return HttpResponseRedirect(context["redirect_to_type"])
         return super(ResolveHandleTypeMixin, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, handle, **kwargs):
+        context = super().get_context_data(handle, **kwargs)
+        if ('managed_zone_list' not in context
+                and getattr(context.get('server_exception'), 'code', None) == 'OBJECT_NOT_FOUND'):
+            context["managed_zone_list"] = deprecated_context(
+                _get_managed_zones(),
+                "Context variable 'managed_zone_list' is deprecated. Use 'managed_zones' context processor instead.")
+        return context
 
     def get_template_names(self):
         context = self._get_registry_objects()

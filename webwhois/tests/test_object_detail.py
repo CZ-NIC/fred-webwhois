@@ -43,6 +43,25 @@ from webwhois.views.detail_nsset import NssetDetailMixin
 from .utils import CALL_BOOL, TEMPLATES, apply_patch, make_keyset
 
 
+@override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES, WEBWHOIS_LOGGER=None)
+class RegistryObjectMixinTest(SimpleTestCase):
+    def test_get_object(self):
+        # Test `get_object` is called if `load_registry_object` is not overridden.
+        response = self.client.get('/registry_mixin/get_object/')
+
+        self.assertContains(response, "Search in the Registry")
+        context = {'object': {'detail': {'handle': 'kryten', 'method': 'get_object'}}}
+        self.assertEqual(response.context['registry_objects'], context)
+
+    def test_load_registry_object(self):
+        # Test `load_registry_object` is called if overridden.
+        response = self.client.get('/registry_mixin/load_registry/')
+
+        self.assertContains(response, "Search in the Registry")
+        context = {'object': {'detail': {'handle': 'kryten', 'method': 'load_registry_object'}}}
+        self.assertEqual(response.context['registry_objects'], context)
+
+
 @override_settings(USE_TZ=True, TIME_ZONE='Europe/Prague', FORMAT_MODULE_PATH=None, LANGUAGE_CODE='en',
                    CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}},
                    ROOT_URLCONF='webwhois.tests.urls', STATIC_URL='/static/')
@@ -218,6 +237,11 @@ class TestResolveHandleType(ObjectDetailMixin):
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         WHOIS.get_registrar_by_handle.side_effect = None
         self.assertRedirects(response, reverse("webwhois:detail_contact", kwargs={"handle": "testhandle"}))
+
+
+@override_settings(ROOT_URLCONF='webwhois.tests.urls_load_registry')
+class LoadResolveHandleTypeTest(TestResolveHandleType):
+    pass
 
 
 @override_settings(TEMPLATES=TEMPLATES)
@@ -431,6 +455,11 @@ class TestDetailContact(ObjectDetailMixin):
         ])
 
 
+@override_settings(ROOT_URLCONF='webwhois.tests.urls_load_registry')
+class LoadDetailContactTest(TestDetailContact):
+    pass
+
+
 @override_settings(TEMPLATES=TEMPLATES)
 class TestDetailNsset(ObjectDetailMixin):
 
@@ -527,6 +556,11 @@ class TestDetailNsset(ObjectDetailMixin):
         ])
 
 
+@override_settings(ROOT_URLCONF='webwhois.tests.urls_load_registry')
+class LoadDetailNssetTest(TestDetailNsset):
+    pass
+
+
 @override_settings(TEMPLATES=TEMPLATES)
 class TestDetailKeyset(ObjectDetailMixin):
 
@@ -598,6 +632,11 @@ class TestDetailKeyset(ObjectDetailMixin):
             "registrar": registrar,
             "status_descriptions": ['Has relation to other records in the registry'],
         })
+
+
+@override_settings(ROOT_URLCONF='webwhois.tests.urls_load_registry')
+class LoadDetailKeysetTest(TestDetailKeyset):
+    pass
 
 
 @override_settings(TEMPLATES=TEMPLATES)
@@ -901,6 +940,11 @@ class TestDetailDomain(ObjectDetailMixin):
 
         self.assertContains(response, 'Domain name details')
         self.assertNotIn('scan_results_link', response.context)
+
+
+@override_settings(ROOT_URLCONF='webwhois.tests.urls_load_registry')
+class LoadDetailDomainTest(TestDetailDomain):
+    pass
 
 
 class FakeRegistryObjectView(RegistryObjectMixin, View):

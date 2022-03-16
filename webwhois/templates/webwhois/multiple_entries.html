@@ -9,17 +9,16 @@
     <ul>
         {% for object_type, item in registry_objects.items %}
             <li>
-                {{ item.label }}:
                 {% if object_type == "contact" %}
-                    {% url "webwhois:detail_contact" handle=handle as detail_url %}
+                    {% trans "Contact" %}: {% url "webwhois:detail_contact" handle=handle as detail_url %}
                 {% elif object_type == "nsset" %}
-                    {% url "webwhois:detail_nsset" handle=handle as detail_url %}
+                    {% trans "Nsset" %}: {% url "webwhois:detail_nsset" handle=handle as detail_url %}
                 {% elif object_type == "keyset" %}
-                    {% url "webwhois:detail_keyset" handle=handle as detail_url %}
+                    {% trans "Keyset" %}: {% url "webwhois:detail_keyset" handle=handle as detail_url %}
                 {% elif object_type == "domain" %}
-                    {% url "webwhois:detail_domain" handle=handle as detail_url %}
+                    {% trans "Domain" %}: {% url "webwhois:detail_domain" handle=handle as detail_url %}
                 {% elif object_type == "registrar" %}
-                    {% url "webwhois:detail_registrar" handle=handle as detail_url %}
+                    {% trans "Registrar" %}: {% url "webwhois:detail_registrar" handle=handle as detail_url %}
                 {% endif %}
                 <a href="{{ detail_url }}">{{ handle }}</a>
             </li>

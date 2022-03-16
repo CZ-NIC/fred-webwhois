@@ -15,15 +15,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+#
 import re
-from typing import Dict, cast
+from typing import Any, Dict, cast
 
 import idna
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView
 from fred_idl.Registry.Whois import (INVALID_LABEL, OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND, TOO_MANY_LABELS,
-                                     UNMANAGED_ZONE)
+                                     UNMANAGED_ZONE, Domain)
 
 from webwhois.constants import STATUS_DELETE_CANDIDATE
 from webwhois.utils import WHOIS
@@ -98,6 +99,62 @@ class DomainDetailMixin(RegistryObjectMixin):
                                 # Templates in webwhois <=1.20 didn't expect message to be `None`.
                                 message='',
                                 too_many_parts_in_domain_name=True) from error
+
+    def _get_object(self, handle: str) -> Domain:
+        if handle.startswith("."):
+            raise WebwhoisError(**self.message_invalid_handle(handle))
+
+        try:
+            idna_handle = idna.encode(handle).decode()
+        except idna.IDNAError:
+            raise WebwhoisError(**self.message_invalid_handle(handle, "IDNAError"))
+
+        try:
+            return WHOIS.get_domain_by_handle(idna_handle)
+        except OBJECT_DELETE_CANDIDATE:
+            return Domain(handle, None, (), None, None, None, ['deleteCandidate'], None, None, None, None, None, None,
+                          None, None, None)
+        except OBJECT_NOT_FOUND as error:
+            # Only handle with format of valid domain name and in managed zone raises OBJECT_NOT_FOUND.
+            raise WebwhoisError('OBJECT_NOT_FOUND', **self.make_message_not_found(handle),
+                                handle_is_in_zone=True) from error
+        except UNMANAGED_ZONE as error:
+            message = self.message_with_handle_in_html(
+                _("Domain %s cannot be found in the registry. You can search for domains in the these zones only:"),
+                handle)
+            raise WebwhoisError('UNMANAGED_ZONE', title=_("Unmanaged zone"), message=message,
+                                unmanaged_zone=True) from error
+        except INVALID_LABEL as error:
+            # Pattern for the handle is more vague than the pattern of domain name format.
+            raise WebwhoisError(**self.message_invalid_handle(handle, "INVALID_LABEL")) from error
+        except TOO_MANY_LABELS as error:
+            raise WebwhoisError('TOO_MANY_LABELS', title=_("Incorrect input"),
+                                # Templates in webwhois <=1.20 didn't expect message to be `None`.
+                                message='',
+                                too_many_parts_in_domain_name=True) from error
+
+    def _make_context(self, obj: Any) -> Dict[str, Any]:
+        """Turn object into a context."""
+        context = super()._make_context(obj)
+        context[self.object_type_name]["label"] = _("Domain")
+        return context
+
+    def get_context_data(self, handle, **kwargs):
+        context = super().get_context_data(handle, **kwargs)
+        if ('managed_zone_list' not in context
+                and getattr(context.get('server_exception'), 'code', None) == 'UNMANAGED_ZONE'):
+            context["managed_zone_list"] = deprecated_context(
+                _get_managed_zones(),
+                "Context variable 'managed_zone_list' is deprecated. Use 'managed_zones' context processor instead.")
+        if ('example_domain_name' not in context
+                and getattr(context.get('server_exception'), 'code', None) == 'TOO_MANY_LABELS'):
+            # Caution! Domain name can have more than one fullstop character and it is still valid.
+            # for example: '0.2.4.e164.arpa'
+            # remove subdomain names: 'www.sub.domain.cz' -> 'domain.cz'
+            domain_match = re.search(r"([^.]+\.\w+)\.?$", handle, re.IGNORECASE)
+            if domain_match:
+                context["example_domain_name"] = domain_match.group(1)
+        return context
 
     def load_related_objects(self, context):
         """Load objects related to the domain and append them into the context."""

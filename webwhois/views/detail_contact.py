@@ -15,7 +15,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+#
 import datetime
+from typing import Any, Dict
 
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView
@@ -69,6 +71,32 @@ class ContactDetailMixin(RegistryObjectMixin):
             ) from error
         except INVALID_HANDLE as error:
             raise WebwhoisError(**cls.message_invalid_handle(handle)) from error
+
+    def _get_object(self, handle: str) -> Any:
+        try:
+            return WHOIS.get_contact_by_handle(handle)
+        except OBJECT_NOT_FOUND as error:
+            raise WebwhoisError(
+                'OBJECT_NOT_FOUND',
+                title=_("Contact not found"),
+                message=self.message_with_handle_in_html(_("No contact matches %s handle."), handle),
+            ) from error
+        except INVALID_HANDLE as error:
+            raise WebwhoisError(**self.message_invalid_handle(handle)) from error
+
+    def _make_context(self, obj: Any) -> Dict[str, Any]:
+        """Turn object into a context."""
+        context = super()._make_context(obj)
+        context[self.object_type_name]["label"] = _("Contact")
+        birthday = None
+        if obj.identification.value.identification_type == "BIRTHDAY":
+            try:
+                birthday = datetime.datetime.strptime(obj.identification.value.identification_data,
+                                                      '%Y-%m-%d').date()
+            except ValueError:
+                birthday = obj.identification.value.identification_data
+        context[self.object_type_name]["birthday"] = birthday
+        return context
 
     def load_related_objects(self, context):
         """Load objects related to the contact and append them into the context."""
