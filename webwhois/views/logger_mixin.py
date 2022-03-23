@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -15,17 +15,22 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
-
+#
 """LoggerMixin for views."""
+from typing import Union
+
 from django.views import View
 
 from webwhois.utils.corba_wrapper import LOGGER
+
+from ..constants import LogEntryType, PublicRequestsLogEntryType
 
 
 class LoggerMixin(object):
     """Create LogRequest. Force implementation of finish_logging_request, _get_logging_request_name_and_properties."""
 
     service_name = None  # type: str
+    log_entry_type: Union[LogEntryType, PublicRequestsLogEntryType]
 
     def prepare_logging_request(self: View, cleaned_data):
         """Prepare logging request.

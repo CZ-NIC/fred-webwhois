@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2021-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -29,6 +29,7 @@ from omniORB import CORBA
 from webwhois.utils import WHOIS
 from webwhois.utils.corba_wrapper import LOGGER
 
+from ..constants import LOGGER_SERVICE, LogEntryType, LogResult
 from ..utils.cdnskey_client import get_cdnskey_client
 from .base import BaseContextMixin
 from .logger_mixin import LoggerMixin
@@ -38,10 +39,10 @@ class ScanResultsView(BaseContextMixin, LoggerMixin, TemplateView):
     """Provides a list of results from cdnskey scan results."""
 
     template_name = 'webwhois/scan_results.html'
-    service_name = 'Web whois'
-    request_type = 'ScanResults'
-    result_success = 'Ok'
-    result_not_found = 'NotFound'
+    service_name = LOGGER_SERVICE
+    request_type = LogEntryType.SCAN_RESULTS
+    result_success = LogResult.SUCCESS
+    result_not_found = LogResult.NOT_FOUND
 
     def get_domain_registered(self, handle: str) -> Optional[datetime]:
         """Return domain registration datetime."""
