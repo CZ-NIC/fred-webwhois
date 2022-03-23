@@ -59,26 +59,22 @@ class TestWhoisFormView(SimpleTestCase):
         spec = ('get_contact_by_handle', 'get_domain_by_handle', 'get_keyset_by_handle',
                 'get_nsset_by_handle', 'get_registrar_by_handle')
         apply_patch(self, patch.object(WHOIS, 'client', spec=spec))
-        self.LOGGER = apply_patch(self, patch("webwhois.views.base.LOGGER"))
 
     def test_handle_required(self):
         response = self.client.post(reverse("webwhois:form_whois"))
         self.assertEqual(response.context["form"].errors, {'handle': ['This field is required.']})
-        self.assertEqual(self.LOGGER.mock_calls, [])
         self.assertEqual(WHOIS.mock_calls, [])
 
     def test_handle_invalid(self):
         response = self.client.post(reverse("webwhois:form_whois"), {"handle": "a" * 256})
         self.assertEqual(response.context["form"].errors, {'handle': [
             'Ensure this value has at most 255 characters (it has 256).']})
-        self.assertEqual(self.LOGGER.mock_calls, [])
         self.assertEqual(WHOIS.mock_calls, [])
 
     def test_handle_pattern(self):
         response = self.client.post(reverse("webwhois:form_whois"), {"handle": "a%3Fx"})
         self.assertRedirects(response, reverse("webwhois:registry_object_type", kwargs={"handle": "a%3Fx"}),
                              fetch_redirect_response=False)
-        self.assertEqual(self.LOGGER.mock_calls, [])
         self.assertEqual(WHOIS.mock_calls, [])
 
     def test_valid_handle(self):
@@ -90,14 +86,12 @@ class TestWhoisFormView(SimpleTestCase):
         response = self.client.post(reverse("webwhois:form_whois"), {"handle": " mycontact "})
         self.assertRedirects(response, reverse("webwhois:registry_object_type", kwargs={"handle": "mycontact"}),
                              fetch_redirect_response=False)
-        self.assertEqual(self.LOGGER.mock_calls, [])
         self.assertEqual(WHOIS.mock_calls, [])
 
     def test_get_form(self):
         response = self.client.get(reverse("webwhois:form_whois"), {"handle": " mycontact "})
         self.assertContains(response, '<label for="id_handle">Domain (without <em>www.</em> prefix)'
                             ' / Handle:</label>', html=True)
-        self.assertEqual(self.LOGGER.mock_calls, [])
         self.assertEqual(WHOIS.mock_calls, [])
 
 

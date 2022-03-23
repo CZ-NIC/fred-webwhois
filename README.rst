@@ -89,43 +89,15 @@ Default value::
 ``WEBWHOIS_LOGGER``
 -------------------
 
-The ``WEBWHOIS_LOGGER`` variable contains dotted path to a logger class.
-If ``None``, logging to logger will be disabled.
+A dotted path to the logger client.
+Default value is ``grill.DummyLoggerClient``.
 
-Example::
+``WEBWHOIS_LOGGER_OPTIONS``
+---------------------------
 
-    WEBWHOIS_LOGGER = 'pylogger.corbalogger.LoggerFailSilent'
-
-Default value::
-
-    'pylogger.corbalogger.Logger'
-
-``WEBWHOIS_LOGGER_CORBA_NETLOC``
---------------------------------
-
-Network location, i.e. host and port, of the CORBA server for logging.
-Used to construct Interoperable Object Reference (IOR).
-By default a ``WEBWHOIS_CORBA_NETLOC`` is used.
-
-``WEBWHOIS_LOGGER_CORBA_CONTEXT``
----------------------------------
-
-The ``WEBWHOIS_LOGGER_CORBA_CONTEXT`` variable contains a name of the Logger CORBA context. This is usually same as
-a **Fred CORBA** instance.
-
-Example::
-
-    WEBWHOIS_LOGGER_CORBA_CONTEXT = WEBWHOIS_CORBA_CONTEXT
-
-Default value::
-
-    WEBWHOIS_CORBA_CONTEXT
-
-``WEBWHOIS_LOGGER_CORBA_OBJECT``
---------------------------------
-
-The name of the CORBA object for logger.
-Default value is ``Logger``.
+A mapping with options for the ``WEBWHOIS_LOGGER``.
+If the key ``credentials`` is present, it will be passed to the ``make_credentials`` utility as a mapping.
+Default value is ``{}``.
 
 Docker
 ======

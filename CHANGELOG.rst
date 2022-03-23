@@ -9,6 +9,13 @@ Unreleased
   by the context processor.
 * Refactored error handling in whois search.
   Variable ``server_exception`` is now a ``WebwhoisError`` instance with deprecated backwards compatible dictionary API.
+* Switch logging to FRED logger from ``pylogger`` to ``grill`` library.
+  This change is backwards incompatible: new library and settings are used.
+  The structure of logs is left intact.
+* A setting ``WEBWHOIS_LOGGER`` now supports only ``grill`` compatible logger clients.
+* Add new setting ``WEBWHOIS_LOGGER_OPTIONS``.
+* Drop settings ``WEBWHOIS_LOGGER_CORBA_NETLOC``, ``WEBWHOIS_LOGGER_CORBA_CONTEXT`` and
+  ``WEBWHOIS_LOGGER_CORBA_OBJECT``.
 * Add utilities for deprecation warnings.
 
 1.20.2 (2022-02-14)

@@ -29,7 +29,7 @@ from django.views.generic.base import ContextMixin
 
 from webwhois.utils import LOGGER
 
-from ..constants import LOGGER_SERVICE, STATUS_DELETE_CANDIDATE, LogEntryType, LogResult
+from ..constants import STATUS_DELETE_CANDIDATE, LogEntryType, LogResult
 from ..exceptions import WebwhoisError
 
 mark_safe_lazy = lazy(mark_safe, str)
@@ -65,7 +65,6 @@ class RegistryObjectMixin(BaseContextMixin):
 
     server_exception_template = "webwhois/server_exception.html"
     object_type_name = None  # type: str
-    service_name = LOGGER_SERVICE
     log_entry_type = LogEntryType.INFO
 
     @staticmethod
@@ -107,61 +106,41 @@ class RegistryObjectMixin(BaseContextMixin):
     def load_related_objects(self, context):
         """Load objects related to the main registry object and append them into the context."""
 
-    def prepare_logging_request(self):
-        if self.object_type_name is None:
-            raise NotImplementedError
-        if not LOGGER:
-            return
-        properties_in = (
-            ("handle", self.kwargs["handle"]),
-            ("handleType", self.object_type_name),
-        )
-        return LOGGER.create_request(self.request.META.get('REMOTE_ADDR', ''), self.service_name, self.log_entry_type,
-                                     properties=properties_in)
-
-    def finish_logging_request(self, log_request, context, exception_type_name=None):
-        if log_request is None:
-            return
-        properties_out = []
-        if exception_type_name is not None:
-            log_request.result = LogResult.ERROR
-            properties_out.append(("exception", exception_type_name))
-        else:
-            found_types = [("foundType", name) for name in sorted(context.get(self._registry_objects_key, {}).keys())]
-            if len(found_types):
-                log_request.result = LogResult.SUCCESS
-                properties_out.extend(found_types)
-            else:
-                log_request.result = LogResult.NOT_FOUND
-                error = context.get("server_exception")
-                if error and error.code != "OBJECT_NOT_FOUND":
-                    properties_out.append(("reason", error.code))
-        log_request.close(properties=properties_out)
-
     def _get_registry_objects(self):
         """Return a dict with objects loaded from the registry."""
         if self._registry_objects_cache is None:
             context = {self._registry_objects_key: {}}  # type: Dict[str, Any]
-            log_request = self.prepare_logging_request()
-            exception_name = None
-            try:
-                default_load = self.load_registry_object.__func__.__module__.startswith(  # type: ignore[attr-defined]
-                    'webwhois.views')
-                if default_load:
-                    obj = self.get_object()
-                    context[self._registry_objects_key] = self._make_context(obj)
+            properties = {"handle": self.kwargs["handle"], "handleType": self.object_type_name}
+            with LOGGER.create(self.log_entry_type, source_ip=self.request.META.get('REMOTE_ADDR', ''),
+                               properties=properties) as log_entry:
+                try:
+                    default_load = self.load_registry_object.__func__  # type: ignore[attr-defined]
+                    if default_load.__module__.startswith('webwhois.views'):
+                        obj = self.get_object()
+                        context[self._registry_objects_key] = self._make_context(obj)
+                    else:
+                        warnings.warn(
+                            "Method load_registry_object is deprecated, use get_object or get_context_data instead.",
+                            DeprecationWarning)
+                        self.load_registry_object(context, self.kwargs["handle"])
+
+                except WebwhoisError as error:
+                    context['server_exception'] = error
+                except BaseException as error:
+                    log_entry.result = LogResult.ERROR
+                    log_entry.properties["exception"] = error.__class__.__name__
+                    raise
+
+                # It's here to handle `load_registry_object` results. Can be refactored, when removed.
+                found_types = sorted(context.get(self._registry_objects_key, {}).keys())
+                if len(found_types):
+                    log_entry.result = LogResult.SUCCESS
+                    log_entry.properties["foundType"] = found_types
                 else:
-                    warnings.warn(
-                        "Method load_registry_object is deprecated, use get_object or get_context_data instead.",
-                        DeprecationWarning)
-                    self.load_registry_object(context, self.kwargs["handle"])
-            except WebwhoisError as error:
-                context['server_exception'] = error
-            except BaseException as err:
-                exception_name = err.__class__.__name__
-                raise
-            finally:
-                self.finish_logging_request(log_request, context, exception_name)
+                    log_entry.result = LogResult.NOT_FOUND
+                    webwhois_error = context.get("server_exception")
+                    if webwhois_error and webwhois_error.code != "OBJECT_NOT_FOUND":
+                        log_entry.properties["reason"] = webwhois_error.code
             if len(context[self._registry_objects_key]) == 1:
                 self.load_related_objects(context)
             self._registry_objects_cache = context
