@@ -111,9 +111,9 @@ class TestPublicRequestBaseForm(SimpleTestCase):
     def test_get_log_properties(self):
         data = (
             # post, properties
-            ({'object_type': 'contact', 'handle': 'kryten'}, [('handle', 'kryten'), ('handleType', 'contact')]),
+            ({'object_type': 'contact', 'handle': 'kryten'}, {'handle': 'kryten', 'handleType': 'contact'}),
             ({'object_type': 'contact', 'handle': 'kryten', 'confirmation_method': 'signed_email'},
-             [('handle', 'kryten'), ('handleType', 'contact'), ('confirmMethod', 'signed_email')]),
+             {'handle': 'kryten', 'handleType': 'contact', 'confirmMethod': 'signed_email'}),
         )
         for post, properties in data:
             with self.subTest(post=post):
@@ -257,11 +257,11 @@ class TestSendPasswordForm(SimpleTestCase):
         data = (
             # post, properties
             ({'object_type': 'contact', 'handle': 'kryten', 'send_to_0': 'email_in_registry'},
-             [('handle', 'kryten'), ('handleType', 'contact'), ('sendTo', 'email_in_registry')]),
+             {'handle': 'kryten', 'handleType': 'contact', 'sendTo': 'email_in_registry'}),
             ({'object_type': 'contact', 'handle': 'kryten', 'send_to_0': 'custom_email',
               'send_to_1': 'kryten@example.org'},
-             [('handle', 'kryten'), ('handleType', 'contact'), ('sendTo', 'custom_email'),
-              ('customEmail', 'kryten@example.org')]),
+             {'handle': 'kryten', 'handleType': 'contact', 'sendTo': 'custom_email',
+              'customEmail': 'kryten@example.org'}),
         )
         for post, properties in data:
             with self.subTest(post=post):
@@ -361,11 +361,11 @@ class BlockUnblockFormMixin(object):
         data = (
             # post, properties
             ({'object_type': 'contact', 'handle': 'kryten', 'send_to_0': 'email_in_registry'},
-             [('handle', 'kryten'), ('handleType', 'contact'), ('sendTo', 'email_in_registry')]),
+             {'handle': 'kryten', 'handleType': 'contact', 'sendTo': 'email_in_registry'}),
             ({'object_type': 'contact', 'handle': 'kryten', 'send_to_0': 'custom_email',
               'send_to_1': 'kryten@example.org'},
-             [('handle', 'kryten'), ('handleType', 'contact'), ('sendTo', 'custom_email'),
-              ('customEmail', 'kryten@example.org')]),
+             {'handle': 'kryten', 'handleType': 'contact', 'sendTo': 'custom_email',
+              'customEmail': 'kryten@example.org'}),
         )
         for post, properties in data:
             with self.subTest(post=post):
@@ -379,10 +379,10 @@ class PersonalInfoFormTest(SimpleTestCase):
         data = (
             # post, properties
             ({'handle': 'kryten', 'send_to_0': 'email_in_registry'},
-             [('handle', 'kryten'), ('sendTo', 'email_in_registry'), ('handleType', 'contact')]),
+             {'handle': 'kryten', 'sendTo': 'email_in_registry', 'handleType': 'contact'}),
             ({'handle': 'kryten', 'send_to_0': 'custom_email', 'send_to_1': 'kryten@example.org'},
-             [('handle', 'kryten'), ('sendTo', 'custom_email'), ('customEmail', 'kryten@example.org'),
-              ('handleType', 'contact')]),
+             {'handle': 'kryten', 'sendTo': 'custom_email', 'customEmail': 'kryten@example.org',
+              'handleType': 'contact'}),
         )
         for post, properties in data:
             with self.subTest(post=post):

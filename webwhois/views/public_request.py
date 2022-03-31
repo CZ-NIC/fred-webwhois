@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 import logging
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, Type
 
 from django.core.cache import cache
 from django.forms import Form
@@ -35,13 +35,12 @@ from webwhois.forms import BlockObjectForm, PersonalInfoForm, SendPasswordForm, 
 from webwhois.forms.public_request import (CONFIRMATION_METHOD_IDL_MAP, LOCK_TYPE_ALL, LOCK_TYPE_TRANSFER,
                                            LOCK_TYPE_URL_PARAM, SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY, ConfirmationMethod)
 from webwhois.forms.widgets import DeliveryType
-from webwhois.utils.corba_wrapper import LOGGER, PUBLIC_REQUEST
+from webwhois.utils.corba_wrapper import PUBLIC_REQUEST, PUBLIC_REQUESTS_LOGGER
 from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, SendPasswordResponse
 from webwhois.views.base import BaseContextMixin
-from webwhois.views.public_request_mixin import (PublicRequestFormView, PublicRequestKnownException,
-                                                 PublicRequestLoggerMixin)
+from webwhois.views.public_request_mixin import PublicRequestFormView, PublicRequestKnownException
 
-from ..constants import PublicRequestsLogEntryType
+from ..constants import PublicRequestsLogEntryType, PublicRequestsLogResult
 
 WEBWHOIS_LOGGING = logging.getLogger(__name__)
 
@@ -584,21 +583,10 @@ class NotarizedLetterView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
         return context
 
 
-class ServeNotarizedLetterView(PublicRequestLoggerMixin, View):
+class ServeNotarizedLetterView(View):
     """Serve Notarized letter PDF view."""
 
     log_entry_type = PublicRequestsLogEntryType.NOTARIZED_LETTER_PDF
-
-    def _get_logging_request_name_and_properties(self, data):
-        properties = [
-            ("handle", data['handle']),
-            ("objectType", data['object_type']),
-            ("pdfLangCode", data['lang_code']),
-            ("documentType", data['document_type']),
-        ]
-        if 'custom_email' in data:
-            properties.append(('customEmail', data['custom_email']))
-        return self.log_entry_type, properties
 
     def get(self, request, public_key):
         public_response = cache.get(public_key)
@@ -614,31 +602,31 @@ class ServeNotarizedLetterView(PublicRequestLoggerMixin, View):
             lang_code = 'en'
         language_code = registry_lang_codes[lang_code]
 
-        data = {
-            'lang_code': lang_code,
-            'document_type': public_response.request_type,
-            'handle': public_response.handle,
-            'object_type': public_response.object_type,
+        properties = {
+            "handle": public_response.handle,
+            "objectType": public_response.object_type,
+            "pdfLangCode": lang_code,
+            "documentType": public_response.request_type,
         }
         if getattr(public_response, 'custom_email', None):
-            data['custom_email'] = public_response.custom_email
-        if LOGGER:
-            log_request = self.prepare_logging_request(data)
-            log_request_id = log_request.request_id
-        else:
-            log_request, log_request_id = None, None
-        error_object = None  # type: Optional[BaseException]
-        try:
-            pdf_content = PUBLIC_REQUEST.create_public_request_pdf(public_response.public_request_id, language_code)
-        except OBJECT_NOT_FOUND as err:
-            WEBWHOIS_LOGGING.error('Exception OBJECT_NOT_FOUND risen for public request id %s.' % log_request_id)
-            error_object = PublicRequestKnownException(type(err).__name__)
-            raise Http404
-        except BaseException as err:
-            error_object = err
-            raise
-        finally:
-            self.finish_logging_request(log_request, public_response.public_request_id, error_object)
+            properties['customEmail'] = public_response.custom_email
+
+        with PUBLIC_REQUESTS_LOGGER.create(self.log_entry_type, source_ip=self.request.META.get('REMOTE_ADDR', ''),
+                                           properties=properties) as log_entry:
+            try:
+                pdf_content = PUBLIC_REQUEST.create_public_request_pdf(public_response.public_request_id, language_code)
+            except OBJECT_NOT_FOUND as error:
+                WEBWHOIS_LOGGING.error('Exception OBJECT_NOT_FOUND risen for public request id %s.',
+                                       public_response.public_request_id)
+                log_entry.properties["reason"] = type(error).__name__
+                log_entry.result = PublicRequestsLogResult.FAIL
+                raise Http404
+            except BaseException as error:
+                log_entry.properties["exception"] = type(error).__name__
+                raise
+            else:
+                log_entry.references['publicrequest'] = str(public_response.public_request_id)
+                log_entry.result = PublicRequestsLogResult.SUCCESS
 
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="notarized-letter-{0}.pdf"'.format(lang_code)

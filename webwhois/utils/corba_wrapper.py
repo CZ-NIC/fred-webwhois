@@ -29,7 +29,7 @@ from pyfco.recoder import decode_iso_date, decode_iso_datetime
 
 from webwhois.settings import WEBWHOIS_SETTINGS
 
-from ..constants import LOGGER_SERVICE, LogResult
+from ..constants import LOGGER_SERVICE, PUBLIC_REQUESTS_LOGGER_SERVICE, LogResult, PublicRequestsLogResult
 
 
 class WebwhoisCorbaRecoder(CorbaRecoder):
@@ -84,6 +84,7 @@ _RECORD_STATEMENT = SimpleLazyObject(load_record_statement)
 
 _LOGGER_CLIENT = get_logger_client(WEBWHOIS_SETTINGS.LOGGER, **WEBWHOIS_SETTINGS.LOGGER_OPTIONS)
 LOGGER = Logger(_LOGGER_CLIENT, LOGGER_SERVICE, LogResult.ERROR)
+PUBLIC_REQUESTS_LOGGER = Logger(_LOGGER_CLIENT, PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogResult.ERROR)
 
 WHOIS = CorbaClientProxy(CorbaClient(_WHOIS, WebwhoisCorbaRecoder('utf-8'), Whois.INTERNAL_SERVER_ERROR))
 PUBLIC_REQUEST = CorbaClientProxy(CorbaClient(_PUBLIC_REQUEST, WebwhoisCorbaRecoder('utf-8'),
@@ -91,3 +92,8 @@ PUBLIC_REQUEST = CorbaClientProxy(CorbaClient(_PUBLIC_REQUEST, WebwhoisCorbaReco
 FILE_MANAGER = CorbaClientProxy(CorbaClient(_FILE_MANAGER, WebwhoisCorbaRecoder('utf-8'), FileManager.InternalError))
 RECORD_STATEMENT = CorbaClientProxy(CorbaClient(_RECORD_STATEMENT, WebwhoisCorbaRecoder('utf-8'),
                                                 RecordStatement.INTERNAL_SERVER_ERROR))
+
+
+def _backport_log_entry_id(log_entry_id: str) -> int:
+    """Backport log entry id from new to old format."""
+    return int(log_entry_id.partition('.')[0])

@@ -15,8 +15,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+#
 from datetime import date
-from unittest.mock import call, patch
+from typing import Any, Dict, List
+from unittest.mock import _Call, call, patch
 
 from django.core.cache import cache
 from django.http import HttpResponseNotFound
@@ -27,12 +29,30 @@ from fred_idl.Registry.PublicRequest import (HAS_DIFFERENT_BLOCK, INVALID_EMAIL,
                                              OBJECT_NOT_BLOCKED, OBJECT_NOT_FOUND, OBJECT_TRANSFER_PROHIBITED,
                                              OPERATION_PROHIBITED, ConfirmedBy, Language, LockRequestType,
                                              ObjectType_PR)
+from grill.utils import TestLogEntry as _TestLogEntry, TestLoggerClient as _TestLoggerClient
 
+from webwhois.constants import PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType, PublicRequestsLogResult
 from webwhois.forms.public_request import ConfirmationMethod
 from webwhois.forms.widgets import DeliveryType
 from webwhois.tests.utils import TEMPLATES, apply_patch
 from webwhois.utils import PUBLIC_REQUEST
 from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, PublicResponse, SendPasswordResponse
+
+
+class TestLoggerClient(_TestLoggerClient):
+    def create_log_entry(self, *args: Any, **kwargs: Any) -> str:
+        super().create_log_entry(*args, **kwargs)
+        # XXX: Return logger-like identifier to pass the old ID backport hook.
+        return '42.log-entry-id'
+
+
+class TestLogEntry(_TestLogEntry):
+    def get_calls(self) -> List[_Call]:
+        calls = super().get_calls()
+        # XXX: Replace logger-like identifier in the close call.
+        close_call = calls[1]
+        calls[1] = getattr(call, close_call[0])('42.log-entry-id', *close_call[1][1:], **close_call[2])
+        return calls
 
 
 @override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
@@ -77,11 +97,12 @@ class SubmittedFormTestCase(SimpleTestCase):
                 'create_block_unblock_request', 'create_personal_info_request_registry_email',
                 'create_personal_info_request_non_registry_email')
         apply_patch(self, patch.object(PUBLIC_REQUEST, 'client', spec=spec))
-        self.LOGGER = apply_patch(self, patch("webwhois.views.logger_mixin.LOGGER"))
-        self.LOGGER.create_request.return_value.request_id = 42
-        self.LOGGER.create_request.return_value.result = 'Error'
-        self.LOGGER.create_request.return_value.request_type = 'AuthInfo'
-        apply_patch(self, patch("webwhois.views.public_request_mixin.LOGGER", self.LOGGER))
+
+        self.test_logger = TestLoggerClient()
+        log_patcher = patch('webwhois.utils.corba_wrapper.PUBLIC_REQUESTS_LOGGER.client', new=self.test_logger)
+        self.addCleanup(log_patcher.stop)
+        log_patcher.start()
+
         localdate_patcher = patch("webwhois.utils.public_response.localdate", return_value=date(2017, 3, 8))
         apply_patch(self, localdate_patcher)
         apply_patch(self, patch("webwhois.views.public_request_mixin.get_random_string", lambda n: self.public_key))
@@ -106,7 +127,8 @@ class TestBaseResponseTemplateView(SimpleTestCase):
 @override_settings(TEMPLATES=TEMPLATES, USE_TZ=True)
 class TestSendPasswodForm(SubmittedFormTestCase):
 
-    def _send_password_email_in_registry(self, post, action_name, properties, object_type, title, message):
+    def _send_password_email_in_registry(self, post: Dict, action_name: str, properties: Dict[str, Any],
+                                         object_type: str, title: str, message: str) -> None:
         PUBLIC_REQUEST.create_authinfo_request_registry_email.return_value = 24
         response = self.client.post(reverse("webwhois:form_send_password"), post, follow=True)
         path = reverse("webwhois:email_in_registry_response", kwargs={"public_key": self.public_key})
@@ -116,11 +138,13 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_authinfo_request_registry_email(object_type, post['handle'], 42)
         ])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'AuthInfo', properties=properties),
-            call().close(properties=[], references=[('publicrequest', 24)])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
+
+        # Check logger
+        log_entry = TestLogEntry(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType.AUTH_INFO,
+                                 PublicRequestsLogResult.SUCCESS, source_ip='127.0.0.1',
+                                 input_properties=properties,
+                                 references={'publicrequest': '24'})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
     def test_send_password_email_in_registry_domain(self):
         post = {
@@ -129,12 +153,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "confirmation_method": "signed_email",
             "send_to_0": "email_in_registry",
         }
-        properties = [
-            ('handle', 'foo.cz'),
-            ('handleType', 'domain'),
-            ('confirmMethod', 'signed_email'),
-            ('sendTo', 'email_in_registry'),
-        ]
+        properties = {'handle': 'foo.cz', 'handleType': 'domain', 'sendTo': 'email_in_registry',
+                      'confirmMethod': 'signed_email'}
         object_type = ObjectType_PR.domain
         title = "Request to send a password (authinfo) for transfer domain name foo.cz"
         message = "We received successfully your request for a password to change the domain <strong>foo.cz</strong> " \
@@ -149,12 +169,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "confirmation_method": "signed_email",
             "send_to_0": "email_in_registry",
         }
-        properties = [
-            ('handle', 'CONTACT'),
-            ('handleType', 'contact'),
-            ('confirmMethod', 'signed_email'),
-            ('sendTo', 'email_in_registry'),
-        ]
+        properties = {'handle': 'CONTACT', 'handleType': 'contact', 'sendTo': 'email_in_registry',
+                      'confirmMethod': 'signed_email'}
         object_type = ObjectType_PR.contact
         title = "Request to send a password (authinfo) for transfer contact CONTACT"
         message = "We received successfully your request for a password to change the contact " \
@@ -169,12 +185,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "confirmation_method": "signed_email",
             "send_to_0": "email_in_registry",
         }
-        properties = [
-            ('handle', 'NSSET'),
-            ('handleType', 'nsset'),
-            ('confirmMethod', 'signed_email'),
-            ('sendTo', 'email_in_registry'),
-        ]
+        properties = {'handle': 'NSSET', 'handleType': 'nsset', 'sendTo': 'email_in_registry',
+                      'confirmMethod': 'signed_email'}
         object_type = ObjectType_PR.nsset
         title = "Request to send a password (authinfo) for transfer nameserver set NSSET"
         message = "We received successfully your request for a password to change the nameserver set " \
@@ -189,12 +201,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "confirmation_method": "signed_email",
             "send_to_0": "email_in_registry",
         }
-        properties = [
-            ('handle', 'KEYSET'),
-            ('handleType', 'keyset'),
-            ('confirmMethod', 'signed_email'),
-            ('sendTo', 'email_in_registry'),
-        ]
+        properties = {'handle': 'KEYSET', 'handleType': 'keyset', 'sendTo': 'email_in_registry',
+                      'confirmMethod': 'signed_email'}
         object_type = ObjectType_PR.keyset
         title = "Request to send a password (authinfo) for transfer keyset KEYSET"
         message = "We received successfully your request for a password to change the keyset " \
@@ -216,16 +224,14 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_authinfo_request_registry_email(object_type, 'foo.cz', 42)
         ])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'AuthInfo', properties=[
-                ('handle', 'foo.cz'),
-                ('handleType', 'domain'),
-                ('confirmMethod', 'signed_email'),
-                ('sendTo', 'email_in_registry'),
-            ]),
-            call().close(properties=[('reason', exception_code)], references=[])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
+
+        # Check logger
+        properties = {'handle': 'foo.cz', 'handleType': 'domain', 'sendTo': 'email_in_registry',
+                      'confirmMethod': 'signed_email'}
+        log_entry = TestLogEntry(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType.AUTH_INFO,
+                                 PublicRequestsLogResult.FAIL, source_ip='127.0.0.1',
+                                 input_properties=properties, properties={'reason': exception_code})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
     def test_send_password_object_not_found(self):
         PUBLIC_REQUEST.create_authinfo_request_registry_email.side_effect = OBJECT_NOT_FOUND
@@ -257,16 +263,14 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_authinfo_request_non_registry_email(object_type, 'foo.cz', 42, signed_email, 'foo@foo.off')
         ])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'AuthInfo', properties=[
-                ('handle', 'foo.cz'),
-                ('handleType', 'domain'),
-                ('confirmMethod', 'signed_email'),
-                ('sendTo', 'custom_email'),
-                ('customEmail', 'foo@foo.off')]),
-            call().close(properties=[('reason', 'INVALID_EMAIL')], references=[])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
+
+        # Check logger
+        properties = {'handle': 'foo.cz', 'handleType': 'domain', 'sendTo': 'custom_email',
+                      'confirmMethod': 'signed_email', 'customEmail': 'foo@foo.off'}
+        log_entry = TestLogEntry(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType.AUTH_INFO,
+                                 PublicRequestsLogResult.FAIL, source_ip='127.0.0.1',
+                                 input_properties=properties, properties={'reason': 'INVALID_EMAIL'})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
     def _send_password_confirm_method(self, confirm_method, post, action_name, properties, object_type, title, message):
         PUBLIC_REQUEST.create_authinfo_request_non_registry_email.return_value = 24
@@ -282,17 +286,20 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             call.create_authinfo_request_non_registry_email(object_type, post['handle'], 42, confirm_method,
                                                             'foo@foo.off')
         ])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'AuthInfo', properties=properties),
-            call().close(properties=[], references=[('publicrequest', 24)])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
 
-    def _send_password_to_custom_email(self, post, action_name, properties, object_type, title, message):
+        # Check logger
+        log_entry = TestLogEntry(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType.AUTH_INFO,
+                                 PublicRequestsLogResult.SUCCESS, source_ip='127.0.0.1',
+                                 input_properties=properties, references={'publicrequest': '24'})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
+
+    def _send_password_to_custom_email(self, post: Dict, action_name: str, properties: Dict[str, Any], object_type: str,
+                                       title: str, message: str) -> None:
         conftype = ConfirmedBy.signed_email
         self._send_password_confirm_method(conftype, post, action_name, properties, object_type, title, message)
 
-    def _send_password_notarized_letter(self, post, action_name, properties, object_type, title, message):
+    def _send_password_notarized_letter(self, post: Dict, action_name: str, properties: Dict[str, Any],
+                                        object_type: str, title: str, message: str) -> None:
         conftype = ConfirmedBy.notarized_letter
         self._send_password_confirm_method(conftype, post, action_name, properties, object_type, title, message)
 
@@ -304,13 +311,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "send_to_0": "custom_email",
             "send_to_1": "foo@foo.off",
         }
-        properties = [
-            ('handle', 'foo.cz'),
-            ('handleType', 'domain'),
-            ('confirmMethod', 'signed_email'),
-            ('sendTo', 'custom_email'),
-            ('customEmail', 'foo@foo.off'),
-        ]
+        properties = {'handle': 'foo.cz', 'handleType': 'domain', 'sendTo': 'custom_email',
+                      'confirmMethod': 'signed_email', 'customEmail': 'foo@foo.off'}
         object_type = ObjectType_PR.domain
         title = "Request to send a password (authinfo) for transfer domain name foo.cz"
         message = "I hereby confirm my request to get the password for domain name foo.cz, submitted through " \
@@ -326,13 +328,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "send_to_0": "custom_email",
             "send_to_1": "foo@foo.off",
         }
-        properties = [
-            ('handle', 'FOO'),
-            ('handleType', 'contact'),
-            ('confirmMethod', 'signed_email'),
-            ('sendTo', 'custom_email'),
-            ('customEmail', 'foo@foo.off'),
-        ]
+        properties = {'handle': 'FOO', 'handleType': 'contact', 'sendTo': 'custom_email',
+                      'confirmMethod': 'signed_email', 'customEmail': 'foo@foo.off'}
         object_type = ObjectType_PR.contact
         title = "Request to send a password (authinfo) for transfer contact FOO"
         message = "I hereby confirm my request to get the password for contact FOO, submitted through " \
@@ -348,13 +345,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "send_to_0": "custom_email",
             "send_to_1": "foo@foo.off",
         }
-        properties = [
-            ('handle', 'FOO'),
-            ('handleType', 'nsset'),
-            ('confirmMethod', 'signed_email'),
-            ('sendTo', 'custom_email'),
-            ('customEmail', 'foo@foo.off'),
-        ]
+        properties = {'handle': 'FOO', 'handleType': 'nsset', 'sendTo': 'custom_email', 'confirmMethod': 'signed_email',
+                      'customEmail': 'foo@foo.off'}
         object_type = ObjectType_PR.nsset
         title = "Request to send a password (authinfo) for transfer nameserver set FOO"
         message = "I hereby confirm my request to get the password for nameserver set FOO, submitted through " \
@@ -370,13 +362,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "send_to_0": "custom_email",
             "send_to_1": "foo@foo.off",
         }
-        properties = [
-            ('handle', 'FOO'),
-            ('handleType', 'keyset'),
-            ('confirmMethod', 'signed_email'),
-            ('sendTo', 'custom_email'),
-            ('customEmail', 'foo@foo.off'),
-        ]
+        properties = {'handle': 'FOO', 'handleType': 'keyset', 'sendTo': 'custom_email',
+                      'confirmMethod': 'signed_email', 'customEmail': 'foo@foo.off'}
         object_type = ObjectType_PR.keyset
         title = "Request to send a password (authinfo) for transfer keyset FOO"
         message = "I hereby confirm my request to get the password for keyset FOO, submitted through " \
@@ -400,9 +387,11 @@ class TestSendPasswodForm(SubmittedFormTestCase):
                             'Letter with officially verified signature can be sent only to the custom email. '
                             'Please select "Send to custom email" and enter it.'))
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [])
 
-    def _send_password_notarized_letter_registry(self, object_name, object_type, title):
+        # Check logger
+        self.assertEqual(self.test_logger.mock.mock_calls, [])
+
+    def _send_password_notarized_letter_registry(self, object_name: str, object_type: str, title: str):
         post = {
             "object_type": object_name,
             "handle": "FOO",
@@ -410,13 +399,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             "send_to_0": "custom_email",
             "send_to_1": "foo@foo.off",
         }
-        properties = [
-            ('handle', 'FOO'),
-            ('handleType', object_name),
-            ('confirmMethod', 'notarized_letter'),
-            ('sendTo', 'custom_email'),
-            ('customEmail', 'foo@foo.off'),
-        ]
+        properties = {'handle': 'FOO', 'handleType': object_name, 'sendTo': 'custom_email',
+                      'confirmMethod': 'notarized_letter', 'customEmail': 'foo@foo.off'}
         message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Password (authinfo) request</a> ' \
                   '(PDF)' % self.public_key
         self._send_password_notarized_letter(post, 'AuthInfo', properties, object_type, title, message)
@@ -463,12 +447,13 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
         self.assertEqual(cache.get(self.public_key), public_response)
         self.assertEqual(PUBLIC_REQUEST.mock_calls,
                          [call.create_personal_info_request_registry_email(post['handle'], 42)])
-        properties = [('handle', 'CONTACT'), ('sendTo', 'email_in_registry'), ('handleType', 'contact')]
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'PersonalInfo', properties=properties),
-            call().close(properties=[], references=[('publicrequest', 24)])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
+
+        # Check logger
+        properties = {'handle': 'CONTACT', 'handleType': 'contact', 'sendTo': 'email_in_registry'}
+        log_entry = TestLogEntry(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType.PERSONAL_INFO,
+                                 PublicRequestsLogResult.SUCCESS, source_ip='127.0.0.1',
+                                 input_properties=properties, references={'publicrequest': '24'})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
     def test_personal_info_custom_email(self):
         post = {"object_type": "contact", "handle": "CONTACT", "confirmation_method": "signed_email",
@@ -486,13 +471,14 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
         calls = [call.create_personal_info_request_non_registry_email(post['handle'], 42, ConfirmedBy.signed_email,
                                                                       'kryten@example.cz')]
         self.assertEqual(PUBLIC_REQUEST.mock_calls, calls)
-        properties = [('handle', 'CONTACT'), ('confirmMethod', 'signed_email'), ('sendTo', 'custom_email'),
-                      ('customEmail', 'kryten@example.cz'), ('handleType', 'contact')]
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'PersonalInfo', properties=properties),
-            call().close(properties=[], references=[('publicrequest', 24)])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
+
+        # Check logger
+        properties = {'handle': 'CONTACT', 'handleType': 'contact', 'sendTo': 'custom_email',
+                      'confirmMethod': 'signed_email', 'customEmail': 'kryten@example.cz'}
+        log_entry = TestLogEntry(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType.PERSONAL_INFO,
+                                 PublicRequestsLogResult.SUCCESS, source_ip='127.0.0.1',
+                                 input_properties=properties, references={'publicrequest': '24'})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
     def test_personal_info_notarized_letter(self):
         post = {"object_type": "contact", "handle": "CONTACT", "confirmation_method": "notarized_letter",
@@ -511,16 +497,17 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
         calls = [call.create_personal_info_request_non_registry_email(post['handle'], 42, ConfirmedBy.notarized_letter,
                                                                       'kryten@example.cz')]
         self.assertEqual(PUBLIC_REQUEST.mock_calls, calls)
-        properties = [('handle', 'CONTACT'), ('confirmMethod', 'notarized_letter'), ('sendTo', 'custom_email'),
-                      ('customEmail', 'kryten@example.cz'), ('handleType', 'contact')]
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'PersonalInfo', properties=properties),
-            call().close(properties=[], references=[('publicrequest', 24)])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
 
-    def _test_personal_info_error(self, exception_code, form_errors):
-        post = {"object_type": "domain", "handle": "foo.cz", "send_to_0": "email_in_registry"}
+        # Check logger
+        properties = {'handle': 'CONTACT', 'handleType': 'contact', 'sendTo': 'custom_email',
+                      'confirmMethod': 'notarized_letter', 'customEmail': 'kryten@example.cz'}
+        log_entry = TestLogEntry(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType.PERSONAL_INFO,
+                                 PublicRequestsLogResult.SUCCESS, source_ip='127.0.0.1',
+                                 input_properties=properties, references={'publicrequest': '24'})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
+
+    def _test_personal_info_error(self, exception_code: str, form_errors: Dict) -> None:
+        post = {"handle": "foo.cz", "send_to_0": "email_in_registry"}
 
         response = self.client.post(reverse("webwhois:form_personal_info"), post)
 
@@ -528,12 +515,13 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
         self.assertEqual(response.context['form'].errors, form_errors)
         self.assertEqual(PUBLIC_REQUEST.mock_calls,
                          [call.create_personal_info_request_registry_email('foo.cz', 42)])
-        properties = [('handle', 'foo.cz'), ('sendTo', 'email_in_registry'), ('handleType', 'contact')]
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'PersonalInfo', properties=properties),
-            call().close(properties=[('reason', exception_code)], references=[])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
+
+        # Check logger
+        properties = {'handle': 'foo.cz', 'handleType': 'contact', 'sendTo': 'email_in_registry'}
+        log_entry = TestLogEntry(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType.PERSONAL_INFO,
+                                 PublicRequestsLogResult.FAIL, source_ip='127.0.0.1',
+                                 input_properties=properties, properties={'reason': exception_code})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
     def test_personal_info_object_not_found(self):
         PUBLIC_REQUEST.create_personal_info_request_registry_email.side_effect = OBJECT_NOT_FOUND
@@ -551,20 +539,15 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
 @override_settings(TEMPLATES=TEMPLATES, USE_TZ=True)
 class TestBlockUnblockForm(SubmittedFormTestCase):
 
-    def _block_unblock(self, block_action, url_name, object_name, confirmation_method, lock_type,
-                       action_name, object_type, signed_type, block_type, title, message):
+    def _block_unblock(
+            self, block_action: str, url_name: str, object_name: str, confirmation_method: str, lock_type: str,
+            action_name: str, object_type: str, signed_type: str, block_type: str, title: str, message: str) -> None:
         post = {
             "handle": "FOO",
             "object_type": object_name,
             "confirmation_method": confirmation_method,
             "lock_type": lock_type,
         }
-        properties = [
-            ('handle', 'FOO'),
-            ('handleType', object_name),
-            ('confirmMethod', confirmation_method),
-        ]
-        self.LOGGER.create_request.return_value.request_type = action_name
         PUBLIC_REQUEST.create_block_unblock_request.return_value = 24
         response = self.client.post(reverse(url_name), post, follow=True)
         if confirmation_method == 'signed_email':
@@ -577,16 +560,18 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_block_unblock_request(object_type, 'FOO', 42, signed_type, block_type)
         ])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', action_name, properties=properties),
-            call().close(properties=[], references=[('publicrequest', 24)])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
         public_response = BlockResponse(object_name, 24, action_name, 'FOO', block_action, lock_type,
                                         confirmation_method)
         self.assertEqual(cache.get(self.public_key), public_response)
 
-    def _block_transfer_signed_email(self, object_name, object_type, title, message):
+        # Check logger
+        properties = {'handle': 'FOO', 'handleType': object_name, 'confirmMethod': confirmation_method}
+        log_entry = TestLogEntry(PUBLIC_REQUESTS_LOGGER_SERVICE, action_name,
+                                 PublicRequestsLogResult.SUCCESS, source_ip='127.0.0.1',
+                                 input_properties=properties, references={'publicrequest': '24'})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
+
+    def _block_transfer_signed_email(self, object_name: str, object_type: str, title: str, message: str) -> None:
         lock_type = "transfer"
         action_name = "BlockTransfer"
         block_type = LockRequestType.block_transfer
@@ -595,7 +580,7 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
         self._block_unblock("block", "webwhois:form_block_object", object_name, confirmation_method, lock_type,
                             action_name, object_type, signed_type, block_type, title, message)
 
-    def _block_all_signed_email(self, object_name, object_type, title, message):
+    def _block_all_signed_email(self, object_name: str, object_type: str, title: str, message: str) -> None:
         lock_type = "all"
         action_name = "BlockChanges"
         block_type = LockRequestType.block_transfer_and_update
@@ -604,7 +589,7 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
         self._block_unblock("block", "webwhois:form_block_object", object_name, confirmation_method, lock_type,
                             action_name, object_type, signed_type, block_type, title, message)
 
-    def _unblock_transfer_signed_email(self, object_name, object_type, title, message):
+    def _unblock_transfer_signed_email(self, object_name: str, object_type: str, title: str, message: str) -> None:
         lock_type = "transfer"
         action_name = "UnblockTransfer"
         block_type = LockRequestType.unblock_transfer
@@ -613,7 +598,7 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
         self._block_unblock("unblock", "webwhois:form_unblock_object", object_name, confirmation_method, lock_type,
                             action_name, object_type, signed_type, block_type, title, message)
 
-    def _unblock_all_signed_email(self, object_name, object_type, title, message):
+    def _unblock_all_signed_email(self, object_name: str, object_type: str, title: str, message: str) -> None:
         lock_type = "all"
         action_name = "UnblockChanges"
         block_type = LockRequestType.unblock_transfer_and_update
@@ -966,15 +951,13 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_block_unblock_request(object_type, 'foo.cz', 42, signed_email, block_transfer)
         ])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'BlockTransfer', properties=[
-                ('handle', 'foo.cz'),
-                ('handleType', 'domain'),
-                ('confirmMethod', 'signed_email'),
-            ]),
-            call().close(properties=[('reason', exception_code)], references=[])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
+
+        # Check logger
+        properties = {'handle': 'foo.cz', 'handleType': 'domain', 'confirmMethod': 'signed_email'}
+        log_entry = TestLogEntry(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType.BLOCK_TRANSFER,
+                                 PublicRequestsLogResult.FAIL, source_ip='127.0.0.1',
+                                 input_properties=properties, properties={'reason': exception_code})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
     def test_block_object_not_found(self):
         PUBLIC_REQUEST.create_block_unblock_request.side_effect = OBJECT_NOT_FOUND
@@ -1014,11 +997,11 @@ class TestNotarizedLetterPdf(SimpleTestCase):
 
     def setUp(self):
         apply_patch(self, patch.object(PUBLIC_REQUEST, 'client', spec=('create_public_request_pdf', )))
-        self.LOGGER = apply_patch(self, patch("webwhois.views.public_request.LOGGER"))
-        apply_patch(self, patch("webwhois.views.public_request_mixin.LOGGER", self.LOGGER))
-        apply_patch(self, patch("webwhois.views.logger_mixin.LOGGER", self.LOGGER))
-        self.LOGGER.create_request.return_value.request_id = 21
-        self.LOGGER.create_request.return_value.result = 'Error'
+
+        self.test_logger = TestLoggerClient()
+        log_patcher = patch('webwhois.utils.corba_wrapper.PUBLIC_REQUESTS_LOGGER.client', new=self.test_logger)
+        self.addCleanup(log_patcher.stop)
+        log_patcher.start()
 
     def tearDown(self):
         cache.clear()
@@ -1035,23 +1018,20 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_public_request_pdf(42, Language.en)
         ])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'NotarizedLetterPdf', properties=[
-                ('handle', 'FOO'),
-                ('objectType', 'contact'),
-                ('pdfLangCode', 'en'),
-                ('documentType', 'AuthInfo')
-            ]),
-            call().close(properties=[], references=[('publicrequest', 42)])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
+
+        # Check logger
+        properties = {'handle': 'FOO', 'objectType': 'contact', 'pdfLangCode': 'en', 'documentType': 'AuthInfo'}
+        log_entry = TestLogEntry(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType.NOTARIZED_LETTER_PDF,
+                                 PublicRequestsLogResult.SUCCESS, source_ip='127.0.0.1',
+                                 input_properties=properties, references={'publicrequest': '42'})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
     def test_no_data(self):
         response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
                                            kwargs={"public_key": self.public_key}))
         self.assertIsInstance(response, HttpResponseNotFound)
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [])
+        self.assertEqual(self.test_logger.mock.mock_calls, [])
 
     def test_download_custom_email(self):
         cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', 'foo@foo.off', None))
@@ -1065,32 +1045,14 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_public_request_pdf(42, Language.en)
         ])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'NotarizedLetterPdf', properties=[
-                ('handle', 'FOO'),
-                ('objectType', 'contact'),
-                ('pdfLangCode', 'en'),
-                ('documentType', 'AuthInfo'),
-                ('customEmail', 'foo@foo.off'),
-            ]),
-            call().close(properties=[], references=[('publicrequest', 42)])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
 
-    def test_download_without_logger(self):
-        self.LOGGER.__bool__.return_value = False
-        cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None, None))
-        PUBLIC_REQUEST.create_public_request_pdf.return_value = "PDF content..."
-        response = self.client.get(reverse("webwhois:notarized_letter_serve_pdf",
-                                           kwargs={"public_key": self.public_key}))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['content-type'], 'application/pdf')
-        self.assertEqual(response['content-disposition'], 'attachment; filename="notarized-letter-en.pdf"')
-        self.assertEqual(response.content, "PDF content...".encode())
-        self.assertEqual(PUBLIC_REQUEST.mock_calls, [
-            call.create_public_request_pdf(42, Language.en)
-        ])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [])
+        # Check logger
+        properties = {'handle': 'FOO', 'objectType': 'contact', 'pdfLangCode': 'en', 'documentType': 'AuthInfo',
+                      'customEmail': 'foo@foo.off'}
+        log_entry = TestLogEntry(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType.NOTARIZED_LETTER_PDF,
+                                 PublicRequestsLogResult.SUCCESS, source_ip='127.0.0.1',
+                                 input_properties=properties, references={'publicrequest': '42'})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
     def test_object_not_found(self):
         cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None, None))
@@ -1101,16 +1063,13 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_public_request_pdf(42, Language.en)
         ])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'NotarizedLetterPdf', properties=[
-                ('handle', 'FOO'),
-                ('objectType', 'contact'),
-                ('pdfLangCode', 'en'),
-                ('documentType', 'AuthInfo')
-            ]),
-            call().close(properties=[('reason', 'OBJECT_NOT_FOUND')], references=[])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
+
+        # Check logger
+        properties = {'handle': 'FOO', 'objectType': 'contact', 'pdfLangCode': 'en', 'documentType': 'AuthInfo'}
+        log_entry = TestLogEntry(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType.NOTARIZED_LETTER_PDF,
+                                 PublicRequestsLogResult.FAIL, source_ip='127.0.0.1',
+                                 input_properties=properties, properties={'reason': 'OBJECT_NOT_FOUND'})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
     def test_unexpected_exception(self):
         cache.set(self.public_key, SendPasswordResponse('contact', 42, 'AuthInfo', 'FOO', None))
@@ -1120,16 +1079,13 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_public_request_pdf(42, Language.en)
         ])
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'NotarizedLetterPdf', properties=[
-                ('handle', 'FOO'),
-                ('objectType', 'contact'),
-                ('pdfLangCode', 'en'),
-                ('documentType', 'AuthInfo')
-            ]),
-            call().close(properties=[('exception', 'TestException')], references=[])
-        ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Error')
+
+        # Check logger
+        properties = {'handle': 'FOO', 'objectType': 'contact', 'pdfLangCode': 'en', 'documentType': 'AuthInfo'}
+        log_entry = TestLogEntry(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType.NOTARIZED_LETTER_PDF,
+                                 PublicRequestsLogResult.ERROR, source_ip='127.0.0.1',
+                                 input_properties=properties, properties={'exception': 'TestException'})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
 
 @override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}},
