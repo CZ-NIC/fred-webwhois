@@ -132,8 +132,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'foo.cz'),
             ('handleType', 'domain'),
-            ('sendTo', 'email_in_registry'),
             ('confirmMethod', 'signed_email'),
+            ('sendTo', 'email_in_registry'),
         ]
         object_type = ObjectType_PR.domain
         title = "Request to send a password (authinfo) for transfer domain name foo.cz"
@@ -152,8 +152,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'CONTACT'),
             ('handleType', 'contact'),
-            ('sendTo', 'email_in_registry'),
             ('confirmMethod', 'signed_email'),
+            ('sendTo', 'email_in_registry'),
         ]
         object_type = ObjectType_PR.contact
         title = "Request to send a password (authinfo) for transfer contact CONTACT"
@@ -172,8 +172,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'NSSET'),
             ('handleType', 'nsset'),
-            ('sendTo', 'email_in_registry'),
             ('confirmMethod', 'signed_email'),
+            ('sendTo', 'email_in_registry'),
         ]
         object_type = ObjectType_PR.nsset
         title = "Request to send a password (authinfo) for transfer nameserver set NSSET"
@@ -192,8 +192,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'KEYSET'),
             ('handleType', 'keyset'),
-            ('sendTo', 'email_in_registry'),
             ('confirmMethod', 'signed_email'),
+            ('sendTo', 'email_in_registry'),
         ]
         object_type = ObjectType_PR.keyset
         title = "Request to send a password (authinfo) for transfer keyset KEYSET"
@@ -220,8 +220,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             call('127.0.0.1', 'Public Request', 'AuthInfo', properties=[
                 ('handle', 'foo.cz'),
                 ('handleType', 'domain'),
-                ('sendTo', 'email_in_registry'),
                 ('confirmMethod', 'signed_email'),
+                ('sendTo', 'email_in_registry'),
             ]),
             call().close(properties=[('reason', exception_code)], references=[])
         ])
@@ -261,8 +261,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
             call('127.0.0.1', 'Public Request', 'AuthInfo', properties=[
                 ('handle', 'foo.cz'),
                 ('handleType', 'domain'),
-                ('sendTo', 'custom_email'),
                 ('confirmMethod', 'signed_email'),
+                ('sendTo', 'custom_email'),
                 ('customEmail', 'foo@foo.off')]),
             call().close(properties=[('reason', 'INVALID_EMAIL')], references=[])
         ])
@@ -307,8 +307,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'foo.cz'),
             ('handleType', 'domain'),
-            ('sendTo', 'custom_email'),
             ('confirmMethod', 'signed_email'),
+            ('sendTo', 'custom_email'),
             ('customEmail', 'foo@foo.off'),
         ]
         object_type = ObjectType_PR.domain
@@ -329,8 +329,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'FOO'),
             ('handleType', 'contact'),
-            ('sendTo', 'custom_email'),
             ('confirmMethod', 'signed_email'),
+            ('sendTo', 'custom_email'),
             ('customEmail', 'foo@foo.off'),
         ]
         object_type = ObjectType_PR.contact
@@ -351,8 +351,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'FOO'),
             ('handleType', 'nsset'),
-            ('sendTo', 'custom_email'),
             ('confirmMethod', 'signed_email'),
+            ('sendTo', 'custom_email'),
             ('customEmail', 'foo@foo.off'),
         ]
         object_type = ObjectType_PR.nsset
@@ -373,8 +373,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'FOO'),
             ('handleType', 'keyset'),
-            ('sendTo', 'custom_email'),
             ('confirmMethod', 'signed_email'),
+            ('sendTo', 'custom_email'),
             ('customEmail', 'foo@foo.off'),
         ]
         object_type = ObjectType_PR.keyset
@@ -413,8 +413,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = [
             ('handle', 'FOO'),
             ('handleType', object_name),
-            ('sendTo', 'custom_email'),
             ('confirmMethod', 'notarized_letter'),
+            ('sendTo', 'custom_email'),
             ('customEmail', 'foo@foo.off'),
         ]
         message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Password (authinfo) request</a> ' \
@@ -463,7 +463,7 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
         self.assertEqual(cache.get(self.public_key), public_response)
         self.assertEqual(PUBLIC_REQUEST.mock_calls,
                          [call.create_personal_info_request_registry_email(post['handle'], 42)])
-        properties = [('handle', 'CONTACT'), ('handleType', 'contact'), ('sendTo', 'email_in_registry')]
+        properties = [('handle', 'CONTACT'), ('sendTo', 'email_in_registry'), ('handleType', 'contact')]
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
             call('127.0.0.1', 'Public Request', 'PersonalInfo', properties=properties),
             call().close(properties=[], references=[('publicrequest', 24)])
@@ -486,8 +486,8 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
         calls = [call.create_personal_info_request_non_registry_email(post['handle'], 42, ConfirmedBy.signed_email,
                                                                       'kryten@example.cz')]
         self.assertEqual(PUBLIC_REQUEST.mock_calls, calls)
-        properties = [('handle', 'CONTACT'), ('handleType', 'contact'), ('sendTo', 'custom_email'),
-                      ('confirmMethod', 'signed_email'), ('customEmail', 'kryten@example.cz')]
+        properties = [('handle', 'CONTACT'), ('confirmMethod', 'signed_email'), ('sendTo', 'custom_email'),
+                      ('customEmail', 'kryten@example.cz'), ('handleType', 'contact')]
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
             call('127.0.0.1', 'Public Request', 'PersonalInfo', properties=properties),
             call().close(properties=[], references=[('publicrequest', 24)])
@@ -511,8 +511,8 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
         calls = [call.create_personal_info_request_non_registry_email(post['handle'], 42, ConfirmedBy.notarized_letter,
                                                                       'kryten@example.cz')]
         self.assertEqual(PUBLIC_REQUEST.mock_calls, calls)
-        properties = [('handle', 'CONTACT'), ('handleType', 'contact'), ('sendTo', 'custom_email'),
-                      ('confirmMethod', 'notarized_letter'), ('customEmail', 'kryten@example.cz')]
+        properties = [('handle', 'CONTACT'), ('confirmMethod', 'notarized_letter'), ('sendTo', 'custom_email'),
+                      ('customEmail', 'kryten@example.cz'), ('handleType', 'contact')]
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
             call('127.0.0.1', 'Public Request', 'PersonalInfo', properties=properties),
             call().close(properties=[], references=[('publicrequest', 24)])
@@ -528,7 +528,7 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
         self.assertEqual(response.context['form'].errors, form_errors)
         self.assertEqual(PUBLIC_REQUEST.mock_calls,
                          [call.create_personal_info_request_registry_email('foo.cz', 42)])
-        properties = [('handle', 'foo.cz'), ('handleType', 'contact'), ('sendTo', 'email_in_registry')]
+        properties = [('handle', 'foo.cz'), ('sendTo', 'email_in_registry'), ('handleType', 'contact')]
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
             call('127.0.0.1', 'Public Request', 'PersonalInfo', properties=properties),
             call().close(properties=[('reason', exception_code)], references=[])

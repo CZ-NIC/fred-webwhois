@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -15,14 +15,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+#
 from unittest.mock import patch
 
 from django.test import SimpleTestCase, override_settings
 from django.urls import reverse
 from fred_idl.Registry.Whois import OBJECT_NOT_FOUND
 
+from webwhois.constants import PublicRequestsLogEntryType
 from webwhois.forms import BlockObjectForm, SendPasswordForm, UnblockObjectForm, WhoisForm
-from webwhois.forms.public_request import ConfirmationMethod, DeliveryType, PublicRequestBaseForm
+from webwhois.forms.public_request import ConfirmationMethod, DeliveryType, PersonalInfoForm, PublicRequestBaseForm
 from webwhois.tests.utils import TEMPLATES, apply_patch
 from webwhois.utils import WHOIS
 
@@ -111,6 +113,19 @@ class TestPublicRequestBaseForm(SimpleTestCase):
         form = PublicRequestBaseForm({})
         form.is_valid()
         self.assertIsNone(form.cleaned_data['confirmation_method'])
+
+    def test_get_log_properties(self):
+        data = (
+            # post, properties
+            ({'object_type': 'contact', 'handle': 'kryten'}, [('handle', 'kryten'), ('handleType', 'contact')]),
+            ({'object_type': 'contact', 'handle': 'kryten', 'confirmation_method': 'signed_email'},
+             [('handle', 'kryten'), ('handleType', 'contact'), ('confirmMethod', 'signed_email')]),
+        )
+        for post, properties in data:
+            with self.subTest(post=post):
+                form = PublicRequestBaseForm(post)
+                form.is_valid()
+                self.assertEqual(form.get_log_properties(), properties)
 
 
 class TestSendPasswordForm(SimpleTestCase):
@@ -244,6 +259,22 @@ class TestSendPasswordForm(SimpleTestCase):
             "send_to": DeliveryType("custom_email", "foo@foo.off"),
         })
 
+    def test_get_log_properties(self):
+        data = (
+            # post, properties
+            ({'object_type': 'contact', 'handle': 'kryten', 'send_to_0': 'email_in_registry'},
+             [('handle', 'kryten'), ('handleType', 'contact'), ('sendTo', 'email_in_registry')]),
+            ({'object_type': 'contact', 'handle': 'kryten', 'send_to_0': 'custom_email',
+              'send_to_1': 'kryten@example.org'},
+             [('handle', 'kryten'), ('handleType', 'contact'), ('sendTo', 'custom_email'),
+              ('customEmail', 'kryten@example.org')]),
+        )
+        for post, properties in data:
+            with self.subTest(post=post):
+                form = SendPasswordForm(post)
+                form.is_valid()
+                self.assertEqual(form.get_log_properties(), properties)
+
 
 class BlockUnblockFormMixin(object):
 
@@ -332,10 +363,67 @@ class BlockUnblockFormMixin(object):
             "lock_type": "all",
         })
 
+    def test_get_log_properties(self: SimpleTestCase):
+        data = (
+            # post, properties
+            ({'object_type': 'contact', 'handle': 'kryten', 'send_to_0': 'email_in_registry'},
+             [('handle', 'kryten'), ('handleType', 'contact'), ('sendTo', 'email_in_registry')]),
+            ({'object_type': 'contact', 'handle': 'kryten', 'send_to_0': 'custom_email',
+              'send_to_1': 'kryten@example.org'},
+             [('handle', 'kryten'), ('handleType', 'contact'), ('sendTo', 'custom_email'),
+              ('customEmail', 'kryten@example.org')]),
+        )
+        for post, properties in data:
+            with self.subTest(post=post):
+                form = SendPasswordForm(post)
+                form.is_valid()
+                self.assertEqual(form.get_log_properties(), properties)
+
+
+class PersonalInfoFormTest(SimpleTestCase):
+    def test_get_log_properties(self):
+        data = (
+            # post, properties
+            ({'handle': 'kryten', 'send_to_0': 'email_in_registry'},
+             [('handle', 'kryten'), ('sendTo', 'email_in_registry'), ('handleType', 'contact')]),
+            ({'handle': 'kryten', 'send_to_0': 'custom_email', 'send_to_1': 'kryten@example.org'},
+             [('handle', 'kryten'), ('sendTo', 'custom_email'), ('customEmail', 'kryten@example.org'),
+              ('handleType', 'contact')]),
+        )
+        for post, properties in data:
+            with self.subTest(post=post):
+                form = PersonalInfoForm(post)
+                form.is_valid()
+                self.assertEqual(form.get_log_properties(), properties)
+
 
 class TestBlockObjectForm(BlockUnblockFormMixin, SimpleTestCase):
     form_class = BlockObjectForm
 
+    def test_log_entry_type(self):
+        data = (
+            # data, log_entry_type
+            ({'lock_type': 'transfer'}, PublicRequestsLogEntryType.BLOCK_TRANSFER),
+            ({'lock_type': 'all'}, PublicRequestsLogEntryType.BLOCK_CHANGES),
+        )
+        for post, log_entry_type in data:
+            with self.subTest(log_entry_type=log_entry_type):
+                form = self.form_class(post)
+                form.is_valid()
+                self.assertEqual(form.log_entry_type, log_entry_type)
+
 
 class TestUnblockObjectForm(BlockUnblockFormMixin, SimpleTestCase):
     form_class = UnblockObjectForm
+
+    def test_log_entry_type(self):
+        data = (
+            # data, log_entry_type
+            ({'lock_type': 'transfer'}, PublicRequestsLogEntryType.UNBLOCK_TRANSFER),
+            ({'lock_type': 'all'}, PublicRequestsLogEntryType.UNBLOCK_CHANGES),
+        )
+        for post, log_entry_type in data:
+            with self.subTest(log_entry_type=log_entry_type):
+                form = self.form_class(post)
+                form.is_valid()
+                self.assertEqual(form.log_entry_type, log_entry_type)

@@ -52,21 +52,6 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
     form_class = SendPasswordForm
     template_name = 'webwhois/form_send_password.html'
     form_cleaned_data = None  # type: Dict[str, Any]
-    log_entry_type = PublicRequestsLogEntryType.AUTH_INFO
-
-    def _get_logging_request_name_and_properties(self, data):
-        """Return Request type name and Properties."""
-        properties_in = [
-            ("handle", data["handle"]),
-            ("handleType", data['object_type']),
-            ("sendTo", data['send_to'].choice),
-        ]
-        if data['confirmation_method']:
-            properties_in.append(("confirmMethod", data['confirmation_method']))
-        custom_email = data.get("send_to").custom_email
-        if custom_email:
-            properties_in.append(("customEmail", custom_email))
-        return self.log_entry_type, properties_in
 
     def _call_registry_command(self, form, log_request_id):
         data = form.cleaned_data
@@ -92,12 +77,11 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
         return response_id
 
     def get_public_response(self, form, public_request_id):
-        request_type = self._get_logging_request_name_and_properties(form.cleaned_data)[0]
         if form.cleaned_data['send_to'].choice == 'custom_email':
             custom_email = form.cleaned_data['send_to'].custom_email
         else:
             custom_email = None
-        return SendPasswordResponse(form.cleaned_data['object_type'], public_request_id, request_type,
+        return SendPasswordResponse(form.cleaned_data['object_type'], public_request_id, form.log_entry_type,
                                     form.cleaned_data['handle'], custom_email, form.cleaned_data['confirmation_method'])
 
     def get_initial(self):
@@ -131,21 +115,6 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
     form_class = PersonalInfoForm
     template_name = 'webwhois/form_personal_info.html'
     form_cleaned_data = None  # type: Dict[str, Any]
-    log_entry_type = PublicRequestsLogEntryType.PERSONAL_INFO
-
-    def _get_logging_request_name_and_properties(self, data):
-        """Return Request type name and Properties."""
-        properties_in = [
-            ("handle", data["handle"]),
-            ("handleType", 'contact'),
-            ("sendTo", data['send_to'].choice),
-        ]
-        if data['confirmation_method']:
-            properties_in.append(("confirmMethod", data['confirmation_method']))
-        custom_email = data.get("send_to").custom_email
-        if custom_email:
-            properties_in.append(("customEmail", custom_email))
-        return self.log_entry_type, properties_in
 
     def _call_registry_command(self, form, log_request_id):
         data = form.cleaned_data
@@ -167,12 +136,11 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
         return response_id
 
     def get_public_response(self, form, public_request_id):
-        request_type = self._get_logging_request_name_and_properties(form.cleaned_data)[0]
         if form.cleaned_data['send_to'].choice == 'custom_email':
             custom_email = form.cleaned_data['send_to'].custom_email
         else:
             custom_email = None
-        return PersonalInfoResponse('contact', public_request_id, request_type, form.cleaned_data['handle'],
+        return PersonalInfoResponse('contact', public_request_id, form.log_entry_type, form.cleaned_data['handle'],
                                     custom_email, form.cleaned_data['confirmation_method'])
 
     def get_success_url(self):
@@ -201,17 +169,6 @@ class BlockUnblockFormView(PublicRequestFormView):
     def _get_lock_type(self, key):
         raise NotImplementedError
 
-    def _get_logging_request_name_and_properties(self, data):
-        """Return Request type name and Properties."""
-        lock_type_key = self.logging_lock_type[data['lock_type']]
-        properties_in = [
-            ("handle", data["handle"]),
-            ("handleType", data['object_type']),
-        ]
-        if data['confirmation_method']:
-            properties_in.append(("confirmMethod", data['confirmation_method']))
-        return lock_type_key, properties_in
-
     def _call_registry_command(self, form, log_request_id):
         response_id = None
         try:
@@ -238,8 +195,7 @@ class BlockUnblockFormView(PublicRequestFormView):
         return response_id
 
     def get_public_response(self, form, public_request_id):
-        request_type = self._get_logging_request_name_and_properties(form.cleaned_data)[0]
-        return BlockResponse(form.cleaned_data['object_type'], public_request_id, request_type,
+        return BlockResponse(form.cleaned_data['object_type'], public_request_id, form.log_entry_type,
                              form.cleaned_data['handle'], self.block_action, form.cleaned_data['lock_type'],
                              form.cleaned_data['confirmation_method'])
 
