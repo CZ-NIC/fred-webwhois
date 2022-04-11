@@ -15,7 +15,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+#
 from enum import Enum, unique
+from typing import Any, List, Tuple
 
 from django import forms
 from django.core.validators import MaxLengthValidator
@@ -24,8 +26,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from fred_idl.Registry.PublicRequest import ConfirmedBy
 
-from webwhois.constants import SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY
-
+from ..constants import SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY, PublicRequestsLogEntryType
 from .fields import DeliveryField
 from .widgets import DeliveryType
 
@@ -59,6 +60,8 @@ class PublicRequestBaseForm(forms.Form):
     @cvar CONFIRMATION_METHOD_CHOICES: Choices for `confirmation_method` field.
     """
 
+    log_entry_type: PublicRequestsLogEntryType
+
     REGISTRY_OBJECT_TYPE = (
         ("domain", _("Domain")),
         ("contact", _("Contact")),
@@ -89,9 +92,20 @@ class PublicRequestBaseForm(forms.Form):
         else:
             return None
 
+    def get_log_properties(self) -> List[Tuple[str, Any]]:
+        """Return properties for log."""
+        properties = [("handle", self.cleaned_data["handle"])]
+        if 'object_type' in self.cleaned_data:
+            properties.append(("handleType", self.cleaned_data['object_type']))
+        if self.cleaned_data['confirmation_method']:
+            properties.append(("confirmMethod", self.cleaned_data['confirmation_method']))
+        return properties
+
 
 class SendPasswordForm(PublicRequestBaseForm):
     """Send password for transfer."""
+
+    log_entry_type = PublicRequestsLogEntryType.AUTH_INFO
 
     SEND_TO = (
         (SEND_TO_IN_REGISTRY, _('email in registry')),
@@ -114,12 +128,28 @@ class SendPasswordForm(PublicRequestBaseForm):
 
         return cleaned_data
 
+    def get_log_properties(self) -> List[Tuple[str, Any]]:
+        """Return properties for log."""
+        properties = super().get_log_properties()
+        properties.append(("sendTo", self.cleaned_data['send_to'].choice))
+        if self.cleaned_data['send_to'].custom_email:
+            properties.append(("customEmail", self.cleaned_data['send_to'].custom_email))
+        return properties
+
 
 class PersonalInfoForm(SendPasswordForm):
     """Form for public request for personal info."""
 
+    log_entry_type = PublicRequestsLogEntryType.PERSONAL_INFO
+
     object_type = None
     handle = forms.CharField(label=_("Contact handle"), validators=[MaxLengthValidator(255)])
+
+    def get_log_properties(self) -> List[Tuple[str, Any]]:
+        """Return properties for log."""
+        properties = super().get_log_properties()
+        properties.append(("handleType", "contact"))
+        return properties
 
 
 class BlockObjectForm(PublicRequestBaseForm):
@@ -134,6 +164,16 @@ class BlockObjectForm(PublicRequestBaseForm):
                                   label=pgettext_lazy("verb_inf", "Block"))
     field_order = ('lock_type', 'object_type', 'handle', 'confirmation_method')
 
+    _LOG_ENTRY_TYPES = {
+        LOCK_TYPE_TRANSFER: PublicRequestsLogEntryType.BLOCK_TRANSFER,
+        LOCK_TYPE_ALL: PublicRequestsLogEntryType.BLOCK_CHANGES,
+    }
+
+    @property
+    def log_entry_type(self) -> PublicRequestsLogEntryType:  # type: ignore[override]
+        """Return a log entry type."""
+        return self._LOG_ENTRY_TYPES[self.cleaned_data['lock_type']]
+
 
 class UnblockObjectForm(PublicRequestBaseForm):
     """Unblock object in registry."""
@@ -146,3 +186,13 @@ class UnblockObjectForm(PublicRequestBaseForm):
     lock_type = forms.ChoiceField(choices=LOCK_TYPE, initial=LOCK_TYPE_TRANSFER, widget=forms.RadioSelect,
                                   label=pgettext_lazy("verb_inf", "Unblock"))
     field_order = ('lock_type', 'object_type', 'handle', 'confirmation_method')
+
+    _LOG_ENTRY_TYPES = {
+        LOCK_TYPE_TRANSFER: PublicRequestsLogEntryType.UNBLOCK_TRANSFER,
+        LOCK_TYPE_ALL: PublicRequestsLogEntryType.UNBLOCK_CHANGES,
+    }
+
+    @property
+    def log_entry_type(self) -> PublicRequestsLogEntryType:  # type: ignore[override]
+        """Return a log entry type."""
+        return self._LOG_ENTRY_TYPES[self.cleaned_data['lock_type']]

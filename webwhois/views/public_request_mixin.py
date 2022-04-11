@@ -23,7 +23,7 @@ from fred_idl.Registry.PublicRequest import ObjectType_PR
 from webwhois.utils.corba_wrapper import LOGGER
 from webwhois.views.logger_mixin import LoggerMixin
 
-from ..constants import PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType, PublicRequestsLogResult
+from ..constants import PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogResult
 
 
 class PublicRequestKnownException(Exception):
@@ -37,7 +37,6 @@ class PublicRequestLoggerMixin(LoggerMixin):
     """Mixin for logging request if LOGGER is set."""
 
     service_name = PUBLIC_REQUESTS_LOGGER_SERVICE
-    log_entry_type: PublicRequestsLogEntryType
 
     def finish_logging_request(self, log_request, response_id, error_object):
         """Finish logging request.
@@ -94,7 +93,8 @@ class PublicRequestFormView(PublicRequestLoggerMixin, FormView):
         """
         self.public_key = get_random_string(64)
         if LOGGER:
-            log_request = self.prepare_logging_request(form.cleaned_data)
+            log_request = LOGGER.create_request(self.request.META.get('REMOTE_ADDR', ''), self.service_name,
+                                                form.log_entry_type, properties=form.get_log_properties())
             log_request_id = log_request.request_id
         else:
             log_request = log_request_id = None

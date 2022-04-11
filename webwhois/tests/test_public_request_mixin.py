@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -15,6 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+#
 from datetime import datetime
 from unittest.mock import call, patch
 
@@ -22,6 +23,7 @@ from django.test import SimpleTestCase, override_settings
 from django.test.client import RequestFactory
 from fred_idl.Registry.PublicRequest import OBJECT_NOT_FOUND
 
+from webwhois.constants import PublicRequestsLogEntryType
 from webwhois.forms import SendPasswordForm
 from webwhois.forms.public_request import ConfirmationMethod
 from webwhois.forms.widgets import DeliveryType
@@ -39,9 +41,6 @@ class DebugPublicRequest(PublicRequestFormView):
 
     def __init__(self):
         self.request = RequestFactory().request()
-
-    def _get_logging_request_name_and_properties(self, data):
-        return "fooActionName", (("handle", "foo"), )
 
     def _call_registry_command(self, data, log_request_id):
         return 42
@@ -72,20 +71,6 @@ class TestPublicRequestFormView(SimpleTestCase):
 
     def tearDown(self):
         cache.clear()
-
-    def test_prepare_logging_request(self):
-        pubreq = DebugPublicRequest()
-        data = {
-            'object_type': 'domain',
-            'handle': 'foo.cz',
-            'custom_email': 'foo@foo.off',
-        }
-        logger = pubreq.prepare_logging_request(data)
-        self.assertEqual(self.LOGGER.mock_calls, [
-            call.create_request('127.0.0.1', 'Public Request', 'fooActionName', properties=(('handle', 'foo'),))
-        ])
-        self.assertEqual(cache.get(pubreq.public_key), None)
-        self.assertEqual(self.LOGGER.create_request.return_value, logger)
 
     def test_finish_logging_request(self):
         self.LOGGER.result = 'Error'
@@ -143,7 +128,6 @@ class TestPublicRequestFormView(SimpleTestCase):
     def _init_logger(self):
         self.LOGGER.create_request.return_value.request_id = 42
         self.LOGGER.create_request.return_value.result = 'Error'
-        self.LOGGER.create_request.return_value.request_type = 'fooActionName'
 
     def _get_send_password_form(self, pubreq):
         form = SendPasswordForm({
@@ -162,8 +146,10 @@ class TestPublicRequestFormView(SimpleTestCase):
         pubreq = DebugPublicRequest()
         form = self._get_send_password_form(pubreq)
         pubreq.logged_call_to_registry(form)
+        properties = [('handle', 'foo.cz'), ('handleType', 'domain'), ('confirmMethod', 'signed_email'),
+                      ('sendTo', 'email_in_registry')]
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'fooActionName', properties=(('handle', 'foo'), )),
+            call('127.0.0.1', 'Public Request', PublicRequestsLogEntryType.AUTH_INFO, properties=properties),
             call().close(properties=[], references=[('publicrequest', 42)]),
         ])
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Ok')
@@ -181,8 +167,10 @@ class TestPublicRequestFormView(SimpleTestCase):
         form = self._get_send_password_form(pubreq)
         with self.assertRaises(PublicRequestKnownException):
             pubreq.logged_call_to_registry(form)
+        properties = [('handle', 'foo.cz'), ('handleType', 'domain'), ('confirmMethod', 'signed_email'),
+                      ('sendTo', 'email_in_registry')]
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'fooActionName', properties=(('handle', 'foo'), )),
+            call('127.0.0.1', 'Public Request', PublicRequestsLogEntryType.AUTH_INFO, properties=properties),
             call().close(properties=[('reason', 'OBJECT_NOT_FOUND')], references=[]),
         ])
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Fail')
@@ -194,21 +182,11 @@ class TestPublicRequestFormView(SimpleTestCase):
         form = self._get_send_password_form(pubreq)
         with self.assertRaises(TestException):
             pubreq.logged_call_to_registry(form)
+        properties = [('handle', 'foo.cz'), ('handleType', 'domain'), ('confirmMethod', 'signed_email'),
+                      ('sendTo', 'email_in_registry')]
         self.assertEqual(self.LOGGER.create_request.mock_calls, [
-            call('127.0.0.1', 'Public Request', 'fooActionName', properties=(('handle', 'foo'), )),
+            call('127.0.0.1', 'Public Request', PublicRequestsLogEntryType.AUTH_INFO, properties=properties),
             call().close(properties=[('exception', 'TestException')], references=[]),
         ])
-        self.assertEqual(self.LOGGER.create_request.return_value.result, 'Error')
-        self.assertIsNone(cache.get(pubreq.public_key))
-
-    def test_raise_not_implemented_error(self):
-        self._init_logger()
-        pubreq = PublicRequestFormView()
-        pubreq.public_key = "foo"
-        pubreq.request = RequestFactory().request()
-        form = self._get_send_password_form(pubreq)
-        with self.assertRaises(NotImplementedError):
-            pubreq.logged_call_to_registry(form)
-        self.assertEqual(self.LOGGER.create_request.mock_calls, [])
         self.assertEqual(self.LOGGER.create_request.return_value.result, 'Error')
         self.assertIsNone(cache.get(pubreq.public_key))
