@@ -29,17 +29,15 @@ from omniORB import CORBA
 from webwhois.utils import WHOIS
 from webwhois.utils.corba_wrapper import LOGGER
 
-from ..constants import LOGGER_SERVICE, LogEntryType, LogResult
+from ..constants import LogEntryType, LogResult
 from ..utils.cdnskey_client import get_cdnskey_client
 from .base import BaseContextMixin
-from .logger_mixin import LoggerMixin
 
 
-class ScanResultsView(BaseContextMixin, LoggerMixin, TemplateView):
+class ScanResultsView(BaseContextMixin, TemplateView):
     """Provides a list of results from cdnskey scan results."""
 
     template_name = 'webwhois/scan_results.html'
-    service_name = LOGGER_SERVICE
     request_type = LogEntryType.SCAN_RESULTS
     result_success = LogResult.SUCCESS
     result_not_found = LogResult.NOT_FOUND
@@ -64,24 +62,16 @@ class ScanResultsView(BaseContextMixin, LoggerMixin, TemplateView):
         if client is None:
             raise Http404('Cdnskey processor not defined.')
 
-        log_request = None
-        properties = (('domain', self.kwargs['handle']), )
-        if LOGGER:
-            log_request = LOGGER.create_request(self.request.META.get('REMOTE_ADDR', ''), self.service_name,
-                                                self.request_type, properties=properties)
-        try:
-            scan_results = client.raw_scan_results(self.kwargs['handle'])
-            domain_registered = self.get_domain_registered(self.kwargs['handle'])
-            if domain_registered:
-                scan_results = (r for r in scan_results if r['scan_at'] >= domain_registered)
-            context['scan_results'] = sorted(scan_results, key=operator.itemgetter('scan_at'))
-            if log_request is not None:
-                log_request.result = self.result_success
-        except Http404:
-            if log_request is not None:
-                log_request.result = self.result_not_found
-            raise
-        finally:
-            if log_request is not None:
-                log_request.close()
+        with LOGGER.create(self.request_type, source_ip=self.request.META.get('REMOTE_ADDR', ''),
+                           properties={'domain': self.kwargs['handle']}) as log_entry:
+            try:
+                scan_results = client.raw_scan_results(self.kwargs['handle'])
+                domain_registered = self.get_domain_registered(self.kwargs['handle'])
+                if domain_registered:
+                    scan_results = (r for r in scan_results if r['scan_at'] >= domain_registered)
+                context['scan_results'] = sorted(scan_results, key=operator.itemgetter('scan_at'))
+                log_entry.result = self.result_success
+            except Http404:
+                log_entry.result = self.result_not_found
+                raise
         return context
