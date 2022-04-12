@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2021-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -33,7 +33,9 @@ try:
     from frgal import GrpcClient, GrpcDecoder
 except ImportError:
     Cdnskey, DnskeyAlg, DnskeyFlags = None, None, None
-    GrpcDecoder = object
+
+    class GrpcDecoder:  # type: ignore[no-redef]
+        pass
 
     class GrpcClient:  # type: ignore[no-redef]
         pass
