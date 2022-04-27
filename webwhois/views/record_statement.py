@@ -18,9 +18,9 @@
 #
 from django.http import Http404, HttpResponse
 from django.views.generic import View
-from fred_idl.Registry.RecordStatement import OBJECT_DELETE_CANDIDATE, OBJECT_NOT_FOUND
+from regal.exceptions import ObjectDoesNotExist
 
-from webwhois.utils.corba_wrapper import LOGGER, RECORD_STATEMENT
+from webwhois.utils.corba_wrapper import LOGGER, STATEMENTOR
 
 from ..constants import LogEntryType, LogResult
 
@@ -36,17 +36,17 @@ class ServeRecordStatementView(View):
                            properties=properties) as log_entry:
             try:
                 if object_type == "domain":
-                    pdf_content = RECORD_STATEMENT.domain_printout(handle, False)
+                    pdf_content = STATEMENTOR.get_domain_statement(handle)
                 elif object_type == "contact":
-                    pdf_content = RECORD_STATEMENT.contact_printout(handle, False)
+                    pdf_content = STATEMENTOR.get_contact_statement(handle)
                 elif object_type == "nsset":
-                    pdf_content = RECORD_STATEMENT.nsset_printout(handle)
+                    pdf_content = STATEMENTOR.get_nsset_statement(handle)
                 elif object_type == "keyset":
-                    pdf_content = RECORD_STATEMENT.keyset_printout(handle)
+                    pdf_content = STATEMENTOR.get_keyset_statement(handle)
                 else:
                     raise ValueError("Unknown object_type.")
                 log_entry.result = LogResult.SUCCESS
-            except (OBJECT_NOT_FOUND, OBJECT_DELETE_CANDIDATE) as error:
+            except ObjectDoesNotExist as error:
                 log_entry.properties['reason'] = type(error).__name__
                 log_entry.result = LogResult.NOT_FOUND
                 raise Http404

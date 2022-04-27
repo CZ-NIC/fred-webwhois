@@ -99,6 +99,31 @@ A mapping with options for the ``WEBWHOIS_LOGGER``.
 If the key ``credentials`` is present, it will be passed to the ``make_credentials`` utility as a mapping.
 Default value is ``{}``.
 
+``WEBWHOIS_REGISTRY_NETLOC``
+----------------------------
+
+Network location, i.e. host and port, of the registry server.
+This setting is required.
+
+``WEBWHOIS_REGISTRY_SSL_CERT``
+------------------------------
+
+Path to file with SSL root certificate.
+Default value is ``None``, which disables the SSL encryption.
+
+``WEBWHOIS_SECRETARY_AUTH``
+---------------------------
+
+Object managing authentication for the django-secretary API.
+For possible values see https://docs.python-requests.org/en/latest/user/authentication/.
+Default value is ``None``, i.e. no authentication.
+
+``WEBWHOIS_SECRETARY_URL``
+--------------------------
+
+URL of django-secretary service API.
+This setting is required.
+
 Docker
 ======
 

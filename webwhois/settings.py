@@ -20,7 +20,7 @@ import os
 from functools import partial
 from typing import Any, Dict
 
-from appsettings import AppSettings, DictSetting, FileSetting, StringSetting
+from appsettings import AppSettings, DictSetting, FileSetting, Setting, StringSetting
 from frgal import make_credentials
 
 
@@ -44,6 +44,10 @@ class WebwhoisAppSettings(AppSettings):
     CORBA_CONTEXT = StringSetting(default='fred')
     LOGGER = StringSetting(default='grill.DummyLoggerClient')
     LOGGER_OPTIONS = LoggerOptionsSetting(default={})
+    REGISTRY_NETLOC = StringSetting(required=True)
+    REGISTRY_SSL_CERT = FileSetting(default=None, mode=os.R_OK)
+    SECRETARY_URL = StringSetting(required=True)
+    SECRETARY_AUTH = Setting()
 
     class Meta:
         setting_prefix = 'WEBWHOIS_'
