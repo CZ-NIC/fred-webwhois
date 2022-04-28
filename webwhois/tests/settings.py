@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2016-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -26,5 +26,4 @@ SECRET_KEY = 'SECRET'
 STATIC_URL = '/static/'
 
 WEBWHOIS_CORBA_EXPORT_MODULES = ('Registry', 'ccReg')
-WEBWHOIS_LOGGER = None
 WEBWHOIS_CAPTCHA_MAX_REQUESTS = 100

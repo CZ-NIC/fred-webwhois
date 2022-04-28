@@ -17,7 +17,7 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 #
 from enum import Enum, unique
-from typing import Any, List, Tuple
+from typing import Dict
 
 from django import forms
 from django.core.validators import MaxLengthValidator
@@ -92,13 +92,13 @@ class PublicRequestBaseForm(forms.Form):
         else:
             return None
 
-    def get_log_properties(self) -> List[Tuple[str, Any]]:
+    def get_log_properties(self) -> Dict[str, str]:
         """Return properties for log."""
-        properties = [("handle", self.cleaned_data["handle"])]
+        properties = {"handle": self.cleaned_data["handle"]}
         if 'object_type' in self.cleaned_data:
-            properties.append(("handleType", self.cleaned_data['object_type']))
+            properties["handleType"] = self.cleaned_data['object_type']
         if self.cleaned_data['confirmation_method']:
-            properties.append(("confirmMethod", self.cleaned_data['confirmation_method']))
+            properties["confirmMethod"] = self.cleaned_data['confirmation_method']
         return properties
 
 
@@ -128,12 +128,12 @@ class SendPasswordForm(PublicRequestBaseForm):
 
         return cleaned_data
 
-    def get_log_properties(self) -> List[Tuple[str, Any]]:
+    def get_log_properties(self) -> Dict[str, str]:
         """Return properties for log."""
         properties = super().get_log_properties()
-        properties.append(("sendTo", self.cleaned_data['send_to'].choice))
+        properties["sendTo"] = self.cleaned_data['send_to'].choice
         if self.cleaned_data['send_to'].custom_email:
-            properties.append(("customEmail", self.cleaned_data['send_to'].custom_email))
+            properties["customEmail"] = self.cleaned_data['send_to'].custom_email
         return properties
 
 
@@ -145,10 +145,10 @@ class PersonalInfoForm(SendPasswordForm):
     object_type = None
     handle = forms.CharField(label=_("Contact handle"), validators=[MaxLengthValidator(255)])
 
-    def get_log_properties(self) -> List[Tuple[str, Any]]:
+    def get_log_properties(self) -> Dict[str, str]:
         """Return properties for log."""
         properties = super().get_log_properties()
-        properties.append(("handleType", "contact"))
+        properties["handleType"] = "contact"
         return properties
 
 

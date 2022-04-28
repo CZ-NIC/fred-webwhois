@@ -26,10 +26,12 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from fred_idl.ccReg import FileInfo
 from fred_idl.Registry.Whois import INVALID_HANDLE, OBJECT_NOT_FOUND, RegistrarCertification, RegistrarGroup
+from grill.utils import TestLogEntry, TestLoggerClient
 from testfixtures import ShouldWarn
 
+from webwhois.constants import LOGGER_SERVICE, LogEntryType, LogResult
 from webwhois.tests.get_registry_objects import GetRegistryObjectMixin
-from webwhois.tests.utils import CALL_BOOL, TEMPLATES, apply_patch, make_registrar
+from webwhois.tests.utils import TEMPLATES, apply_patch, make_registrar
 from webwhois.utils import FILE_MANAGER, WHOIS
 
 
@@ -39,49 +41,49 @@ class TestRegistrarsView(GetRegistryObjectMixin, SimpleTestCase):
     def setUp(self):
         spec = ('get_registrar_by_handle', 'get_registrar_certification_list', 'get_registrar_groups', 'get_registrars')
         apply_patch(self, patch.object(WHOIS, 'client', spec=spec))
-        self.LOGGER = apply_patch(self, patch("webwhois.views.base.LOGGER"))
+
+        self.test_logger = TestLoggerClient()
+        log_patcher = patch('webwhois.utils.corba_wrapper.LOGGER.client', new=self.test_logger)
+        self.addCleanup(log_patcher.stop)
+        log_patcher.start()
 
     def test_registrar_not_found(self):
         WHOIS.get_registrar_by_handle.side_effect = OBJECT_NOT_FOUND
         response = self.client.get(reverse("webwhois:detail_registrar", kwargs={"handle": "REG_FRED_A"}))
         self.assertContains(response, 'Registrar not found')
         self.assertContains(response, 'No registrar matches <strong>REG_FRED_A</strong> handle.')
-        self.assertEqual(self.LOGGER.mock_calls, [
-            CALL_BOOL,
-            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
-                ('handle', 'REG_FRED_A'), ('handleType', 'registrar'))),
-            call.create_request().close(properties=[])
-        ])
-        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
         self.assertEqual(WHOIS.mock_calls, [call.get_registrar_by_handle('REG_FRED_A')])
+
+        # Check logger
+        log_entry = TestLogEntry(LOGGER_SERVICE, LogEntryType.INFO, LogResult.NOT_FOUND, source_ip='127.0.0.1',
+                                 input_properties={'handle': 'REG_FRED_A', 'handleType': 'registrar'})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
     def test_registrar_invalid_handle(self):
         WHOIS.get_registrar_by_handle.side_effect = INVALID_HANDLE
         response = self.client.get(reverse("webwhois:detail_registrar", kwargs={"handle": "REG_FRED_A"}))
         self.assertContains(response, "Invalid handle")
         self.assertContains(response, "<strong>REG_FRED_A</strong> is not a valid handle.")
-        self.assertEqual(self.LOGGER.mock_calls, [
-            CALL_BOOL,
-            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
-                ('handle', 'REG_FRED_A'), ('handleType', 'registrar'))),
-            call.create_request().close(properties=[('reason', 'INVALID_HANDLE')])
-        ])
-        self.assertEqual(self.LOGGER.create_request().result, 'NotFound')
         self.assertEqual(WHOIS.mock_calls, [call.get_registrar_by_handle('REG_FRED_A')])
+
+        # Check logger
+        log_entry = TestLogEntry(LOGGER_SERVICE, LogEntryType.INFO, LogResult.NOT_FOUND, source_ip='127.0.0.1',
+                                 input_properties={'handle': 'REG_FRED_A', 'handleType': 'registrar'},
+                                 properties={'reason': 'INVALID_HANDLE'})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
     def test_registrar(self):
         WHOIS.get_registrar_by_handle.return_value = self._get_registrar()
         response = self.client.get(reverse("webwhois:detail_registrar", kwargs={"handle": "REG_FRED_A"}))
         self.assertContains(response, "Registrar details")
         self.assertContains(response, "REG_FRED_A")
-        self.assertEqual(self.LOGGER.mock_calls, [
-            CALL_BOOL,
-            call.create_request('127.0.0.1', 'Web whois', 'Info', properties=(
-                ('handle', 'REG_FRED_A'), ('handleType', 'registrar'))),
-            call.create_request().close(properties=[('foundType', 'registrar')])
-        ])
-        self.assertEqual(self.LOGGER.create_request().result, 'Ok')
         self.assertEqual(WHOIS.mock_calls, [call.get_registrar_by_handle('REG_FRED_A')])
+
+        # Check logger
+        log_entry = TestLogEntry(LOGGER_SERVICE, LogEntryType.INFO, LogResult.SUCCESS, source_ip='127.0.0.1',
+                                 input_properties={'handle': 'REG_FRED_A', 'handleType': 'registrar'},
+                                 properties={'foundType': ['registrar']})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
 
 @override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)

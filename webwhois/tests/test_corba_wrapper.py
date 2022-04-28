@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright (C) 2016-2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2016-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -20,14 +20,13 @@ from datetime import datetime
 from unittest.mock import call, patch, sentinel
 
 import omniORB
-from django.test import SimpleTestCase, override_settings
+from django.test import SimpleTestCase
 from django.utils import timezone
-from fred_idl.ccReg import FileManager, Logger, _objref_FileDownload
+from fred_idl.ccReg import FileManager, _objref_FileDownload
 from fred_idl.Registry import Buffer, IsoDateTime
 from fred_idl.Registry.Whois import WhoisIntf
 
-from webwhois.utils.corba_wrapper import (WebwhoisCorbaRecoder, load_filemanager_from_idl, load_logger_from_idl,
-                                          load_whois_from_idl)
+from webwhois.utils.corba_wrapper import WebwhoisCorbaRecoder, load_filemanager_from_idl, load_whois_from_idl
 
 from .utils import apply_patch
 
@@ -86,14 +85,3 @@ class TestLoadIdl(SimpleTestCase):
 
         self.assertEqual(result, sentinel.corba_object)
         self.assertEqual(self.corba_mock.mock_calls, [call.get_object('FileManager', FileManager)])
-
-    @override_settings(WEBWHOIS_LOGGER_CORBA_NETLOC='example.cz', WEBWHOIS_LOGGER_CORBA_CONTEXT='custom',
-                       WEBWHOIS_LOGGER_CORBA_OBJECT=sentinel.object)
-    @patch('webwhois.utils.corba_wrapper.CorbaNameServiceClient')
-    def test_load_logger_from_idl(self, mock_client):
-        result = load_logger_from_idl()
-        self.assertEqual(mock_client.mock_calls, [
-            call(host_port='example.cz', context_name='custom'),
-            call().get_object(sentinel.object, Logger),
-        ])
-        self.assertEqual(result.corba_object, mock_client().get_object())

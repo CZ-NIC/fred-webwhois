@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2021-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -25,6 +25,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils import timezone
 from fred_idl.Registry.Whois import INTERNAL_SERVER_ERROR, OBJECT_NOT_FOUND, Domain
+from grill.utils import TestLogEntry, TestLoggerClient
 from grpc import StatusCode
 from grpc._channel import _RPCState, _SingleThreadedRendezvous as _Rendezvous
 from omniORB import CORBA
@@ -34,11 +35,11 @@ try:
 except ImportError:
     RawScanResult = None
 
-from webwhois.constants import CdnskeyStatus, DnskeyAlgorithm, DnskeyFlag
+from webwhois.constants import LOGGER_SERVICE, CdnskeyStatus, DnskeyAlgorithm, DnskeyFlag, LogEntryType, LogResult
 from webwhois.utils import WHOIS
 
 from .test_utils_cdnskey_client import TestCdnskeyClient
-from .utils import CALL_BOOL, TEMPLATES
+from .utils import TEMPLATES
 
 
 @override_settings(ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
@@ -79,9 +80,10 @@ class ScanResultsViewTest(SimpleTestCase):
             self.domain, None, [], None, None, None, [], datetime(2019, 12, 9, 16, tzinfo=timezone.utc), None, None,
             None, None, None, None, None, None)
 
-        logger_patcher = patch("webwhois.views.scan_results.LOGGER")
-        self.addCleanup(logger_patcher.stop)
-        self.logger = logger_patcher.start()
+        self.test_logger = TestLoggerClient()
+        log_patcher = patch('webwhois.utils.corba_wrapper.LOGGER.client', new=self.test_logger)
+        self.addCleanup(log_patcher.stop)
+        log_patcher.start()
 
     def _get_scan_result(self, scan_at: datetime = scan_at) -> RawScanResult:
         scan_result = RawScanResult()
@@ -94,7 +96,7 @@ class ScanResultsViewTest(SimpleTestCase):
         scan_result.cdnskey.public_key.value = self.public_key
         return scan_result
 
-    def _test_results(self):
+    def test_results(self):
         reply = RawScanResultsReply()
         reply.data.items.append(self._get_scan_result())
         self.cdnskey_client.mock.return_value = [reply]
@@ -109,22 +111,10 @@ class ScanResultsViewTest(SimpleTestCase):
         self.assertEqual(response.context['scan_results'], [result])
         self.assertEqual(self.get_cdnskey_client_mock.mock_calls, [call()])
 
-    def test_results_logger(self):
-        self._test_results()
         # Check logger
-        logger_calls = [
-            CALL_BOOL,
-            call.create_request('127.0.0.1', 'Web whois', 'ScanResults', properties=(('domain', self.domain),)),
-            call.create_request().close()
-            ]
-        self.assertEqual(self.logger.mock_calls, logger_calls)
-        self.assertEqual(self.logger.create_request.return_value.result, 'Ok')
-
-    def test_results_no_logger(self):
-        self.logger.__bool__.return_value = False
-        self._test_results()
-        # Check logger
-        self.assertEqual(self.logger.mock_calls, [CALL_BOOL])
+        log_entry = TestLogEntry(LOGGER_SERVICE, LogEntryType.SCAN_RESULTS, LogResult.SUCCESS, source_ip='127.0.0.1',
+                                 input_properties={'domain': self.domain})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
     def test_results_ordered(self):
         scan_at_after = datetime(2020, 3, 3, 13, tzinfo=timezone.utc)
@@ -196,7 +186,7 @@ class ScanResultsViewTest(SimpleTestCase):
         self.assertContains(response, 'Scan results')
         self.assertEqual(response.context['scan_results'], [])
 
-    def _test_not_found(self):
+    def test_not_found(self):
         error = _Rendezvous(_RPCState((), '', '', StatusCode.NOT_FOUND, ""), None, None, None)
         self.cdnskey_client.mock.side_effect = error
 
@@ -204,19 +194,7 @@ class ScanResultsViewTest(SimpleTestCase):
 
         self.assertContains(response, 'not found', status_code=404)
 
-    def test_not_found_logger(self):
-        self._test_not_found()
         # Check logger
-        logger_calls = [
-            CALL_BOOL,
-            call.create_request('127.0.0.1', 'Web whois', 'ScanResults', properties=(('domain', self.domain),)),
-            call.create_request().close()
-            ]
-        self.assertEqual(self.logger.mock_calls, logger_calls)
-        self.assertEqual(self.logger.create_request.return_value.result, 'NotFound')
-
-    def test_not_found_no_logger(self):
-        self.logger.__bool__.return_value = False
-        self._test_not_found()
-        # Check logger
-        self.assertEqual(self.logger.mock_calls, [CALL_BOOL])
+        log_entry = TestLogEntry(LOGGER_SERVICE, LogEntryType.SCAN_RESULTS, LogResult.NOT_FOUND, source_ip='127.0.0.1',
+                                 input_properties={'domain': self.domain})
+        self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())

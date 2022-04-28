@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -15,13 +15,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+#
 import os
-from unittest.mock import call, sentinel
+from unittest.mock import sentinel
 
 from fred_idl.Registry import IsoDateTime
 from fred_idl.Registry.Whois import KeySet, PlaceAddress, Registrar
 
-CALL_BOOL = call.__bool__()
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -15,57 +15,26 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+#
+from unittest.mock import call, patch, sentinel
 
-"""Tests of`webwhois.settings` module."""
-from unittest.mock import patch, sentinel
-
-from django.conf import settings
 from django.test import SimpleTestCase
 
-from webwhois.settings import WEBWHOIS_SETTINGS
+from webwhois.settings import LoggerOptionsSetting
 
 
-class TestSettings(SimpleTestCase):
-    """Test `WebwhoisAppSettings` class."""
+class LoggerOptionsSettingTest(SimpleTestCase):
+    def test_transform_empty(self):
+        setting = LoggerOptionsSetting()
+        self.assertEqual(setting.transform({}), {})
 
-    def test_logger_corba_ior_default(self):
-        with self.settings():
-            del settings.WEBWHOIS_CORBA_NETLOC
-            del settings.WEBWHOIS_LOGGER_CORBA_NETLOC
-            # Empty settings override doesn't clear cache
-            WEBWHOIS_SETTINGS.invalidate_cache()
+    def test_transform(self):
+        setting = LoggerOptionsSetting()
+        self.assertEqual(setting.transform({'netloc': sentinel.netloc}), {'netloc': sentinel.netloc})
 
-            self.assertEqual(WEBWHOIS_SETTINGS.LOGGER_CORBA_NETLOC, 'localhost')
-
-    def test_logger_corba_ior_environ(self):
-        with patch.dict('os.environ', {'FRED_WEBWHOIS_NETLOC': 'environment_ior'}):
-            with self.settings():
-                del settings.WEBWHOIS_CORBA_NETLOC
-                del settings.WEBWHOIS_LOGGER_CORBA_NETLOC
-                # Empty settings override doesn't clear cache
-                WEBWHOIS_SETTINGS.invalidate_cache()
-
-                self.assertEqual(WEBWHOIS_SETTINGS.LOGGER_CORBA_NETLOC, 'environment_ior')
-
-    def test_logger_corba_ior_copy(self):
-        # Ensure WEBWHOIS_CORBA_NETLOC is used if defined
-        with self.settings(WEBWHOIS_CORBA_NETLOC=sentinel.ior):
-            del settings.WEBWHOIS_LOGGER_CORBA_NETLOC
-
-            self.assertEqual(WEBWHOIS_SETTINGS.LOGGER_CORBA_NETLOC, sentinel.ior)
-
-    def test_logger_corba_context_default(self):
-        with self.settings():
-            del settings.WEBWHOIS_CORBA_CONTEXT
-            del settings.WEBWHOIS_LOGGER_CORBA_CONTEXT
-            # Empty settings override doesn't clear cache
-            WEBWHOIS_SETTINGS.invalidate_cache()
-
-            self.assertEqual(WEBWHOIS_SETTINGS.LOGGER_CORBA_CONTEXT, 'fred')
-
-    def test_logger_corba_context_copy(self):
-        # Ensure WEBWHOIS_CORBA_CONTEXT is used if defined
-        with self.settings(WEBWHOIS_CORBA_CONTEXT=sentinel.context):
-            del settings.WEBWHOIS_LOGGER_CORBA_CONTEXT
-
-            self.assertEqual(WEBWHOIS_SETTINGS.LOGGER_CORBA_CONTEXT, sentinel.context)
+    def test_transform_credentials(self):
+        setting = LoggerOptionsSetting()
+        with patch('webwhois.settings.make_credentials', autospec=True, return_value=sentinel.result) as cred_mock:
+            self.assertEqual(setting.transform({'credentials': {'ssl_cert': sentinel.cert}}),
+                             {'credentials': sentinel.result})
+        self.assertEqual(cred_mock.mock_calls, [call(ssl_cert=sentinel.cert)])

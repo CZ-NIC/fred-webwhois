@@ -15,15 +15,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+#
+from typing import cast
+
 from django.core.cache import cache
 from django.utils.crypto import get_random_string
 from django.views.generic import FormView
 from fred_idl.Registry.PublicRequest import ObjectType_PR
 
-from webwhois.utils.corba_wrapper import LOGGER
-from webwhois.views.logger_mixin import LoggerMixin
+from webwhois.utils.corba_wrapper import PUBLIC_REQUESTS_LOGGER, _backport_log_entry_id
 
-from ..constants import PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogResult
+from ..constants import PublicRequestsLogResult
 
 
 class PublicRequestKnownException(Exception):
@@ -33,38 +35,7 @@ class PublicRequestKnownException(Exception):
         self.exception_code_name = exception_code_name
 
 
-class PublicRequestLoggerMixin(LoggerMixin):
-    """Mixin for logging request if LOGGER is set."""
-
-    service_name = PUBLIC_REQUESTS_LOGGER_SERVICE
-
-    def finish_logging_request(self, log_request, response_id, error_object):
-        """Finish logging request.
-
-        @param log_request: Logger instace.
-        @param response_id: Response ID. It can be None. None causes the request result is 'Fail'.
-        @param error_object: Error object of python exception or corba exception.
-        """
-        if log_request is None:
-            return
-        properties_out, references = [], []
-        if error_object:
-            if isinstance(error_object, PublicRequestKnownException):
-                properties_out.append(("reason", error_object.exception_code_name))
-                log_request.result = PublicRequestsLogResult.FAIL
-            else:
-                # Default result is "Error"
-                properties_out.append(("exception", error_object.__class__.__name__))
-        else:
-            if response_id:
-                references.append(('publicrequest', response_id))
-                log_request.result = PublicRequestsLogResult.SUCCESS
-            else:
-                log_request.result = PublicRequestsLogResult.FAIL
-        log_request.close(properties=properties_out, references=references)
-
-
-class PublicRequestFormView(PublicRequestLoggerMixin, FormView):
+class PublicRequestFormView(FormView):
     """FormView for manage public requests. Logs calls to the registry if LOGGER is set."""
 
     public_key = None  # public key for the cache key with a response values.
@@ -92,22 +63,26 @@ class PublicRequestFormView(PublicRequestLoggerMixin, FormView):
         @return: Response ID.
         """
         self.public_key = get_random_string(64)
-        if LOGGER:
-            log_request = LOGGER.create_request(self.request.META.get('REMOTE_ADDR', ''), self.service_name,
-                                                form.log_entry_type, properties=form.get_log_properties())
-            log_request_id = log_request.request_id
-        else:
-            log_request = log_request_id = None
-        public_request_id = error = None
-        try:
-            public_request_id = self._call_registry_command(form, log_request_id)
-            public_response = self.get_public_response(form, public_request_id)
-            cache.set(self.public_key, public_response, 60 * 60 * 24)
-        except BaseException as err:
-            error = err
-            raise
-        finally:
-            self.finish_logging_request(log_request, public_request_id, error)
+        with PUBLIC_REQUESTS_LOGGER.create(form.log_entry_type, source_ip=self.request.META.get('REMOTE_ADDR', ''),
+                                           properties=form.get_log_properties()) as log_entry:
+            try:
+                public_request_id = self._call_registry_command(form,
+                                                                _backport_log_entry_id(cast(str, log_entry.entry_id)))
+                public_response = self.get_public_response(form, public_request_id)
+                cache.set(self.public_key, public_response, 60 * 60 * 24)
+            except PublicRequestKnownException as error:
+                log_entry.properties["reason"] = error.exception_code_name
+                log_entry.result = PublicRequestsLogResult.FAIL
+                raise
+            except BaseException as error:
+                log_entry.properties["exception"] = type(error).__name__
+                raise
+            else:
+                if public_request_id:
+                    log_entry.references['publicrequest'] = str(public_request_id)
+                    log_entry.result = PublicRequestsLogResult.SUCCESS
+                else:
+                    log_entry.result = PublicRequestsLogResult.FAIL
 
     def form_valid(self, form):
         try:

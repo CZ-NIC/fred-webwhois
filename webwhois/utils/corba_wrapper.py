@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -21,14 +21,15 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import SimpleLazyObject
 from fred_idl import ccReg
-from fred_idl.ccReg import FileManager, Logger
+from fred_idl.ccReg import FileManager
 from fred_idl.Registry import Buffer, IsoDate, IsoDateTime, PublicRequest, RecordStatement, Whois
+from grill import Logger, get_logger_client
 from pyfco import CorbaClient, CorbaClientProxy, CorbaNameServiceClient, CorbaRecoder
 from pyfco.recoder import decode_iso_date, decode_iso_datetime
 
 from webwhois.settings import WEBWHOIS_SETTINGS
 
-from .logger import create_logger
+from ..constants import LOGGER_SERVICE, PUBLIC_REQUESTS_LOGGER_SERVICE, LogResult, PublicRequestsLogResult
 
 
 class WebwhoisCorbaRecoder(CorbaRecoder):
@@ -76,22 +77,14 @@ def load_record_statement():
     return _CLIENT.get_object('RecordStatement', RecordStatement.Server)
 
 
-def load_logger_from_idl():
-    service_client = CorbaNameServiceClient(host_port=WEBWHOIS_SETTINGS.LOGGER_CORBA_NETLOC,
-                                            context_name=WEBWHOIS_SETTINGS.LOGGER_CORBA_CONTEXT)
-    return CorbaClient(service_client.get_object(WEBWHOIS_SETTINGS.LOGGER_CORBA_OBJECT, Logger), CorbaRecoder('utf-8'),
-                       ccReg.Logger.INTERNAL_SERVER_ERROR)
-
-
 _WHOIS = SimpleLazyObject(load_whois_from_idl)
 _PUBLIC_REQUEST = SimpleLazyObject(load_public_request_from_idl)
 _FILE_MANAGER = SimpleLazyObject(load_filemanager_from_idl)
 _RECORD_STATEMENT = SimpleLazyObject(load_record_statement)
 
-if WEBWHOIS_SETTINGS.LOGGER:
-    LOGGER = SimpleLazyObject(lambda: create_logger(WEBWHOIS_SETTINGS.LOGGER, load_logger_from_idl()))
-else:
-    LOGGER = None
+_LOGGER_CLIENT = get_logger_client(WEBWHOIS_SETTINGS.LOGGER, **WEBWHOIS_SETTINGS.LOGGER_OPTIONS)
+LOGGER = Logger(_LOGGER_CLIENT, LOGGER_SERVICE, LogResult.ERROR)
+PUBLIC_REQUESTS_LOGGER = Logger(_LOGGER_CLIENT, PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogResult.ERROR)
 
 WHOIS = CorbaClientProxy(CorbaClient(_WHOIS, WebwhoisCorbaRecoder('utf-8'), Whois.INTERNAL_SERVER_ERROR))
 PUBLIC_REQUEST = CorbaClientProxy(CorbaClient(_PUBLIC_REQUEST, WebwhoisCorbaRecoder('utf-8'),
@@ -99,3 +92,8 @@ PUBLIC_REQUEST = CorbaClientProxy(CorbaClient(_PUBLIC_REQUEST, WebwhoisCorbaReco
 FILE_MANAGER = CorbaClientProxy(CorbaClient(_FILE_MANAGER, WebwhoisCorbaRecoder('utf-8'), FileManager.InternalError))
 RECORD_STATEMENT = CorbaClientProxy(CorbaClient(_RECORD_STATEMENT, WebwhoisCorbaRecoder('utf-8'),
                                                 RecordStatement.INTERNAL_SERVER_ERROR))
+
+
+def _backport_log_entry_id(log_entry_id: str) -> int:
+    """Backport log entry id from new to old format."""
+    return int(log_entry_id.partition('.')[0])
