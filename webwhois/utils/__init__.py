@@ -15,6 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
-from .corba_wrapper import FILE_MANAGER, LOGGER, PUBLIC_REQUEST, PUBLIC_REQUESTS_LOGGER, RECORD_STATEMENT, WHOIS
+#
+from .corba_wrapper import FILE_MANAGER, LOGGER, PUBLIC_REQUEST, PUBLIC_REQUESTS_LOGGER, STATEMENTOR, WHOIS
 
-__all__ = ['FILE_MANAGER', 'LOGGER', 'PUBLIC_REQUEST', 'PUBLIC_REQUESTS_LOGGER', 'RECORD_STATEMENT', 'WHOIS']
+__all__ = ['FILE_MANAGER', 'LOGGER', 'PUBLIC_REQUEST', 'PUBLIC_REQUESTS_LOGGER', 'STATEMENTOR', 'WHOIS']
