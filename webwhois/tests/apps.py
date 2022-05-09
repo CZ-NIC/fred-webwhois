@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2022  CZ.NIC, z. s. p. o.
+# Copyright (C) 2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -16,16 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 #
-INSTALLED_APPS = (
-    'django.contrib.contenttypes',
-    'django.contrib.auth',
-    'webwhois.tests.apps.TestWebwhoisAppConfig',
-)
-ROOT_URLCONF = 'webwhois.urls'
-SECRET_KEY = 'SECRET'
-STATIC_URL = '/static/'
+from unittest.mock import patch
 
-WEBWHOIS_CORBA_EXPORT_MODULES = ('Registry', 'ccReg')
-WEBWHOIS_CAPTCHA_MAX_REQUESTS = 100
-WEBWHOIS_REGISTRY_NETLOC = "example.org:50000"
-WEBWHOIS_SECRETARY_URL = 'http://example.org:8000/'
+from webwhois.apps import WebwhoisAppConfig
+
+
+class TestWebwhoisAppConfig(WebwhoisAppConfig):
+    def ready(self) -> None:
+        with patch('webwhois.utils.corba_wrapper.LOGGER.client', autospec=True):
+            super().ready()

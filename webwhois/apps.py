@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2020  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -15,7 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
-
+#
 """AppConfig definition."""
 from django.apps import AppConfig
 
@@ -25,5 +25,18 @@ from .settings import WebwhoisAppSettings
 class WebwhoisAppConfig(AppConfig):
     name = 'webwhois'
 
-    def ready(self):
+    def ready(self) -> None:
+        from webwhois.utils.corba_wrapper import LOGGER
+
+        from .constants import (LOGGER_SERVICE, PUBLIC_REQUESTS_LOGGER_SERVICE, LogEntryType, LogResult,
+                                PublicRequestsLogEntryType, PublicRequestsLogResult)
+
         WebwhoisAppSettings.check()
+
+        LOGGER.client.register_service(LOGGER_SERVICE, handle='webwhois_')
+        LOGGER.client.register_log_entry_types(LOGGER_SERVICE, LogEntryType)
+        LOGGER.client.register_results(LOGGER_SERVICE, LogResult)
+
+        LOGGER.client.register_service(PUBLIC_REQUESTS_LOGGER_SERVICE, handle='pubreq_')
+        LOGGER.client.register_log_entry_types(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType)
+        LOGGER.client.register_results(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogResult)
