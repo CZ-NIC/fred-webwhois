@@ -1,17 +1,24 @@
-*.pyc
+# Byte-compiled
+__pycache__/
+
+# Distribution / packaging
+/build/
+/dist/
+/eggs/
+/.eggs/
+/*.egg-info/
+/MANIFEST
+
+# Unit test / coverage reports
+/.tox/
+/.coverage*
+
+# mypy
+/.mypy_cache/
+
 *.mo
 /webwhois/locale/*.pot
 /webwhois/locale/C
 /webwhois/static/webwhois/css
 /webwhois/static/webwhois/js
-*~
-/dist/
-/build/
-/fred-webwhois*/
-/*.egg-info
-/.eggs/
-/install.log
-/.tox
-/.coverage*
-/.mypy_cache
 /node_modules

@@ -1,4 +1,6 @@
-include *.rst *.js *.json
+include pyproject.toml
+include setup.py
+include CHANGELOG.rst
 include LICENSE
 include COPYING
 graft assets
@@ -6,3 +8,6 @@ graft contrib
 graft docs
 graft examples
 graft webwhois
+global-exclude __pycache__/*
+include *.json
+include *.js
