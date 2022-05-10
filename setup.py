@@ -4,7 +4,6 @@ import os
 from distutils.command.build import build
 
 from setuptools import setup
-from setuptools.command.sdist import sdist
 
 
 def run_npm(build) -> bool:
@@ -19,12 +18,4 @@ class custom_build(build):
     ] + build.sub_commands
 
 
-class custom_sdist(sdist):
-
-    def run(self):
-        self.run_command('compile_catalog')
-        # sdist is an old style class so super cannot be used.
-        sdist.run(self)
-
-
-setup(cmdclass={'build': custom_build, 'sdist': custom_sdist})
+setup(cmdclass={'build': custom_build})
