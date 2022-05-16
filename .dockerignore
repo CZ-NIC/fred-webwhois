@@ -1,11 +1,16 @@
 # Ignore everything
 *
 # Upload these
-!assets
-!webwhois
-!*.rst
-!MANIFEST.in
+!pyproject.toml
 !setup.*
+!*.rst
+!LICENSE
+!assets
+!contrib
+!docs
+!examples
+!webwhois
+!MANIFEST.in
 !docker/uwsgi
 !*.json
 !*.js
