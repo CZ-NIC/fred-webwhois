@@ -4,19 +4,34 @@ ChangeLog
 Unreleased
 ----------
 
+2.0.0 (2022-05-16)
+-------------------
+
+* Drop support for Python 3.6 and 3.7.
+* Add support for Python 3.10.
+* Drop support for Django 3.0 and 3.1.
 * Add ``managed_zones`` context processor.
   Context variable ``managed_zone_list`` is now deprecated and replaced by ``managed_zones`` provided
   by the context processor.
 * Refactored error handling in whois search.
   Variable ``server_exception`` is now a ``WebwhoisError`` instance with deprecated backwards compatible dictionary API.
+* Refactor object loading. Method ``load_registry_object`` is not deprecated.
+* Refactor public request logging. Log data are now processed in forms.
 * Switch logging to FRED logger from ``pylogger`` to ``grill`` library.
   This change is backwards incompatible: new library and settings are used.
   The structure of logs is left intact.
+  ``LoggerMixin`` is deleted.
+* Add logger related constants.
+* Use ``statementor`` library to generate record statements.
 * A setting ``WEBWHOIS_LOGGER`` now supports only ``grill`` compatible logger clients.
-* Add new setting ``WEBWHOIS_LOGGER_OPTIONS``.
+* Add new settings ``WEBWHOIS_LOGGER_OPTIONS``, ``WEBWHOIS_REGISTRY_NETLOC``, ``WEBWHOIS_REGISTRY_SSL_CERT``,
+  ``WEBWHOIS_SECRETARY_AUTH`` and ``WEBWHOIS_SECRETARY_URL``.
 * Drop settings ``WEBWHOIS_LOGGER_CORBA_NETLOC``, ``WEBWHOIS_LOGGER_CORBA_CONTEXT`` and
   ``WEBWHOIS_LOGGER_CORBA_OBJECT``.
+* Add a default design.
 * Add utilities for deprecation warnings.
+* Clean up deprecation warnings.
+* Update static checks, CI & project setup.
 
 1.20.2 (2022-02-14)
 -------------------
