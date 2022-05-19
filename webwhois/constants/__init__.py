@@ -102,8 +102,8 @@ class CdnskeyStatus(str, Enum):
         return obj
 
 
-LOGGER_SERVICE = 'Web whois'
-PUBLIC_REQUESTS_LOGGER_SERVICE = 'Public Request'
+LOGGER_SERVICE = 'WebWhois'
+PUBLIC_REQUESTS_LOGGER_SERVICE = 'PublicRequest'
 
 
 @unique
