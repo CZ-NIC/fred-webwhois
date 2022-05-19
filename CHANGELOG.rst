@@ -16,6 +16,7 @@ Unreleased
 * Refactored error handling in whois search.
   Variable ``server_exception`` is now a ``WebwhoisError`` instance with deprecated backwards compatible dictionary API.
 * Refactor object loading. Method ``load_registry_object`` is not deprecated.
+* Rename logger services.
 * Refactor public request logging. Log data are now processed in forms.
 * Switch logging to FRED logger from ``pylogger`` to ``grill`` library.
   This change is backwards incompatible: new library and settings are used.
