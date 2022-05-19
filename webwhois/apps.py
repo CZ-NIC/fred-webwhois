@@ -33,10 +33,10 @@ class WebwhoisAppConfig(AppConfig):
 
         WebwhoisAppSettings.check()
 
-        LOGGER.client.register_service(LOGGER_SERVICE, handle='webwhois_')
+        LOGGER.client.register_service(LOGGER_SERVICE, handle='webwhois')
         LOGGER.client.register_log_entry_types(LOGGER_SERVICE, LogEntryType)
         LOGGER.client.register_results(LOGGER_SERVICE, LogResult)
 
-        LOGGER.client.register_service(PUBLIC_REQUESTS_LOGGER_SERVICE, handle='pubreq_')
+        LOGGER.client.register_service(PUBLIC_REQUESTS_LOGGER_SERVICE, handle='pubreq')
         LOGGER.client.register_log_entry_types(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType)
         LOGGER.client.register_results(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogResult)
