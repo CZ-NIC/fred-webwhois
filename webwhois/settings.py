@@ -21,7 +21,18 @@ from functools import partial
 from typing import Any, Dict
 
 from appsettings import AppSettings, DictSetting, FileSetting, Setting, StringSetting
+from django.core.exceptions import ValidationError
 from frgal import make_credentials
+
+
+def timeout_validator(value: Any) -> None:
+    """Validate timeouts - must contain a number or tuple with two numbers."""
+    if isinstance(value, (float, int)):
+        return
+    if isinstance(value, tuple) and len(value) == 2 and all(isinstance(v, (float, int)) for v in value):
+        return
+    raise ValidationError('Value %(value)s must be a float, int or a tuple with 2 float or int items.',
+                          params={'value': value})
 
 
 class LoggerOptionsSetting(DictSetting):
@@ -48,6 +59,7 @@ class WebwhoisAppSettings(AppSettings):
     REGISTRY_SSL_CERT = FileSetting(default=None, mode=os.R_OK)
     SECRETARY_URL = StringSetting(required=True)
     SECRETARY_AUTH = Setting()
+    SECRETARY_TIMEOUT = Setting(default=3.05, validators=[timeout_validator])
 
     class Meta:
         setting_prefix = 'WEBWHOIS_'
