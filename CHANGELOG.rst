@@ -26,7 +26,7 @@ Unreleased
 * Use ``statementor`` library to generate record statements.
 * A setting ``WEBWHOIS_LOGGER`` now supports only ``grill`` compatible logger clients.
 * Add new settings ``WEBWHOIS_LOGGER_OPTIONS``, ``WEBWHOIS_REGISTRY_NETLOC``, ``WEBWHOIS_REGISTRY_SSL_CERT``,
-  ``WEBWHOIS_SECRETARY_AUTH`` and ``WEBWHOIS_SECRETARY_URL``.
+  ``WEBWHOIS_SECRETARY_AUTH``, ``WEBWHOIS_SECRETARY_TIMEOUT`` and ``WEBWHOIS_SECRETARY_URL``.
 * Drop settings ``WEBWHOIS_LOGGER_CORBA_NETLOC``, ``WEBWHOIS_LOGGER_CORBA_CONTEXT`` and
   ``WEBWHOIS_LOGGER_CORBA_OBJECT``.
 * Add a default design.
