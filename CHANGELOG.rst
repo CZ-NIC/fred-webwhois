@@ -4,7 +4,7 @@ ChangeLog
 Unreleased
 ----------
 
-2.0.0 (2022-05-16)
+2.0.0 (2022-05-30)
 -------------------
 
 * Drop support for Python 3.6 and 3.7.
