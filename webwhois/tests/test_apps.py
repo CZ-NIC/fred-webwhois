@@ -35,10 +35,10 @@ class WebwhoisAppConfigTest(SimpleTestCase):
             Apps(('webwhois.apps.WebwhoisAppConfig', ))  # Trigger `ready`.
 
             self.assertEqual(logger_mock.mock_calls, [
-                call.register_service(LOGGER_SERVICE, handle='webwhois_'),
+                call.register_service(LOGGER_SERVICE, handle='webwhois'),
                 call.register_log_entry_types(LOGGER_SERVICE, LogEntryType),
                 call.register_results(LOGGER_SERVICE, LogResult),
-                call.register_service(PUBLIC_REQUESTS_LOGGER_SERVICE, handle='pubreq_'),
+                call.register_service(PUBLIC_REQUESTS_LOGGER_SERVICE, handle='pubreq'),
                 call.register_log_entry_types(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogEntryType),
                 call.register_results(PUBLIC_REQUESTS_LOGGER_SERVICE, PublicRequestsLogResult),
             ])

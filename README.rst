@@ -118,6 +118,13 @@ Object managing authentication for the django-secretary API.
 For possible values see https://docs.python-requests.org/en/latest/user/authentication/.
 Default value is ``None``, i.e. no authentication.
 
+``WEBWHOIS_SECRETARY_TIMEOUT``
+------------------------------
+
+A timeout for connection to django-secretary service.
+For possible values see documentation of ``requests`` library.
+Default value is ``3.05``.
+
 ``WEBWHOIS_SECRETARY_URL``
 --------------------------
 

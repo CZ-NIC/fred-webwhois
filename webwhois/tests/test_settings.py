@@ -18,9 +18,38 @@
 #
 from unittest.mock import call, patch, sentinel
 
+from django.core.exceptions import ValidationError
 from django.test import SimpleTestCase
 
-from webwhois.settings import LoggerOptionsSetting
+from webwhois.settings import LoggerOptionsSetting, timeout_validator
+
+
+class TimeoutValidatorTest(SimpleTestCase):
+
+    def test_single_value(self):
+        data = (
+            42,
+            42.3,
+            (42, 10),
+            (42.3, 10.1),
+            (42.5, 10),
+            (10, 42.5),
+        )
+        for value in data:
+            with self.subTest(value=value):
+                # No error raised.
+                timeout_validator(value)
+
+    def test_error(self):
+        data = (
+            "timeout",
+            (1, ),
+            (1, 2, 3),
+        )
+        for value in data:
+            with self.subTest(value=value):
+                with self.assertRaises(ValidationError):
+                    timeout_validator(value)
 
 
 class LoggerOptionsSettingTest(SimpleTestCase):
