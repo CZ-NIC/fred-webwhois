@@ -26,7 +26,7 @@ from .detail_nsset import NssetDetailMixin, NssetDetailView
 from .detail_domain import DomainDetailMixin, DomainDetailView
 from .form_whois import WhoisFormView
 from .public_request import BlockObjectFormView, CustomEmailView, EmailInRegistryView, NotarizedLetterView, \
-    PersonalInfoFormView, PublicResponseNotFoundView, PublicResponsePdfView, SendPasswordFormView, \
+    PersonalInfoFormView, PublicResponseNotFoundView, PublicResponsePdfView, PublicResponseView, SendPasswordFormView, \
     ServeNotarizedLetterView, UnblockObjectFormView
 from .record_statement import ServeRecordStatementView
 from .registrar import DownloadEvalFileView, RegistrarDetailMixin, RegistrarDetailView, RegistrarListMixin, \
@@ -37,7 +37,8 @@ from .scan_results import ScanResultsView
 __all__ = ['BlockObjectFormView', 'ContactDetailMixin', 'ContactDetailView', 'CustomEmailView', 'DomainDetailMixin',
            'DomainDetailView', 'DownloadEvalFileView', 'EmailInRegistryView', 'KeysetDetailMixin', 'KeysetDetailView',
            'NotarizedLetterView', 'NssetDetailMixin', 'NssetDetailView', 'PersonalInfoFormView',
-           'PublicResponseNotFoundView', 'PublicResponsePdfView', 'RegistrarDetailMixin', 'RegistrarDetailView',
+           'PublicResponseNotFoundView', 'PublicResponsePdfView', 'PublicResponseView',
+           'RegistrarDetailMixin', 'RegistrarDetailView',
            'RegistrarListMixin',
            'RegistrarListView', 'ResolveHandleTypeMixin', 'ResolveHandleTypeView', 'ScanResultsView',
            'SendPasswordFormView', 'ServeNotarizedLetterView', 'ServeRecordStatementView', 'UnblockObjectFormView',

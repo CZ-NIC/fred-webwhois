@@ -640,6 +640,12 @@ class ServeNotarizedLetterView(View):
         return response
 
 
+class PublicResponseView(BaseResponseTemplateView):
+    """Return a page with public response."""
+
+    template_name = 'webwhois/public_response.html'
+
+
 class PublicResponsePdfView(PublicResponseMixin, View):
     """Return a PDF for the public response."""
 

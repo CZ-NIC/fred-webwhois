@@ -1,0 +1,19 @@
+{% extends "webwhois/block_main.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Request summary" %} - {{ block.super }}{% endblock %}
+
+{% block webwhois_header %}
+    <h1>{% trans "Request summary" %}</h1>
+{% endblock %}
+
+{% block webwhois_content %}
+    <p>
+        {% blocktrans trimmed %}
+            Download the PDF request and follow the instructions under the line at the bottom section of this document.
+        {% endblocktrans %}
+        <a href="{% url "webwhois:public_response_pdf" public_key=public_key %}">{% trans "Download the PDF" %}</a>
+    </p>
+{% endblock %}
+
+{% block webwhois_footer %}{% endblock webwhois_footer %}

@@ -1089,6 +1089,33 @@ class TestNotarizedLetterPdf(SimpleTestCase):
 
 
 @override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}},
+                   ROOT_URLCONF='webwhois.tests.urls', TEMPLATES=TEMPLATES)
+class PublicResponseViewTest(SimpleTestCase):
+
+    public_key = "Gazpacho!"
+
+    def tearDown(self):
+        cache.clear()
+
+    def test_get(self):
+        public_response = SendPasswordResponse('contact', 42, PublicRequestsLogEntryType.AUTH_INFO, 'KRYTEN',
+                                               'kryten@example.org', ConfirmationMethod.SIGNED_EMAIL)
+        public_response.create_date = date(1988, 9, 6)
+        cache.set(self.public_key, public_response)
+
+        response = self.client.get(reverse("webwhois:public_response", kwargs={"public_key": self.public_key}))
+
+        self.assertContains(response, 'request')
+        self.assertEqual(response.context['public_response'], public_response)
+        self.assertEqual(response.context['public_key'], self.public_key)
+
+    def test_no_data(self):
+        response = self.client.get(reverse("webwhois:public_response", kwargs={"public_key": self.public_key}))
+
+        self.assertRedirects(response, reverse("webwhois:response_not_found", kwargs={"public_key": self.public_key}))
+
+
+@override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}},
                    ROOT_URLCONF='webwhois.tests.urls')
 class PublicResponsePdfViewTest(SimpleTestCase):
 
