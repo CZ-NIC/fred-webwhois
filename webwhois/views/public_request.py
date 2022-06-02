@@ -15,12 +15,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+#
 import logging
-from typing import Any, Dict, Type
+from typing import Any, Dict, Optional, Type, cast
 
 from django.core.cache import cache
 from django.forms import Form
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.encoding import force_str
 from django.utils.formats import date_format
@@ -36,7 +37,7 @@ from webwhois.forms.public_request import (CONFIRMATION_METHOD_IDL_MAP, LOCK_TYP
                                            LOCK_TYPE_URL_PARAM, SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY, ConfirmationMethod)
 from webwhois.forms.widgets import DeliveryType
 from webwhois.utils.corba_wrapper import PUBLIC_REQUEST, PUBLIC_REQUESTS_LOGGER
-from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, SendPasswordResponse
+from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, PublicResponse, SendPasswordResponse
 from webwhois.views.base import BaseContextMixin
 from webwhois.views.public_request_mixin import PublicRequestFormView, PublicRequestKnownException
 
@@ -264,23 +265,14 @@ class PublicResponseNotFoundView(BaseContextMixin, TemplateView):
     template_name = 'webwhois/public_request_response_not_found.html'
 
 
-class BaseResponseTemplateView(BaseContextMixin, TemplateView):
-    """Base view for public request responses."""
+class PublicResponseMixin:
+    """Mixin for public response views."""
 
-    def __init__(self, *args, **kwargs):
-        super(BaseResponseTemplateView, self).__init__(*args, **kwargs)
-        self._public_response = None
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self._public_response: Optional[PublicResponse] = None
 
-    def get(self, request, *args, **kwargs):
-        try:
-            self.get_public_response()
-        except PublicResponseNotFound:
-            return HttpResponseRedirect(reverse("webwhois:response_not_found",
-                                                kwargs={"public_key": kwargs['public_key']},
-                                                current_app=self.request.resolver_match.namespace))
-        return super(BaseResponseTemplateView, self).get(request, *args, **kwargs)
-
-    def get_public_response(self):
+    def get_public_response(self: View) -> PublicResponse:
         """Return relevant public response."""
         # Cache the result for case the cache gets deleted while handling the request.
         if self._public_response is None:
@@ -289,7 +281,20 @@ class BaseResponseTemplateView(BaseContextMixin, TemplateView):
             if public_response is None:
                 raise PublicResponseNotFound(public_key)
             self._public_response = public_response
-        return self._public_response
+        return cast(PublicResponse, self._public_response)
+
+
+class BaseResponseTemplateView(PublicResponseMixin, BaseContextMixin, TemplateView):
+    """Base view for public request responses."""
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        try:
+            self.get_public_response()
+        except PublicResponseNotFound:
+            return HttpResponseRedirect(reverse("webwhois:response_not_found",
+                                                kwargs={"public_key": kwargs['public_key']},
+                                                current_app=self.request.resolver_match.namespace))
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         """Add public response object to the context."""
