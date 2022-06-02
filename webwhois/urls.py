@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -21,9 +21,10 @@ from django.views.i18n import JavaScriptCatalog
 
 from webwhois.views import (BlockObjectFormView, ContactDetailView, CustomEmailView, DomainDetailView,
                             DownloadEvalFileView, EmailInRegistryView, KeysetDetailView, NotarizedLetterView,
-                            NssetDetailView, PersonalInfoFormView, PublicResponseNotFoundView, RegistrarDetailView,
-                            RegistrarListView, ResolveHandleTypeView, ScanResultsView, SendPasswordFormView,
-                            ServeNotarizedLetterView, ServeRecordStatementView, UnblockObjectFormView, WhoisFormView)
+                            NssetDetailView, PersonalInfoFormView, PublicResponseNotFoundView, PublicResponsePdfView,
+                            RegistrarDetailView, RegistrarListView, ResolveHandleTypeView, ScanResultsView,
+                            SendPasswordFormView, ServeNotarizedLetterView, ServeRecordStatementView,
+                            UnblockObjectFormView, WhoisFormView)
 
 app_name = 'webwhois'
 urlpatterns = [
@@ -43,6 +44,7 @@ urlpatterns = [
     path('personal-info/', PersonalInfoFormView.as_view(), name='form_personal_info'),
     path('block-object/', BlockObjectFormView.as_view(), name='form_block_object'),
     path('unblock-object/', UnblockObjectFormView.as_view(), name='form_unblock_object'),
+    path('public-response/<public_key>/pdf/', PublicResponsePdfView.as_view(), name='public_response_pdf'),
     path('response-not-found/<public_key>/', PublicResponseNotFoundView.as_view(), name='response_not_found'),
     path('email-in-registry/<public_key>/', EmailInRegistryView.as_view(), name='email_in_registry_response'),
     path('custom-email/<public_key>/', CustomEmailView.as_view(), name='custom_email_response'),

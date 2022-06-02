@@ -36,7 +36,7 @@ from webwhois.forms import BlockObjectForm, PersonalInfoForm, SendPasswordForm, 
 from webwhois.forms.public_request import (CONFIRMATION_METHOD_IDL_MAP, LOCK_TYPE_ALL, LOCK_TYPE_TRANSFER,
                                            LOCK_TYPE_URL_PARAM, SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY, ConfirmationMethod)
 from webwhois.forms.widgets import DeliveryType
-from webwhois.utils.corba_wrapper import PUBLIC_REQUEST, PUBLIC_REQUESTS_LOGGER
+from webwhois.utils.corba_wrapper import PUBLIC_REQUEST, PUBLIC_REQUESTS_LOGGER, SECRETARY_CLIENT
 from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, PublicResponse, SendPasswordResponse
 from webwhois.views.base import BaseContextMixin
 from webwhois.views.public_request_mixin import PublicRequestFormView, PublicRequestKnownException
@@ -637,4 +637,36 @@ class ServeNotarizedLetterView(View):
         response['Content-Disposition'] = 'attachment; filename="notarized-letter-{0}.pdf"'.format(lang_code)
         response.content = pdf_content
 
+        return response
+
+
+class PublicResponsePdfView(PublicResponseMixin, View):
+    """Return a PDF for the public response."""
+
+    template_names: Dict[PublicRequestsLogEntryType, str] = {
+        PublicRequestsLogEntryType.AUTH_INFO: 'public-request-auth-info-{language}.html',
+        PublicRequestsLogEntryType.BLOCK_TRANSFER: 'public-request-block-{language}.html',
+        PublicRequestsLogEntryType.BLOCK_CHANGES: 'public-request-block-{language}.html',
+        PublicRequestsLogEntryType.UNBLOCK_TRANSFER: 'public-request-unblock-{language}.html',
+        PublicRequestsLogEntryType.UNBLOCK_CHANGES: 'public-request-unblock-{language}.html',
+        PublicRequestsLogEntryType.PERSONAL_INFO: 'public-request-personal-info-{language}.html',
+    }
+
+    def get(self, request, public_key):
+        try:
+            public_response = self.get_public_response()
+        except PublicResponseNotFound:
+            raise Http404
+
+        template_name = self.template_names[public_response.request_type].format(language=get_language())
+        context = {
+            'type': public_response.object_type,
+            'identifier': public_response.public_request_id,
+            'handle': public_response.handle,
+            'date': public_response.create_date.isoformat(),
+            'email': getattr(public_response, 'custom_email', None),
+            'block_type': getattr(public_response, 'lock_type', None),
+        }
+        response = HttpResponse(SECRETARY_CLIENT.render_pdf(template_name, context), content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="public-request-{0}.pdf"'.format(public_response.handle)
         return response

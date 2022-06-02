@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2015-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -26,8 +26,8 @@ from .detail_nsset import NssetDetailMixin, NssetDetailView
 from .detail_domain import DomainDetailMixin, DomainDetailView
 from .form_whois import WhoisFormView
 from .public_request import BlockObjectFormView, CustomEmailView, EmailInRegistryView, NotarizedLetterView, \
-    PersonalInfoFormView, PublicResponseNotFoundView, SendPasswordFormView, ServeNotarizedLetterView, \
-    UnblockObjectFormView
+    PersonalInfoFormView, PublicResponseNotFoundView, PublicResponsePdfView, SendPasswordFormView, \
+    ServeNotarizedLetterView, UnblockObjectFormView
 from .record_statement import ServeRecordStatementView
 from .registrar import DownloadEvalFileView, RegistrarDetailMixin, RegistrarDetailView, RegistrarListMixin, \
     RegistrarListView
@@ -37,7 +37,8 @@ from .scan_results import ScanResultsView
 __all__ = ['BlockObjectFormView', 'ContactDetailMixin', 'ContactDetailView', 'CustomEmailView', 'DomainDetailMixin',
            'DomainDetailView', 'DownloadEvalFileView', 'EmailInRegistryView', 'KeysetDetailMixin', 'KeysetDetailView',
            'NotarizedLetterView', 'NssetDetailMixin', 'NssetDetailView', 'PersonalInfoFormView',
-           'PublicResponseNotFoundView', 'RegistrarDetailMixin', 'RegistrarDetailView', 'RegistrarListMixin',
+           'PublicResponseNotFoundView', 'PublicResponsePdfView', 'RegistrarDetailMixin', 'RegistrarDetailView',
+           'RegistrarListMixin',
            'RegistrarListView', 'ResolveHandleTypeMixin', 'ResolveHandleTypeView', 'ScanResultsView',
            'SendPasswordFormView', 'ServeNotarizedLetterView', 'ServeRecordStatementView', 'UnblockObjectFormView',
            'WhoisFormView']

@@ -18,7 +18,7 @@
 #
 from datetime import date
 from typing import Any, Dict, List
-from unittest.mock import _Call, call, patch
+from unittest.mock import _Call, call, patch, sentinel
 
 from django.core.cache import cache
 from django.http import HttpResponseNotFound
@@ -1086,6 +1086,63 @@ class TestNotarizedLetterPdf(SimpleTestCase):
                                  PublicRequestsLogResult.ERROR, source_ip='127.0.0.1',
                                  input_properties=properties, properties={'exception': 'TestException'})
         self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
+
+
+@override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}},
+                   ROOT_URLCONF='webwhois.tests.urls')
+class PublicResponsePdfViewTest(SimpleTestCase):
+
+    public_key = "Gazpacho!"
+
+    def setUp(self):
+        patcher = patch('webwhois.views.public_request.SECRETARY_CLIENT', autospec=True)
+        self.addCleanup(patcher.stop)
+        self.secretary_mock = patcher.start()
+
+    def tearDown(self):
+        cache.clear()
+
+    def _test_pdf(self, public_response: PublicResponse, template: str, context: Dict[str, Any]) -> None:
+        self.secretary_mock.render_pdf.return_value = b'Quagaars!'
+        cache.set(self.public_key, public_response)
+
+        response = self.client.get(reverse("webwhois:public_response_pdf", kwargs={"public_key": self.public_key}))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['content-type'], 'application/pdf')
+        self.assertEqual(response['content-disposition'], 'attachment; filename="public-request-KRYTEN.pdf"')
+        self.assertEqual(response.content, b'Quagaars!')
+        self.assertEqual(self.secretary_mock.mock_calls, [call.render_pdf(template, context)])
+
+    def test_send_password(self):
+        public_response = SendPasswordResponse('contact', 42, PublicRequestsLogEntryType.AUTH_INFO, 'KRYTEN',
+                                               'kryten@example.org', ConfirmationMethod.SIGNED_EMAIL)
+        public_response.create_date = date(1988, 9, 6)
+        context = {'type': 'contact', 'identifier': 42, 'handle': 'KRYTEN', 'date': '1988-09-06',
+                   'email': 'kryten@example.org', 'block_type': None}
+        self._test_pdf(public_response, 'public-request-auth-info-en-us.html', context)
+
+    def test_personal_info(self):
+        public_response = PersonalInfoResponse('contact', 42, PublicRequestsLogEntryType.PERSONAL_INFO, 'KRYTEN',
+                                               'kryten@example.org', ConfirmationMethod.SIGNED_EMAIL)
+        public_response.create_date = date(1988, 9, 6)
+        context = {'type': 'contact', 'identifier': 42, 'handle': 'KRYTEN', 'date': '1988-09-06',
+                   'email': 'kryten@example.org', 'block_type': None}
+        self._test_pdf(public_response, 'public-request-personal-info-en-us.html', context)
+
+    def test_block_all(self):
+        public_response = BlockResponse('contact', 42, PublicRequestsLogEntryType.BLOCK_CHANGES, 'KRYTEN', None,
+                                        sentinel.block_type, ConfirmationMethod.SIGNED_EMAIL)
+        public_response.create_date = date(1988, 9, 6)
+        context = {'type': 'contact', 'identifier': 42, 'handle': 'KRYTEN', 'date': '1988-09-06', 'email': None,
+                   'block_type': sentinel.block_type}
+        self._test_pdf(public_response, 'public-request-block-en-us.html', context)
+
+    def test_no_data(self):
+        response = self.client.get(reverse("webwhois:public_response_pdf", kwargs={"public_key": self.public_key}))
+
+        self.assertContains(response, 'Not Found', status_code=404)
+        self.assertEqual(self.secretary_mock.mock_calls, [])
 
 
 @override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}},
