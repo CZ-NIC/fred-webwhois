@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 #
+import warnings
 from datetime import date
 from typing import Any, Dict, List
 from unittest.mock import _Call, call, patch, sentinel
@@ -126,15 +127,20 @@ class TestBaseResponseTemplateView(SimpleTestCase):
 
 @override_settings(TEMPLATES=TEMPLATES, USE_TZ=True)
 class TestSendPasswodForm(SubmittedFormTestCase):
+    def setUp(self):
+        super().setUp()
+
+        catcher = warnings.catch_warnings(record=True)
+        self.addCleanup(catcher.__exit__)
+        catcher.__enter__()
 
     def _send_password_email_in_registry(self, post: Dict, action_name: str, properties: Dict[str, Any],
-                                         object_type: str, title: str, message: str) -> None:
+                                         object_type: str, title: str) -> None:
         PUBLIC_REQUEST.create_authinfo_request_registry_email.return_value = 24
         response = self.client.post(reverse("webwhois:form_send_password"), post, follow=True)
         path = reverse("webwhois:email_in_registry_response", kwargs={"public_key": self.public_key})
         self.assertRedirects(response, path)
         self.assertContains(response, title)
-        self.assertContains(response, message)
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_authinfo_request_registry_email(object_type, post['handle'], 42)
         ])
@@ -157,10 +163,7 @@ class TestSendPasswodForm(SubmittedFormTestCase):
                       'confirmMethod': 'signed_email'}
         object_type = ObjectType_PR.domain
         title = "Request to send a password (authinfo) for transfer domain name foo.cz"
-        message = "We received successfully your request for a password to change the domain <strong>foo.cz</strong> " \
-                  "sponsoring registrar. An email with the password will be sent to the email address of domain " \
-                  "holder and admin contacts."
-        self._send_password_email_in_registry(post, 'AuthInfo', properties, object_type, title, message)
+        self._send_password_email_in_registry(post, 'AuthInfo', properties, object_type, title)
 
     def test_send_password_email_in_registry_contact(self):
         post = {
@@ -173,10 +176,7 @@ class TestSendPasswodForm(SubmittedFormTestCase):
                       'confirmMethod': 'signed_email'}
         object_type = ObjectType_PR.contact
         title = "Request to send a password (authinfo) for transfer contact CONTACT"
-        message = "We received successfully your request for a password to change the contact " \
-                  "<strong>CONTACT</strong> sponsoring registrar. An email with the password will be sent to " \
-                  "the email address from the registry."
-        self._send_password_email_in_registry(post, 'AuthInfo', properties, object_type, title, message)
+        self._send_password_email_in_registry(post, 'AuthInfo', properties, object_type, title)
 
     def test_send_password_email_in_registry_nsset(self):
         post = {
@@ -189,10 +189,7 @@ class TestSendPasswodForm(SubmittedFormTestCase):
                       'confirmMethod': 'signed_email'}
         object_type = ObjectType_PR.nsset
         title = "Request to send a password (authinfo) for transfer nameserver set NSSET"
-        message = "We received successfully your request for a password to change the nameserver set " \
-                  "<strong>NSSET</strong> sponsoring registrar. An email with the password will be sent to the email " \
-                  "addresses of the nameserver set's technical contacts."
-        self._send_password_email_in_registry(post, 'AuthInfo', properties, object_type, title, message)
+        self._send_password_email_in_registry(post, 'AuthInfo', properties, object_type, title)
 
     def test_send_password_email_in_registry_keyset(self):
         post = {
@@ -205,10 +202,7 @@ class TestSendPasswodForm(SubmittedFormTestCase):
                       'confirmMethod': 'signed_email'}
         object_type = ObjectType_PR.keyset
         title = "Request to send a password (authinfo) for transfer keyset KEYSET"
-        message = "We received successfully your request for a password to change the keyset " \
-                  "<strong>KEYSET</strong> sponsoring registrar. An email with the password will be sent to " \
-                  "the email addresses of the keyset's technical contacts."
-        self._send_password_email_in_registry(post, 'AuthInfo', properties, object_type, title, message)
+        self._send_password_email_in_registry(post, 'AuthInfo', properties, object_type, title)
 
     def _assert_send_password_exception(self, exception_code, form_error_message):
         post = {
@@ -272,16 +266,11 @@ class TestSendPasswodForm(SubmittedFormTestCase):
                                  input_properties=properties, properties={'reason': 'INVALID_EMAIL'})
         self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
-    def _send_password_confirm_method(self, confirm_method, post, action_name, properties, object_type, title, message):
+    def _send_password_confirm_method(self, confirm_method, post, action_name, properties, object_type, title):
         PUBLIC_REQUEST.create_authinfo_request_non_registry_email.return_value = 24
         response = self.client.post(reverse("webwhois:form_send_password"), post, follow=True)
-        if post['confirmation_method'] == 'signed_email':
-            url_name = "webwhois:custom_email_response"
-        else:
-            url_name = "webwhois:notarized_letter_response"
-        self.assertRedirects(response, reverse(url_name, kwargs={"public_key": self.public_key}))
+        self.assertRedirects(response, reverse("webwhois:public_response", kwargs={"public_key": self.public_key}))
         self.assertContains(response, title)
-        self.assertContains(response, message)
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_authinfo_request_non_registry_email(object_type, post['handle'], 42, confirm_method,
                                                             'foo@foo.off')
@@ -294,14 +283,14 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
     def _send_password_to_custom_email(self, post: Dict, action_name: str, properties: Dict[str, Any], object_type: str,
-                                       title: str, message: str) -> None:
+                                       title: str) -> None:
         conftype = ConfirmedBy.signed_email
-        self._send_password_confirm_method(conftype, post, action_name, properties, object_type, title, message)
+        self._send_password_confirm_method(conftype, post, action_name, properties, object_type, title)
 
     def _send_password_notarized_letter(self, post: Dict, action_name: str, properties: Dict[str, Any],
-                                        object_type: str, title: str, message: str) -> None:
+                                        object_type: str, title: str) -> None:
         conftype = ConfirmedBy.notarized_letter
-        self._send_password_confirm_method(conftype, post, action_name, properties, object_type, title, message)
+        self._send_password_confirm_method(conftype, post, action_name, properties, object_type, title)
 
     def test_send_password_custom_email_domain(self):
         post = {
@@ -314,11 +303,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = {'handle': 'foo.cz', 'handleType': 'domain', 'sendTo': 'custom_email',
                       'confirmMethod': 'signed_email', 'customEmail': 'foo@foo.off'}
         object_type = ObjectType_PR.domain
-        title = "Request to send a password (authinfo) for transfer domain name foo.cz"
-        message = "I hereby confirm my request to get the password for domain name foo.cz, submitted through " \
-                  "the web form at http://testserver/whois/send-password/ on March 8, 2017, assigned id number 24. " \
-                  "Please send the password to foo@foo.off."
-        self._send_password_to_custom_email(post, 'AuthInfo', properties, object_type, title, message)
+        title = "Request summary"
+        self._send_password_to_custom_email(post, 'AuthInfo', properties, object_type, title)
 
     def test_send_password_custom_email_contact(self):
         post = {
@@ -331,11 +317,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = {'handle': 'FOO', 'handleType': 'contact', 'sendTo': 'custom_email',
                       'confirmMethod': 'signed_email', 'customEmail': 'foo@foo.off'}
         object_type = ObjectType_PR.contact
-        title = "Request to send a password (authinfo) for transfer contact FOO"
-        message = "I hereby confirm my request to get the password for contact FOO, submitted through " \
-                  "the web form at http://testserver/whois/send-password/ on March 8, 2017, assigned id number 24. " \
-                  "Please send the password to foo@foo.off."
-        self._send_password_to_custom_email(post, 'AuthInfo', properties, object_type, title, message)
+        title = "Request summary"
+        self._send_password_to_custom_email(post, 'AuthInfo', properties, object_type, title)
 
     def test_send_password_custom_email_nsset(self):
         post = {
@@ -348,11 +331,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = {'handle': 'FOO', 'handleType': 'nsset', 'sendTo': 'custom_email', 'confirmMethod': 'signed_email',
                       'customEmail': 'foo@foo.off'}
         object_type = ObjectType_PR.nsset
-        title = "Request to send a password (authinfo) for transfer nameserver set FOO"
-        message = "I hereby confirm my request to get the password for nameserver set FOO, submitted through " \
-                  "the web form at http://testserver/whois/send-password/ on March 8, 2017, assigned id number 24. " \
-                  "Please send the password to foo@foo.off."
-        self._send_password_to_custom_email(post, 'AuthInfo', properties, object_type, title, message)
+        title = "Request summary"
+        self._send_password_to_custom_email(post, 'AuthInfo', properties, object_type, title)
 
     def test_send_password_custom_email_keyset(self):
         post = {
@@ -365,11 +345,8 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         properties = {'handle': 'FOO', 'handleType': 'keyset', 'sendTo': 'custom_email',
                       'confirmMethod': 'signed_email', 'customEmail': 'foo@foo.off'}
         object_type = ObjectType_PR.keyset
-        title = "Request to send a password (authinfo) for transfer keyset FOO"
-        message = "I hereby confirm my request to get the password for keyset FOO, submitted through " \
-                  "the web form at http://testserver/whois/send-password/ on March 8, 2017, assigned id number 24. " \
-                  "Please send the password to foo@foo.off."
-        self._send_password_to_custom_email(post, 'AuthInfo', properties, object_type, title, message)
+        title = "Request summary"
+        self._send_password_to_custom_email(post, 'AuthInfo', properties, object_type, title)
 
     def test_send_password_email_in_registry_notarized_letter(self):
         post = {
@@ -401,31 +378,29 @@ class TestSendPasswodForm(SubmittedFormTestCase):
         }
         properties = {'handle': 'FOO', 'handleType': object_name, 'sendTo': 'custom_email',
                       'confirmMethod': 'notarized_letter', 'customEmail': 'foo@foo.off'}
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Password (authinfo) request</a> ' \
-                  '(PDF)' % self.public_key
-        self._send_password_notarized_letter(post, 'AuthInfo', properties, object_type, title, message)
+        self._send_password_notarized_letter(post, 'AuthInfo', properties, object_type, title)
         public_response = SendPasswordResponse(object_name, 24, 'AuthInfo', 'FOO', 'foo@foo.off',
                                                ConfirmationMethod.NOTARIZED_LETTER)
         public_response.create_date = date(2017, 3, 8)
         self.assertEqual(cache.get(self.public_key), public_response)
 
     def test_send_password_notarized_letter_domain(self):
-        title = "Request to send a password (authinfo) for transfer domain name FOO"
+        title = "Request summary"
         object_type = ObjectType_PR.domain
         self._send_password_notarized_letter_registry('domain', object_type, title)
 
     def test_send_password_notarized_letter_contact(self):
-        title = "Request to send a password (authinfo) for transfer contact FOO"
+        title = "Request summary"
         object_type = ObjectType_PR.contact
         self._send_password_notarized_letter_registry('contact', object_type, title)
 
     def test_send_password_notarized_letter_nsset(self):
-        title = "Request to send a password (authinfo) for transfer nameserver set FOO"
+        title = "Request summary"
         object_type = ObjectType_PR.nsset
         self._send_password_notarized_letter_registry('nsset', object_type, title)
 
     def test_send_password_notarized_letter_keyset(self):
-        title = "Request to send a password (authinfo) for transfer keyset FOO"
+        title = "Request summary"
         object_type = ObjectType_PR.keyset
         self._send_password_notarized_letter_registry('keyset', object_type, title)
 
@@ -433,6 +408,13 @@ class TestSendPasswodForm(SubmittedFormTestCase):
 @override_settings(TEMPLATES=TEMPLATES, USE_TZ=True)
 class TestPersonalInfoFormView(SubmittedFormTestCase):
     """Test `PersonalInfoFormView` class."""
+
+    def setUp(self):
+        super().setUp()
+
+        catcher = warnings.catch_warnings(record=True)
+        self.addCleanup(catcher.__exit__)
+        catcher.__enter__()
 
     def test_personal_info_email_in_registry(self):
         post = {"object_type": "contact", "handle": "CONTACT", "send_to_0": "email_in_registry"}
@@ -462,7 +444,7 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
 
         response = self.client.post(reverse("webwhois:form_personal_info"), post)
 
-        path = reverse("webwhois:custom_email_response", kwargs={"public_key": self.public_key})
+        path = reverse("webwhois:public_response", kwargs={"public_key": self.public_key})
         self.assertRedirects(response, path)
         public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', 'kryten@example.cz',
                                                ConfirmationMethod.SIGNED_EMAIL)
@@ -487,7 +469,7 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
 
         response = self.client.post(reverse("webwhois:form_personal_info"), post)
 
-        path = reverse("webwhois:notarized_letter_response", kwargs={"public_key": self.public_key})
+        path = reverse("webwhois:public_response", kwargs={"public_key": self.public_key})
         self.assertRedirects(response, path)
         public_response = PersonalInfoResponse('contact', 24, 'PersonalInfo', 'CONTACT', 'kryten@example.cz',
                                                ConfirmationMethod.NOTARIZED_LETTER)
@@ -539,9 +521,16 @@ class TestPersonalInfoFormView(SubmittedFormTestCase):
 @override_settings(TEMPLATES=TEMPLATES, USE_TZ=True)
 class TestBlockUnblockForm(SubmittedFormTestCase):
 
+    def setUp(self):
+        super().setUp()
+
+        catcher = warnings.catch_warnings(record=True)
+        self.addCleanup(catcher.__exit__)
+        catcher.__enter__()
+
     def _block_unblock(
             self, block_action: str, url_name: str, object_name: str, confirmation_method: str, lock_type: str,
-            action_name: str, object_type: str, signed_type: str, block_type: str, title: str, message: str) -> None:
+            action_name: str, object_type: str, signed_type: str, block_type: str, title: str) -> None:
         post = {
             "handle": "FOO",
             "object_type": object_name,
@@ -550,13 +539,8 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
         }
         PUBLIC_REQUEST.create_block_unblock_request.return_value = 24
         response = self.client.post(reverse(url_name), post, follow=True)
-        if confirmation_method == 'signed_email':
-            url_name = "webwhois:custom_email_response"
-        else:
-            url_name = "webwhois:notarized_letter_response"
-        self.assertRedirects(response, reverse(url_name, kwargs={"public_key": self.public_key}))
+        self.assertRedirects(response, reverse("webwhois:public_response", kwargs={"public_key": self.public_key}))
         self.assertContains(response, title)
-        self.assertContains(response, message)
         self.assertEqual(PUBLIC_REQUEST.mock_calls, [
             call.create_block_unblock_request(object_type, 'FOO', 42, signed_type, block_type)
         ])
@@ -571,369 +555,269 @@ class TestBlockUnblockForm(SubmittedFormTestCase):
                                  input_properties=properties, references={'publicrequest': '24'})
         self.assertEqual(self.test_logger.mock.mock_calls, log_entry.get_calls())
 
-    def _block_transfer_signed_email(self, object_name: str, object_type: str, title: str, message: str) -> None:
+    def _block_transfer_signed_email(self, object_name: str, object_type: str, title: str) -> None:
         lock_type = "transfer"
         action_name = "BlockTransfer"
         block_type = LockRequestType.block_transfer
         confirmation_method = "signed_email"
         signed_type = ConfirmedBy.signed_email
         self._block_unblock("block", "webwhois:form_block_object", object_name, confirmation_method, lock_type,
-                            action_name, object_type, signed_type, block_type, title, message)
+                            action_name, object_type, signed_type, block_type, title)
 
-    def _block_all_signed_email(self, object_name: str, object_type: str, title: str, message: str) -> None:
+    def _block_all_signed_email(self, object_name: str, object_type: str, title: str) -> None:
         lock_type = "all"
         action_name = "BlockChanges"
         block_type = LockRequestType.block_transfer_and_update
         confirmation_method = "signed_email"
         signed_type = ConfirmedBy.signed_email
         self._block_unblock("block", "webwhois:form_block_object", object_name, confirmation_method, lock_type,
-                            action_name, object_type, signed_type, block_type, title, message)
+                            action_name, object_type, signed_type, block_type, title)
 
-    def _unblock_transfer_signed_email(self, object_name: str, object_type: str, title: str, message: str) -> None:
+    def _unblock_transfer_signed_email(self, object_name: str, object_type: str, title: str) -> None:
         lock_type = "transfer"
         action_name = "UnblockTransfer"
         block_type = LockRequestType.unblock_transfer
         confirmation_method = "signed_email"
         signed_type = ConfirmedBy.signed_email
         self._block_unblock("unblock", "webwhois:form_unblock_object", object_name, confirmation_method, lock_type,
-                            action_name, object_type, signed_type, block_type, title, message)
+                            action_name, object_type, signed_type, block_type, title)
 
-    def _unblock_all_signed_email(self, object_name: str, object_type: str, title: str, message: str) -> None:
+    def _unblock_all_signed_email(self, object_name: str, object_type: str, title: str) -> None:
         lock_type = "all"
         action_name = "UnblockChanges"
         block_type = LockRequestType.unblock_transfer_and_update
         confirmation_method = "signed_email"
         signed_type = ConfirmedBy.signed_email
         self._block_unblock("unblock", "webwhois:form_unblock_object", object_name, confirmation_method, lock_type,
-                            action_name, object_type, signed_type, block_type, title, message)
+                            action_name, object_type, signed_type, block_type, title)
 
     def test_block_transfer_signed_email_domain(self):
         object_name = 'domain'
         object_type = ObjectType_PR.domain
-        title = 'Request to enable enhanced object security of domain name FOO'
-        message = 'I hereby confirm the request to block any change of the sponsoring registrar for the domain name ' \
-                  'FOO submitted through the web form on the web site http://testserver/whois/block-object/ ' \
-                  'on March 8, 2017 with the assigned identification number 24, and I request the activation ' \
-                  'of the specified blocking option. I agree that, regarding the particular domain name FOO, ' \
-                  'no change of the sponsoring registrar will be possible until I cancel the blocking option ' \
-                  'through the applicable form on the company website.'
-        self._block_transfer_signed_email(object_name, object_type, title, message)
+        title = "Request summary"
+        self._block_transfer_signed_email(object_name, object_type, title)
 
     def test_block_transfer_signed_email_contact(self):
         object_name = 'contact'
         object_type = ObjectType_PR.contact
-        title = 'Request to enable enhanced object security of contact FOO'
-        message = 'I hereby confirm the request to block any change of the sponsoring registrar for the contact ' \
-                  'FOO submitted through the web form on the web site http://testserver/whois/block-object/ ' \
-                  'on March 8, 2017 with the assigned identification number 24, and I request the activation ' \
-                  'of the specified blocking option. I agree that, regarding the particular contact FOO, ' \
-                  'no change of the sponsoring registrar will be possible until I cancel the blocking option ' \
-                  'through the applicable form on the company website.'
-        self._block_transfer_signed_email(object_name, object_type, title, message)
+        title = "Request summary"
+        self._block_transfer_signed_email(object_name, object_type, title)
 
     def test_block_transfer_signed_email_nsset(self):
         object_name = 'nsset'
         object_type = ObjectType_PR.nsset
-        title = 'Request to enable enhanced object security of nameserver set FOO'
-        message = 'I hereby confirm the request to block any change of the sponsoring registrar for the nameserver ' \
-                  'set FOO submitted through the web form on the web site http://testserver/whois/block-object/ ' \
-                  'on March 8, 2017 with the assigned identification number 24, and I request the activation ' \
-                  'of the specified blocking option. I agree that, regarding the particular nameserver set FOO, ' \
-                  'no change of the sponsoring registrar will be possible until I cancel the blocking option ' \
-                  'through the applicable form on the company website.'
-        self._block_transfer_signed_email(object_name, object_type, title, message)
+        title = "Request summary"
+        self._block_transfer_signed_email(object_name, object_type, title)
 
     def test_block_transfer_signed_email_keyset(self):
         object_name = 'keyset'
         object_type = ObjectType_PR.keyset
-        title = 'Request to enable enhanced object security of keyset FOO'
-        message = 'I hereby confirm the request to block any change of the sponsoring registrar for the keyset ' \
-                  'FOO submitted through the web form on the web site http://testserver/whois/block-object/ ' \
-                  'on March 8, 2017 with the assigned identification number 24, and I request the activation ' \
-                  'of the specified blocking option. I agree that, regarding the particular keyset FOO, ' \
-                  'no change of the sponsoring registrar will be possible until I cancel the blocking option ' \
-                  'through the applicable form on the company website.'
-        self._block_transfer_signed_email(object_name, object_type, title, message)
+        title = "Request summary"
+        self._block_transfer_signed_email(object_name, object_type, title)
 
     def test_unblock_transfer_signed_email_domain(self):
         object_name = 'domain'
         object_type = ObjectType_PR.domain
-        title = 'Request to disable enhanced object security of domain name FOO'
-        message = 'I hereby confirm the request to cancel the blocking of the sponsoring registrar change for ' \
-                  'the domain name FOO submitted through the web form on http://testserver/whois/unblock-object/ ' \
-                  'on March 8, 2017 with the assigned identification number 24.'
-        self._unblock_transfer_signed_email(object_name, object_type, title, message)
+        title = "Request summary"
+        self._unblock_transfer_signed_email(object_name, object_type, title)
 
     def test_unblock_transfer_signed_email_contact(self):
         object_name = 'contact'
         object_type = ObjectType_PR.contact
-        title = 'Request to disable enhanced object security of contact FOO'
-        message = 'I hereby confirm the request to cancel the blocking of the sponsoring registrar change for ' \
-                  'the contact FOO submitted through the web form on http://testserver/whois/unblock-object/ ' \
-                  'on March 8, 2017 with the assigned identification number 24.'
-        self._unblock_transfer_signed_email(object_name, object_type, title, message)
+        title = "Request summary"
+        self._unblock_transfer_signed_email(object_name, object_type, title)
 
     def test_unblock_transfer_signed_email_nsset(self):
         object_name = 'nsset'
         object_type = ObjectType_PR.nsset
-        title = 'Request to disable enhanced object security of nameserver set FOO'
-        message = 'I hereby confirm the request to cancel the blocking of the sponsoring registrar change for ' \
-                  'the nameserver set FOO submitted through the web form on http://testserver/whois/unblock-object/ ' \
-                  'on March 8, 2017 with the assigned identification number 24.'
-        self._unblock_transfer_signed_email(object_name, object_type, title, message)
+        title = "Request summary"
+        self._unblock_transfer_signed_email(object_name, object_type, title)
 
     def test_unblock_transfer_signed_email_keyset(self):
         object_name = 'keyset'
         object_type = ObjectType_PR.keyset
-        title = 'Request to disable enhanced object security of keyset FOO'
-        message = 'I hereby confirm the request to cancel the blocking of the sponsoring registrar change for ' \
-                  'the keyset FOO submitted through the web form on http://testserver/whois/unblock-object/ ' \
-                  'on March 8, 2017 with the assigned identification number 24.'
-        self._unblock_transfer_signed_email(object_name, object_type, title, message)
+        title = "Request summary"
+        self._unblock_transfer_signed_email(object_name, object_type, title)
 
     def test_block_all_signed_email_domain(self):
         object_name = 'domain'
         object_type = ObjectType_PR.domain
-        title = 'Request to enable enhanced object security of domain name FOO'
-        message = 'I hereby confirm the request to block all changes made to domain name FOO submitted through ' \
-                  'the web form on the web site http://testserver/whois/block-object/ on March 8, 2017 with ' \
-                  'the assigned identification number 24, and I request the activation of the specified blocking ' \
-                  'option. I agree that, with respect to the particular domain name FOO, no change will be possible ' \
-                  'until I cancel the blocking option through the applicable form on the company website.'
-        self._block_all_signed_email(object_name, object_type, title, message)
+        title = "Request summary"
+        self._block_all_signed_email(object_name, object_type, title)
 
     def test_block_all_signed_email_contact(self):
         object_name = 'contact'
         object_type = ObjectType_PR.contact
-        title = 'Request to enable enhanced object security of contact FOO'
-        message = 'I hereby confirm the request to block all changes made to contact FOO submitted through ' \
-                  'the web form on the web site http://testserver/whois/block-object/ on March 8, 2017 with ' \
-                  'the assigned identification number 24, and I request the activation of the specified blocking ' \
-                  'option. I agree that, with respect to the particular contact FOO, no change will be possible ' \
-                  'until I cancel the blocking option through the applicable form on the company website.'
-        self._block_all_signed_email(object_name, object_type, title, message)
+        title = "Request summary"
+        self._block_all_signed_email(object_name, object_type, title)
 
     def test_block_all_signed_email_nsset(self):
         object_name = 'nsset'
         object_type = ObjectType_PR.nsset
-        title = 'Request to enable enhanced object security of nameserver set FOO'
-        message = 'I hereby confirm the request to block all changes made to nameserver set FOO submitted through ' \
-                  'the web form on the web site http://testserver/whois/block-object/ on March 8, 2017 with ' \
-                  'the assigned identification number 24, and I request the activation of the specified blocking ' \
-                  'option. I agree that, with respect to the particular nameserver set FOO, no change will be ' \
-                  'possible until I cancel the blocking option through the applicable form on the company website.'
-        self._block_all_signed_email(object_name, object_type, title, message)
+        title = "Request summary"
+        self._block_all_signed_email(object_name, object_type, title)
 
     def test_block_all_signed_email_keyset(self):
         object_name = 'keyset'
         object_type = ObjectType_PR.keyset
-        title = 'Request to enable enhanced object security of keyset FOO'
-        message = 'I hereby confirm the request to block all changes made to keyset FOO submitted through ' \
-                  'the web form on the web site http://testserver/whois/block-object/ on March 8, 2017 with ' \
-                  'the assigned identification number 24, and I request the activation of the specified blocking ' \
-                  'option. I agree that, with respect to the particular keyset FOO, no change will be ' \
-                  'possible until I cancel the blocking option through the applicable form on the company website.'
-        self._block_all_signed_email(object_name, object_type, title, message)
+        title = "Request summary"
+        self._block_all_signed_email(object_name, object_type, title)
 
     def test_unblock_all_signed_email_domain(self):
         object_name = 'domain'
         object_type = ObjectType_PR.domain
-        title = 'Request to disable enhanced object security of domain name FOO'
-        message = 'I hereby confirm the request to cancel the blocking of all changes for the domain name FOO ' \
-                  'submitted through the web form on http://testserver/whois/unblock-object/ ' \
-                  'on March 8, 2017 with the assigned identification number 24.'
-        self._unblock_all_signed_email(object_name, object_type, title, message)
+        title = "Request summary"
+        self._unblock_all_signed_email(object_name, object_type, title)
 
     def test_unblock_all_signed_email_contact(self):
         object_name = 'contact'
         object_type = ObjectType_PR.contact
-        title = 'Request to disable enhanced object security of contact FOO'
-        message = 'I hereby confirm the request to cancel the blocking of all changes for the contact FOO ' \
-                  'submitted through the web form on http://testserver/whois/unblock-object/ ' \
-                  'on March 8, 2017 with the assigned identification number 24.'
-        self._unblock_all_signed_email(object_name, object_type, title, message)
+        title = "Request summary"
+        self._unblock_all_signed_email(object_name, object_type, title)
 
     def test_unblock_all_signed_email_nsset(self):
         object_name = 'nsset'
         object_type = ObjectType_PR.nsset
-        title = 'Request to disable enhanced object security of nameserver set FOO'
-        message = 'I hereby confirm the request to cancel the blocking of all changes for the nameserver set FOO ' \
-                  'submitted through the web form on http://testserver/whois/unblock-object/ ' \
-                  'on March 8, 2017 with the assigned identification number 24.'
-        self._unblock_all_signed_email(object_name, object_type, title, message)
+        title = "Request summary"
+        self._unblock_all_signed_email(object_name, object_type, title)
 
     def test_unblock_all_signed_email_keyset(self):
         object_name = 'keyset'
         object_type = ObjectType_PR.keyset
-        title = 'Request to disable enhanced object security of keyset FOO'
-        message = 'I hereby confirm the request to cancel the blocking of all changes for the keyset FOO ' \
-                  'submitted through the web form on http://testserver/whois/unblock-object/ ' \
-                  'on March 8, 2017 with the assigned identification number 24.'
-        self._unblock_all_signed_email(object_name, object_type, title, message)
+        title = "Request summary"
+        self._unblock_all_signed_email(object_name, object_type, title)
 
-    def _block_transfer_notarized_letter(self, object_name, object_type, title, message):
+    def _block_transfer_notarized_letter(self, object_name, object_type, title):
         lock_type = "transfer"
         action_name = "BlockTransfer"
         block_type = LockRequestType.block_transfer
         confirmation_method = "notarized_letter"
         signed_type = ConfirmedBy.notarized_letter
         self._block_unblock("block", "webwhois:form_block_object", object_name, confirmation_method, lock_type,
-                            action_name, object_type, signed_type, block_type, title, message)
+                            action_name, object_type, signed_type, block_type, title)
 
-    def _unblock_transfer_notarized_letter(self, object_name, object_type, title, message):
+    def _unblock_transfer_notarized_letter(self, object_name, object_type, title):
         lock_type = "transfer"
         action_name = "UnblockTransfer"
         block_type = LockRequestType.unblock_transfer
         confirmation_method = "notarized_letter"
         signed_type = ConfirmedBy.notarized_letter
         self._block_unblock("unblock", "webwhois:form_unblock_object", object_name, confirmation_method, lock_type,
-                            action_name, object_type, signed_type, block_type, title, message)
+                            action_name, object_type, signed_type, block_type, title)
 
-    def _block_all_notarized_letter(self, object_name, object_type, title, message):
+    def _block_all_notarized_letter(self, object_name, object_type, title):
         lock_type = "all"
         action_name = "BlockChanges"
         block_type = LockRequestType.block_transfer_and_update
         confirmation_method = "notarized_letter"
         signed_type = ConfirmedBy.notarized_letter
         self._block_unblock("block", "webwhois:form_block_object", object_name, confirmation_method, lock_type,
-                            action_name, object_type, signed_type, block_type, title, message)
+                            action_name, object_type, signed_type, block_type, title)
 
-    def _unblock_all_notarized_letter(self, object_name, object_type, title, message):
+    def _unblock_all_notarized_letter(self, object_name, object_type, title):
         lock_type = "all"
         action_name = "UnblockChanges"
         block_type = LockRequestType.unblock_transfer_and_update
         confirmation_method = "notarized_letter"
         signed_type = ConfirmedBy.notarized_letter
         self._block_unblock("unblock", "webwhois:form_unblock_object", object_name, confirmation_method, lock_type,
-                            action_name, object_type, signed_type, block_type, title, message)
+                            action_name, object_type, signed_type, block_type, title)
 
     def test_block_transfer_notarized_letter_domain(self):
         object_name = 'domain'
         object_type = ObjectType_PR.domain
-        title = 'Request to enable enhanced object security of domain name FOO'
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Enabling enhanced object security ' \
-                  'Request</a> (PDF)' % self.public_key
-        self._block_transfer_notarized_letter(object_name, object_type, title, message)
+        title = "Request summary"
+        self._block_transfer_notarized_letter(object_name, object_type, title)
 
     def test_block_transfer_notarized_letter_contact(self):
         object_name = 'contact'
         object_type = ObjectType_PR.contact
-        title = 'Request to enable enhanced object security of contact FOO'
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Enabling enhanced object security ' \
-                  'Request</a> (PDF)' % self.public_key
-        self._block_transfer_notarized_letter(object_name, object_type, title, message)
+        title = "Request summary"
+        self._block_transfer_notarized_letter(object_name, object_type, title)
 
     def test_block_transfer_notarized_letter_nsset(self):
         object_name = 'nsset'
         object_type = ObjectType_PR.nsset
-        title = 'Request to enable enhanced object security of nameserver set FOO'
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Enabling enhanced object security ' \
-                  'Request</a> (PDF)' % self.public_key
-        self._block_transfer_notarized_letter(object_name, object_type, title, message)
+        title = "Request summary"
+        self._block_transfer_notarized_letter(object_name, object_type, title)
 
     def test_block_transfer_notarized_letter_keyset(self):
         object_name = 'keyset'
         object_type = ObjectType_PR.keyset
-        title = 'Request to enable enhanced object security of keyset FOO'
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Enabling enhanced object security ' \
-                  'Request</a> (PDF)' % self.public_key
-        self._block_transfer_notarized_letter(object_name, object_type, title, message)
+        title = "Request summary"
+        self._block_transfer_notarized_letter(object_name, object_type, title)
 
     def test_unblock_transfer_notarized_letter_domain(self):
         object_name = 'domain'
         object_type = ObjectType_PR.domain
-        title = 'Request to disable enhanced object security of domain name FOO'
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Disabling enhanced object security ' \
-                  'Request</a> (PDF)' % self.public_key
-        self._unblock_transfer_notarized_letter(object_name, object_type, title, message)
+        title = "Request summary"
+        self._unblock_transfer_notarized_letter(object_name, object_type, title)
 
     def test_unblock_transfer_notarized_letter_contact(self):
         object_name = 'contact'
         object_type = ObjectType_PR.contact
-        title = 'Request to disable enhanced object security of contact FOO'
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Disabling enhanced object security ' \
-                  'Request</a> (PDF)' % self.public_key
-        self._unblock_transfer_notarized_letter(object_name, object_type, title, message)
+        title = "Request summary"
+        self._unblock_transfer_notarized_letter(object_name, object_type, title)
 
     def test_unblock_transfer_notarized_letter_nsset(self):
         object_name = 'nsset'
         object_type = ObjectType_PR.nsset
-        title = 'Request to disable enhanced object security of nameserver set FOO'
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Disabling enhanced object security ' \
-                  'Request</a> (PDF)' % self.public_key
-        self._unblock_transfer_notarized_letter(object_name, object_type, title, message)
+        title = "Request summary"
+        self._unblock_transfer_notarized_letter(object_name, object_type, title)
 
     def test_unblock_transfer_notarized_letter_keyset(self):
         object_name = 'keyset'
         object_type = ObjectType_PR.keyset
-        title = 'Request to disable enhanced object security of keyset FOO'
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Disabling enhanced object security ' \
-                  'Request</a> (PDF)' % self.public_key
-        self._unblock_transfer_notarized_letter(object_name, object_type, title, message)
+        title = "Request summary"
+        self._unblock_transfer_notarized_letter(object_name, object_type, title)
 
     def test_block_all_notarized_letter_domain(self):
         object_name = 'domain'
         object_type = ObjectType_PR.domain
-        title = 'Request to enable enhanced object security of domain name FOO'
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Enabling enhanced object security ' \
-                  'Request</a> (PDF)' % self.public_key
-        self._block_all_notarized_letter(object_name, object_type, title, message)
+        title = "Request summary"
+        self._block_all_notarized_letter(object_name, object_type, title)
 
     def test_block_all_notarized_letter_contact(self):
         object_name = 'contact'
         object_type = ObjectType_PR.contact
-        title = 'Request to enable enhanced object security of contact FOO'
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Enabling enhanced object security ' \
-                  'Request</a> (PDF)' % self.public_key
-        self._block_all_notarized_letter(object_name, object_type, title, message)
+        title = "Request summary"
+        self._block_all_notarized_letter(object_name, object_type, title)
 
     def test_block_all_notarized_letter_nsset(self):
         object_name = 'nsset'
         object_type = ObjectType_PR.nsset
-        title = 'Request to enable enhanced object security of nameserver set FOO'
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Enabling enhanced object security ' \
-                  'Request</a> (PDF)' % self.public_key
-        self._block_all_notarized_letter(object_name, object_type, title, message)
+        title = "Request summary"
+        self._block_all_notarized_letter(object_name, object_type, title)
 
     def test_block_all_notarized_letter_keyset(self):
         object_name = 'keyset'
         object_type = ObjectType_PR.keyset
-        title = 'Request to enable enhanced object security of keyset FOO'
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Enabling enhanced object security ' \
-                  'Request</a> (PDF)' % self.public_key
-        self._block_all_notarized_letter(object_name, object_type, title, message)
+        title = "Request summary"
+        self._block_all_notarized_letter(object_name, object_type, title)
 
     def test_unblock_all_notarized_letter_domain(self):
         object_name = 'domain'
         object_type = ObjectType_PR.domain
-        title = 'Request to disable enhanced object security of domain name FOO'
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Disabling enhanced object security ' \
-                  'Request</a> (PDF)' % self.public_key
-        self._unblock_all_notarized_letter(object_name, object_type, title, message)
+        title = "Request summary"
+        self._unblock_all_notarized_letter(object_name, object_type, title)
 
     def test_unblock_all_notarized_letter_contact(self):
         object_name = 'contact'
         object_type = ObjectType_PR.contact
-        title = 'Request to disable enhanced object security of contact FOO'
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Disabling enhanced object security ' \
-                  'Request</a> (PDF)' % self.public_key
-        self._unblock_all_notarized_letter(object_name, object_type, title, message)
+        title = "Request summary"
+        self._unblock_all_notarized_letter(object_name, object_type, title)
 
     def test_unblock_all_notarized_letter_nsset(self):
         object_name = 'nsset'
         object_type = ObjectType_PR.nsset
-        title = 'Request to disable enhanced object security of nameserver set FOO'
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Disabling enhanced object security ' \
-                  'Request</a> (PDF)' % self.public_key
-        self._unblock_all_notarized_letter(object_name, object_type, title, message)
+        title = "Request summary"
+        self._unblock_all_notarized_letter(object_name, object_type, title)
 
     def test_unblock_all_notarized_letter_keyset(self):
         object_name = 'keyset'
         object_type = ObjectType_PR.keyset
-        title = 'Request to disable enhanced object security of keyset FOO'
-        message = 'Please print this <a href="/whois/pdf-notarized-letter/%s/">Disabling enhanced object security ' \
-                  'Request</a> (PDF)' % self.public_key
-        self._unblock_all_notarized_letter(object_name, object_type, title, message)
+        title = "Request summary"
+        self._unblock_all_notarized_letter(object_name, object_type, title)
 
     def _assert_create_block_unblock_exception(self, exception_code, form_error_message):
         post = {
@@ -1002,6 +886,10 @@ class TestNotarizedLetterPdf(SimpleTestCase):
         log_patcher = patch('webwhois.utils.corba_wrapper.PUBLIC_REQUESTS_LOGGER.client', new=self.test_logger)
         self.addCleanup(log_patcher.stop)
         log_patcher.start()
+
+        self.catcher = warnings.catch_warnings(record=True)
+        self.addCleanup(self.catcher.__exit__)
+        self.catcher.__enter__()
 
     def tearDown(self):
         cache.clear()
@@ -1177,6 +1065,11 @@ class PublicResponsePdfViewTest(SimpleTestCase):
 class TestResponseErrorMessage(SimpleTestCase):
 
     public_key = "1234567890123456789012345678901234567890123456789012345678901234"
+
+    def setUp(self):
+        catcher = warnings.catch_warnings(record=True)
+        self.addCleanup(catcher.__exit__)
+        catcher.__enter__()
 
     def _assert_response(self, path):
         response = self.client.get(path, follow=True)

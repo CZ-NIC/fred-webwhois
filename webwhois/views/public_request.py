@@ -17,6 +17,7 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 #
 import logging
+import warnings
 from typing import Any, Dict, Optional, Type, cast
 
 from django.core.cache import cache
@@ -34,7 +35,7 @@ from fred_idl.Registry.PublicRequest import (HAS_DIFFERENT_BLOCK, INVALID_EMAIL,
 
 from webwhois.forms import BlockObjectForm, PersonalInfoForm, SendPasswordForm, UnblockObjectForm
 from webwhois.forms.public_request import (CONFIRMATION_METHOD_IDL_MAP, LOCK_TYPE_ALL, LOCK_TYPE_TRANSFER,
-                                           LOCK_TYPE_URL_PARAM, SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY, ConfirmationMethod)
+                                           LOCK_TYPE_URL_PARAM, SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY)
 from webwhois.forms.widgets import DeliveryType
 from webwhois.utils.corba_wrapper import PUBLIC_REQUEST, PUBLIC_REQUESTS_LOGGER, SECRETARY_CLIENT
 from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, PublicResponse, SendPasswordResponse
@@ -101,10 +102,7 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
             url_name = 'webwhois:email_in_registry_response'
         else:
             assert self.form_cleaned_data['send_to'].choice == 'custom_email'
-            if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.SIGNED_EMAIL:
-                url_name = 'webwhois:custom_email_response'
-            else:
-                url_name = 'webwhois:notarized_letter_response'
+            url_name = 'webwhois:public_response'
         return reverse(url_name, kwargs={'public_key': self.public_key},
                        current_app=self.request.resolver_match.namespace)
 
@@ -150,10 +148,7 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
             url_name = 'webwhois:email_in_registry_response'
         else:
             assert self.form_cleaned_data['send_to'].choice == 'custom_email'
-            if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.SIGNED_EMAIL:
-                url_name = 'webwhois:custom_email_response'
-            else:
-                url_name = 'webwhois:notarized_letter_response'
+            url_name = 'webwhois:public_response'
         return reverse(url_name, kwargs={'public_key': self.public_key},
                        current_app=self.request.resolver_match.namespace)
 
@@ -211,11 +206,7 @@ class BlockUnblockFormView(PublicRequestFormView):
     def get_success_url(self):
         if self.success_url:
             return force_str(self.success_url)
-        if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.SIGNED_EMAIL:
-            url_name = 'webwhois:custom_email_response'
-        else:
-            url_name = 'webwhois:notarized_letter_response'
-        return reverse(url_name, kwargs={'public_key': self.public_key},
+        return reverse('webwhois:public_response', kwargs={'public_key': self.public_key},
                        current_app=self.request.resolver_match.namespace)
 
 
@@ -380,6 +371,10 @@ class TextPasswordAndBlockMixin(TextSendPasswordMixin):
         },
     }
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn("TextPasswordAndBlockMixin is deprecated without a replacement.", DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
 
 class CustomEmailView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
     """Custom email view."""
@@ -515,6 +510,10 @@ class CustomEmailView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
         },
     }
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn("CustomEmailView is deprecated, use PublicResponseView instead.", DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
     def get_context_data(self, **kwargs):
         kwargs.setdefault('company_website', _('the company website'))
         context = super(CustomEmailView, self).get_context_data(**kwargs)
@@ -559,6 +558,10 @@ class NotarizedLetterView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
 
     template_name = 'webwhois/public_request_notarized_letter.html'
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn("NotarizedLetterView is deprecated, use PublicResponseView instead.", DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(NotarizedLetterView, self).get_context_data(**kwargs)
         context['notarized_letter_pdf_url'] = reverse("webwhois:notarized_letter_serve_pdf",
@@ -592,6 +595,10 @@ class ServeNotarizedLetterView(View):
     """Serve Notarized letter PDF view."""
 
     log_entry_type = PublicRequestsLogEntryType.NOTARIZED_LETTER_PDF
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn("ServeNotarizedLetterView is deprecated, use PublicResponsePdfView instead.", DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
     def get(self, request, public_key):
         public_response = cache.get(public_key)
