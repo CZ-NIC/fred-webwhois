@@ -106,9 +106,10 @@ NSSET_CLIENT = NssetClient(WEBWHOIS_SETTINGS.REGISTRY_NETLOC,
                            make_credentials(WEBWHOIS_SETTINGS.REGISTRY_SSL_CERT))
 REGISTRAR_CLIENT = RegistrarClient(WEBWHOIS_SETTINGS.REGISTRY_NETLOC,
                                    make_credentials(WEBWHOIS_SETTINGS.REGISTRY_SSL_CERT))
+SECRETARY_CLIENT = SecretaryClient(WEBWHOIS_SETTINGS.SECRETARY_URL, auth=WEBWHOIS_SETTINGS.SECRETARY_AUTH,
+                                   timeout=WEBWHOIS_SETTINGS.SECRETARY_TIMEOUT)
 STATEMENTOR = SyncStatementor(
-    secretary_client=SecretaryClient(WEBWHOIS_SETTINGS.SECRETARY_URL, auth=WEBWHOIS_SETTINGS.SECRETARY_AUTH,
-                                     timeout=WEBWHOIS_SETTINGS.SECRETARY_TIMEOUT),
+    secretary_client=SECRETARY_CLIENT,
     contact_client=CONTACT_CLIENT,
     domain_client=DOMAIN_CLIENT,
     keyset_client=KEYSET_CLIENT,

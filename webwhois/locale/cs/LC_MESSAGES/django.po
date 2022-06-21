@@ -180,6 +180,16 @@ msgstr "Doména nenalezena"
 msgid "Download Verified record statement in PDF."
 msgstr "Stáhnout ověřený výpis z registru v PDF."
 
+msgid "Download the PDF"
+msgstr "Stáhnout PDF"
+
+msgid ""
+"Download the PDF request and follow the instructions under the line at the "
+"bottom section of this document."
+msgstr ""
+"Stáhněte PDF žádost a postupujte dle instrukcí pod čarou v dolní části "
+"dokumentu."
+
 msgid "E-government"
 msgstr "Elektronická veřejná správa"
 
@@ -815,6 +825,9 @@ msgstr "Formulář žádosti o poskytnutí hesla"
 
 msgid "Request form to send personal information"
 msgstr "Formulář žádosti o výpis osobních údajů"
+
+msgid "Request summary"
+msgstr "Souhrn žádosti"
 
 msgid "Request to disable enhanced object security"
 msgstr "Žádost o zrušení zvýšeného zabezpečení objektu"

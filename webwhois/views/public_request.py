@@ -15,12 +15,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+#
 import logging
-from typing import Any, Dict, Type
+import warnings
+from typing import Any, Dict, Optional, Type, cast
 
 from django.core.cache import cache
 from django.forms import Form
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.encoding import force_str
 from django.utils.formats import date_format
@@ -33,10 +35,10 @@ from fred_idl.Registry.PublicRequest import (HAS_DIFFERENT_BLOCK, INVALID_EMAIL,
 
 from webwhois.forms import BlockObjectForm, PersonalInfoForm, SendPasswordForm, UnblockObjectForm
 from webwhois.forms.public_request import (CONFIRMATION_METHOD_IDL_MAP, LOCK_TYPE_ALL, LOCK_TYPE_TRANSFER,
-                                           LOCK_TYPE_URL_PARAM, SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY, ConfirmationMethod)
+                                           LOCK_TYPE_URL_PARAM, SEND_TO_CUSTOM, SEND_TO_IN_REGISTRY)
 from webwhois.forms.widgets import DeliveryType
-from webwhois.utils.corba_wrapper import PUBLIC_REQUEST, PUBLIC_REQUESTS_LOGGER
-from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, SendPasswordResponse
+from webwhois.utils.corba_wrapper import PUBLIC_REQUEST, PUBLIC_REQUESTS_LOGGER, SECRETARY_CLIENT
+from webwhois.utils.public_response import BlockResponse, PersonalInfoResponse, PublicResponse, SendPasswordResponse
 from webwhois.views.base import BaseContextMixin
 from webwhois.views.public_request_mixin import PublicRequestFormView, PublicRequestKnownException
 
@@ -100,10 +102,7 @@ class SendPasswordFormView(BaseContextMixin, PublicRequestFormView):
             url_name = 'webwhois:email_in_registry_response'
         else:
             assert self.form_cleaned_data['send_to'].choice == 'custom_email'
-            if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.SIGNED_EMAIL:
-                url_name = 'webwhois:custom_email_response'
-            else:
-                url_name = 'webwhois:notarized_letter_response'
+            url_name = 'webwhois:public_response'
         return reverse(url_name, kwargs={'public_key': self.public_key},
                        current_app=self.request.resolver_match.namespace)
 
@@ -149,10 +148,7 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
             url_name = 'webwhois:email_in_registry_response'
         else:
             assert self.form_cleaned_data['send_to'].choice == 'custom_email'
-            if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.SIGNED_EMAIL:
-                url_name = 'webwhois:custom_email_response'
-            else:
-                url_name = 'webwhois:notarized_letter_response'
+            url_name = 'webwhois:public_response'
         return reverse(url_name, kwargs={'public_key': self.public_key},
                        current_app=self.request.resolver_match.namespace)
 
@@ -210,11 +206,7 @@ class BlockUnblockFormView(PublicRequestFormView):
     def get_success_url(self):
         if self.success_url:
             return force_str(self.success_url)
-        if self.form_cleaned_data['confirmation_method'] == ConfirmationMethod.SIGNED_EMAIL:
-            url_name = 'webwhois:custom_email_response'
-        else:
-            url_name = 'webwhois:notarized_letter_response'
-        return reverse(url_name, kwargs={'public_key': self.public_key},
+        return reverse('webwhois:public_response', kwargs={'public_key': self.public_key},
                        current_app=self.request.resolver_match.namespace)
 
 
@@ -264,23 +256,14 @@ class PublicResponseNotFoundView(BaseContextMixin, TemplateView):
     template_name = 'webwhois/public_request_response_not_found.html'
 
 
-class BaseResponseTemplateView(BaseContextMixin, TemplateView):
-    """Base view for public request responses."""
+class PublicResponseMixin:
+    """Mixin for public response views."""
 
-    def __init__(self, *args, **kwargs):
-        super(BaseResponseTemplateView, self).__init__(*args, **kwargs)
-        self._public_response = None
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self._public_response: Optional[PublicResponse] = None
 
-    def get(self, request, *args, **kwargs):
-        try:
-            self.get_public_response()
-        except PublicResponseNotFound:
-            return HttpResponseRedirect(reverse("webwhois:response_not_found",
-                                                kwargs={"public_key": kwargs['public_key']},
-                                                current_app=self.request.resolver_match.namespace))
-        return super(BaseResponseTemplateView, self).get(request, *args, **kwargs)
-
-    def get_public_response(self):
+    def get_public_response(self: View) -> PublicResponse:
         """Return relevant public response."""
         # Cache the result for case the cache gets deleted while handling the request.
         if self._public_response is None:
@@ -289,7 +272,20 @@ class BaseResponseTemplateView(BaseContextMixin, TemplateView):
             if public_response is None:
                 raise PublicResponseNotFound(public_key)
             self._public_response = public_response
-        return self._public_response
+        return cast(PublicResponse, self._public_response)
+
+
+class BaseResponseTemplateView(PublicResponseMixin, BaseContextMixin, TemplateView):
+    """Base view for public request responses."""
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        try:
+            self.get_public_response()
+        except PublicResponseNotFound:
+            return HttpResponseRedirect(reverse("webwhois:response_not_found",
+                                                kwargs={"public_key": kwargs['public_key']},
+                                                current_app=self.request.resolver_match.namespace))
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         """Add public response object to the context."""
@@ -374,6 +370,10 @@ class TextPasswordAndBlockMixin(TextSendPasswordMixin):
             'keyset': _('Request to disable enhanced object security of keyset %(handle)s'),
         },
     }
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn("TextPasswordAndBlockMixin is deprecated without a replacement.", DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
 
 class CustomEmailView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
@@ -510,6 +510,10 @@ class CustomEmailView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
         },
     }
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn("CustomEmailView is deprecated, use PublicResponseView instead.", DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
     def get_context_data(self, **kwargs):
         kwargs.setdefault('company_website', _('the company website'))
         context = super(CustomEmailView, self).get_context_data(**kwargs)
@@ -554,6 +558,10 @@ class NotarizedLetterView(TextPasswordAndBlockMixin, BaseResponseTemplateView):
 
     template_name = 'webwhois/public_request_notarized_letter.html'
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn("NotarizedLetterView is deprecated, use PublicResponseView instead.", DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(NotarizedLetterView, self).get_context_data(**kwargs)
         context['notarized_letter_pdf_url'] = reverse("webwhois:notarized_letter_serve_pdf",
@@ -587,6 +595,10 @@ class ServeNotarizedLetterView(View):
     """Serve Notarized letter PDF view."""
 
     log_entry_type = PublicRequestsLogEntryType.NOTARIZED_LETTER_PDF
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn("ServeNotarizedLetterView is deprecated, use PublicResponsePdfView instead.", DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
     def get(self, request, public_key):
         public_response = cache.get(public_key)
@@ -632,4 +644,42 @@ class ServeNotarizedLetterView(View):
         response['Content-Disposition'] = 'attachment; filename="notarized-letter-{0}.pdf"'.format(lang_code)
         response.content = pdf_content
 
+        return response
+
+
+class PublicResponseView(BaseResponseTemplateView):
+    """Return a page with public response."""
+
+    template_name = 'webwhois/public_response.html'
+
+
+class PublicResponsePdfView(PublicResponseMixin, View):
+    """Return a PDF for the public response."""
+
+    template_names: Dict[PublicRequestsLogEntryType, str] = {
+        PublicRequestsLogEntryType.AUTH_INFO: 'public-request-auth-info-{language}.html',
+        PublicRequestsLogEntryType.BLOCK_TRANSFER: 'public-request-block-{language}.html',
+        PublicRequestsLogEntryType.BLOCK_CHANGES: 'public-request-block-{language}.html',
+        PublicRequestsLogEntryType.UNBLOCK_TRANSFER: 'public-request-unblock-{language}.html',
+        PublicRequestsLogEntryType.UNBLOCK_CHANGES: 'public-request-unblock-{language}.html',
+        PublicRequestsLogEntryType.PERSONAL_INFO: 'public-request-personal-info-{language}.html',
+    }
+
+    def get(self, request, public_key):
+        try:
+            public_response = self.get_public_response()
+        except PublicResponseNotFound:
+            raise Http404
+
+        template_name = self.template_names[public_response.request_type].format(language=get_language())
+        context = {
+            'type': public_response.object_type,
+            'identifier': public_response.public_request_id,
+            'handle': public_response.handle,
+            'date': public_response.create_date.isoformat(),
+            'email': getattr(public_response, 'custom_email', None),
+            'block_type': getattr(public_response, 'lock_type', None),
+        }
+        response = HttpResponse(SECRETARY_CLIENT.render_pdf(template_name, context), content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="public-request-{0}.pdf"'.format(public_response.handle)
         return response
