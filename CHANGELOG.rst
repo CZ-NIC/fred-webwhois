@@ -4,6 +4,15 @@ ChangeLog
 Unreleased
 ----------
 
+2.1.0 (2022-06-21)
+-------------------
+
+* Drop support for Django 2.2.
+* Update supported IDL versions.
+* Add ``PublicResponseView`` and ``PublicResponsePdfView`` and use them by default (#2).
+* Separate ``PublicResponseMixin`` (#2).
+* Update ``.dockerignore``.
+
 2.0.0 (2022-05-30)
 -------------------
 
