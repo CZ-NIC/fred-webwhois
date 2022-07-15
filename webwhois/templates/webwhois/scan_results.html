@@ -5,7 +5,8 @@
 
 {% block extrahead %}
     <script type="text/javascript" src="{% url 'webwhois:jsi18n' packages='webwhois' %}"></script>
-    <script defer type="module" src="{% static "webwhois/js/scan_results.js" %}"></script>
+    <script defer type="module" src="{% static "webwhois/js/main.js" %}"></script>
+
 {% endblock %}
 
 {% block content %}
@@ -16,7 +17,7 @@
             {% endblock webwhois_header %}
 
             {% block webwhois_content %}
-                <table class="result scan-table table table-bordered">
+                <table class="result scan-table table table-bordered table-fixed break-word">
                     <thead>
                         <tr>
                             <th>{% trans "Date and time" %}</th>
@@ -68,16 +69,16 @@
                             <td data-label="{% trans "Public key" %}">
                                 {% if result.cdnskey.public_key %}
                                     <div class="public-key-wrapper">
-                                        <pre class="public-key">{{ result.cdnskey.public_key }}</pre>
+                                        <p class="public-key">{{ result.cdnskey.public_key }}</p>
                                         <div class="public-key-actions">
                                             <span
                                                 tabindex="0"
-                                                class="tooltip public-key-view"
+                                                class="tooltip public-key-view btn btn-outline-primary btn-sm"
                                                 data-text="{{ result.cdnskey.public_key }}">
                                                 {% trans "View" %}
                                             </span>
                                             <button
-                                                class="public-key-copy"
+                                                class="public-key-copy btn btn-outline-dark btn-sm"
                                                 data-public_key="{{ result.cdnskey.public_key }}">
                                                 {% trans "Copy" %}
                                             </button>

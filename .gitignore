@@ -22,3 +22,4 @@ __pycache__/
 /webwhois/static/webwhois/css
 /webwhois/static/webwhois/js
 /node_modules
+/coverage-js
