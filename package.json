@@ -1,6 +1,6 @@
 {
   "name": "webwhois",
-  "version": "2.1.0-rc.1",
+  "version": "2.1.0-rc.2",
   "description": "Fred-webwhois is a Django application with the Whois service for the FRED registry system.",
   "scripts": {
     "build": "webpack --mode production",
