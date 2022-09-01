@@ -1,12 +1,13 @@
 {
   "name": "webwhois",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Fred-webwhois is a Django application with the Whois service for the FRED registry system.",
   "scripts": {
     "build": "webpack --mode production",
     "check-css": "stylelint assets/{**,}*.scss",
     "check-js": "eslint assets/**/*.js",
     "fix-js": "eslint --fix assets/js",
+    "test": "jest",
     "watch": "webpack --watch --mode development"
   },
   "repository": {
@@ -20,12 +21,14 @@
     "@babel/register": "^7.16.9",
     "autoprefixer": "^10.4.2",
     "babel-core": "^6.26.3",
+    "babel-jest": "^27.5.1",
     "babel-loader": "^8.2.3",
     "core-js": "^3.21.0",
     "css-loader": "^6.5.1",
     "eslint": "^8.7.0",
     "eslint-plugin-import": "^2.25.4",
     "file-loader": "^6.2.0",
+    "jest": "^27.5.1",
     "mini-css-extract-plugin": "^2.5.3",
     "postcss-loader": "^6.2.1",
     "sass": "^1.49.0",
@@ -48,5 +51,18 @@
     "last 20 version",
     "not dead",
     "iOS >= 9"
-  ]
+  ],
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "assets/js/**/*.js"
+    ],
+    "coverageDirectory": "coverage-js",
+    "coverageReporters": [
+      "text",
+      "text-summary",
+      "json-summary"
+    ],
+    "testEnvironment": "jsdom"
+  }
 }
