@@ -18,4 +18,4 @@
 
 """Web whois for FRED registry."""
 
-__version__ = '2.1.0-rc2'
+__version__ = '2.1.0'
