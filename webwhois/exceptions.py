@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2021  CZ.NIC, z. s. p. o.
+# Copyright (C) 2021-2022  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -17,7 +17,7 @@
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
 #
 import warnings
-from typing import Any
+from typing import Any, Optional
 
 _DEPRECATED_MSG = "Dictionary interface on 'server_exception' variable is deprecated. Use attributes instead."
 
@@ -31,7 +31,7 @@ class WebwhoisError(Exception):
         message: A human readable error message.
     """
 
-    def __init__(self, code: str, *, title: str, message: str = None, **kwargs):
+    def __init__(self, code: str, *, title: str, message: Optional[str] = None, **kwargs):
         self.code = code
         self.title = title
         self.message = message
