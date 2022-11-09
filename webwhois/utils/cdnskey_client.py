@@ -72,7 +72,7 @@ class CdnskeyClient(GrpcClient):
 
     grpc_service = 'Report'
 
-    def __init__(self, netloc: str, credentials: ChannelCredentials = None):
+    def __init__(self, netloc: str, credentials: Optional[ChannelCredentials] = None):
         """Initialize identity client.
 
         Arguments:
