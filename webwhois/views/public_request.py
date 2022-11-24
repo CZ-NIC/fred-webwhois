@@ -156,10 +156,11 @@ class PersonalInfoFormView(BaseContextMixin, PublicRequestFormView):
 class BlockUnblockFormView(PublicRequestFormView):
     """Block or Unblock object form view."""
 
-    form_class = None  # type: Type[Form]
-    block_action = None  # type: str
-    logging_lock_type = None  # type: Dict[str, str]
-    form_cleaned_data = None  # type: Dict[str, Any]
+    # XXX: Ignores are not great, but it doesn't change behaviour.
+    form_class: Type[Form] = None  # type: ignore[assignment]
+    block_action: str = None  # type: ignore[assignment]
+    logging_lock_type: Dict[str, str] = None  # type: ignore[assignment]
+    form_cleaned_data: Dict[str, Any] = None  # type: ignore[assignment]
 
     def _get_lock_type(self, key):
         raise NotImplementedError

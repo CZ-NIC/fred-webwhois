@@ -15,9 +15,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with FRED.  If not, see <https://www.gnu.org/licenses/>.
+#
 import random
 import warnings
-from typing import Any, Dict, Iterable, Optional, cast
+from typing import Any, Dict, Optional, cast
 
 from django.http import Http404, HttpResponse
 from django.utils.translation import gettext_lazy as _
@@ -102,7 +103,7 @@ class RegistrarListMixin(BaseContextMixin):
             groups = self.get_groups()
             if self.group_name not in groups:
                 raise Http404('Registrar group {} not found.'.format(self.group_name))
-            members = groups[self.group_name].members  # type: Iterable[str]
+            members = groups[self.group_name].members
             registrars = [r for r in registrars if r.handle in members]
         return registrars
 
